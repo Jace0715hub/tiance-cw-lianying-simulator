@@ -243,6 +243,63 @@ test("联合区段价值影子谱系只追加候选且保留基础束", () => {
   assert.equal(control.options.valueShadowPolicy, null);
 });
 
+test("联合区段价值探针同时记录参考后缀和真实跨区段后代", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const optimized = optimizeLianyingMultiSegmentResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      rowBeamWidth: 4,
+      boundaryBeamWidth: 2,
+      coreFinalistCount: 2,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 2,
+      fullDashStates: 4,
+      collectValueTrainingData: true,
+      valueProbeMaximumBaselineRank: 8,
+      valueProbeRowStride: 2,
+      valueProbeNextSegmentBeamWidth: 2,
+    },
+  );
+
+  const training = optimized.valueTraining;
+  assert.ok(training);
+  assert.ok(training.summary.rowProbeAttempts >= training.summary.rowProbeLegal);
+  assert.ok(training.summary.rowProbeLegal > 0);
+  assert.ok(training.summary.boundaryProbeAttempts > 0);
+  assert.ok(training.summary.boundaryProbeReferenceLegal > 0);
+  assert.ok(training.summary.boundaryActualRows > 0);
+  assert.ok(training.summary.boundaryNextSegmentProbeAttempts > 0);
+  assert.ok(training.summary.boundaryNextSegmentProbeLegal > 0);
+  assert.ok(training.summary.boundaryNextSegmentProbeExplored > 0);
+  assert.ok(training.rows.some((row) => row.traceId === "multi-row-reference"));
+  assert.ok(training.rows.some(
+    (row) => row.traceId === "multi-boundary-reference"));
+  const nextSegmentRows = training.rows.filter(
+    (row) => row.traceId === "multi-boundary-next-segment");
+  assert.ok(nextSegmentRows.length > 0);
+  const actualRows = training.rows.filter(
+    (row) => row.traceId === "multi-boundary-actual");
+  assert.ok(actualRows.length > 0);
+  assert.ok(training.rows.every((row) =>
+    Number.isFinite(row.bestFinalDamage) &&
+    Number.isFinite(row.remainingDamageResidual)));
+  assert.ok([...nextSegmentRows, ...actualRows].every((row) =>
+    String(row.labelKind).startsWith("actual-") &&
+    row.descendantOutcomeCount >= 1));
+  assert.equal(optimized.options.collectValueTrainingData, true);
+  assert.equal(optimized.options.valueProbeMaximumBaselineRank, 8);
+  assert.equal(optimized.options.valueProbeRowStride, 2);
+  assert.equal(optimized.options.valueProbeNextSegmentBeamWidth, 2);
+});
+
 test("三雷样例只漂移中间锚点并完成不降级复演", () => {
   const runtime = loadDefaultGearRuntime({ executePhase: true });
   const seed = searchWhitepaperLianying(runtime, {

@@ -11,6 +11,7 @@ import {
   lianyingDecisionTick,
   lianyingPackHasAction,
   lianyingResynthesisStateKey,
+  lianyingStateValueFeatures,
   selectLianyingResynthesisBeam,
   selectLianyingValueShadowCandidates,
   stripLianyingDashPacks,
@@ -55,6 +56,62 @@ function buildWarmStates(runtime, packs, endTick) {
 export function isLianyingThunderAnchorPackAllowed(pack, offset) {
   const hasThunder = lianyingPackHasAction(pack, "thunder");
   return offset === 0 ? hasThunder : !hasThunder;
+}
+
+function evaluateLianyingNextSegmentProbe(
+  runtime,
+  state,
+  sourcePacks,
+  { endTick, beamWidth = 2 } = {},
+) {
+  let nodes = [{ state, lineageId: "probe" }];
+  let explored = 0;
+  let legal = 0;
+  for (let offset = 0; offset < sourcePacks.length; offset += 1) {
+    const candidates = new Map();
+    for (const node of nodes) {
+      for (const pack of legalMechanicalLianyingPacks(
+        node.state,
+        runtime.config,
+      )) {
+        if (!isLianyingThunderAnchorPackAllowed(pack, offset)) continue;
+        explored += 1;
+        try {
+          const nextState = executeActionPack(
+            node.state,
+            pack,
+            runtime.config,
+            runtime.oracle,
+            { endTick },
+          );
+          legal += 1;
+          const key = lianyingResynthesisStateKey(nextState);
+          const current = candidates.get(key);
+          if (!current || nextState.totalDamage > current.state.totalDamage) {
+            candidates.set(key, { state: nextState, lineageId: "probe" });
+          }
+        } catch {
+          // 探针与正式搜索使用同一完整状态机过滤非法动作。
+        }
+      }
+    }
+    nodes = selectLianyingResynthesisBeam(
+      candidates.values(),
+      Math.max(1, Math.floor(Number(beamWidth))),
+      null,
+      null,
+    );
+    if (nodes.length === 0) break;
+  }
+  return {
+    legal: nodes.length > 0,
+    bestBoundaryDamage: nodes.length > 0
+      ? Math.max(...nodes.map((node) => node.state.totalDamage))
+      : null,
+    outcomeCount: nodes.length,
+    explored,
+    legalTransitions: legal,
+  };
 }
 
 export function lianyingAnchorDriftWindow(
@@ -686,6 +743,10 @@ export function optimizeLianyingMultiSegmentResynthesis(
     suffixRepairPenaltyRows = 1,
     boundaryDiagnosticCount = 3,
     valueShadowPolicy = null,
+    collectValueTrainingData = false,
+    valueProbeMaximumBaselineRank = 32,
+    valueProbeRowStride = 4,
+    valueProbeNextSegmentBeamWidth = 2,
     onProgress = null,
   } = {},
 ) {
@@ -717,13 +778,62 @@ export function optimizeLianyingMultiSegmentResynthesis(
   const warmStates = buildWarmStates(runtime, corePacks, endTick);
   let warmState = warmStates[firstAnchor];
   let warmGeneratedPacks = [];
-  let nodes = [{ state: warmState, packs: [], valueShadow: false }];
+  let nodes = [{
+    state: warmState,
+    packs: [],
+    valueShadow: false,
+    boundaryProbeIds: [],
+  }];
   let explored = 0;
   let legal = 0;
   let peakRowStates = 1;
   let valueShadowRows = 0;
   let valueShadowSelections = 0;
   let valueShadowBoundarySelections = 0;
+  const valueTrainingRows = [];
+  const boundaryValueProbes = new Map();
+  let nextValueProbeId = 0;
+  let rowProbeAttempts = 0;
+  let rowProbeLegal = 0;
+  let boundaryProbeAttempts = 0;
+  let boundaryProbeReferenceLegal = 0;
+  let boundaryNextSegmentProbeAttempts = 0;
+  let boundaryNextSegmentProbeLegal = 0;
+  let boundaryNextSegmentProbeExplored = 0;
+  let boundaryNextSegmentProbeLegalTransitions = 0;
+  const makeValueRow = (
+    node,
+    {
+      traceId,
+      segment,
+      globalRow,
+      baselineRank,
+      bestFinalDamage,
+      referenceDamage,
+      metadata = {},
+    },
+  ) => {
+    const bestRemainingDamage = Number(bestFinalDamage) -
+      Number(node.state.totalDamage);
+    const referenceRemainingDamage = coreBaseline.state.totalDamage -
+      Number(referenceDamage);
+    return {
+      traceId,
+      segmentId: segment.id,
+      durationSeconds: Number(durationSeconds),
+      layer: globalRow + 1,
+      globalRow: globalRow + 1,
+      baselineRank,
+      totalDamage: Number(node.state.totalDamage),
+      bestFinalDamage: Number(bestFinalDamage),
+      bestRemainingDamage,
+      referenceRemainingDamage,
+      remainingDamageResidual: bestRemainingDamage - referenceRemainingDamage,
+      descendantOutcomeCount: 1,
+      ...metadata,
+      ...lianyingStateValueFeatures(node.state, endTick),
+    };
+  };
   const segmentReports = [];
 
   for (let segmentIndex = 0; segmentIndex < identified.ranges.length; segmentIndex += 1) {
@@ -734,9 +844,12 @@ export function optimizeLianyingMultiSegmentResynthesis(
       lineageId: `${segmentIndex + 1}:${index + 1}`,
     }));
     const warmIncomingKey = lianyingResynthesisStateKey(warmState);
-    const warmLineageId = nodes.find(
+    const warmIncomingNode = nodes.find(
       (node) => lianyingResynthesisStateKey(node.state) === warmIncomingKey,
-    )?.lineageId ?? `${segmentIndex + 1}:warm`;
+    );
+    const warmLineageId = warmIncomingNode?.lineageId ??
+      `${segmentIndex + 1}:warm`;
+    const warmBoundaryProbeIds = warmIncomingNode?.boundaryProbeIds ?? [];
     const incomingStates = nodes.length;
     if (typeof onProgress === "function") {
       onProgress({
@@ -779,6 +892,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
               packs: [...node.packs, cloneLianyingPack(pack)],
               lineageId: node.lineageId,
               valueShadow: node.valueShadow === true,
+              boundaryProbeIds: node.boundaryProbeIds ?? [],
             };
             const key = lianyingResynthesisStateKey(state);
             addCandidate(candidates, key, candidate);
@@ -815,6 +929,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
         packs: warmGeneratedPacks,
         lineageId: warmLineageId,
         valueShadow: false,
+        boundaryProbeIds: warmBoundaryProbeIds,
       };
       addCandidate(candidates, warmKey, warmCandidate);
       addCandidate(baselineCandidates, warmKey, warmCandidate);
@@ -833,6 +948,54 @@ export function optimizeLianyingMultiSegmentResynthesis(
       if (shadowNodes.length > 0) valueShadowRows += 1;
       valueShadowSelections += shadowNodes.length;
       nodes = [...baselineNodes, ...shadowNodes];
+      const globalRow = segment.startIndex + offset;
+      const stride = Math.max(1, Math.floor(Number(valueProbeRowStride)));
+      if (
+        collectValueTrainingData &&
+        (globalRow - firstAnchor) % stride === 0
+      ) {
+        const baselineKeys = new Set(baselineNodes.map((node) =>
+          lianyingResynthesisStateKey(node.state)));
+        const shadowKeys = new Set(shadowNodes.map((node) =>
+          lianyingResynthesisStateKey(node.state)));
+        const ranked = [...candidates.values()]
+          .sort((left, right) =>
+            right.state.totalDamage - left.state.totalDamage)
+          .slice(0, Math.max(
+            1,
+            Math.floor(Number(valueProbeMaximumBaselineRank)),
+          ));
+        for (const [rankIndex, candidate] of ranked.entries()) {
+          rowProbeAttempts += 1;
+          const suffixValue = evaluateLianyingReferenceSuffixValue(
+            runtime,
+            candidate.state,
+            corePacks.slice(globalRow + 1),
+            warmStates,
+            globalRow + 1,
+            coreBaseline.state.totalDamage,
+            { endTick, averageRowDamage: 0, repairPenaltyRows: 0 },
+          );
+          if (!suffixValue.suffixLegal) continue;
+          rowProbeLegal += 1;
+          const key = lianyingResynthesisStateKey(candidate.state);
+          valueTrainingRows.push(makeValueRow(candidate, {
+            traceId: "multi-row-reference",
+            segment,
+            globalRow,
+            baselineRank: rankIndex + 1,
+            bestFinalDamage: suffixValue.projectedFinalDamage,
+            referenceDamage: warmStates[globalRow + 1].totalDamage,
+            metadata: {
+              labelKind: "reference-suffix",
+              selectionStage: "row",
+              selectedByBaselineBeam: Number(baselineKeys.has(key)),
+              selectedByValueShadow: Number(shadowKeys.has(key)),
+              lineageId: candidate.lineageId,
+            },
+          }));
+        }
+      }
       peakRowStates = Math.max(peakRowStates, nodes.length);
       if (nodes.length === 0) {
         throw new Error(`${segment.id}第${offset + 1}行没有合法联合搜索状态`);
@@ -863,6 +1026,39 @@ export function optimizeLianyingMultiSegmentResynthesis(
         ),
       }));
     }
+    const boundaryProbeEntries = [];
+    if (collectValueTrainingData) {
+      const ranked = [...nodes].sort((left, right) =>
+        right.state.totalDamage - left.state.totalDamage);
+      const rankByNode = new Map(ranked.map((node, index) => [node, index + 1]));
+      nodes = nodes.map((node) => {
+        boundaryProbeAttempts += 1;
+        const probeId = nextValueProbeId;
+        nextValueProbeId += 1;
+        const record = {
+          probeId,
+          node,
+          segment,
+          globalRow: segment.endIndex - 1,
+          baselineRank: rankByNode.get(node),
+          referenceDamage: warmState.totalDamage,
+          referenceFinalDamage: node.suffixValue?.suffixLegal
+            ? node.suffixValue.projectedFinalDamage
+            : null,
+          nextSegmentBestBoundaryDamage: Number.NEGATIVE_INFINITY,
+          nextSegmentReferenceDamage: null,
+          nextSegmentOutcomeCount: 0,
+          actualBestFinalDamage: Number.NEGATIVE_INFINITY,
+          actualOutcomeCount: 0,
+        };
+        boundaryValueProbes.set(probeId, record);
+        boundaryProbeEntries.push(record);
+        return {
+          ...node,
+          boundaryProbeIds: [...(node.boundaryProbeIds ?? []), probeId],
+        };
+      });
+    }
     const warmKey = lianyingResynthesisStateKey(warmState);
     const baselineBoundary = selectLianyingJointBoundaryNodes(
       nodes.filter((node) => node.valueShadow !== true),
@@ -882,6 +1078,63 @@ export function optimizeLianyingMultiSegmentResynthesis(
     ).map((node) => ({ ...node, valueShadow: true }));
     valueShadowBoundarySelections += boundaryShadowNodes.length;
     nodes = [...baselineBoundary.nodes, ...boundaryShadowNodes];
+    if (collectValueTrainingData) {
+      const baselineKeys = new Set(baselineBoundary.nodes.map((node) =>
+        lianyingResynthesisStateKey(node.state)));
+      const shadowKeys = new Set(boundaryShadowNodes.map((node) =>
+        lianyingResynthesisStateKey(node.state)));
+      for (const record of boundaryProbeEntries) {
+        const key = lianyingResynthesisStateKey(record.node.state);
+        record.selectedByBaselineBeam = Number(baselineKeys.has(key));
+        record.selectedByValueShadow = Number(shadowKeys.has(key));
+        if (!Number.isFinite(record.referenceFinalDamage)) continue;
+        boundaryProbeReferenceLegal += 1;
+        valueTrainingRows.push(makeValueRow(record.node, {
+          traceId: "multi-boundary-reference",
+          segment: record.segment,
+          globalRow: record.globalRow,
+          baselineRank: record.baselineRank,
+          bestFinalDamage: record.referenceFinalDamage,
+          referenceDamage: record.referenceDamage,
+          metadata: {
+            labelKind: "reference-suffix",
+            selectionStage: "boundary",
+            selectedByBaselineBeam: Number(baselineKeys.has(key)),
+            selectedByValueShadow: Number(shadowKeys.has(key)),
+            lineageId: record.node.lineageId,
+          },
+        }));
+      }
+      const nextSegment = identified.ranges[segmentIndex + 1];
+      if (nextSegment) {
+        const nextSource = corePacks.slice(
+          nextSegment.startIndex,
+          nextSegment.endIndex,
+        );
+        for (const record of boundaryProbeEntries) {
+          boundaryNextSegmentProbeAttempts += 1;
+          const probe = evaluateLianyingNextSegmentProbe(
+            runtime,
+            record.node.state,
+            nextSource,
+            {
+              endTick,
+              beamWidth: valueProbeNextSegmentBeamWidth,
+            },
+          );
+          boundaryNextSegmentProbeExplored += probe.explored;
+          boundaryNextSegmentProbeLegalTransitions += probe.legalTransitions;
+          if (!probe.legal) continue;
+          boundaryNextSegmentProbeLegal += 1;
+          record.nextSegmentBestBoundaryDamage = probe.bestBoundaryDamage;
+          record.nextSegmentOutcomeCount = probe.outcomeCount;
+          record.nextSegmentProbeExplored = probe.explored;
+          record.nextSegmentProbeLegalTransitions = probe.legalTransitions;
+          record.nextSegmentReferenceDamage =
+            warmStates[nextSegment.endIndex].totalDamage;
+        }
+      }
+    }
     const diagnostics = buildBoundaryDiagnostics(
       nodes,
       warmState,
@@ -952,6 +1205,17 @@ export function optimizeLianyingMultiSegmentResynthesis(
       const replay = replayWhitepaperLianying(runtime, candidatePacks, {
         durationSeconds,
       });
+      if (collectValueTrainingData) {
+        for (const probeId of node.boundaryProbeIds ?? []) {
+          const probe = boundaryValueProbes.get(probeId);
+          if (!probe) continue;
+          probe.actualBestFinalDamage = Math.max(
+            probe.actualBestFinalDamage,
+            replay.state.totalDamage,
+          );
+          probe.actualOutcomeCount += 1;
+        }
+      }
       addCoreCandidate({
         packs: candidatePacks,
         coreDamage: replay.state.totalDamage,
@@ -967,6 +1231,51 @@ export function optimizeLianyingMultiSegmentResynthesis(
     coreCandidatesByPath.values(),
     coarseCandidateLimit,
   );
+  if (collectValueTrainingData) {
+    for (const probe of boundaryValueProbes.values()) {
+      if (Number.isFinite(probe.nextSegmentBestBoundaryDamage)) {
+        const projectedFinalDamage = probe.nextSegmentBestBoundaryDamage +
+          (coreBaseline.state.totalDamage -
+            Number(probe.nextSegmentReferenceDamage));
+        valueTrainingRows.push(makeValueRow(probe.node, {
+          traceId: "multi-boundary-next-segment",
+          segment: probe.segment,
+          globalRow: probe.globalRow,
+          baselineRank: probe.baselineRank,
+          bestFinalDamage: projectedFinalDamage,
+          referenceDamage: probe.referenceDamage,
+          metadata: {
+            labelKind: "actual-next-segment",
+            selectionStage: "boundary",
+            selectedByBaselineBeam: probe.selectedByBaselineBeam,
+            selectedByValueShadow: probe.selectedByValueShadow,
+            lineageId: probe.node.lineageId,
+            descendantOutcomeCount: probe.nextSegmentOutcomeCount,
+            probeBeamWidth: Number(valueProbeNextSegmentBeamWidth),
+            probeExplored: probe.nextSegmentProbeExplored,
+            probeLegalTransitions: probe.nextSegmentProbeLegalTransitions,
+          },
+        }));
+      }
+      if (!Number.isFinite(probe.actualBestFinalDamage)) continue;
+      valueTrainingRows.push(makeValueRow(probe.node, {
+        traceId: "multi-boundary-actual",
+        segment: probe.segment,
+        globalRow: probe.globalRow,
+        baselineRank: probe.baselineRank,
+        bestFinalDamage: probe.actualBestFinalDamage,
+        referenceDamage: probe.referenceDamage,
+        metadata: {
+          labelKind: "actual-full-descendant",
+          selectionStage: "boundary",
+          selectedByBaselineBeam: probe.selectedByBaselineBeam,
+          selectedByValueShadow: probe.selectedByValueShadow,
+          lineageId: probe.node.lineageId,
+          descendantOutcomeCount: probe.actualOutcomeCount,
+        },
+      }));
+    }
+  }
   const valueShadowCoreCandidates = [...coreCandidatesByPath.values()].filter(
     (candidate) => candidate.valueShadow === true);
   const coarseCandidates = selectedCore.map((candidate, index) => {
@@ -1059,6 +1368,28 @@ export function optimizeLianyingMultiSegmentResynthesis(
     valueShadowRows,
     valueShadowSelections,
     valueShadowBoundarySelections,
+    valueTraining: collectValueTrainingData
+      ? {
+          rows: valueTrainingRows,
+          summary: {
+            rowCount: valueTrainingRows.length,
+            rowProbeAttempts,
+            rowProbeLegal,
+            boundaryProbeAttempts,
+            boundaryProbeReferenceLegal,
+            boundaryNextSegmentProbeAttempts,
+            boundaryNextSegmentProbeLegal,
+            boundaryNextSegmentProbeExplored,
+            boundaryNextSegmentProbeLegalTransitions,
+            boundaryActualRows: valueTrainingRows.filter(
+              (row) => String(row.labelKind).startsWith("actual-")).length,
+            boundaryNextSegmentRows: valueTrainingRows.filter(
+              (row) => row.labelKind === "actual-next-segment").length,
+            boundaryFullDescendantRows: valueTrainingRows.filter(
+              (row) => row.labelKind === "actual-full-descendant").length,
+          },
+        }
+      : null,
     coarseCandidates: coarseCandidates.map((candidate) => ({
       isIncumbent: candidate.isIncumbent,
       valueShadow: candidate.valueShadow === true,
@@ -1089,6 +1420,10 @@ export function optimizeLianyingMultiSegmentResynthesis(
             modelTrainingRows: valueShadowPolicy.model?.trainingRows ?? null,
           }
         : null,
+      collectValueTrainingData,
+      valueProbeMaximumBaselineRank,
+      valueProbeRowStride,
+      valueProbeNextSegmentBeamWidth,
     },
   };
 }

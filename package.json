@@ -32,6 +32,7 @@
     "optimize:joint-drift": "node tools/optimize-lianying-joint-drift.mjs",
     "optimize:adaptive-suffix": "node tools/optimize-lianying-joint-drift.mjs --adaptive",
     "collect:value-data": "node tools/collect-lianying-value-data.mjs",
+    "collect:multisegment-value-data": "node tools/collect-lianying-multisegment-value-data.mjs",
     "generate:value-seeds": "node tools/generate-lianying-value-seeds.mjs",
     "evaluate:value-model": "node tools/evaluate-lianying-value-model.mjs",
     "refresh:golden": "node tools/extract-excel-reference.mjs",

@@ -72,6 +72,7 @@ npm run optimize:crossover-joint-bridge-portfolio
 npm run optimize:joint-drift
 npm run optimize:adaptive-suffix
 npm run collect:value-data -- portfolio screen
+npm run collect:multisegment-value-data -- portfolio sample
 npm run collect:value-data -- output/value-seeds-screen/manifest.json pruning-screen output/value-pruning-screen
 npm run evaluate:value-model -- output/value-pruning-screen.jsonl output/value-pruning-screen-beam-shadow beam-shadow
 npm run refresh:gear -- /path/to/TianCe /path/to/gear-scheme.json
@@ -226,6 +227,8 @@ M5.3现已具备第一版离线状态价值数据采集。`npm run collect:value
 剪枝探针的八折严格嵌套验证中，“即时前5+价值1”相对即时前6名将优解召回从94.48%提高到99.61%，平均遗憾从434,905降到11,945，8/8折改善且无回退。第一轮fast在线影子实验保持原16槽基础谱系，最多追加1槽：展开/合法转移由31,296/22,203增至32,856/23,238，完整合法核心候选由59增至61，约5%额外搜索成本；新候选尚未超过当前最优，最终总DPS仍为14,590,381.15且零违规。模型因此保持显式可选实验，不替代默认搜索。
 
 价值策略现也可传入`optimize:adaptive-suffix`（使用`--value-policy=<JSON>`）和`optimize:multisegments`。自适应后缀screen实验以约2.2%额外转移找回2条完整合法核心候选，但最佳候选仍低当前最优3,926,855.87。七区段fast联合实验以约3.7%额外转移让一个影子谱系跨过全部7个边界，最终核心伤害低基线5,425,203.92；balanced基础束已覆盖模型的前12名门控，影子槽几乎完全冗余。下一轮将按联合逐行束和边界压缩的真实分布重新采样，不再无依据扩大束宽。
+
+联合搜索专用采集现由`collect:multisegment-value-data`完成，默认关闭且不改变正式束。它一方面在逐行剪枝前抽取即时伤害第1至16/32名并统一重放参考后缀，另一方面让每个区段边界剪枝前候选用独立小束完成下一整个雷区段，直接标注“若保留此状态，下一段最佳实际收益”。八轴sample得到576条下一段标签；在真实12选6预算下，即时伤害前6名召回81.25%、平均遗憾1,522,513，改为即时前5+线性价值1后为97.92%和154,907。8个外层来源中6个改善、2个持平、0个退化；现有要求8/8折均严格改善的部署门控仍拒绝启用，因此它仍是离线证据而非默认策略。下一步运行覆盖第12至32名的screen采集，再决定是否调整边界价值特征或门控，不直接上线sample模型。
 
 旧的 `report:optimized`、`report:thunder`、`report:binding`、`report:ride`、`report:joint` 保留为历史搜索实验与回归工具。它们基于 Excel 固定行骨架，不再用来判断白皮书约束下的橙武连营最终强度。
 

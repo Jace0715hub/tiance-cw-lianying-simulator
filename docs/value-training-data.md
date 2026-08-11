@@ -13,6 +13,9 @@ npm run collect:value-data -- portfolio screen
 npm run evaluate:value-model -- output/lianying-value-portfolio-screen.jsonl
 npm run collect:value-data -- output/value-seeds-screen/manifest.json pruning-screen output/value-pruning-screen
 npm run evaluate:value-model -- output/value-pruning-screen.jsonl output/value-pruning-screen-beam-shadow beam-shadow
+npm run collect:multisegment-value-data -- current sample
+npm run collect:multisegment-value-data -- portfolio sample output/lianying-multisegment-value-portfolio-sample
+npm run evaluate:value-model -- output/lianying-multisegment-value-portfolio-sample-actual.jsonl output/lianying-multisegment-value-portfolio-sample-actual-ridge beam-shadow
 ```
 
 参数一为技能轴路径，`-`表示当前180秒最优轴，`portfolio`表示状态价值专用的八条结构跨度种子，也可传逗号分隔的自定义轴或近优种子清单；参数二为`sample`、`screen`或`pruning-screen`；参数三可指定输出文件前缀。多种子数据按完整来源轴划分，单轴数据按轨迹划分。命令输出：
@@ -24,6 +27,21 @@ npm run evaluate:value-model -- output/value-pruning-screen.jsonl output/value-p
 `pruning-screen`与旧的决赛祖先数据用途不同：它在每层束剪枝前取即时伤害前12名，逐一沿来源轴的统一参考后缀重放，只给完整合法候选贴标签。输出中的`baselineRank`表示剪枝前即时伤害名次，`selectedByBeam`表示原基础束是否保留该状态。该模式用于评估真实剪枝边界，不用于替代完整重合成。
 
 `evaluate:value-model`的第四个参数传`beam-shadow`时，按基础5槽+价值1槽对比同预算即时伤害前6名，并把逐轴外层留出、内层逐来源验证全部通过的策略写入`*-policy.json`。未通过门控的策略会写成`enabled: false`，`optimize:segments`会拒绝加载。
+
+### 联合区段专用探针
+
+`collect:multisegment-value-data`复用同一特征、残差和来源轴隔离规则，但标签与单区段决赛祖先不同。`sample`使用逐行束12、边界束6，每8行探测即时伤害前16名；`screen`使用逐行束32、边界束12，每4行探测前32名。所有额外工作只在`collectValueTrainingData`显式开启时发生，不进入正式联合搜索候选。
+
+该命令同时生成四套文件：
+
+- 主文件包含全部探针，供统一审计；
+- `*-reference`包含逐行与边界的统一参考后缀标签；
+- `*-actual`只包含每个边界剪枝前状态经独立小束完成下一整个雷区段后的实际收益，是边界价值模型的主要训练输入；
+- `*-full-descendant`只记录最终决赛谱系的180秒回传，样本稀疏，单独作为诊断，不与下一段标签混训。
+
+下一段探针从候选的完整状态出发，固定下一雷区段首行开雷，使用同一机制动作空间和状态机完成全部主要技能；局部束不会写回正式联合搜索。因此它可以给边界第7名之后的候选贴标签，又不会因为额外探针改变原搜索路径。标签先计算下一段相对参考轴的真实伤害差，再把参考尾部作为共同常数补齐到`bestFinalDamage`字段；用于候选排序的`remainingDamageResidual`等价于“该状态下一段最佳新增伤害减去参考轴同段新增伤害”。
+
+八来源轴sample共完成576/576个合法下一段探针，额外展开207,840次只读标签转移；训练/验证/测试按来源轴得到432/72/72条记录。即时伤害前6名的已知优解召回为81.25%，平均遗憾1,522,513；同预算“即时前5+线性价值1”提高到97.92%，平均遗憾降至154,907。嵌套外层8折中6折改善、2折持平、0折退化，但当前部署门控还要求8/8折都严格改善，故生成策略仍为`enabled: false`。该结果证明标签有价值信号，不足以直接上线；下一步应执行前32名screen并检查结论是否稳定。
 
 ## 节点与标签
 
@@ -65,4 +83,4 @@ centeredRemainingDamageResidual = remainingDamageResidual - 同一轨迹同一�
 
 当前八种子screen覆盖56条轨迹、462个合法完整后代和4,099条有标签节点，来源核心结构相对现最优约相差0至79行。无严格门控时，等预算召回由89.27%提高到91.26%，7/8折有局部改善；但平均遗憾由324,156升至380,368，说明最远结构轴存在高损失误选。嵌套严格门控在8个外层折全部选择基线回退，最终指标与即时伤害前2名完全一致。模型尚不具备在线替换资格。
 
-下一步应优先生成“与当前最优同质量、但由失败修复、资源复合邻域和不同雷谱系得到”的新轴，而不是继续加入伤害明显较低的历史白皮书轴；之后仍按同一嵌套门槛比较已知优解召回率、完整后缀合法率、最终最佳伤害和运行时间。
+单区段数据仍应优先生成“与当前最优同质量、但由失败修复、资源复合邻域和不同雷谱系得到”的新轴；联合区段数据则优先扩大到第12至32名并提高下一段探针束宽。两类标签保持分开评估，仍按同一嵌套门槛比较已知优解召回率、完整后缀合法率、最终最佳伤害和运行时间。
