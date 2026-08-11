@@ -122,8 +122,7 @@
         {
           "id": "dismount",
           "reason": "refresh-ride"
-        },
-        "dash"
+        }
       ],
       "primary": "ride",
       "tail": [
@@ -145,7 +144,12 @@
     },
     {
       "prefix": [
-        "charge"
+        "charge",
+        {
+          "id": "dismount",
+          "reason": "free-search"
+        },
+        "dash"
       ],
       "primary": "dragonFang",
       "tail": []
@@ -208,12 +212,7 @@
     {
       "prefix": [],
       "primary": "dragonFang",
-      "tail": [
-        {
-          "id": "dash",
-          "leadFrames": 1
-        }
-      ]
+      "tail": []
     },
     {
       "prefix": [],
@@ -228,7 +227,12 @@
     {
       "prefix": [],
       "primary": "destroy",
-      "tail": []
+      "tail": [
+        {
+          "id": "dash",
+          "leadFrames": 1
+        }
+      ]
     },
     {
       "prefix": [],
@@ -862,1465 +866,2907 @@
   "search": {
     "beamWidth": 32,
     "policyMode": "free",
-    "exploredTransitions": 48064,
-    "legalTransitions": 37633,
+    "exploredTransitions": 31176,
+    "legalTransitions": 22241,
     "warmStarted": true,
-    "warmStartCount": 4,
+    "warmStartCount": 1,
     "warmStartDamages": [
-      2536925095.9466968,
-      2532692859.8492317,
-      2530701836.6644096,
-      2530394488.1575246
+      2537719560.834406
     ],
-    "warmStartDamage": 2536925095.9466968,
-    "damageGainOverWarmStart": 794464.8877091408,
+    "warmStartDamage": 2537719560.834406,
+    "damageGainOverWarmStart": 2194818.5624494553,
     "telemetry": null,
     "referenceOptimization": null,
     "axisOptimization": {
-      "kind": "crossover-joint-bridge-portfolio",
-      "profile": "joint-fast",
+      "kind": "segment-resynthesis",
+      "profile": "fast",
       "accepted": true,
-      "baselineDamage": 2536925095.9466968,
-      "damageGain": 794464.8877091408,
-      "inputCandidateCount": 11,
-      "selectedCandidateCount": 4,
-      "bestRunIndex": 1,
-      "bestAlternativeRunIndex": 1,
-      "candidateRun": null,
-      "runs": [
-        {
-          "index": 1,
-          "prefixSeedId": "2:lianying-free-fixed-180s-adaptive-suffix-screen",
-          "suffixSeedId": "1:lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-          "anchorNumber": 3,
-          "boundaryRow": 38,
-          "boundaryDistance": 32,
-          "exactBoundaryState": false,
-          "coarseDamage": 2536619715.718432,
-          "normalizedDamage": 2536619715.718432,
-          "normalizedGap": -305380.22826480865,
-          "bridgedDamage": 2537719560.834406,
-          "bridgeDamageGain": 1099845.1159739494,
-          "globalDamageGain": 794464.8877091408,
-          "dashCount": 8,
-          "segmentIds": [
-            "joint-thunder-2-to-4"
-          ],
-          "explored": 11044,
-          "legal": 8735,
-          "passes": [
-            {
-              "pass": 1,
-              "anchors": [
-                3,
-                20,
-                38,
-                59,
-                80,
-                105,
-                128
-              ],
-              "segments": [
-                {
-                  "id": "joint-thunder-2-to-4",
-                  "kind": "joint-crossover-bridge",
-                  "startIndex": 19,
-                  "endIndex": 64,
-                  "rowCount": 45,
-                  "startThunderNumber": 2,
-                  "crossoverThunderNumber": 3,
-                  "endThunderNumber": 4,
-                  "sourceSegmentIds": [
-                    "thunder-2-to-3",
-                    "thunder-3-to-4"
-                  ],
-                  "anchorEndIndex": 58,
-                  "boundaryPaddingRowsApplied": 6,
-                  "initialEndIndex": 64,
-                  "explored": 11044,
-                  "legal": 8735,
-                  "peakStates": 32,
-                  "finalists": 8,
-                  "warmStartCount": 1,
-                  "terminalThunderLineages": [],
-                  "suffixLegal": 4,
-                  "suffixLegalThunderSchedules": [
-                    [
-                      3,
-                      20,
-                      38,
-                      59,
-                      80,
-                      105,
-                      128
-                    ]
-                  ],
-                  "suffixAttempts": [
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 73,
-                      "failureRow": 74,
-                      "failure": "龙牙需要1点战意，当前只有0点",
-                      "failureState": {
-                        "rage": 0,
-                        "dragonRideStacks": 0,
-                        "mounted": true,
-                        "tick": 1422040
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 81,
-                      "failureRow": 82,
-                      "failure": "charge尚有17.36帧冷却",
-                      "failureState": {
-                        "rage": 0,
-                        "dragonRideStacks": 0,
-                        "mounted": true,
-                        "tick": 1577880
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 73,
-                      "failureRow": 74,
-                      "failure": "龙牙需要1点战意，当前只有0点",
-                      "failureState": {
-                        "rage": 0,
-                        "dragonRideStacks": 13,
-                        "mounted": false,
-                        "tick": 1422040
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 81,
-                      "failureRow": 82,
-                      "failure": "断魂刺只能在马上施展",
-                      "failureState": {
-                        "rage": 0,
-                        "dragonRideStacks": 20,
-                        "mounted": false,
-                        "tick": 1577880
-                      }
-                    }
-                  ],
-                  "excludedCoreCandidates": 0,
-                  "suffixFailureReasons": {
-                    "龙牙需要1点战意，当前只有0点": 2,
-                    "charge尚有17.36帧冷却": 1,
-                    "断魂刺只能在马上施展": 1
-                  },
-                  "adaptiveSuffixRepair": false,
-                  "adaptiveSuffixExpansions": 0,
-                  "adaptiveAttempts": [
-                    {
-                      "attempt": 0,
-                      "startRow": 20,
-                      "endRow": 64,
-                      "rowCount": 45,
-                      "explored": 11044,
-                      "legal": 8735,
-                      "finalists": 8,
-                      "suffixLegal": 4,
-                      "suffixFailures": 4,
-                      "driftedSuffixFailures": 0,
-                      "firstFailureRow": 74,
-                      "nextEndRow": null
-                    }
-                  ],
-                  "sourceThunderSchedule": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "coreCandidates": 5,
-              "coarseCandidates": [
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": 674886.0654206276,
-                  "totalDamage": 2537719560.834406,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "incumbent",
-                  "coreDamageGain": 0,
-                  "totalDamage": 2536619715.718432,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": 81893.9163684845,
-                  "totalDamage": 2537126568.685354,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": -2124401.7384705544,
-                  "totalDamage": 2534495313.979961,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": -6957257.512523174,
-                  "totalDamage": 2529662458.205909,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "bestSegmentId": "joint-thunder-2-to-4",
-              "damageGain": 1099845.1159739494
-            }
-          ]
-        },
-        {
-          "index": 2,
-          "prefixSeedId": "4:lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative",
-          "suffixSeedId": "1:lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-          "anchorNumber": 2,
-          "boundaryRow": 20,
-          "boundaryDistance": 39.480000000000004,
-          "exactBoundaryState": false,
-          "coarseDamage": 2536585973.7290487,
-          "normalizedDamage": 2536585973.7290487,
-          "normalizedGap": -339122.2176480293,
-          "bridgedDamage": 2536585973.7290487,
-          "bridgeDamageGain": 0,
-          "globalDamageGain": -339122.2176480293,
-          "dashCount": 8,
-          "segmentIds": [
-            "joint-thunder-1-to-3"
-          ],
-          "explored": 13260,
-          "legal": 10606,
-          "passes": [
-            {
-              "pass": 1,
-              "anchors": [
-                3,
-                20,
-                38,
-                59,
-                80,
-                105,
-                128
-              ],
-              "segments": [
-                {
-                  "id": "joint-thunder-1-to-3",
-                  "kind": "joint-crossover-bridge",
-                  "startIndex": 2,
-                  "endIndex": 43,
-                  "rowCount": 41,
-                  "startThunderNumber": 1,
-                  "crossoverThunderNumber": 2,
-                  "endThunderNumber": 3,
-                  "sourceSegmentIds": [
-                    "thunder-1-to-2",
-                    "thunder-2-to-3"
-                  ],
-                  "anchorEndIndex": 37,
-                  "boundaryPaddingRowsApplied": 6,
-                  "initialEndIndex": 43,
-                  "explored": 13260,
-                  "legal": 10606,
-                  "peakStates": 32,
-                  "finalists": 8,
-                  "warmStartCount": 1,
-                  "terminalThunderLineages": [],
-                  "suffixLegal": 3,
-                  "suffixLegalThunderSchedules": [
-                    [
-                      3,
-                      20,
-                      38,
-                      59,
-                      80,
-                      105,
-                      128
-                    ]
-                  ],
-                  "suffixAttempts": [
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 43,
-                      "failureRow": 44,
-                      "failure": "destroy尚有34.08帧冷却",
-                      "failureState": {
-                        "rage": 2,
-                        "dragonRideStacks": 0,
-                        "mounted": true,
-                        "tick": 837640
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 43,
-                      "failureRow": 44,
-                      "failure": "destroy尚有34.08帧冷却",
-                      "failureState": {
-                        "rage": 2,
-                        "dragonRideStacks": 1,
-                        "mounted": false,
-                        "tick": 837640
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 43,
-                      "failureRow": 44,
-                      "failure": "destroy尚有53.56帧冷却",
-                      "failureState": {
-                        "rage": 3,
-                        "dragonRideStacks": 0,
-                        "mounted": true,
-                        "tick": 837640
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 43,
-                      "failureRow": 44,
-                      "failure": "destroy尚有53.56帧冷却",
-                      "failureState": {
-                        "rage": 3,
-                        "dragonRideStacks": 1,
-                        "mounted": false,
-                        "tick": 837640
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 43,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 43,
-                      "failureRow": 44,
-                      "failure": "destroy尚有14.6帧冷却",
-                      "failureState": {
-                        "rage": 1,
-                        "dragonRideStacks": 0,
-                        "mounted": true,
-                        "tick": 837640
-                      }
-                    }
-                  ],
-                  "excludedCoreCandidates": 0,
-                  "suffixFailureReasons": {
-                    "destroy尚有34.08帧冷却": 2,
-                    "destroy尚有53.56帧冷却": 2,
-                    "destroy尚有14.6帧冷却": 1
-                  },
-                  "adaptiveSuffixRepair": false,
-                  "adaptiveSuffixExpansions": 0,
-                  "adaptiveAttempts": [
-                    {
-                      "attempt": 0,
-                      "startRow": 3,
-                      "endRow": 43,
-                      "rowCount": 41,
-                      "explored": 13260,
-                      "legal": 10606,
-                      "finalists": 8,
-                      "suffixLegal": 3,
-                      "suffixFailures": 5,
-                      "driftedSuffixFailures": 0,
-                      "firstFailureRow": 44,
-                      "nextEndRow": null
-                    }
-                  ],
-                  "sourceThunderSchedule": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "coreCandidates": 4,
-              "coarseCandidates": [
-                {
-                  "segmentId": "incumbent",
-                  "coreDamageGain": 0,
-                  "totalDamage": 2536585973.7290487,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-1-to-3",
-                  "coreDamageGain": 0,
-                  "totalDamage": 2536585973.7290487,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-1-to-3",
-                  "coreDamageGain": -12598499.11716652,
-                  "totalDamage": 2523987474.6118813,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-1-to-3",
-                  "coreDamageGain": -12598499.11716652,
-                  "totalDamage": 2523987474.6118813,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "bestSegmentId": "incumbent",
-              "damageGain": 0
-            }
-          ]
-        },
-        {
-          "index": 3,
-          "prefixSeedId": "3:lianying-free-fixed-180s-segments-balanced",
-          "suffixSeedId": "1:lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-          "anchorNumber": 6,
-          "boundaryRow": 105,
-          "boundaryDistance": 48,
-          "exactBoundaryState": false,
-          "coarseDamage": 2528211166.8079777,
-          "normalizedDamage": 2528211166.8079777,
-          "normalizedGap": -8713929.138719082,
-          "bridgedDamage": 2530701836.6644096,
-          "bridgeDamageGain": 2490669.856431961,
-          "globalDamageGain": -6223259.282287121,
-          "dashCount": 9,
-          "segmentIds": [
-            "joint-thunder-5-to-7"
-          ],
-          "explored": 12660,
-          "legal": 9513,
-          "passes": [
-            {
-              "pass": 1,
-              "anchors": [
-                3,
-                20,
-                38,
-                59,
-                80,
-                105,
-                128
-              ],
-              "segments": [
-                {
-                  "id": "joint-thunder-5-to-7",
-                  "kind": "joint-crossover-bridge",
-                  "startIndex": 79,
-                  "endIndex": 133,
-                  "rowCount": 54,
-                  "startThunderNumber": 5,
-                  "crossoverThunderNumber": 6,
-                  "endThunderNumber": 7,
-                  "sourceSegmentIds": [
-                    "thunder-5-to-6",
-                    "thunder-6-to-7"
-                  ],
-                  "anchorEndIndex": 127,
-                  "boundaryPaddingRowsApplied": 6,
-                  "initialEndIndex": 133,
-                  "explored": 12660,
-                  "legal": 9513,
-                  "peakStates": 32,
-                  "finalists": 8,
-                  "warmStartCount": 1,
-                  "terminalThunderLineages": [],
-                  "suffixLegal": 6,
-                  "suffixLegalThunderSchedules": [
-                    [
-                      3,
-                      20,
-                      38,
-                      59,
-                      80,
-                      105,
-                      128
-                    ]
-                  ],
-                  "suffixAttempts": [
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 140,
-                      "failureRow": 141,
-                      "failure": "断魂刺只能在马上施展",
-                      "failureState": {
-                        "rage": 3,
-                        "dragonRideStacks": 17,
-                        "mounted": false,
-                        "tick": 2727200
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 140,
-                      "failureRow": 141,
-                      "failure": "断魂刺只能在马上施展",
-                      "failureState": {
-                        "rage": 3,
-                        "dragonRideStacks": 19,
-                        "mounted": false,
-                        "tick": 2727200
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 133,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    }
-                  ],
-                  "excludedCoreCandidates": 0,
-                  "suffixFailureReasons": {
-                    "断魂刺只能在马上施展": 2
-                  },
-                  "adaptiveSuffixRepair": false,
-                  "adaptiveSuffixExpansions": 0,
-                  "adaptiveAttempts": [
-                    {
-                      "attempt": 0,
-                      "startRow": 80,
-                      "endRow": 133,
-                      "rowCount": 54,
-                      "explored": 12660,
-                      "legal": 9513,
-                      "finalists": 8,
-                      "suffixLegal": 6,
-                      "suffixFailures": 2,
-                      "driftedSuffixFailures": 0,
-                      "firstFailureRow": 141,
-                      "nextEndRow": null
-                    }
-                  ],
-                  "sourceThunderSchedule": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "coreCandidates": 7,
-              "coarseCandidates": [
-                {
-                  "segmentId": "joint-thunder-5-to-7",
-                  "coreDamageGain": 2915628.906984329,
-                  "totalDamage": 2530701836.6644096,
-                  "dashCount": 9,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "incumbent",
-                  "coreDamageGain": 0,
-                  "totalDamage": 2528211166.8079777,
-                  "dashCount": 9,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-5-to-7",
-                  "coreDamageGain": 2303235.317327976,
-                  "totalDamage": 2530089443.0747523,
-                  "dashCount": 9,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-5-to-7",
-                  "coreDamageGain": 0,
-                  "totalDamage": 2528211166.8079777,
-                  "dashCount": 9,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-5-to-7",
-                  "coreDamageGain": -612393.589656353,
-                  "totalDamage": 2527598773.218321,
-                  "dashCount": 9,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-5-to-7",
-                  "coreDamageGain": -11841597.372104168,
-                  "totalDamage": 2515944610.38532,
-                  "dashCount": 9,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-5-to-7",
-                  "coreDamageGain": -18496337.616416454,
-                  "totalDamage": 2509714829.191561,
-                  "dashCount": 9,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "bestSegmentId": "joint-thunder-5-to-7",
-              "damageGain": 2490669.856431961
-            }
-          ]
-        },
-        {
-          "index": 4,
-          "prefixSeedId": "1:lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-          "suffixSeedId": "2:lianying-free-fixed-180s-adaptive-suffix-screen",
-          "anchorNumber": 3,
-          "boundaryRow": 38,
-          "boundaryDistance": 32,
-          "exactBoundaryState": false,
-          "coarseDamage": 2532998240.0774965,
-          "normalizedDamage": 2532998240.0774965,
-          "normalizedGap": -3926855.8692002296,
-          "bridgedDamage": 2536490624.315382,
-          "bridgeDamageGain": 3492384.237885475,
-          "globalDamageGain": -434471.6313147545,
-          "dashCount": 8,
-          "segmentIds": [
-            "joint-thunder-2-to-4"
-          ],
-          "explored": 11100,
-          "legal": 8779,
-          "passes": [
-            {
-              "pass": 1,
-              "anchors": [
-                3,
-                20,
-                38,
-                59,
-                80,
-                105,
-                128
-              ],
-              "segments": [
-                {
-                  "id": "joint-thunder-2-to-4",
-                  "kind": "joint-crossover-bridge",
-                  "startIndex": 19,
-                  "endIndex": 64,
-                  "rowCount": 45,
-                  "startThunderNumber": 2,
-                  "crossoverThunderNumber": 3,
-                  "endThunderNumber": 4,
-                  "sourceSegmentIds": [
-                    "thunder-2-to-3",
-                    "thunder-3-to-4"
-                  ],
-                  "anchorEndIndex": 58,
-                  "boundaryPaddingRowsApplied": 6,
-                  "initialEndIndex": 64,
-                  "explored": 11100,
-                  "legal": 8779,
-                  "peakStates": 32,
-                  "finalists": 8,
-                  "warmStartCount": 1,
-                  "terminalThunderLineages": [],
-                  "suffixLegal": 5,
-                  "suffixLegalThunderSchedules": [
-                    [
-                      3,
-                      20,
-                      38,
-                      59,
-                      80,
-                      105,
-                      128
-                    ]
-                  ],
-                  "suffixAttempts": [
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 81,
-                      "failureRow": 82,
-                      "failure": "charge尚有17.36帧冷却",
-                      "failureState": {
-                        "rage": 0,
-                        "dragonRideStacks": 0,
-                        "mounted": true,
-                        "tick": 1577880
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 81,
-                      "failureRow": 82,
-                      "failure": "断魂刺只能在马上施展",
-                      "failureState": {
-                        "rage": 0,
-                        "dragonRideStacks": 22,
-                        "mounted": false,
-                        "tick": 1577880
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": false,
-                      "excluded": false,
-                      "failureIndex": 64,
-                      "failureRow": 65,
-                      "failure": "龙牙需要1点战意，当前只有0点",
-                      "failureState": {
-                        "rage": 0,
-                        "dragonRideStacks": 8,
-                        "mounted": true,
-                        "tick": 1246720
-                      }
-                    },
-                    {
-                      "adaptiveAttempt": 0,
-                      "segmentEndRow": 64,
-                      "thunderRows": [
-                        3,
-                        20,
-                        38,
-                        59,
-                        80,
-                        105,
-                        128
-                      ],
-                      "drifted": false,
-                      "legal": true,
-                      "excluded": false
-                    }
-                  ],
-                  "excludedCoreCandidates": 0,
-                  "suffixFailureReasons": {
-                    "charge尚有17.36帧冷却": 1,
-                    "断魂刺只能在马上施展": 1,
-                    "龙牙需要1点战意，当前只有0点": 1
-                  },
-                  "adaptiveSuffixRepair": false,
-                  "adaptiveSuffixExpansions": 0,
-                  "adaptiveAttempts": [
-                    {
-                      "attempt": 0,
-                      "startRow": 20,
-                      "endRow": 64,
-                      "rowCount": 45,
-                      "explored": 11100,
-                      "legal": 8779,
-                      "finalists": 8,
-                      "suffixLegal": 5,
-                      "suffixFailures": 3,
-                      "driftedSuffixFailures": 0,
-                      "firstFailureRow": 65,
-                      "nextEndRow": null
-                    }
-                  ],
-                  "sourceThunderSchedule": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "coreCandidates": 6,
-              "coarseCandidates": [
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": 3264131.80728817,
-                  "totalDamage": 2536490624.315382,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "incumbent",
-                  "coreDamageGain": 0,
-                  "totalDamage": 2532998240.0774965,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": 816148.5107746124,
-                  "totalDamage": 2534042641.018869,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": -108673.60830926895,
-                  "totalDamage": 2532692859.8492317,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": -10881158.397161484,
-                  "totalDamage": 2521920375.060379,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                },
-                {
-                  "segmentId": "joint-thunder-2-to-4",
-                  "coreDamageGain": -23670252.610500813,
-                  "totalDamage": 2509131280.8470407,
-                  "dashCount": 8,
-                  "thunderRows": [
-                    3,
-                    20,
-                    38,
-                    59,
-                    80,
-                    105,
-                    128
-                  ]
-                }
-              ],
-              "bestSegmentId": "joint-thunder-2-to-4",
-              "damageGain": 3492384.237885475
-            }
-          ]
-        }
-      ],
+      "seedPath": "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-fast.json",
+      "damageGain": 2194818.5624494553,
       "options": {
         "durationSeconds": 180,
-        "candidateLimit": 4,
-        "selectedCandidateNumbers": null,
-        "initialDashStates": 128,
-        "bridgeMode": "joint",
-        "bridgeOptions": {
-          "maxPasses": 1,
-          "beamWidth": 32,
-          "finalistCount": 8,
-          "coarseCandidateLimit": 8,
-          "coarseDashStates": 16,
-          "finalDashCandidateCount": 2,
-          "fullDashStates": 128,
-          "boundaryPaddingRows": 6,
-          "preserveThunderPositions": true
+        "maxPasses": 1,
+        "beamWidth": 16,
+        "finalistCount": 16,
+        "coarseCandidateLimit": 8,
+        "coarseDashStates": 8,
+        "finalDashCandidateCount": 1,
+        "fullDashStates": 128,
+        "boundaryPaddingRows": 4,
+        "segmentIndices": null,
+        "segmentRanges": null,
+        "preserveThunderPositions": false,
+        "thunderPositionWindows": [],
+        "additionalWarmAxisCount": 0,
+        "excludedCorePackKeys": [],
+        "adaptiveSuffixRepair": false,
+        "adaptiveSuffixMaxExpansions": 2,
+        "adaptiveSuffixLookaheadRows": 4,
+        "adaptiveSuffixMaximumAddedRows": 16,
+        "adaptiveSuffixPreferDriftedLineages": true,
+        "adaptiveSuffixWarmFailureLimit": 4
+      },
+      "passes": [
+        {
+          "pass": 1,
+          "anchors": [
+            3,
+            20,
+            38,
+            59,
+            80,
+            105,
+            128
+          ],
+          "segments": [
+            {
+              "id": "thunder-1-to-2",
+              "kind": "between-thunders",
+              "startIndex": 2,
+              "endIndex": 23,
+              "rowCount": 21,
+              "startThunderNumber": 1,
+              "endThunderNumber": 2,
+              "anchorEndIndex": 19,
+              "boundaryPaddingRowsApplied": 4,
+              "initialEndIndex": 23,
+              "explored": 8052,
+              "legal": 6245,
+              "peakStates": 16,
+              "finalists": 16,
+              "warmStartCount": 1,
+              "terminalThunderLineages": [],
+              "suffixLegal": 10,
+              "suffixLegalThunderSchedules": [
+                [
+                  3,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ],
+                [
+                  4,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ]
+              ],
+              "suffixAttempts": [
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 34,
+                  "failureRow": 35,
+                  "failure": "龙牙需要1点战意，当前只有0点",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 10,
+                    "mounted": false,
+                    "tick": 662320
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    4,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 34,
+                  "failureRow": 35,
+                  "failure": "龙牙需要1点战意，当前只有0点",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 10,
+                    "mounted": false,
+                    "tick": 662320
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    4,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 34,
+                  "failureRow": 35,
+                  "failure": "龙牙需要1点战意，当前只有0点",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 14,
+                    "mounted": false,
+                    "tick": 662320
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 24,
+                  "failureRow": 25,
+                  "failure": "龙牙需要1点战意，当前只有0点",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 2,
+                    "mounted": true,
+                    "tick": 467520
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    19,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 23,
+                  "failureRow": 24,
+                  "failure": "龙牙需要1点战意，当前只有0点",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 448040
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    19,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 23,
+                  "failureRow": 24,
+                  "failure": "龙牙需要1点战意，当前只有0点",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 448040
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 23,
+                  "thunderRows": [
+                    4,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                }
+              ],
+              "excludedCoreCandidates": 0,
+              "suffixFailureReasons": {
+                "龙牙需要1点战意，当前只有0点": 6
+              },
+              "adaptiveSuffixRepair": false,
+              "adaptiveSuffixExpansions": 0,
+              "adaptiveAttempts": [
+                {
+                  "attempt": 0,
+                  "startRow": 3,
+                  "endRow": 23,
+                  "rowCount": 21,
+                  "explored": 8052,
+                  "legal": 6245,
+                  "finalists": 16,
+                  "suffixLegal": 10,
+                  "suffixFailures": 6,
+                  "driftedSuffixFailures": 0,
+                  "firstFailureRow": 24,
+                  "nextEndRow": null
+                }
+              ],
+              "sourceThunderSchedule": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "id": "thunder-2-to-3",
+              "kind": "between-thunders",
+              "startIndex": 19,
+              "endIndex": 41,
+              "rowCount": 22,
+              "startThunderNumber": 2,
+              "endThunderNumber": 3,
+              "anchorEndIndex": 37,
+              "boundaryPaddingRowsApplied": 4,
+              "initialEndIndex": 41,
+              "explored": 4048,
+              "legal": 2837,
+              "peakStates": 16,
+              "finalists": 16,
+              "warmStartCount": 1,
+              "terminalThunderLineages": [],
+              "suffixLegal": 6,
+              "suffixLegalThunderSchedules": [
+                [
+                  3,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ]
+              ],
+              "suffixAttempts": [
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 13,
+                    "mounted": true,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 13,
+                    "mounted": true,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有348.52帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 13,
+                    "mounted": true,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 15,
+                    "mounted": false,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 13,
+                    "mounted": true,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 13,
+                    "mounted": true,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 15,
+                    "mounted": false,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 15,
+                    "mounted": false,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 5,
+                    "dragonRideStacks": 14,
+                    "mounted": true,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    36,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 41,
+                  "failureRow": 42,
+                  "failure": "charge尚有309.56帧冷却",
+                  "failureState": {
+                    "rage": 5,
+                    "dragonRideStacks": 14,
+                    "mounted": false,
+                    "tick": 798680
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 41,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                }
+              ],
+              "excludedCoreCandidates": 0,
+              "suffixFailureReasons": {
+                "charge尚有309.56帧冷却": 8,
+                "charge尚有329.04帧冷却": 1,
+                "charge尚有348.52帧冷却": 1
+              },
+              "adaptiveSuffixRepair": false,
+              "adaptiveSuffixExpansions": 0,
+              "adaptiveAttempts": [
+                {
+                  "attempt": 0,
+                  "startRow": 20,
+                  "endRow": 41,
+                  "rowCount": 22,
+                  "explored": 4048,
+                  "legal": 2837,
+                  "finalists": 16,
+                  "suffixLegal": 6,
+                  "suffixFailures": 10,
+                  "driftedSuffixFailures": 0,
+                  "firstFailureRow": 42,
+                  "nextEndRow": null
+                }
+              ],
+              "sourceThunderSchedule": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "id": "thunder-3-to-4",
+              "kind": "between-thunders",
+              "startIndex": 37,
+              "endIndex": 62,
+              "rowCount": 25,
+              "startThunderNumber": 3,
+              "endThunderNumber": 4,
+              "anchorEndIndex": 58,
+              "boundaryPaddingRowsApplied": 4,
+              "initialEndIndex": 62,
+              "explored": 3724,
+              "legal": 2966,
+              "peakStates": 16,
+              "finalists": 16,
+              "warmStartCount": 1,
+              "terminalThunderLineages": [],
+              "suffixLegal": 5,
+              "suffixLegalThunderSchedules": [
+                [
+                  3,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ]
+              ],
+              "suffixAttempts": [
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 2,
+                    "mounted": false,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有329.04帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有348.52帧冷却",
+                  "failureState": {
+                    "rage": 4,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "charge尚有348.52帧冷却",
+                  "failureState": {
+                    "rage": 4,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1207760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    54,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 68,
+                  "failureRow": 69,
+                  "failure": "龙牙需要3点战意，当前只有2点",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1324640
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 62,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 62,
+                  "failureRow": 63,
+                  "failure": "断魂刺只能在马上施展",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 12,
+                    "mounted": false,
+                    "tick": 1207760
+                  }
+                }
+              ],
+              "excludedCoreCandidates": 0,
+              "suffixFailureReasons": {
+                "charge尚有329.04帧冷却": 7,
+                "charge尚有348.52帧冷却": 2,
+                "龙牙需要3点战意，当前只有2点": 1,
+                "断魂刺只能在马上施展": 1
+              },
+              "adaptiveSuffixRepair": false,
+              "adaptiveSuffixExpansions": 0,
+              "adaptiveAttempts": [
+                {
+                  "attempt": 0,
+                  "startRow": 38,
+                  "endRow": 62,
+                  "rowCount": 25,
+                  "explored": 3724,
+                  "legal": 2966,
+                  "finalists": 16,
+                  "suffixLegal": 5,
+                  "suffixFailures": 11,
+                  "driftedSuffixFailures": 0,
+                  "firstFailureRow": 63,
+                  "nextEndRow": null
+                }
+              ],
+              "sourceThunderSchedule": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "id": "thunder-4-to-5",
+              "kind": "between-thunders",
+              "startIndex": 58,
+              "endIndex": 83,
+              "rowCount": 25,
+              "startThunderNumber": 4,
+              "endThunderNumber": 5,
+              "anchorEndIndex": 79,
+              "boundaryPaddingRowsApplied": 4,
+              "initialEndIndex": 83,
+              "explored": 3048,
+              "legal": 2297,
+              "peakStates": 16,
+              "finalists": 16,
+              "warmStartCount": 1,
+              "terminalThunderLineages": [],
+              "suffixLegal": 6,
+              "suffixLegalThunderSchedules": [
+                [
+                  3,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ]
+              ],
+              "suffixAttempts": [
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有14.6帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有14.6帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有14.6帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 2,
+                    "mounted": false,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有34.08帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有34.08帧冷却",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有34.08帧冷却",
+                  "failureState": {
+                    "rage": 4,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有34.08帧冷却",
+                  "failureState": {
+                    "rage": 4,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有14.6帧冷却",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有14.6帧冷却",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 1,
+                    "mounted": false,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    78,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 83,
+                  "failureRow": 84,
+                  "failure": "destroy尚有14.6帧冷却",
+                  "failureState": {
+                    "rage": 0,
+                    "dragonRideStacks": 4,
+                    "mounted": false,
+                    "tick": 1616840
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 83,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                }
+              ],
+              "excludedCoreCandidates": 0,
+              "suffixFailureReasons": {
+                "destroy尚有14.6帧冷却": 6,
+                "destroy尚有34.08帧冷却": 4
+              },
+              "adaptiveSuffixRepair": false,
+              "adaptiveSuffixExpansions": 0,
+              "adaptiveAttempts": [
+                {
+                  "attempt": 0,
+                  "startRow": 59,
+                  "endRow": 83,
+                  "rowCount": 25,
+                  "explored": 3048,
+                  "legal": 2297,
+                  "finalists": 16,
+                  "suffixLegal": 6,
+                  "suffixFailures": 10,
+                  "driftedSuffixFailures": 0,
+                  "firstFailureRow": 84,
+                  "nextEndRow": null
+                }
+              ],
+              "sourceThunderSchedule": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "id": "thunder-5-to-6",
+              "kind": "between-thunders",
+              "startIndex": 79,
+              "endIndex": 108,
+              "rowCount": 29,
+              "startThunderNumber": 5,
+              "endThunderNumber": 6,
+              "anchorEndIndex": 104,
+              "boundaryPaddingRowsApplied": 4,
+              "initialEndIndex": 108,
+              "explored": 5040,
+              "legal": 2867,
+              "peakStates": 16,
+              "finalists": 16,
+              "warmStartCount": 1,
+              "terminalThunderLineages": [],
+              "suffixLegal": 6,
+              "suffixLegalThunderSchedules": [
+                [
+                  3,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ]
+              ],
+              "suffixAttempts": [
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 6,
+                    "mounted": false,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 6,
+                    "mounted": false,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 6,
+                    "mounted": false,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 4,
+                    "mounted": false,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 2,
+                    "dragonRideStacks": 4,
+                    "mounted": false,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    102,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 112,
+                  "failureRow": 113,
+                  "failure": "charge尚有172.2帧冷却",
+                  "failureState": {
+                    "rage": 1,
+                    "dragonRideStacks": 0,
+                    "mounted": true,
+                    "tick": 2181760
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 108,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                }
+              ],
+              "excludedCoreCandidates": 0,
+              "suffixFailureReasons": {
+                "charge尚有172.2帧冷却": 10
+              },
+              "adaptiveSuffixRepair": false,
+              "adaptiveSuffixExpansions": 0,
+              "adaptiveAttempts": [
+                {
+                  "attempt": 0,
+                  "startRow": 80,
+                  "endRow": 108,
+                  "rowCount": 29,
+                  "explored": 5040,
+                  "legal": 2867,
+                  "finalists": 16,
+                  "suffixLegal": 6,
+                  "suffixFailures": 10,
+                  "driftedSuffixFailures": 0,
+                  "firstFailureRow": 113,
+                  "nextEndRow": null
+                }
+              ],
+              "sourceThunderSchedule": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "id": "thunder-6-to-7",
+              "kind": "between-thunders",
+              "startIndex": 104,
+              "endIndex": 131,
+              "rowCount": 27,
+              "startThunderNumber": 6,
+              "endThunderNumber": 7,
+              "anchorEndIndex": 127,
+              "boundaryPaddingRowsApplied": 4,
+              "initialEndIndex": 131,
+              "explored": 4504,
+              "legal": 2870,
+              "peakStates": 16,
+              "finalists": 16,
+              "warmStartCount": 1,
+              "terminalThunderLineages": [],
+              "suffixLegal": 10,
+              "suffixLegalThunderSchedules": [
+                [
+                  3,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ]
+              ],
+              "suffixAttempts": [
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 140,
+                  "failureRow": 141,
+                  "failure": "断魂刺只能在马上施展",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 20,
+                    "mounted": false,
+                    "tick": 2727200
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 140,
+                  "failureRow": 141,
+                  "failure": "断魂刺只能在马上施展",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 20,
+                    "mounted": false,
+                    "tick": 2727200
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 140,
+                  "failureRow": 141,
+                  "failure": "断魂刺只能在马上施展",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 22,
+                    "mounted": false,
+                    "tick": 2727200
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 140,
+                  "failureRow": 141,
+                  "failure": "断魂刺只能在马上施展",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 24,
+                    "mounted": false,
+                    "tick": 2727200
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 140,
+                  "failureRow": 141,
+                  "failure": "断魂刺只能在马上施展",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 24,
+                    "mounted": false,
+                    "tick": 2727200
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": false,
+                  "excluded": false,
+                  "failureIndex": 140,
+                  "failureRow": 141,
+                  "failure": "断魂刺只能在马上施展",
+                  "failureState": {
+                    "rage": 3,
+                    "dragonRideStacks": 19,
+                    "mounted": false,
+                    "tick": 2727200
+                  }
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 131,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                }
+              ],
+              "excludedCoreCandidates": 0,
+              "suffixFailureReasons": {
+                "断魂刺只能在马上施展": 6
+              },
+              "adaptiveSuffixRepair": false,
+              "adaptiveSuffixExpansions": 0,
+              "adaptiveAttempts": [
+                {
+                  "attempt": 0,
+                  "startRow": 105,
+                  "endRow": 131,
+                  "rowCount": 27,
+                  "explored": 4504,
+                  "legal": 2870,
+                  "finalists": 16,
+                  "suffixLegal": 10,
+                  "suffixFailures": 6,
+                  "driftedSuffixFailures": 0,
+                  "firstFailureRow": 141,
+                  "nextEndRow": null
+                }
+              ],
+              "sourceThunderSchedule": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "id": "thunder-7-to-end",
+              "kind": "tail",
+              "startIndex": 127,
+              "endIndex": 148,
+              "rowCount": 21,
+              "startThunderNumber": 7,
+              "initialEndIndex": 148,
+              "explored": 2760,
+              "legal": 2159,
+              "peakStates": 16,
+              "finalists": 16,
+              "warmStartCount": 1,
+              "terminalThunderLineages": [],
+              "suffixLegal": 16,
+              "suffixLegalThunderSchedules": [
+                [
+                  3,
+                  20,
+                  38,
+                  59,
+                  80,
+                  105,
+                  128
+                ]
+              ],
+              "suffixAttempts": [
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                },
+                {
+                  "adaptiveAttempt": 0,
+                  "segmentEndRow": 148,
+                  "thunderRows": [
+                    3,
+                    20,
+                    38,
+                    59,
+                    80,
+                    105,
+                    128
+                  ],
+                  "drifted": false,
+                  "legal": true,
+                  "excluded": false
+                }
+              ],
+              "excludedCoreCandidates": 0,
+              "suffixFailureReasons": {},
+              "adaptiveSuffixRepair": false,
+              "adaptiveSuffixExpansions": 0,
+              "adaptiveAttempts": [
+                {
+                  "attempt": 0,
+                  "startRow": 128,
+                  "endRow": 148,
+                  "rowCount": 21,
+                  "explored": 2760,
+                  "legal": 2159,
+                  "finalists": 16,
+                  "suffixLegal": 16,
+                  "suffixFailures": 0,
+                  "driftedSuffixFailures": 0,
+                  "firstFailureRow": null,
+                  "nextEndRow": null
+                }
+              ],
+              "sourceThunderSchedule": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            }
+          ],
+          "coreCandidates": 60,
+          "coarseCandidates": [
+            {
+              "segmentId": "thunder-1-to-2",
+              "coreDamageGain": 1998111.9424948692,
+              "totalDamage": 2539914379.3968554,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "segmentId": "incumbent",
+              "coreDamageGain": 0,
+              "totalDamage": 2537719560.834406,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "segmentId": "thunder-2-to-3",
+              "coreDamageGain": 0,
+              "totalDamage": 2537719560.834406,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "segmentId": "thunder-3-to-4",
+              "coreDamageGain": 0,
+              "totalDamage": 2537719560.834406,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "segmentId": "thunder-4-to-5",
+              "coreDamageGain": 0,
+              "totalDamage": 2537719560.834406,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "segmentId": "thunder-5-to-6",
+              "coreDamageGain": 0,
+              "totalDamage": 2537719560.834406,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "segmentId": "thunder-6-to-7",
+              "coreDamageGain": 0,
+              "totalDamage": 2537719560.834406,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            },
+            {
+              "segmentId": "thunder-7-to-end",
+              "coreDamageGain": 0,
+              "totalDamage": 2537719560.834406,
+              "dashCount": 8,
+              "thunderRows": [
+                3,
+                20,
+                38,
+                59,
+                80,
+                105,
+                128
+              ]
+            }
+          ],
+          "bestSegmentId": "thunder-1-to-2",
+          "damageGain": 2194818.5624494553
         }
-      }
+      ]
     }
   },
   "assumptions": {
@@ -2572,10 +4018,10 @@
       "stableMountedFangsOutsideThunder": 0
     },
     "dragonRide": {
-      "gainedFromOnFootFangs": 30,
+      "gainedFromOnFootFangs": 32,
       "gainedFromRide": 42,
       "consumedUnderThunder": 63,
-      "consumedOutsideThunder": 6,
+      "consumedOutsideThunder": 8,
       "overflow": 0,
       "terminalLiquidationFangs": 8,
       "finalStacks": 3
@@ -2616,7 +4062,7 @@
         "index": 3,
         "startSeconds": 46.2025,
         "mountedAtStart": true,
-        "dragonRideStacksAtStart": 17,
+        "dragonRideStacksAtStart": 21,
         "chargeReadyAtStart": true,
         "dragonFangs": 14,
         "usedDragonRoar": false,
@@ -2631,7 +4077,7 @@
         "index": 4,
         "startSeconds": 71.77,
         "mountedAtStart": true,
-        "dragonRideStacksAtStart": 13,
+        "dragonRideStacksAtStart": 17,
         "chargeReadyAtStart": true,
         "dragonFangs": 13,
         "usedDragonRoar": false,
@@ -2647,7 +4093,7 @@
         "index": 5,
         "startSeconds": 96.1825,
         "mountedAtStart": true,
-        "dragonRideStacksAtStart": 0,
+        "dragonRideStacksAtStart": 2,
         "chargeReadyAtStart": false,
         "dragonFangs": 14,
         "usedDragonRoar": false,
@@ -2720,16 +4166,16 @@
       "thunderStartsDelayedUnderRideBuff": 1,
       "thunderStartsWithoutRideBuff": 1,
       "rideCastsWithoutSameRowThunder": 2,
-      "dismountsDuringThunder": 4,
-      "onFootDragonFangsDuringThunder": 23,
-      "onFootThunderFangsCoveredByRideBuff": 6,
+      "dismountsDuringThunder": 5,
+      "onFootDragonFangsDuringThunder": 25,
+      "onFootThunderFangsCoveredByRideBuff": 8,
       "onFootThunderFangsAfterRideBuff": 17,
-      "dragonRideGainedFromOnFootThunderFangs": 23,
+      "dragonRideGainedFromOnFootThunderFangs": 25,
       "consecutiveDestroyChains": 1,
       "dashCasts": 8,
       "dashUnderBreakArmy": 8,
       "dashUnderThunder": 4,
-      "dashUnderRide": 0
+      "dashUnderRide": 1
     },
     "thunderWindows": [
       {
@@ -2794,6 +4240,8 @@
           35
         ],
         "onFootDragonFangRows": [
+          23,
+          24,
           25,
           27,
           28,
@@ -2805,6 +4253,8 @@
           35
         ],
         "onFootDragonFangsCoveredByRideBuff": [
+          23,
+          24,
           25,
           27,
           28,
@@ -2817,13 +4267,20 @@
           34,
           35
         ],
-        "dragonRideGainedFromOnFootFangs": 9,
+        "dragonRideGainedFromOnFootFangs": 11,
         "dismounts": [
+          {
+            "rowNumber": 23,
+            "seconds": 26.785,
+            "rideBuffActive": true,
+            "dragonRideStacks": 4,
+            "reason": "free-search"
+          },
           {
             "rowNumber": 25,
             "seconds": 29.22,
             "rideBuffActive": true,
-            "dragonRideStacks": 2,
+            "dragonRideStacks": 6,
             "reason": "free-search"
           }
         ]
@@ -2836,7 +4293,7 @@
         "rageAtStart": 5,
         "startedBelowFiveRage": false,
         "mountedAtStart": true,
-        "dragonRideStacksAtStart": 17,
+        "dragonRideStacksAtStart": 21,
         "rideBuffActiveAtStart": true,
         "boundToRideInSameRow": true,
         "rideThunderBinding": "same-row-ride",
@@ -2869,7 +4326,7 @@
             "rowNumber": 53,
             "seconds": 63.31,
             "rideBuffActive": false,
-            "dragonRideStacks": 4,
+            "dragonRideStacks": 8,
             "reason": "free-search"
           }
         ]
@@ -2882,7 +4339,7 @@
         "rageAtStart": 5,
         "startedBelowFiveRage": false,
         "mountedAtStart": true,
-        "dragonRideStacksAtStart": 13,
+        "dragonRideStacksAtStart": 17,
         "rideBuffActiveAtStart": true,
         "boundToRideInSameRow": true,
         "rideThunderBinding": "same-row-ride",
@@ -2915,7 +4372,7 @@
         "rageAtStart": 2,
         "startedBelowFiveRage": true,
         "mountedAtStart": true,
-        "dragonRideStacksAtStart": 0,
+        "dragonRideStacksAtStart": 2,
         "rideBuffActiveAtStart": false,
         "boundToRideInSameRow": false,
         "rideThunderBinding": "no-ride-buff",
@@ -3057,10 +4514,18 @@
     ],
     "dismountsDuringThunder": [
       {
+        "rowNumber": 23,
+        "seconds": 26.785,
+        "rideBuffActive": true,
+        "dragonRideStacks": 4,
+        "reason": "free-search",
+        "thunderWindow": 2
+      },
+      {
         "rowNumber": 25,
         "seconds": 29.22,
         "rideBuffActive": true,
-        "dragonRideStacks": 2,
+        "dragonRideStacks": 6,
         "reason": "free-search",
         "thunderWindow": 2
       },
@@ -3068,7 +4533,7 @@
         "rowNumber": 53,
         "seconds": 63.31,
         "rideBuffActive": false,
-        "dragonRideStacks": 4,
+        "dragonRideStacks": 8,
         "reason": "free-search",
         "thunderWindow": 3
       },
@@ -3091,13 +4556,39 @@
     ],
     "onFootThunderFangs": [
       {
+        "rowNumber": 23,
+        "skill": "断魂刺+下马+突→龙牙",
+        "castSeconds": 26.785,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 4,
+        "dragonRideAfter": 5,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 24,
+        "skill": "龙牙",
+        "castSeconds": 28.0025,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 5,
+        "dragonRideAfter": 6,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
         "rowNumber": 25,
         "skill": "下马→龙牙",
         "castSeconds": 29.22,
         "rageBeforePrimary": 3,
         "rageAfterPrimary": 2,
-        "dragonRideBefore": 2,
-        "dragonRideAfter": 3,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 7,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": true,
@@ -3109,8 +4600,8 @@
         "castSeconds": 31.655,
         "rageBeforePrimary": 5,
         "rageAfterPrimary": 4,
-        "dragonRideBefore": 3,
-        "dragonRideAfter": 4,
+        "dragonRideBefore": 7,
+        "dragonRideAfter": 8,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": true,
@@ -3122,8 +4613,8 @@
         "castSeconds": 32.8725,
         "rageBeforePrimary": 4,
         "rageAfterPrimary": 3,
-        "dragonRideBefore": 4,
-        "dragonRideAfter": 5,
+        "dragonRideBefore": 8,
+        "dragonRideAfter": 9,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": true,
@@ -3135,8 +4626,8 @@
         "castSeconds": 34.09,
         "rageBeforePrimary": 3,
         "rageAfterPrimary": 2,
-        "dragonRideBefore": 5,
-        "dragonRideAfter": 6,
+        "dragonRideBefore": 9,
+        "dragonRideAfter": 10,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": true,
@@ -3148,8 +4639,8 @@
         "castSeconds": 36.525,
         "rageBeforePrimary": 5,
         "rageAfterPrimary": 4,
-        "dragonRideBefore": 6,
-        "dragonRideAfter": 7,
+        "dragonRideBefore": 10,
+        "dragonRideAfter": 11,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": true,
@@ -3161,8 +4652,8 @@
         "castSeconds": 37.7425,
         "rageBeforePrimary": 4,
         "rageAfterPrimary": 3,
-        "dragonRideBefore": 7,
-        "dragonRideAfter": 8,
+        "dragonRideBefore": 11,
+        "dragonRideAfter": 12,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": true,
@@ -3174,8 +4665,8 @@
         "castSeconds": 38.96,
         "rageBeforePrimary": 3,
         "rageAfterPrimary": 2,
-        "dragonRideBefore": 8,
-        "dragonRideAfter": 9,
+        "dragonRideBefore": 12,
+        "dragonRideAfter": 13,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": false,
@@ -3183,12 +4674,12 @@
       },
       {
         "rowNumber": 34,
-        "skill": "龙牙→突",
+        "skill": "龙牙",
         "castSeconds": 40.1775,
         "rageBeforePrimary": 2,
         "rageAfterPrimary": 1,
-        "dragonRideBefore": 9,
-        "dragonRideAfter": 10,
+        "dragonRideBefore": 13,
+        "dragonRideAfter": 14,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": false,
@@ -3200,8 +4691,8 @@
         "castSeconds": 41.395,
         "rageBeforePrimary": 1,
         "rageAfterPrimary": 0,
-        "dragonRideBefore": 10,
-        "dragonRideAfter": 11,
+        "dragonRideBefore": 14,
+        "dragonRideAfter": 15,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": false,
@@ -3213,8 +4704,8 @@
         "castSeconds": 63.31,
         "rageBeforePrimary": 4,
         "rageAfterPrimary": 3,
-        "dragonRideBefore": 4,
-        "dragonRideAfter": 5,
+        "dragonRideBefore": 8,
+        "dragonRideAfter": 9,
         "mountedAtCast": false,
         "thunderAtCast": true,
         "rideAtCast": false,
@@ -3416,7 +4907,7 @@
           false,
           false
         ],
-        "totalRowDamage": 10970732.347603153
+        "totalRowDamage": 11665037.366884489
       }
     ],
     "dashes": [
@@ -3430,22 +4921,22 @@
         "rowSkill": "龙牙→突"
       },
       {
-        "rowNumber": 20,
-        "seconds": 23.1325,
+        "rowNumber": 23,
+        "seconds": 26.785,
         "position": "gcd-prefix",
+        "thunder": true,
+        "ride": true,
+        "breakArmyWindow": true,
+        "rowSkill": "断魂刺+下马+突→龙牙"
+      },
+      {
+        "rowNumber": 37,
+        "seconds": 44.985,
+        "position": "gcd-tail",
         "thunder": false,
         "ride": false,
         "breakArmyWindow": true,
-        "rowSkill": "下马+突→任驰骋→雷"
-      },
-      {
-        "rowNumber": 34,
-        "seconds": 41.3325,
-        "position": "gcd-tail",
-        "thunder": true,
-        "ride": false,
-        "breakArmyWindow": true,
-        "rowSkill": "龙牙→突"
+        "rowSkill": "灭·破楼兰→突"
       },
       {
         "rowNumber": 53,
@@ -3497,12 +4988,12 @@
   "damageAccounting": {
     "attributeEnchants": "alreadyIncludedInPanelAndSkillDamage",
     "procCalculation": "expectedValueAddedAfterRotation",
-    "rotationDamage": 2537719560.834406,
-    "rotationDps": 14098442.00463559,
+    "rotationDamage": 2539914379.3968554,
+    "rotationDps": 14110635.44109364,
     "equipmentAndDamageEnchantDamage": 86354227.35847256,
     "equipmentAndDamageEnchantDps": 479745.70754706976,
-    "combinedDamage": 2624073788.1928782,
-    "combinedDps": 14578187.712182658,
+    "combinedDamage": 2626268606.7553277,
+    "combinedDps": 14590381.148640709,
     "effects": [
       {
         "component": "kunwuBlade",
@@ -3552,8 +5043,8 @@
     "durationFrames": 2880,
     "durationMs": 180000,
     "durationSeconds": 180,
-    "totalDamage": 2624073788.1928782,
-    "dps": 14578187.712182658,
+    "totalDamage": 2626268606.7553277,
+    "dps": 14590381.148640709,
     "finalRage": 2,
     "finalDragonRideStacks": 3,
     "actionCounts": {
@@ -3564,7 +5055,7 @@
       "thunder": 7,
       "orange": 4,
       "charge": 9,
-      "dismount": 6,
+      "dismount": 7,
       "dragonRoar": 4,
       "cloudStrike": 2
     },
@@ -3572,8 +5063,8 @@
       "total": 110,
       "underThunder": 95,
       "underOrange": 20,
-      "dragonRideEnhanced": 69,
-      "mounted": 80
+      "dragonRideEnhanced": 71,
+      "mounted": 78
     },
     "destroy": {
       "total": 25,
@@ -3585,14 +5076,14 @@
       "destroy": 67231105.85255258,
       "destroyPoLouLan": 64792412.29336485,
       "destroyStrain": 10900211.833771925,
-      "dragonFang": 1071227666.9678332,
+      "dragonFang": 1073225778.9103283,
       "dragonBlood": 260584750.45806348,
       "dragonFangStrain": 58894285.416518636,
       "breakGang": 333726517.90846807,
-      "breakArmy": 283965199.6765222,
+      "breakArmy": 284139500.00393564,
       "dragonFangDivine": 10520147.043865016,
       "bleedTick": 193860185.48181432,
-      "dash": 661730.8172227707,
+      "dash": 684137.109764251,
       "orangeExtra": 123319637.01745515,
       "charge": 2212544.8526647026,
       "dragonRoar": 12989996.816267138,
@@ -3603,8 +5094,8 @@
       "wristEffect": 15486191.732714618,
       "speedShock": 21225600
     },
-    "rotationDamage": 2537719560.834406,
-    "rotationDps": 14098442.00463559,
+    "rotationDamage": 2539914379.3968554,
+    "rotationDps": 14110635.44109364,
     "equipmentAndDamageEnchantDamage": 86354227.35847256,
     "equipmentAndDamageEnchantDps": 479745.70754706976
   },
@@ -4307,7 +5798,7 @@
     },
     {
       "rowNumber": 20,
-      "skill": "下马+突→任驰骋→雷",
+      "skill": "下马→任驰骋→雷",
       "primaryAction": "ride",
       "startSeconds": 23.1325,
       "castSeconds": 23.1325,
@@ -4343,21 +5834,6 @@
           "activeUntilSeconds": null
         },
         {
-          "action": "dash",
-          "seconds": 23.1325,
-          "rageBefore": null,
-          "rageAfter": null,
-          "mounted": false,
-          "thunder": false,
-          "orange": false,
-          "ride": false,
-          "reason": null,
-          "dragonRideStacksAtStart": null,
-          "chargeReadyAtStart": null,
-          "breakArmyWindow": true,
-          "activeUntilSeconds": null
-        },
-        {
           "action": "thunder",
           "seconds": 24.2875,
           "rageBefore": 4,
@@ -4373,11 +5849,8 @@
           "activeUntilSeconds": 42.2875
         }
       ],
-      "rowDamage": 694305.0192813359,
-      "damageBreakdown": {
-        "dash": 63334.09498545909,
-        "breakArmy": 630970.9242958768
-      }
+      "rowDamage": 0,
+      "damageBreakdown": {}
     },
     {
       "rowNumber": 21,
@@ -4449,7 +5922,7 @@
     },
     {
       "rowNumber": 23,
-      "skill": "断魂刺→龙牙",
+      "skill": "断魂刺+下马+突→龙牙",
       "primaryAction": "dragonFang",
       "startSeconds": 26.785,
       "castSeconds": 26.785,
@@ -4458,10 +5931,10 @@
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
       "dragonRideBefore": 4,
-      "dragonRideAfter": 3,
+      "dragonRideAfter": 5,
       "mountedBefore": true,
-      "mountedAfter": true,
-      "mountedAtCast": true,
+      "mountedAfter": false,
+      "mountedAtCast": false,
       "thunderAtCast": true,
       "orangeAtCast": false,
       "rideAtCast": true,
@@ -4483,13 +5956,44 @@
           "chargeReadyAtStart": null,
           "breakArmyWindow": null,
           "activeUntilSeconds": null
+        },
+        {
+          "action": "dismount",
+          "seconds": 26.785,
+          "rageBefore": null,
+          "rageAfter": null,
+          "mounted": true,
+          "thunder": true,
+          "orange": false,
+          "ride": true,
+          "reason": "free-search",
+          "dragonRideStacksAtStart": 4,
+          "chargeReadyAtStart": null,
+          "breakArmyWindow": null,
+          "activeUntilSeconds": null
+        },
+        {
+          "action": "dash",
+          "seconds": 26.785,
+          "rageBefore": null,
+          "rageAfter": null,
+          "mounted": false,
+          "thunder": true,
+          "orange": false,
+          "ride": true,
+          "reason": null,
+          "dragonRideStacksAtStart": null,
+          "chargeReadyAtStart": null,
+          "breakArmyWindow": true,
+          "activeUntilSeconds": null
         }
       ],
-      "rowDamage": 27325957.018804662,
+      "rowDamage": 24675186.886549663,
       "damageBreakdown": {
         "charge": 273929.6832460043,
-        "breakArmy": 4765863.151709089,
-        "dragonFang": 12777896.140423676,
+        "breakArmy": 5957328.939636361,
+        "dash": 124504.90186171386,
+        "dragonFang": 8811155.318379693,
         "dragonBlood": 2776182.313681091,
         "dragonFangStrain": 564636.1597970189,
         "breakGang": 3453669.2581398995,
@@ -4508,11 +6012,11 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 3,
-      "dragonRideAfter": 2,
-      "mountedBefore": true,
-      "mountedAfter": true,
-      "mountedAtCast": true,
+      "dragonRideBefore": 5,
+      "dragonRideAfter": 6,
+      "mountedBefore": false,
+      "mountedAfter": false,
+      "mountedAtCast": false,
       "thunderAtCast": true,
       "orangeAtCast": false,
       "rideAtCast": true,
@@ -4520,9 +6024,9 @@
       "bleedQualityAfter": 2,
       "destroySource": null,
       "offGcdActions": [],
-      "rowDamage": 21868256.03422845,
+      "rowDamage": 18042777.657537963,
       "damageBreakdown": {
-        "dragonFang": 12322853.33923073,
+        "dragonFang": 8497374.962540247,
         "dragonBlood": 2677317.699134469,
         "dragonFangStrain": 564636.1597970189,
         "breakGang": 3453669.2581398995,
@@ -4541,9 +6045,9 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 2,
-      "dragonRideAfter": 3,
-      "mountedBefore": true,
+      "dragonRideBefore": 6,
+      "dragonRideAfter": 7,
+      "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
       "thunderAtCast": true,
@@ -4558,12 +6062,12 @@
           "seconds": 29.22,
           "rageBefore": null,
           "rageAfter": null,
-          "mounted": true,
+          "mounted": false,
           "thunder": true,
           "orange": false,
           "ride": true,
           "reason": "free-search",
-          "dragonRideStacksAtStart": 2,
+          "dragonRideStacksAtStart": 6,
           "chargeReadyAtStart": null,
           "breakArmyWindow": null,
           "activeUntilSeconds": null
@@ -4591,8 +6095,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 3,
-      "dragonRideAfter": 3,
+      "dragonRideBefore": 7,
+      "dragonRideAfter": 7,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4623,8 +6127,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 3,
-      "dragonRideAfter": 4,
+      "dragonRideBefore": 7,
+      "dragonRideAfter": 8,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4656,8 +6160,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 4,
-      "dragonRideAfter": 5,
+      "dragonRideBefore": 8,
+      "dragonRideAfter": 9,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4689,8 +6193,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 5,
-      "dragonRideAfter": 6,
+      "dragonRideBefore": 9,
+      "dragonRideAfter": 10,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4723,8 +6227,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 6,
-      "dragonRideAfter": 6,
+      "dragonRideBefore": 10,
+      "dragonRideAfter": 10,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4755,8 +6259,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 6,
-      "dragonRideAfter": 7,
+      "dragonRideBefore": 10,
+      "dragonRideAfter": 11,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4789,8 +6293,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 7,
-      "dragonRideAfter": 8,
+      "dragonRideBefore": 11,
+      "dragonRideAfter": 12,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4822,8 +6326,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 8,
-      "dragonRideAfter": 9,
+      "dragonRideBefore": 12,
+      "dragonRideAfter": 13,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4847,7 +6351,7 @@
     },
     {
       "rowNumber": 34,
-      "skill": "龙牙→突",
+      "skill": "龙牙",
       "primaryAction": "dragonFang",
       "startSeconds": 40.1775,
       "castSeconds": 40.1775,
@@ -4855,8 +6359,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 1,
-      "dragonRideBefore": 9,
-      "dragonRideAfter": 10,
+      "dragonRideBefore": 13,
+      "dragonRideAfter": 14,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4866,34 +6370,17 @@
       "bleedStacksAfter": 2,
       "bleedQualityAfter": 2,
       "destroySource": null,
-      "offGcdActions": [
-        {
-          "action": "dash",
-          "seconds": 41.3325,
-          "rageBefore": null,
-          "rageAfter": null,
-          "mounted": false,
-          "thunder": true,
-          "orange": false,
-          "ride": false,
-          "reason": null,
-          "dragonRideStacksAtStart": null,
-          "chargeReadyAtStart": null,
-          "breakArmyWindow": true,
-          "activeUntilSeconds": null
-        }
-      ],
-      "rowDamage": 17342083.385875277,
+      "offGcdActions": [],
+      "rowDamage": 16222819.316041209,
       "damageBreakdown": {
         "dragonFang": 6476364.42679383,
         "dragonBlood": 2061949.8267325847,
         "dragonFangStrain": 564636.1597970189,
         "breakGang": 2831168.0888061924,
-        "breakArmy": 3051496.3815415027,
+        "breakArmy": 2034330.9210276685,
         "dragonFangDivine": 89232.49785178235,
         "autoAttack": 323516.0942473035,
-        "bleedTick": 1841621.3007848305,
-        "dash": 102098.60932023358
+        "bleedTick": 1841621.3007848305
       }
     },
     {
@@ -4906,8 +6393,8 @@
       "rageAtRowStart": 1,
       "rageBeforePrimary": 1,
       "rageAfterPrimary": 0,
-      "dragonRideBefore": 10,
-      "dragonRideAfter": 11,
+      "dragonRideBefore": 14,
+      "dragonRideAfter": 15,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4940,8 +6427,8 @@
       "rageAtRowStart": 0,
       "rageBeforePrimary": 0,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 11,
-      "dragonRideAfter": 11,
+      "dragonRideBefore": 15,
+      "dragonRideAfter": 15,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4963,7 +6450,7 @@
     },
     {
       "rowNumber": 37,
-      "skill": "灭·破楼兰",
+      "skill": "灭·破楼兰→突",
       "primaryAction": "destroy",
       "startSeconds": 43.83,
       "castSeconds": 43.83,
@@ -4971,8 +6458,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 11,
-      "dragonRideAfter": 11,
+      "dragonRideBefore": 15,
+      "dragonRideAfter": 15,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -4982,15 +6469,32 @@
       "bleedStacksAfter": 2,
       "bleedQualityAfter": 2,
       "destroySource": "poLouLanBonus",
-      "offGcdActions": [],
-      "rowDamage": 6295631.38076188,
+      "offGcdActions": [
+        {
+          "action": "dash",
+          "seconds": 44.985,
+          "rageBefore": null,
+          "rageAfter": null,
+          "mounted": false,
+          "thunder": false,
+          "orange": false,
+          "ride": false,
+          "reason": null,
+          "dragonRideStacksAtStart": null,
+          "chargeReadyAtStart": null,
+          "breakArmyWindow": true,
+          "activeUntilSeconds": null
+        }
+      ],
+      "rowDamage": 6989936.4000432165,
       "damageBreakdown": {
         "destroy": 2026569.2290868987,
-        "breakArmy": 630970.9242958768,
+        "breakArmy": 1261941.8485917535,
         "destroyPoLouLan": 1944750.4584751984,
         "destroyStrain": 350256.68238678254,
         "bleedTick": 1142399.6777989056,
-        "autoAttack": 200684.40871821836
+        "autoAttack": 200684.40871821836,
+        "dash": 63334.09498545909
       }
     },
     {
@@ -5003,8 +6507,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 11,
-      "dragonRideAfter": 17,
+      "dragonRideBefore": 15,
+      "dragonRideAfter": 21,
       "mountedBefore": false,
       "mountedAfter": true,
       "mountedAtCast": false,
@@ -5025,7 +6529,7 @@
           "orange": null,
           "ride": true,
           "reason": null,
-          "dragonRideStacksAtStart": 17,
+          "dragonRideStacksAtStart": 21,
           "chargeReadyAtStart": true,
           "breakArmyWindow": null,
           "activeUntilSeconds": 64.2025
@@ -5047,8 +6551,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 17,
-      "dragonRideAfter": 16,
+      "dragonRideBefore": 21,
+      "dragonRideAfter": 20,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5081,8 +6585,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 16,
-      "dragonRideAfter": 15,
+      "dragonRideBefore": 20,
+      "dragonRideAfter": 19,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5113,8 +6617,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 15,
-      "dragonRideAfter": 14,
+      "dragonRideBefore": 19,
+      "dragonRideAfter": 18,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5147,8 +6651,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 14,
-      "dragonRideAfter": 13,
+      "dragonRideBefore": 18,
+      "dragonRideAfter": 17,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5198,8 +6702,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 13,
-      "dragonRideAfter": 12,
+      "dragonRideBefore": 17,
+      "dragonRideAfter": 16,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5232,8 +6736,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 12,
-      "dragonRideAfter": 12,
+      "dragonRideBefore": 16,
+      "dragonRideAfter": 16,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5263,8 +6767,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 12,
-      "dragonRideAfter": 11,
+      "dragonRideBefore": 16,
+      "dragonRideAfter": 15,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5297,8 +6801,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 11,
-      "dragonRideAfter": 10,
+      "dragonRideBefore": 15,
+      "dragonRideAfter": 14,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5330,8 +6834,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 10,
-      "dragonRideAfter": 9,
+      "dragonRideBefore": 14,
+      "dragonRideAfter": 13,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5381,8 +6885,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 9,
-      "dragonRideAfter": 8,
+      "dragonRideBefore": 13,
+      "dragonRideAfter": 12,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5415,8 +6919,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 8,
-      "dragonRideAfter": 7,
+      "dragonRideBefore": 12,
+      "dragonRideAfter": 11,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5450,8 +6954,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 7,
-      "dragonRideAfter": 6,
+      "dragonRideBefore": 11,
+      "dragonRideAfter": 10,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5485,8 +6989,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 6,
-      "dragonRideAfter": 5,
+      "dragonRideBefore": 10,
+      "dragonRideAfter": 9,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5520,8 +7024,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 5,
-      "dragonRideAfter": 4,
+      "dragonRideBefore": 9,
+      "dragonRideAfter": 8,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5553,8 +7057,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 4,
-      "dragonRideAfter": 5,
+      "dragonRideBefore": 8,
+      "dragonRideAfter": 9,
       "mountedBefore": true,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -5575,7 +7079,7 @@
           "orange": false,
           "ride": false,
           "reason": "free-search",
-          "dragonRideStacksAtStart": 4,
+          "dragonRideStacksAtStart": 8,
           "chargeReadyAtStart": null,
           "breakArmyWindow": null,
           "activeUntilSeconds": null
@@ -5618,8 +7122,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 5,
-      "dragonRideAfter": 5,
+      "dragonRideBefore": 9,
+      "dragonRideAfter": 9,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -5648,8 +7152,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 5,
-      "dragonRideAfter": 6,
+      "dragonRideBefore": 9,
+      "dragonRideAfter": 10,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -5682,8 +7186,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 6,
-      "dragonRideAfter": 6,
+      "dragonRideBefore": 10,
+      "dragonRideAfter": 10,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -5713,8 +7217,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 6,
-      "dragonRideAfter": 7,
+      "dragonRideBefore": 10,
+      "dragonRideAfter": 11,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -5747,8 +7251,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 7,
-      "dragonRideAfter": 7,
+      "dragonRideBefore": 11,
+      "dragonRideAfter": 11,
       "mountedBefore": false,
       "mountedAfter": false,
       "mountedAtCast": false,
@@ -5779,8 +7283,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 7,
-      "dragonRideAfter": 13,
+      "dragonRideBefore": 11,
+      "dragonRideAfter": 17,
       "mountedBefore": false,
       "mountedAfter": true,
       "mountedAtCast": false,
@@ -5801,7 +7305,7 @@
           "orange": null,
           "ride": true,
           "reason": null,
-          "dragonRideStacksAtStart": 13,
+          "dragonRideStacksAtStart": 17,
           "chargeReadyAtStart": true,
           "breakArmyWindow": null,
           "activeUntilSeconds": 89.77
@@ -5822,8 +7326,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 13,
-      "dragonRideAfter": 12,
+      "dragonRideBefore": 17,
+      "dragonRideAfter": 16,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5855,8 +7359,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 12,
-      "dragonRideAfter": 11,
+      "dragonRideBefore": 16,
+      "dragonRideAfter": 15,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5889,8 +7393,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 11,
-      "dragonRideAfter": 10,
+      "dragonRideBefore": 15,
+      "dragonRideAfter": 14,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5923,8 +7427,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 10,
-      "dragonRideAfter": 9,
+      "dragonRideBefore": 14,
+      "dragonRideAfter": 13,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -5974,8 +7478,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 9,
-      "dragonRideAfter": 8,
+      "dragonRideBefore": 13,
+      "dragonRideAfter": 12,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6007,8 +7511,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 8,
-      "dragonRideAfter": 7,
+      "dragonRideBefore": 12,
+      "dragonRideAfter": 11,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6041,8 +7545,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 7,
-      "dragonRideAfter": 7,
+      "dragonRideBefore": 11,
+      "dragonRideAfter": 11,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6072,8 +7576,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 7,
-      "dragonRideAfter": 6,
+      "dragonRideBefore": 11,
+      "dragonRideAfter": 10,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6106,8 +7610,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 6,
-      "dragonRideAfter": 5,
+      "dragonRideBefore": 10,
+      "dragonRideAfter": 9,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6139,8 +7643,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 5,
-      "dragonRideAfter": 4,
+      "dragonRideBefore": 9,
+      "dragonRideAfter": 8,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6173,8 +7677,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 4,
-      "dragonRideAfter": 4,
+      "dragonRideBefore": 8,
+      "dragonRideAfter": 8,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6205,8 +7709,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 4,
-      "dragonRideBefore": 4,
-      "dragonRideAfter": 3,
+      "dragonRideBefore": 8,
+      "dragonRideAfter": 7,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6239,8 +7743,8 @@
       "rageAtRowStart": 4,
       "rageBeforePrimary": 4,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 3,
-      "dragonRideAfter": 2,
+      "dragonRideBefore": 7,
+      "dragonRideAfter": 6,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6271,8 +7775,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 2,
-      "dragonRideAfter": 1,
+      "dragonRideBefore": 6,
+      "dragonRideAfter": 5,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6305,8 +7809,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 1,
-      "dragonRideBefore": 1,
-      "dragonRideAfter": 0,
+      "dragonRideBefore": 5,
+      "dragonRideAfter": 4,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6339,8 +7843,8 @@
       "rageAtRowStart": 1,
       "rageBeforePrimary": 1,
       "rageAfterPrimary": 3,
-      "dragonRideBefore": 0,
-      "dragonRideAfter": 0,
+      "dragonRideBefore": 4,
+      "dragonRideAfter": 4,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6369,8 +7873,8 @@
       "rageAtRowStart": 3,
       "rageBeforePrimary": 3,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 0,
-      "dragonRideAfter": 0,
+      "dragonRideBefore": 4,
+      "dragonRideAfter": 4,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6400,8 +7904,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 0,
-      "dragonRideAfter": 0,
+      "dragonRideBefore": 4,
+      "dragonRideAfter": 3,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6412,9 +7916,9 @@
       "bleedQualityAfter": 2,
       "destroySource": null,
       "offGcdActions": [],
-      "rowDamage": 10734225.87579293,
+      "rowDamage": 12771933.090969792,
       "damageBreakdown": {
-        "dragonFang": 4526273.727421053,
+        "dragonFang": 6563980.942597914,
         "dragonBlood": 1441078.46825112,
         "dragonFangStrain": 350256.68238678254,
         "breakGang": 1756238.1099026103,
@@ -6434,8 +7938,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 5,
-      "dragonRideBefore": 0,
-      "dragonRideAfter": 0,
+      "dragonRideBefore": 3,
+      "dragonRideAfter": 3,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6466,8 +7970,8 @@
       "rageAtRowStart": 5,
       "rageBeforePrimary": 5,
       "rageAfterPrimary": 2,
-      "dragonRideBefore": 0,
-      "dragonRideAfter": 0,
+      "dragonRideBefore": 3,
+      "dragonRideAfter": 2,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6478,9 +7982,9 @@
       "bleedQualityAfter": 2,
       "destroySource": null,
       "offGcdActions": [],
-      "rowDamage": 10533541.46707471,
+      "rowDamage": 12571248.682251573,
       "damageBreakdown": {
-        "dragonFang": 4526273.727421053,
+        "dragonFang": 6563980.942597914,
         "dragonBlood": 1441078.46825112,
         "dragonFangStrain": 350256.68238678254,
         "breakGang": 1756238.1099026103,
@@ -6499,8 +8003,8 @@
       "rageAtRowStart": 2,
       "rageBeforePrimary": 2,
       "rageAfterPrimary": 1,
-      "dragonRideBefore": 0,
-      "dragonRideAfter": 0,
+      "dragonRideBefore": 2,
+      "dragonRideAfter": 1,
       "mountedBefore": true,
       "mountedAfter": true,
       "mountedAtCast": true,
@@ -6521,15 +8025,15 @@
           "orange": null,
           "ride": false,
           "reason": null,
-          "dragonRideStacksAtStart": 0,
+          "dragonRideStacksAtStart": 2,
           "chargeReadyAtStart": false,
           "breakArmyWindow": null,
           "activeUntilSeconds": 114.1825
         }
       ],
-      "rowDamage": 14381198.015256379,
+      "rowDamage": 17296826.92224071,
       "damageBreakdown": {
-        "dragonFang": 6476364.42679383,
+        "dragonFang": 9391993.333778162,
         "dragonBlood": 2061949.8267325847,
         "dragonFangStrain": 564636.1597970189,
         "breakGang": 2831168.0888061924,
@@ -6548,7 +8052,7 @@
       "rageAtRowStart": 1,
       "rageBeforePrimary": 1,
       "rageAfterPrimary": 0,
-      "dragonRideBefore": 0,
+      "dragonRideBefore": 1,
       "dragonRideAfter": 0,
       "mountedBefore": true,
       "mountedAfter": true,
@@ -6560,9 +8064,9 @@
       "bleedQualityAfter": 2,
       "destroySource": null,
       "offGcdActions": [],
-      "rowDamage": 15882118.585427355,
+      "rowDamage": 18681406.38931886,
       "damageBreakdown": {
-        "dragonFang": 6217940.805173329,
+        "dragonFang": 9017228.609064838,
         "dragonBlood": 1979672.7177392307,
         "dragonFangStrain": 564636.1597970189,
         "breakGang": 2831168.0888061924,

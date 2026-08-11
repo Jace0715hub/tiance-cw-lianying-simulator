@@ -1,12 +1,12 @@
 import path from "node:path";
 
 export const LIANYING_CURRENT_BEST_AXIS =
-  "output/lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json";
+  "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-fast-segments-fast.json";
 
 export const LIANYING_DEFAULT_RESEARCH_SEEDS = Object.freeze([
   LIANYING_CURRENT_BEST_AXIS,
+  "output/lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json",
   "output/lianying-free-fixed-180s-adaptive-suffix-screen.json",
-  "output/lianying-free-fixed-180s-segments-balanced.json",
   "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative.json",
 ]);
 
