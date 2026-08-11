@@ -42,6 +42,8 @@ export { executeActionPack, runRotation } from "./engine/simulator.js";
 export {
   LIANYING_POLICY_MODES,
   buildWhitepaperOpener,
+  detectLianyingResourceBalanceSignals,
+  lianyingResourceBalanceMutations,
   legalLianyingPacks,
   legalMechanicalLianyingPacks,
   labelWhitepaperPack,
@@ -59,9 +61,11 @@ export {
   LIANYING_OPTIMIZATION_PROFILES,
 } from "./policies/lianying-optimization-profiles.js";
 export {
+  classifyLianyingSuffixFailure,
   identifyLianyingThunderSegments,
   lianyingAdaptiveSuffixEndIndex,
   optimizeLianyingSegmentResynthesis,
+  selectLianyingLayeredSuffixFailures,
   synthesizeLianyingSegment,
 } from "./policies/lianying-segment-resynthesis.js";
 export {

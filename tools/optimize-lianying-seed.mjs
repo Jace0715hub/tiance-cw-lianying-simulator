@@ -67,6 +67,7 @@ const searchResult = {
     seedPath: path.relative(projectRoot, inputPath),
     damageGain: finalState.totalDamage - seedReplay.state.totalDamage,
     phases: optimized.phases,
+    roundReports: optimized.roundReports,
   },
 };
 const artifact = buildWhitepaperAxisArtifact(searchResult, runtime, {

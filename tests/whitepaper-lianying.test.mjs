@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
+  detectLianyingResourceBalanceSignals,
   LIANYING_POLICY_MODES,
   buildWhitepaperOpener,
   legalMechanicalLianyingPacks,
@@ -11,6 +12,7 @@ import {
   optimizeLianyingAxis,
   optimizeLianyingDashOverlay,
   optimizeLianyingNeighborhoodAxis,
+  lianyingResourceBalanceMutations,
   optimizeLianyingReferenceAxis,
   replayWhitepaperLianying,
   searchLianyingAxis,
@@ -387,6 +389,51 @@ test("通用关键行邻域无需行号规则即可自动换位且不降级", ()
   assert.equal(replay.state.totalDamage, optimized.state.totalDamage);
 });
 
+test("资源平衡邻域从失衡事件生成断魂刺、补豆和任驰骋修复候选", () => {
+  const replay = {
+    trace: [
+      { index: 0, sequenceFrom: 1, sequenceUntil: 1 },
+      { index: 1, sequenceFrom: 2, sequenceUntil: 2 },
+      { index: 2, sequenceFrom: 3, sequenceUntil: 3 },
+      { index: 3, sequenceFrom: 4, sequenceUntil: 4 },
+    ],
+    state: {
+      timeline: [
+        { sequence: 1, type: "offGcd", action: "charge", rageBefore: 4, rageOverflow: 2 },
+        { sequence: 2, type: "offGcd", action: "thunder", rageBefore: 2 },
+        { sequence: 3, type: "cast", action: "destroy", rageBefore: 5, rageOverflow: 3 },
+        { sequence: 4, type: "cast", action: "ride", stacksBefore: 22, stackOverflow: 4 },
+      ],
+    },
+  };
+  const packs = [
+    { prefix: ["charge"], primary: "dragonFang" },
+    { prefix: ["thunder"], primary: "dragonFang" },
+    { primary: "destroy" },
+    { prefix: ["dismount"], primary: "ride" },
+    { primary: "dragonFang" },
+  ];
+  const signals = detectLianyingResourceBalanceSignals(replay);
+  const mutations = lianyingResourceBalanceMutations(packs, signals, {
+    maxDistance: 4,
+  });
+
+  assert.deepEqual(
+    new Set(signals.map((signal) => signal.kind)),
+    new Set([
+      "high-rage-charge",
+      "low-rage-thunder",
+      "rage-overflow",
+      "dragon-ride-overflow",
+    ]),
+  );
+  assert.ok(mutations.length > 0);
+  assert.ok(mutations.every((mutation) => mutation.kind === "resourceBalance"));
+  assert.ok(mutations.some((mutation) => mutation.description.includes("断魂刺移至龙牙后")));
+  assert.ok(mutations.some((mutation) => mutation.description.includes("低豆雷前补豆")));
+  assert.ok(mutations.some((mutation) => mutation.description.includes("延后任驰骋")));
+});
+
 test("组合优化交替运行经验候选和通用机械邻域", () => {
   const optimized = optimizeLianyingAxis(runtime, free65Axis, {
     durationSeconds: 65,
@@ -402,6 +449,8 @@ test("组合优化交替运行经验候选和通用机械邻域", () => {
     optimized.phases.map((phase) => phase.kind),
     ["dash-overlay", "whitepaper-reference", "mechanical-neighborhood"],
   );
+  assert.equal(optimized.roundReports.length, 1);
+  assert.ok(optimized.roundReports[0].neighborhood.candidatesEvaluated > 0);
 });
 
 test("收敛比较忽略动作标签但能定位真正的技能轴分歧", () => {
