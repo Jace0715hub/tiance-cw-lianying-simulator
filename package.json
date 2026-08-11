@@ -31,6 +31,7 @@
     "optimize:crossover-joint-bridge-portfolio": "node tools/optimize-lianying-crossover-bridge-portfolio.mjs - joint-screen",
     "optimize:joint-drift": "node tools/optimize-lianying-joint-drift.mjs",
     "optimize:adaptive-suffix": "node tools/optimize-lianying-joint-drift.mjs --adaptive",
+    "collect:value-data": "node tools/collect-lianying-value-data.mjs",
     "refresh:golden": "node tools/extract-excel-reference.mjs",
     "refresh:profiles": "node tools/extract-profile-reference.mjs",
     "refresh:gear": "node tools/extract-default-gear-template.mjs"

@@ -158,6 +158,7 @@ test("小规模整段重合成保留合法热启动且不降低总伤害", () =>
     finalDashCandidateCount: 1,
     fullDashStates: 4,
     segmentIndices: [0],
+    collectValueTrainingData: true,
   });
   const replay = replayWhitepaperLianying(runtime, optimized.packs, {
     durationSeconds: 12,
@@ -166,4 +167,16 @@ test("小规模整段重合成保留合法热启动且不降低总伤害", () =>
   assert.ok(optimized.state.totalDamage >= baseline.state.totalDamage);
   assert.equal(replay.state.totalDamage, optimized.state.totalDamage);
   assert.ok(optimized.passes[0].segments.length <= 1);
+  assert.ok(optimized.valueTraining.summary.traceCount >= 1);
+  assert.ok(optimized.valueTraining.summary.outcomeCount >= 1);
+  assert.ok(optimized.valueTraining.rows.length >= 2);
+  assert.ok(optimized.valueTraining.rows.some((row) => row.parentNodeId === null));
+  for (const row of optimized.valueTraining.rows) {
+    assert.equal(
+      row.remainingDamageResidual,
+      row.bestRemainingDamage - row.referenceRemainingDamage,
+    );
+    assert.ok(row.remainingSeconds >= 0);
+    assert.ok(row.descendantOutcomeCount >= 1);
+  }
 });

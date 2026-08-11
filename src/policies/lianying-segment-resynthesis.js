@@ -1,5 +1,5 @@
 import { executeActionPack } from "../engine/simulator.js";
-import { millisecondsToTicks } from "../engine/clock.js";
+import { millisecondsToTicks, ticksToMilliseconds } from "../engine/clock.js";
 import {
   createInitialState,
   isBuffActiveAtTick,
@@ -129,6 +129,117 @@ function remainingTicks(readyTick, tick) {
 function queueRemainingTicks(pool, tick) {
   return (pool?.rechargeQueue ?? []).map((readyTick) =>
     remainingTicks(readyTick, tick));
+}
+
+function ticksToSeconds(ticks) {
+  return ticksToMilliseconds(Math.max(0, Number(ticks ?? 0))) / 1000;
+}
+
+export function lianyingStateValueFeatures(state, endTick) {
+  const tick = decisionTick(state);
+  const cooldown = Object.fromEntries(
+    ["destroy", "dragonRoar", "charge", "dash", "orange"].map((name) => [
+      `${name}CooldownSeconds`,
+      ticksToSeconds(remainingTicks(state.cooldownReadyTick[name], tick)),
+    ]),
+  );
+  const buffs = Object.fromEntries(
+    ["thunder", "orange", "ride", "bleed", "breakArmy", "poLouLan"]
+      .map((name) => [
+        `${name}RemainingSeconds`,
+        ticksToSeconds(remainingTicks(state.buffTicks[`${name}Until`], tick)),
+      ]),
+  );
+  const thunderQueue = queueRemainingTicks(state.chargeTicks.thunder, tick);
+  const rideQueue = queueRemainingTicks(state.chargeTicks.ride, tick);
+  const thunderContext = currentThunderContext(state, tick);
+  return {
+    elapsedSeconds: ticksToSeconds(tick),
+    remainingSeconds: ticksToSeconds(Number(endTick) - tick),
+    gcdWaitSeconds: ticksToSeconds(Number(state.gcdReadyTick) - Number(state.tick)),
+    rage: Number(state.rage),
+    dragonRideStacks: Number(state.dragonRideStacks),
+    mounted: Number(isMountedAtTick(state, tick)),
+    bleedStacks: Number(state.bleedStacks),
+    bleedQuality: Number(state.bleedQuality),
+    bleedNextSeconds: state.bleedNextTick > 0
+      ? ticksToSeconds(Number(state.bleedNextTick) - tick)
+      : -1,
+    autoAttackNextSeconds: state.autoAttackNextTick >= 0
+      ? ticksToSeconds(Number(state.autoAttackNextTick) - tick)
+      : -1,
+    executeDestroyToggle: Number(state.executeDestroyToggle),
+    thunderCharges: Number(state.chargeTicks.thunder.ready),
+    thunderRecharge1Seconds: ticksToSeconds(thunderQueue[0] ?? 0),
+    thunderRecharge2Seconds: ticksToSeconds(thunderQueue[1] ?? 0),
+    rideCharges: Number(state.chargeTicks.ride.ready),
+    rideRecharge1Seconds: ticksToSeconds(rideQueue[0] ?? 0),
+    rideRecharge2Seconds: ticksToSeconds(rideQueue[1] ?? 0),
+    thunderStartDragonRideStacks: Number(thunderContext?.[0] ?? -1),
+    thunderDragonFangCount: Number(thunderContext?.[1] ?? 0),
+    thunderUsedDragonRoar: Number(thunderContext?.[2] ?? false),
+    thunderUsedCharge: Number(thunderContext?.[3] ?? false),
+    ...cooldown,
+    ...buffs,
+  };
+}
+
+export function buildLianyingValueTrainingRows(
+  trace,
+  outcomes,
+  {
+    referenceFinalDamage,
+    referenceDamageByLayer = [],
+    metadata = {},
+  } = {},
+) {
+  if (!trace?.nodes?.length || !outcomes?.length) return [];
+  const nodesById = new Map(trace.nodes.map((node) => [node.nodeId, node]));
+  const labels = new Map();
+  for (const outcome of outcomes) {
+    let nodeId = outcome.terminalNodeId;
+    const visited = new Set();
+    while (nodeId !== null && nodeId !== undefined && !visited.has(nodeId)) {
+      visited.add(nodeId);
+      const node = nodesById.get(nodeId);
+      if (!node) break;
+      const label = labels.get(nodeId) ?? {
+        bestFinalDamage: Number.NEGATIVE_INFINITY,
+        outcomeCount: 0,
+      };
+      label.bestFinalDamage = Math.max(
+        label.bestFinalDamage,
+        Number(outcome.finalDamage),
+      );
+      label.outcomeCount += 1;
+      labels.set(nodeId, label);
+      nodeId = node.parentNodeId;
+    }
+  }
+  return trace.nodes.flatMap((node) => {
+    const label = labels.get(node.nodeId);
+    if (!label || !Number.isFinite(label.bestFinalDamage)) return [];
+    const referenceDamage = Number(referenceDamageByLayer[node.layer] ?? 0);
+    const referenceRemainingDamage = Number(referenceFinalDamage) - referenceDamage;
+    const bestRemainingDamage = label.bestFinalDamage - Number(node.totalDamage);
+    return [{
+      ...metadata,
+      nodeId: node.nodeId,
+      parentNodeId: node.parentNodeId,
+      layer: node.layer,
+      globalRow: node.globalRow,
+      thunderLineage: node.thunderLineage,
+      actionPrimary: node.actionPrimary,
+      actionOffGcd: node.actionOffGcd,
+      totalDamage: node.totalDamage,
+      bestFinalDamage: label.bestFinalDamage,
+      bestRemainingDamage,
+      referenceRemainingDamage,
+      remainingDamageResidual: bestRemainingDamage - referenceRemainingDamage,
+      descendantOutcomeCount: label.outcomeCount,
+      ...node.features,
+    }];
+  });
 }
 
 // 区段内部的最高即时伤害状态经常已经透支了下一段需要的冷却、充能或战意。
@@ -750,12 +861,45 @@ export function synthesizeLianyingSegment(
     preserveThunderPositions = false,
     thunderPositionWindows = [],
     additionalWarmSegments = [],
+    collectValueTrainingData = false,
     onLayer = null,
   } = {},
 ) {
   const endTick = millisecondsToTicks(Number(durationSeconds) * 1000);
   const sourceSegment = basePacks.slice(segment.startIndex, segment.endIndex);
-  let nodes = [{ state: prefixState, packs: [] }];
+  const trainingTrace = collectValueTrainingData
+    ? { nodes: [], nextNodeId: 0 }
+    : null;
+  const recordedTraceNodeIds = new Set();
+  const makeTraceNode = (state, parentNodeId, layer, pack = null) => {
+    if (!trainingTrace) return null;
+    const nodeId = trainingTrace.nextNodeId;
+    trainingTrace.nextNodeId += 1;
+    return {
+      nodeId,
+      parentNodeId,
+      layer,
+      globalRow: segment.startIndex + layer,
+      actionPrimary: pack ? primaryId(pack) : null,
+      actionOffGcd: pack
+        ? [...(pack.prefix ?? []), ...(pack.tail ?? [])].map(actionId)
+        : [],
+      totalDamage: Number(state.totalDamage),
+      features: lianyingStateValueFeatures(state, endTick),
+    };
+  };
+  const recordTraceNode = (node, lineage = null) => {
+    if (!node || recordedTraceNodeIds.has(node.nodeId)) return;
+    recordedTraceNodeIds.add(node.nodeId);
+    trainingTrace.nodes.push({ ...node, thunderLineage: lineage });
+  };
+  const rootTraceNode = makeTraceNode(prefixState, null, 0);
+  recordTraceNode(rootTraceNode, []);
+  let nodes = [{
+    state: prefixState,
+    packs: [],
+    traceNodeId: rootTraceNode?.nodeId ?? null,
+  }];
   const warmSources = [
     sourceSegment,
     ...additionalWarmSegments.filter(
@@ -766,6 +910,7 @@ export function synthesizeLianyingSegment(
     state: prefixState,
     packs: [],
     active: true,
+    traceNodeId: rootTraceNode?.nodeId ?? null,
   }));
   let explored = 0;
   let legal = 0;
@@ -825,9 +970,18 @@ export function synthesizeLianyingSegment(
             { endTick },
           );
           legal += 1;
+          const packs = [...node.packs, clonePack(pack)];
+          const traceNode = makeTraceNode(
+            state,
+            node.traceNodeId,
+            offset + 1,
+            pack,
+          );
           const candidate = {
             state,
-            packs: [...node.packs, clonePack(pack)],
+            packs,
+            traceNodeId: traceNode?.nodeId ?? null,
+            traceNode,
           };
           const key = segmentStateKey(state);
           const current = deduplicated.get(key);
@@ -855,12 +1009,32 @@ export function synthesizeLianyingSegment(
           { endTick },
         );
         const packs = [...warmNode.packs, clonePack(warmPack)];
+        const traceNode = makeTraceNode(
+          state,
+          warmNode.traceNodeId,
+          offset + 1,
+          warmPack,
+        );
+        recordTraceNode(
+          traceNode,
+          thunderLineageKey ? JSON.parse(thunderLineageKey({ packs })) : [],
+        );
         const key = segmentStateKey(state);
         const existing = deduplicated.get(key);
         if (!existing || state.totalDamage > existing.state.totalDamage) {
-          deduplicated.set(key, { state, packs });
+          deduplicated.set(key, {
+            state,
+            packs,
+            traceNodeId: traceNode?.nodeId ?? null,
+            traceNode,
+          });
         }
-        return { state, packs, active: true };
+        return {
+          state,
+          packs,
+          active: true,
+          traceNodeId: traceNode?.nodeId ?? null,
+        };
       } catch {
         return { ...warmNode, active: false };
       }
@@ -878,6 +1052,12 @@ export function synthesizeLianyingSegment(
       baseWarm.state,
       thunderLineageKey,
     );
+    for (const node of nodes) {
+      recordTraceNode(
+        node.traceNode,
+        thunderLineageKey ? JSON.parse(thunderLineageKey(node)) : [],
+      );
+    }
     peakStates = Math.max(peakStates, nodes.length);
     if (typeof onLayer === "function") {
       onLayer({
@@ -905,7 +1085,11 @@ export function synthesizeLianyingSegment(
     if (!finalists.some(
       (node) => segmentStateKey(node.state) === segmentStateKey(warmNode.state),
     )) {
-      finalists.push({ state: warmNode.state, packs: warmNode.packs });
+      finalists.push({
+        state: warmNode.state,
+        packs: warmNode.packs,
+        traceNodeId: warmNode.traceNodeId,
+      });
     }
   }
   return {
@@ -918,6 +1102,9 @@ export function synthesizeLianyingSegment(
     finalistCount,
     warmStartCount: warmNodes.filter((candidate) => candidate.active).length,
     terminalThunderLineages,
+    trainingTrace: trainingTrace
+      ? { nodes: trainingTrace.nodes, terminalNodeCount: finalists.length }
+      : null,
   };
 }
 
@@ -979,6 +1166,7 @@ export function optimizeLianyingSegmentResynthesis(
     adaptiveSuffixDirectedRepairLimit = 0,
     adaptiveSuffixDirectedRepairLookBehindRows = 4,
     adaptiveSuffixDirectedRepairLookAheadRows = 6,
+    collectValueTrainingData = false,
     onProgress = null,
   } = {},
 ) {
@@ -989,6 +1177,9 @@ export function optimizeLianyingSegmentResynthesis(
   });
   const baselineDamage = incumbent.state.totalDamage;
   const passes = [];
+  const valueTrainingRows = [];
+  let valueTrainingTraceCount = 0;
+  let valueTrainingOutcomeCount = 0;
 
   for (let pass = 0; pass < maxPasses; pass += 1) {
     const corePacks = stripDashPacks(incumbentPacks);
@@ -1067,6 +1258,7 @@ export function optimizeLianyingSegmentResynthesis(
             finalistCount,
             preserveThunderPositions,
             thunderPositionWindows,
+            collectValueTrainingData,
             additionalWarmSegments: adaptiveWarmAxes.map((axis) =>
               stripDashPacks(axis).slice(
                 currentSegment.startIndex,
@@ -1086,6 +1278,7 @@ export function optimizeLianyingSegmentResynthesis(
         const iterationAttempts = [];
         const failedAttempts = [];
         const failedWarmAxes = [];
+        const valueTrainingOutcomes = [];
         for (const finalist of synthesis.finalists) {
           const candidatePacks = spliceSegment(
             corePacks,
@@ -1106,6 +1299,15 @@ export function optimizeLianyingSegmentResynthesis(
             const replay = replayWhitepaperLianying(runtime, candidatePacks, {
               durationSeconds,
             });
+            if (
+              collectValueTrainingData &&
+              Number.isInteger(finalist.traceNodeId)
+            ) {
+              valueTrainingOutcomes.push({
+                terminalNodeId: finalist.traceNodeId,
+                finalDamage: replay.state.totalDamage,
+              });
+            }
             suffixLegal += 1;
             suffixLegalThunderSchedules.push(schedule);
             if (excludedCorePackKeySet.has(JSON.stringify(candidatePacks))) {
@@ -1172,6 +1374,33 @@ export function optimizeLianyingSegmentResynthesis(
             packs: candidatePacks,
             boundaryDamage: finalist.state.totalDamage,
           });
+        }
+
+        if (collectValueTrainingData && synthesis.trainingTrace) {
+          const traceId = `p${pass + 1}:${segment.id}:a${adaptiveAttempt}`;
+          const referenceDamageByLayer = Array.from(
+            { length: currentSegment.endIndex - currentSegment.startIndex + 1 },
+            (_, layer) => Number(
+              prefixStates[currentSegment.startIndex + layer]?.totalDamage ?? 0,
+            ),
+          );
+          valueTrainingRows.push(...buildLianyingValueTrainingRows(
+            synthesis.trainingTrace,
+            valueTrainingOutcomes,
+            {
+              referenceFinalDamage: coreBaseline.state.totalDamage,
+              referenceDamageByLayer,
+              metadata: {
+                traceId,
+                pass: pass + 1,
+                segmentId: segment.id,
+                adaptiveAttempt,
+                durationSeconds: Number(durationSeconds),
+              },
+            },
+          ));
+          valueTrainingTraceCount += 1;
+          valueTrainingOutcomeCount += valueTrainingOutcomes.length;
         }
 
         const failureChainLimit = Math.max(
@@ -1448,6 +1677,17 @@ export function optimizeLianyingSegmentResynthesis(
       adaptiveSuffixDirectedRepairLimit,
       adaptiveSuffixDirectedRepairLookBehindRows,
       adaptiveSuffixDirectedRepairLookAheadRows,
+      collectValueTrainingData,
     },
+    valueTraining: collectValueTrainingData
+      ? {
+          rows: valueTrainingRows,
+          summary: {
+            traceCount: valueTrainingTraceCount,
+            outcomeCount: valueTrainingOutcomeCount,
+            rowCount: valueTrainingRows.length,
+          },
+        }
+      : null,
   };
 }

@@ -63,13 +63,22 @@ export {
 } from "./policies/lianying-optimization-profiles.js";
 export {
   classifyLianyingSuffixFailure,
+  buildLianyingValueTrainingRows,
   identifyLianyingThunderSegments,
   lianyingAdaptiveSuffixEndIndex,
+  lianyingStateValueFeatures,
   lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
   selectLianyingLayeredSuffixFailures,
   synthesizeLianyingSegment,
 } from "./policies/lianying-segment-resynthesis.js";
+export {
+  lianyingValueDatasetSplit,
+  lianyingValueTrainingToCsv,
+  lianyingValueTrainingToJsonl,
+  prepareLianyingValueTrainingRows,
+  summarizeLianyingValueTrainingRows,
+} from "./reports/lianying-value-training.js";
 export {
   evaluateLianyingReferenceSuffixValue,
   isLianyingAnchorDriftPackAllowed,
