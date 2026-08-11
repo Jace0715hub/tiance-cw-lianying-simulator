@@ -170,6 +170,22 @@ test("联合桥接允许中间雷前后漂移一行并钉住双热启动", () =>
       adaptiveSuffixDirectedRepairLimit: 4,
       adaptiveSuffixDirectedRepairLookBehindRows: 2,
       adaptiveSuffixDirectedRepairLookAheadRows: 3,
+      valueShadowPolicy: {
+        enabled: true,
+        baselineQuota: 1,
+        valueQuota: 1,
+        valueWeight: 0,
+        maximumBaselineRank: 12,
+        model: {
+          kind: "ridge-residual",
+          trainingRows: 1,
+          targetMean: 0,
+          featureColumns: [],
+          featureMeans: [],
+          featureScales: [],
+          coefficients: [],
+        },
+      },
     },
   );
   const report = result.resynthesis.passes[0].segments[0];
@@ -186,6 +202,9 @@ test("联合桥接允许中间雷前后漂移一行并钉住双热启动", () =>
   assert.equal(result.resynthesis.options.adaptiveSuffixRepair, true);
   assert.equal(result.resynthesis.options.adaptiveSuffixFailureChainLimit, 3);
   assert.equal(result.resynthesis.options.adaptiveSuffixDirectedRepairLimit, 4);
+  assert.equal(result.resynthesis.options.valueShadowPolicy.enabled, true);
+  assert.ok(report.valueShadowSelections > 0);
+  assert.ok(report.peakStates <= 7);
   assert.ok(report.adaptiveAttempts.length >= 1);
   assert.equal(
     report.adaptiveAttempts.length,

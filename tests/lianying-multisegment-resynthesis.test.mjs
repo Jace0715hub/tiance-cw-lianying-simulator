@@ -186,6 +186,63 @@ test("双雷样例能连续拼接区段并以完整含突伤害不降级", () =>
   assert.equal(replay.state.totalDamage, optimized.state.totalDamage);
 });
 
+test("联合区段价值影子谱系只追加候选且保留基础束", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const options = {
+    durationSeconds: 30,
+    rowBeamWidth: 4,
+    boundaryBeamWidth: 2,
+    coreFinalistCount: 2,
+    coarseCandidateLimit: 2,
+    coarseDashStates: 4,
+    finalDashCandidateCount: 2,
+    fullDashStates: 4,
+  };
+  const control = optimizeLianyingMultiSegmentResynthesis(
+    runtime,
+    seed.packs,
+    options,
+  );
+  const shadow = optimizeLianyingMultiSegmentResynthesis(
+    runtime,
+    seed.packs,
+    {
+      ...options,
+      valueShadowPolicy: {
+        enabled: true,
+        baselineQuota: 1,
+        valueQuota: 1,
+        valueWeight: 0,
+        maximumBaselineRank: 12,
+        model: {
+          kind: "ridge-residual",
+          trainingRows: 1,
+          targetMean: 0,
+          featureColumns: [],
+          featureMeans: [],
+          featureScales: [],
+          coefficients: [],
+        },
+      },
+    },
+  );
+
+  assert.ok(shadow.valueShadowRows > 0);
+  assert.ok(shadow.valueShadowSelections >= shadow.valueShadowRows);
+  assert.ok(shadow.peakRowStates <= options.rowBeamWidth + 1);
+  assert.ok(shadow.explored >= control.explored);
+  assert.ok(shadow.segments.every((segment) =>
+    segment.baselineOutgoingStates <= options.boundaryBeamWidth &&
+    segment.valueShadowOutgoingStates <= 1));
+  assert.equal(shadow.options.valueShadowPolicy.enabled, true);
+  assert.equal(control.options.valueShadowPolicy, null);
+});
+
 test("三雷样例只漂移中间锚点并完成不降级复演", () => {
   const runtime = loadDefaultGearRuntime({ executePhase: true });
   const seed = searchWhitepaperLianying(runtime, {

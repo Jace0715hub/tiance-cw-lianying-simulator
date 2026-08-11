@@ -42,6 +42,7 @@ export function optimizeLianyingCrossoverBridge(
     fullDashStates = 256,
     boundaryPaddingRows = 6,
     preserveNovelStructure = true,
+    valueShadowPolicy = null,
     onProgress = null,
   } = {},
 ) {
@@ -79,6 +80,7 @@ export function optimizeLianyingCrossoverBridge(
       excludedCorePackKeys: preserveNovelStructure
         ? [JSON.stringify(stripLianyingDashPacks(incumbentPacks))]
         : [],
+      valueShadowPolicy,
       onProgress,
     },
   );
@@ -156,6 +158,7 @@ export function optimizeLianyingCrossoverJointBridge(
     adaptiveSuffixDirectedRepairLimit = 0,
     adaptiveSuffixDirectedRepairLookBehindRows = 4,
     adaptiveSuffixDirectedRepairLookAheadRows = 6,
+    valueShadowPolicy = null,
     onProgress = null,
   } = {},
 ) {
@@ -219,6 +222,7 @@ export function optimizeLianyingCrossoverJointBridge(
       excludedCorePackKeys: preserveNovelStructure
         ? [JSON.stringify(stripLianyingDashPacks(incumbentPacks))]
         : [],
+      valueShadowPolicy,
       onProgress,
     },
   );

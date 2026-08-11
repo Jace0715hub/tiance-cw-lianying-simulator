@@ -12,6 +12,7 @@ import {
   lianyingPackHasAction,
   lianyingResynthesisStateKey,
   selectLianyingResynthesisBeam,
+  selectLianyingValueShadowCandidates,
   stripLianyingDashPacks,
 } from "./lianying-segment-resynthesis.js";
 import {
@@ -684,6 +685,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
     useSuffixValue = true,
     suffixRepairPenaltyRows = 1,
     boundaryDiagnosticCount = 3,
+    valueShadowPolicy = null,
     onProgress = null,
   } = {},
 ) {
@@ -715,10 +717,13 @@ export function optimizeLianyingMultiSegmentResynthesis(
   const warmStates = buildWarmStates(runtime, corePacks, endTick);
   let warmState = warmStates[firstAnchor];
   let warmGeneratedPacks = [];
-  let nodes = [{ state: warmState, packs: [] }];
+  let nodes = [{ state: warmState, packs: [], valueShadow: false }];
   let explored = 0;
   let legal = 0;
   let peakRowStates = 1;
+  let valueShadowRows = 0;
+  let valueShadowSelections = 0;
+  let valueShadowBoundarySelections = 0;
   const segmentReports = [];
 
   for (let segmentIndex = 0; segmentIndex < identified.ranges.length; segmentIndex += 1) {
@@ -746,6 +751,13 @@ export function optimizeLianyingMultiSegmentResynthesis(
 
     for (let offset = 0; offset < source.length; offset += 1) {
       const candidates = new Map();
+      const baselineCandidates = new Map();
+      const addCandidate = (map, key, candidate) => {
+        const current = map.get(key);
+        if (!current || candidate.state.totalDamage > current.state.totalDamage) {
+          map.set(key, candidate);
+        }
+      };
       for (const node of nodes) {
         for (const pack of legalMechanicalLianyingPacks(
           node.state,
@@ -766,11 +778,15 @@ export function optimizeLianyingMultiSegmentResynthesis(
               state,
               packs: [...node.packs, cloneLianyingPack(pack)],
               lineageId: node.lineageId,
+              valueShadow: node.valueShadow === true,
             };
             const key = lianyingResynthesisStateKey(state);
-            const current = candidates.get(key);
-            if (!current || state.totalDamage > current.state.totalDamage) {
-              candidates.set(key, candidate);
+            addCandidate(candidates, key, candidate);
+            if (node.valueShadow !== true) {
+              addCandidate(baselineCandidates, key, {
+                ...candidate,
+                valueShadow: false,
+              });
             }
           } catch {
             // 战意、冷却、充能、马上状态等非法动作由完整状态机淘汰。
@@ -794,20 +810,29 @@ export function optimizeLianyingMultiSegmentResynthesis(
         cloneLianyingPack(warmPack),
       ];
       const warmKey = lianyingResynthesisStateKey(warmState);
-      const currentWarm = candidates.get(warmKey);
-      if (!currentWarm || warmState.totalDamage > currentWarm.state.totalDamage) {
-        candidates.set(warmKey, {
-          state: warmState,
-          packs: warmGeneratedPacks,
-          lineageId: warmLineageId,
-        });
-      }
-      nodes = selectJointRowBeam(
-        candidates.values(),
+      const warmCandidate = {
+        state: warmState,
+        packs: warmGeneratedPacks,
+        lineageId: warmLineageId,
+        valueShadow: false,
+      };
+      addCandidate(candidates, warmKey, warmCandidate);
+      addCandidate(baselineCandidates, warmKey, warmCandidate);
+      const baselineNodes = selectJointRowBeam(
+        baselineCandidates.values(),
         rowBeamWidth,
         warmKey,
         warmState,
       );
+      const shadowNodes = selectLianyingValueShadowCandidates(
+        candidates.values(),
+        baselineNodes,
+        endTick,
+        valueShadowPolicy,
+      ).map((node) => ({ ...node, valueShadow: true }));
+      if (shadowNodes.length > 0) valueShadowRows += 1;
+      valueShadowSelections += shadowNodes.length;
+      nodes = [...baselineNodes, ...shadowNodes];
       peakRowStates = Math.max(peakRowStates, nodes.length);
       if (nodes.length === 0) {
         throw new Error(`${segment.id}第${offset + 1}行没有合法联合搜索状态`);
@@ -839,8 +864,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
       }));
     }
     const warmKey = lianyingResynthesisStateKey(warmState);
-    const boundary = selectLianyingJointBoundaryNodes(
-      nodes,
+    const baselineBoundary = selectLianyingJointBoundaryNodes(
+      nodes.filter((node) => node.valueShadow !== true),
       boundaryBeamWidth,
       warmKey,
       {
@@ -849,7 +874,14 @@ export function optimizeLianyingMultiSegmentResynthesis(
           : null,
       },
     );
-    nodes = boundary.nodes;
+    const boundaryShadowNodes = selectLianyingValueShadowCandidates(
+      nodes,
+      baselineBoundary.nodes,
+      endTick,
+      valueShadowPolicy,
+    ).map((node) => ({ ...node, valueShadow: true }));
+    valueShadowBoundarySelections += boundaryShadowNodes.length;
+    nodes = [...baselineBoundary.nodes, ...boundaryShadowNodes];
     const diagnostics = buildBoundaryDiagnostics(
       nodes,
       warmState,
@@ -861,8 +893,10 @@ export function optimizeLianyingMultiSegmentResynthesis(
       incomingStates,
       survivingIncomingLineages,
       outgoingStates: nodes.length,
-      paretoStates: boundary.paretoCount,
-      diversityBuckets: boundary.diversityBuckets,
+      baselineOutgoingStates: baselineBoundary.nodes.length,
+      valueShadowOutgoingStates: boundaryShadowNodes.length,
+      paretoStates: baselineBoundary.paretoCount,
+      diversityBuckets: baselineBoundary.diversityBuckets,
       bestDamageGainAtBoundary:
         Math.max(...nodes.map((node) => node.state.totalDamage)) -
         warmState.totalDamage,
@@ -902,10 +936,17 @@ export function optimizeLianyingMultiSegmentResynthesis(
     packs: corePacks,
     coreDamage: coreBaseline.state.totalDamage,
     isIncumbent: true,
+    valueShadow: false,
   });
-  for (const node of [...nodes]
+  const baselineCoreFinalists = nodes
+    .filter((node) => node.valueShadow !== true)
     .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
-    .slice(0, coreFinalistCount)) {
+    .slice(0, coreFinalistCount);
+  const valueShadowCoreFinalists = nodes
+    .filter((node) => node.valueShadow === true)
+    .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+    .slice(0, Math.max(0, Math.floor(Number(valueShadowPolicy?.valueQuota ?? 0))));
+  for (const node of [...baselineCoreFinalists, ...valueShadowCoreFinalists]) {
     const candidatePacks = [...prefixPacks, ...clonePacks(node.packs)];
     try {
       const replay = replayWhitepaperLianying(runtime, candidatePacks, {
@@ -915,6 +956,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
         packs: candidatePacks,
         coreDamage: replay.state.totalDamage,
         isIncumbent: JSON.stringify(candidatePacks) === JSON.stringify(corePacks),
+        valueShadow: node.valueShadow === true,
       });
     } catch {
       // 联合候选仍以完整180秒重放作为最终合法性门槛。
@@ -925,6 +967,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
     coreCandidatesByPath.values(),
     coarseCandidateLimit,
   );
+  const valueShadowCoreCandidates = [...coreCandidatesByPath.values()].filter(
+    (candidate) => candidate.valueShadow === true);
   const coarseCandidates = selectedCore.map((candidate, index) => {
     if (typeof onProgress === "function") {
       onProgress({
@@ -1001,8 +1045,23 @@ export function optimizeLianyingMultiSegmentResynthesis(
     peakRowStates,
     finalBoundaryStates: nodes.length,
     coreCandidates: coreCandidatesByPath.size,
+    valueShadowCoreCandidates: valueShadowCoreCandidates.length,
+    bestValueShadowCoreDamage: valueShadowCoreCandidates.length > 0
+      ? Math.max(...valueShadowCoreCandidates.map(
+        (candidate) => candidate.coreDamage))
+      : null,
+    bestValueShadowCoreDamageGain: valueShadowCoreCandidates.length > 0
+      ? Math.max(...valueShadowCoreCandidates.map(
+        (candidate) => candidate.coreDamage)) - coreBaseline.state.totalDamage
+      : null,
+    baselineCoreFinalists: baselineCoreFinalists.length,
+    valueShadowCoreFinalists: valueShadowCoreFinalists.length,
+    valueShadowRows,
+    valueShadowSelections,
+    valueShadowBoundarySelections,
     coarseCandidates: coarseCandidates.map((candidate) => ({
       isIncumbent: candidate.isIncumbent,
+      valueShadow: candidate.valueShadow === true,
       coreDamage: candidate.coreDamage,
       totalDamage: candidate.totalDamage,
       dashCount: candidate.dashCount,
@@ -1019,6 +1078,17 @@ export function optimizeLianyingMultiSegmentResynthesis(
       useSuffixValue,
       suffixRepairPenaltyRows,
       boundaryDiagnosticCount,
+      valueShadowPolicy: valueShadowPolicy
+        ? {
+            enabled: valueShadowPolicy.enabled === true,
+            baselineQuota: Number(valueShadowPolicy.baselineQuota ?? 5),
+            valueQuota: Number(valueShadowPolicy.valueQuota ?? 1),
+            valueWeight: Number(valueShadowPolicy.valueWeight ?? 1),
+            maximumBaselineRank: Number(valueShadowPolicy.maximumBaselineRank),
+            modelKind: valueShadowPolicy.model?.kind ?? null,
+            modelTrainingRows: valueShadowPolicy.model?.trainingRows ?? null,
+          }
+        : null,
     },
   };
 }

@@ -1227,8 +1227,10 @@ export function synthesizeLianyingSegment(
     peakStates,
     beamWidth,
     finalistCount,
-    baselineFinalistCount: baselineFinalists.length,
-    valueShadowFinalistCount: shadowFinalists.length,
+    baselineFinalistCount: finalists.filter(
+      (node) => node.valueShadow !== true).length,
+    valueShadowFinalistCount: finalists.filter(
+      (node) => node.valueShadow === true).length,
     valueShadowLayers,
     valueShadowSelections,
     warmStartCount: warmNodes.filter((candidate) => candidate.active).length,
@@ -1621,6 +1623,7 @@ export function optimizeLianyingSegmentResynthesis(
                 replay.state.totalDamage - coreBaseline.state.totalDamage,
               thunderRows: schedule,
               adaptiveAttempt,
+              valueShadow: finalist.valueShadow === true,
               behaviorKey: lianyingCoreBehaviorKey(replay.state),
             });
             continue;
@@ -1911,16 +1914,24 @@ export function optimizeLianyingSegmentResynthesis(
       })
       .sort((left, right) => right.totalDamage - left.totalDamage);
     const best = finalCandidates[0];
+    const valueShadowCoreCandidates = coreCandidates.filter(
+      (candidate) => candidate.valueShadow === true);
     const passReport = {
       pass: pass + 1,
       anchors: identified.anchors.map((index) => index + 1),
       segments: segmentReports,
       coreCandidates: coreCandidates.length,
+      valueShadowCoreCandidates: valueShadowCoreCandidates.length,
+      bestValueShadowCoreDamage: valueShadowCoreCandidates.length > 0
+        ? Math.max(...valueShadowCoreCandidates.map(
+          (candidate) => candidate.coreDamage))
+        : null,
       coarseCandidates: coarseCandidates.map((candidate) => ({
         segmentId: candidate.segmentId,
         coreDamageGain: candidate.coreDamageGain,
         totalDamage: candidate.totalDamage,
         dashCount: candidate.dashCount,
+        valueShadow: candidate.valueShadow === true,
         thunderRows: candidate.thunderRows ?? thunderRows(candidate.packs),
       })),
       bestSegmentId: best?.segmentId ?? null,

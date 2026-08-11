@@ -13,7 +13,22 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const adaptiveSuffixRepair = process.argv.includes("--adaptive");
-const positionalArgs = process.argv.slice(2).filter((value) => value !== "--adaptive");
+const valuePolicyArgument = process.argv.slice(2).find((value) =>
+  value.startsWith("--value-policy="));
+const positionalArgs = process.argv.slice(2).filter((value) =>
+  value !== "--adaptive" && !value.startsWith("--value-policy="));
+const valueShadowPolicyPath = valuePolicyArgument
+  ? resolveLianyingResearchPath(
+    projectRoot,
+    valuePolicyArgument.slice("--value-policy=".length),
+  )
+  : null;
+const valueShadowPolicy = valueShadowPolicyPath
+  ? JSON.parse(fs.readFileSync(valueShadowPolicyPath, "utf8"))
+  : null;
+if (valueShadowPolicy && valueShadowPolicy.enabled !== true) {
+  throw new Error("价值影子策略未通过验证门控，拒绝用于自适应后缀搜索");
+}
 const incumbentPath = resolveLianyingResearchPath(projectRoot, positionalArgs[0]);
 const targetPath = resolveLianyingResearchPath(
   projectRoot,
@@ -91,6 +106,7 @@ const optimized = optimizeLianyingCrossoverJointBridge(
       : 0,
     adaptiveSuffixDirectedRepairLookBehindRows: 4,
     adaptiveSuffixDirectedRepairLookAheadRows: profileName === "fast" ? 8 : 6,
+    valueShadowPolicy,
     ...profiles[profileName],
     onProgress: (event) => console.log(JSON.stringify({
       phase: adaptiveSuffixRepair ? "adaptive-suffix" : "joint-drift",
@@ -154,6 +170,9 @@ function makeArtifact(packs, state, kind) {
       thunderPositionWindows: optimized.thunderPositionWindows,
       warmStartAxisCount: optimized.warmStartAxisCount,
       adaptiveSuffixRepair,
+      valueShadowPolicyPath: valueShadowPolicyPath
+        ? path.relative(projectRoot, valueShadowPolicyPath)
+        : null,
       passes: summarizePasses(optimized.resynthesis.passes),
       options: optimized.resynthesis.options,
     },
@@ -198,6 +217,7 @@ console.log(JSON.stringify({
   outputStem,
   profileName,
   adaptiveSuffixRepair,
+  valueShadowPolicyPath,
   accepted: optimized.accepted,
   baselineDamage: optimized.baselineDamage,
   targetDamage: optimized.crossoverDamage,

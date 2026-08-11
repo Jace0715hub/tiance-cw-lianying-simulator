@@ -18,6 +18,15 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "fast";
+const valueShadowPolicyPath = process.argv[5]
+  ? resolveLianyingResearchPath(projectRoot, process.argv[5])
+  : null;
+const valueShadowPolicy = valueShadowPolicyPath
+  ? JSON.parse(fs.readFileSync(valueShadowPolicyPath, "utf8"))
+  : null;
+if (valueShadowPolicy && valueShadowPolicy.enabled !== true) {
+  throw new Error("价值影子策略未通过验证门控，拒绝用于联合区段搜索");
+}
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const durationSeconds = Number(source.durationSeconds ?? 180);
 const mode = source.mode ?? "fixed";
@@ -63,6 +72,7 @@ const seedReplay = replayWhitepaperLianying(runtime, seedPacks, { durationSecond
 const optimized = optimizeLianyingMultiSegmentResynthesis(runtime, seedPacks, {
   durationSeconds,
   ...profiles[profileName],
+  valueShadowPolicy,
   onProgress: (event) => {
     console.log(JSON.stringify({ phase: "multisegment-resynthesis", ...event }));
   },
@@ -84,10 +94,15 @@ const searchResult = {
   packs: finalPacks,
   state: finalState,
   axisOptimization: {
-    kind: "multisegment-resynthesis",
+    kind: valueShadowPolicy
+      ? "multisegment-resynthesis-value-shadow"
+      : "multisegment-resynthesis",
     profile: profileName,
     accepted: optimized.accepted,
     seedPath: path.relative(projectRoot, inputPath),
+    valueShadowPolicyPath: valueShadowPolicyPath
+      ? path.relative(projectRoot, valueShadowPolicyPath)
+      : null,
     damageGain: optimized.damageGain,
     options: optimized.options,
     anchors: optimized.anchors,
@@ -95,6 +110,13 @@ const searchResult = {
     peakRowStates: optimized.peakRowStates,
     finalBoundaryStates: optimized.finalBoundaryStates,
     coreCandidates: optimized.coreCandidates,
+    valueShadowCoreCandidates: optimized.valueShadowCoreCandidates,
+    bestValueShadowCoreDamage: optimized.bestValueShadowCoreDamage,
+    bestValueShadowCoreDamageGain: optimized.bestValueShadowCoreDamageGain,
+    valueShadowRows: optimized.valueShadowRows,
+    valueShadowSelections: optimized.valueShadowSelections,
+    valueShadowBoundarySelections: optimized.valueShadowBoundarySelections,
+    valueShadowCoreFinalists: optimized.valueShadowCoreFinalists,
     coarseCandidates: optimized.coarseCandidates,
   },
 };
@@ -128,6 +150,7 @@ console.log(JSON.stringify({
   inputPath,
   outputStem,
   profileName,
+  valueShadowPolicyPath,
   accepted: optimized.accepted,
   seedRotationDamage: seedReplay.state.totalDamage,
   finalRotationDamage: finalState.totalDamage,
@@ -143,5 +166,12 @@ console.log(JSON.stringify({
   peakRowStates: optimized.peakRowStates,
   finalBoundaryStates: optimized.finalBoundaryStates,
   coreCandidates: optimized.coreCandidates,
+  valueShadowCoreCandidates: optimized.valueShadowCoreCandidates,
+  bestValueShadowCoreDamage: optimized.bestValueShadowCoreDamage,
+  bestValueShadowCoreDamageGain: optimized.bestValueShadowCoreDamageGain,
+  valueShadowRows: optimized.valueShadowRows,
+  valueShadowSelections: optimized.valueShadowSelections,
+  valueShadowBoundarySelections: optimized.valueShadowBoundarySelections,
+  valueShadowCoreFinalists: optimized.valueShadowCoreFinalists,
   coarseCandidates: optimized.coarseCandidates,
 }, null, 2));
