@@ -65,6 +65,7 @@ export {
   classifyLianyingSuffixFailure,
   identifyLianyingThunderSegments,
   lianyingAdaptiveSuffixEndIndex,
+  lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
   selectLianyingLayeredSuffixFailures,
   synthesizeLianyingSegment,

@@ -15,6 +15,10 @@ function actionId(action) {
   return typeof action === "string" ? action : action.id;
 }
 
+function primaryId(pack) {
+  return actionId(pack.primary);
+}
+
 function clonePack(pack) {
   return {
     prefix: (pack.prefix ?? []).map((action) =>
@@ -482,6 +486,179 @@ export function classifyLianyingSuffixFailure(reason) {
   return "other";
 }
 
+function clonePacks(packs) {
+  return packs.map(clonePack);
+}
+
+function swapPrimaryOnly(packs, leftIndex, rightIndex) {
+  const next = clonePacks(packs);
+  const primary = next[leftIndex].primary;
+  next[leftIndex].primary = next[rightIndex].primary;
+  next[rightIndex].primary = primary;
+  return next;
+}
+
+function movePackAction(packs, sourceIndex, targetIndex, id, targetLocation) {
+  const next = clonePacks(packs);
+  let moved = null;
+  for (const location of ["prefix", "tail"]) {
+    const actionIndex = next[sourceIndex][location]
+      .findIndex((action) => actionId(action) === id);
+    if (actionIndex < 0) continue;
+    [moved] = next[sourceIndex][location].splice(actionIndex, 1);
+    break;
+  }
+  if (!moved || packHasAction(next[targetIndex], id)) return null;
+  next[targetIndex][targetLocation].push(
+    targetLocation === "tail" ? { id, leadFrames: 1 } : id,
+  );
+  return next;
+}
+
+export function lianyingSuffixFailureRepairAxes(
+  packs,
+  attempt,
+  {
+    lookBehindRows = 4,
+    lookAheadRows = 6,
+    limit = 8,
+  } = {},
+) {
+  const failureIndex = Number(attempt?.failureIndex);
+  if (
+    !Number.isInteger(failureIndex) ||
+    failureIndex < 0 ||
+    failureIndex >= packs.length
+  ) return [];
+  const category = classifyLianyingSuffixFailure(attempt.failure);
+  const from = Math.max(0, failureIndex - Math.max(0, Number(lookBehindRows)));
+  const until = Math.min(
+    packs.length - 1,
+    failureIndex + Math.max(0, Number(lookAheadRows)),
+  );
+  const repairs = [];
+  const seen = new Set();
+  const add = (kind, description, candidatePacks) => {
+    if (!candidatePacks) return;
+    const key = JSON.stringify(candidatePacks);
+    if (seen.has(key)) return;
+    seen.add(key);
+    repairs.push({ kind, description, packs: candidatePacks });
+  };
+
+  if (category === "rage") {
+    const refillPrimaries = new Set(["destroy", "dragonRoar", "cloudStrike"]);
+    for (let sourceIndex = failureIndex + 1; sourceIndex <= until; sourceIndex += 1) {
+      if (!refillPrimaries.has(primaryId(packs[sourceIndex]))) continue;
+      add(
+        "rage-primary-swap",
+        `${failureIndex + 1}行缺豆技能与${sourceIndex + 1}行补豆技能交换`,
+        swapPrimaryOnly(packs, failureIndex, sourceIndex),
+      );
+    }
+    if (attempt.failureState?.mounted) {
+      for (let sourceIndex = failureIndex + 1; sourceIndex <= until; sourceIndex += 1) {
+        if (!packHasAction(packs[sourceIndex], "charge")) continue;
+        add(
+          "rage-charge-move",
+          `断魂刺${sourceIndex + 1}→${failureIndex + 1}行补豆`,
+          movePackAction(packs, sourceIndex, failureIndex, "charge", "prefix"),
+        );
+      }
+    }
+    for (let targetIndex = failureIndex - 1; targetIndex >= from; targetIndex -= 1) {
+      if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+      for (const primary of refillPrimaries) {
+        const next = clonePacks(packs);
+        next[targetIndex].primary = primary;
+        add(
+          "rage-prior-refill",
+          `${targetIndex + 1}行龙牙改为${primary}补豆`,
+          next,
+        );
+      }
+    }
+  }
+
+  if (category === "cooldown") {
+    for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+      if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+      add(
+        "cooldown-primary-delay",
+        `${failureIndex + 1}行冷却技能延后至${targetIndex + 1}行`,
+        swapPrimaryOnly(packs, failureIndex, targetIndex),
+      );
+    }
+    for (const id of ["charge", "thunder", "orange"]) {
+      if (!packHasAction(packs[failureIndex], id)) continue;
+      for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+        add(
+          "cooldown-offgcd-delay",
+          `${id}${failureIndex + 1}→${targetIndex + 1}行等待冷却`,
+          movePackAction(packs, failureIndex, targetIndex, id, "tail"),
+        );
+      }
+    }
+  }
+
+  if (category === "sequential-charge") {
+    for (const id of ["thunder", "ride"]) {
+      if (id === "ride" && primaryId(packs[failureIndex]) === "ride") {
+        for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+          if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+          const next = clonePacks(packs);
+          [next[failureIndex], next[targetIndex]] = [
+            next[targetIndex],
+            next[failureIndex],
+          ];
+          add(
+            "charge-primary-delay",
+            `任驰骋${failureIndex + 1}→${targetIndex + 1}行等待充能`,
+            next,
+          );
+        }
+      }
+      if (!packHasAction(packs[failureIndex], id)) continue;
+      for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+        add(
+          "charge-offgcd-delay",
+          `${id}${failureIndex + 1}→${targetIndex + 1}行等待充能`,
+          movePackAction(packs, failureIndex, targetIndex, id, "tail"),
+        );
+      }
+    }
+  }
+
+  if (category === "mounted-state") {
+    if (/任驰骋|需要先下马/.test(String(attempt.failure))) {
+      const next = clonePacks(packs);
+      if (!packHasAction(next[failureIndex], "dismount")) {
+        next[failureIndex].prefix.unshift({
+          id: "dismount",
+          reason: "suffix-failure-repair",
+        });
+        add(
+          "mounted-add-dismount",
+          `${failureIndex + 1}行任驰骋前补下马`,
+          next,
+        );
+      }
+    }
+    if (/断魂刺/.test(String(attempt.failure))) {
+      for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+        if (primaryId(packs[targetIndex]) !== "ride") continue;
+        add(
+          "mounted-charge-after-ride",
+          `断魂刺${failureIndex + 1}→${targetIndex + 1}行任驰骋后`,
+          movePackAction(packs, failureIndex, targetIndex, "charge", "tail"),
+        );
+      }
+    }
+  }
+
+  return repairs.slice(0, Math.max(0, Math.floor(Number(limit))));
+}
+
 export function selectLianyingLayeredSuffixFailures(
   candidates,
   {
@@ -799,6 +976,9 @@ export function optimizeLianyingSegmentResynthesis(
     adaptiveSuffixWarmFailureLimit = 4,
     adaptiveSuffixFailureChainLimit = 1,
     adaptiveSuffixFailureRowBucketSize = 8,
+    adaptiveSuffixDirectedRepairLimit = 0,
+    adaptiveSuffixDirectedRepairLookBehindRows = 4,
+    adaptiveSuffixDirectedRepairLookAheadRows = 6,
     onProgress = null,
   } = {},
 ) {
@@ -1052,14 +1232,46 @@ export function optimizeLianyingSegmentResynthesis(
         });
         if (nextEndIndex === null) break;
         const repairFailureSet = new Set(repairFailures);
-        const selectedFailureWarmAxes = (layeredFailureCandidates ?? failedWarmAxes
+        const selectedFailureCandidates = (layeredFailureCandidates ?? failedWarmAxes
           .filter((candidate) => repairFailureSet.has(candidate.attempt))
           .sort((left, right) => right.boundaryDamage - left.boundaryDamage))
-          .slice(0, Math.max(1, Number(adaptiveSuffixWarmFailureLimit)))
+          .slice(0, Math.max(1, Number(adaptiveSuffixWarmFailureLimit)));
+        const selectedFailureWarmAxes = selectedFailureCandidates
           .map((candidate) => candidate.packs);
+        const directedRepairs = [];
+        const directedRepairKeys = new Set();
+        const directedRepairKindCounts = {};
+        const maximumDirectedRepairs = Math.max(
+          0,
+          Math.floor(Number(adaptiveSuffixDirectedRepairLimit)),
+        );
+        for (const candidate of selectedFailureCandidates) {
+          if (directedRepairs.length >= maximumDirectedRepairs) break;
+          if (candidate.attempt.failureIndex >= nextEndIndex) continue;
+          for (const repair of lianyingSuffixFailureRepairAxes(
+            candidate.packs,
+            candidate.attempt,
+            {
+              lookBehindRows: adaptiveSuffixDirectedRepairLookBehindRows,
+              lookAheadRows: adaptiveSuffixDirectedRepairLookAheadRows,
+              limit: maximumDirectedRepairs - directedRepairs.length,
+            },
+          )) {
+            const key = JSON.stringify(repair.packs);
+            if (directedRepairKeys.has(key)) continue;
+            directedRepairKeys.add(key);
+            directedRepairs.push(repair);
+            directedRepairKindCounts[repair.kind] =
+              Number(directedRepairKindCounts[repair.kind] ?? 0) + 1;
+            if (directedRepairs.length >= maximumDirectedRepairs) break;
+          }
+        }
+        adaptiveAttempts.at(-1).directedRepairWarmStarts = directedRepairs.length;
+        adaptiveAttempts.at(-1).directedRepairKindCounts = directedRepairKindCounts;
         adaptiveWarmAxes = [
           ...additionalWarmAxes,
           ...selectedFailureWarmAxes,
+          ...directedRepairs.map((repair) => repair.packs),
         ];
         if (typeof onProgress === "function") {
           onProgress({
@@ -1073,6 +1285,8 @@ export function optimizeLianyingSegmentResynthesis(
             selectedFailureRows: adaptiveAttempts.at(-1).selectedFailureRows,
             failureChainCount: adaptiveAttempts.at(-1).failureChains.length,
             failureWarmStartCount: selectedFailureWarmAxes.length,
+            directedRepairWarmStartCount: directedRepairs.length,
+            directedRepairKindCounts,
           });
         }
         currentSegment = {
@@ -1231,6 +1445,9 @@ export function optimizeLianyingSegmentResynthesis(
       adaptiveSuffixWarmFailureLimit,
       adaptiveSuffixFailureChainLimit,
       adaptiveSuffixFailureRowBucketSize,
+      adaptiveSuffixDirectedRepairLimit,
+      adaptiveSuffixDirectedRepairLookBehindRows,
+      adaptiveSuffixDirectedRepairLookAheadRows,
     },
   };
 }

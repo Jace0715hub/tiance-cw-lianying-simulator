@@ -6,6 +6,7 @@ import {
   identifyLianyingThunderSegments,
   lianyingAdaptiveSuffixEndIndex,
   lianyingBoundaryStateDistance,
+  lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
   selectLianyingLayeredSuffixFailures,
 } from "../src/policies/lianying-segment-resynthesis.js";
@@ -85,6 +86,56 @@ test("分层失败链保留高伤、最早和最晚代表并扩展至最晚链",
     maximumAddedRows: 40,
     failureSelection: "latest",
   }), 61);
+});
+
+test("后缀失败修复会按资源、冷却和骑乘状态生成定向热启动轴", () => {
+  const ragePacks = [
+    { primary: "dragonFang" },
+    { primary: "dragonFang" },
+    { primary: "destroy" },
+    { prefix: ["charge"], primary: "dragonFang" },
+  ];
+  const rageRepairs = lianyingSuffixFailureRepairAxes(ragePacks, {
+    failureIndex: 1,
+    failure: "龙牙需要1点战意，当前只有0点",
+    failureState: { mounted: true },
+  }, { limit: 16 });
+  const rageKinds = new Set(rageRepairs.map((repair) => repair.kind));
+  assert.ok(rageKinds.has("rage-primary-swap"));
+  assert.ok(rageKinds.has("rage-charge-move"));
+  assert.ok(rageKinds.has("rage-prior-refill"));
+  const swapped = rageRepairs.find((repair) => repair.kind === "rage-primary-swap");
+  assert.equal(swapped.packs[1].primary, "destroy");
+  assert.equal(swapped.packs[2].primary, "dragonFang");
+
+  const cooldownRepairs = lianyingSuffixFailureRepairAxes([
+    { primary: "destroy" },
+    { primary: "dragonFang" },
+  ], {
+    failureIndex: 0,
+    failure: "灭尚有34.08帧冷却",
+  });
+  assert.equal(cooldownRepairs[0].kind, "cooldown-primary-delay");
+  assert.equal(cooldownRepairs[0].packs[0].primary, "dragonFang");
+
+  const rideRepairs = lianyingSuffixFailureRepairAxes([
+    { primary: "ride" },
+  ], {
+    failureIndex: 0,
+    failure: "马上不能施展任驰骋，需要先下马",
+  });
+  assert.equal(rideRepairs[0].kind, "mounted-add-dismount");
+  assert.equal(rideRepairs[0].packs[0].prefix[0].id, "dismount");
+
+  const chargeRepairs = lianyingSuffixFailureRepairAxes([
+    { prefix: ["charge"], primary: "dragonFang" },
+    { primary: "ride" },
+  ], {
+    failureIndex: 0,
+    failure: "断魂刺只能在马上施展",
+  });
+  assert.equal(chargeRepairs[0].kind, "mounted-charge-after-ride");
+  assert.equal(chargeRepairs[0].packs[1].tail[0].id, "charge");
 });
 
 test("小规模整段重合成保留合法热启动且不降低总伤害", () => {

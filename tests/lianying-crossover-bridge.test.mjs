@@ -167,6 +167,9 @@ test("联合桥接允许中间雷前后漂移一行并钉住双热启动", () =>
       adaptiveSuffixMaximumAddedRows: 4,
       adaptiveSuffixFailureChainLimit: 3,
       adaptiveSuffixFailureRowBucketSize: 4,
+      adaptiveSuffixDirectedRepairLimit: 4,
+      adaptiveSuffixDirectedRepairLookBehindRows: 2,
+      adaptiveSuffixDirectedRepairLookAheadRows: 3,
     },
   );
   const report = result.resynthesis.passes[0].segments[0];
@@ -177,8 +180,12 @@ test("联合桥接允许中间雷前后漂移一行并钉住双热启动", () =>
   assert.equal(result.adaptiveSuffixRepair, true);
   assert.equal(result.adaptiveSuffixFailureChainLimit, 3);
   assert.equal(result.adaptiveSuffixFailureRowBucketSize, 4);
+  assert.equal(result.adaptiveSuffixDirectedRepairLimit, 4);
+  assert.equal(result.adaptiveSuffixDirectedRepairLookBehindRows, 2);
+  assert.equal(result.adaptiveSuffixDirectedRepairLookAheadRows, 3);
   assert.equal(result.resynthesis.options.adaptiveSuffixRepair, true);
   assert.equal(result.resynthesis.options.adaptiveSuffixFailureChainLimit, 3);
+  assert.equal(result.resynthesis.options.adaptiveSuffixDirectedRepairLimit, 4);
   assert.ok(report.adaptiveAttempts.length >= 1);
   assert.equal(
     report.adaptiveAttempts.length,

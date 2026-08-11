@@ -153,6 +153,9 @@ export function optimizeLianyingCrossoverJointBridge(
     adaptiveSuffixWarmFailureLimit = 4,
     adaptiveSuffixFailureChainLimit = 1,
     adaptiveSuffixFailureRowBucketSize = 8,
+    adaptiveSuffixDirectedRepairLimit = 0,
+    adaptiveSuffixDirectedRepairLookBehindRows = 4,
+    adaptiveSuffixDirectedRepairLookAheadRows = 6,
     onProgress = null,
   } = {},
 ) {
@@ -210,6 +213,9 @@ export function optimizeLianyingCrossoverJointBridge(
       adaptiveSuffixWarmFailureLimit,
       adaptiveSuffixFailureChainLimit,
       adaptiveSuffixFailureRowBucketSize,
+      adaptiveSuffixDirectedRepairLimit,
+      adaptiveSuffixDirectedRepairLookBehindRows,
+      adaptiveSuffixDirectedRepairLookAheadRows,
       excludedCorePackKeys: preserveNovelStructure
         ? [JSON.stringify(stripLianyingDashPacks(incumbentPacks))]
         : [],
@@ -241,6 +247,9 @@ export function optimizeLianyingCrossoverJointBridge(
     adaptiveSuffixRepair,
     adaptiveSuffixFailureChainLimit,
     adaptiveSuffixFailureRowBucketSize,
+    adaptiveSuffixDirectedRepairLimit,
+    adaptiveSuffixDirectedRepairLookBehindRows,
+    adaptiveSuffixDirectedRepairLookAheadRows,
     resynthesis: optimized,
   };
 }
