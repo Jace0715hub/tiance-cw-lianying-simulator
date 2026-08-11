@@ -473,6 +473,67 @@ function replaySuffixFromState(
   return { legal: true, state, failureIndex: null, failureReason: null };
 }
 
+export function classifyLianyingSuffixFailure(reason) {
+  const message = String(reason ?? "");
+  if (/战意|豆/.test(message)) return "rage";
+  if (/充能不足/.test(message)) return "sequential-charge";
+  if (/尚有.*(?:冷却|帧)|GCD/.test(message)) return "cooldown";
+  if (/马上|下马|骑乘/.test(message)) return "mounted-state";
+  return "other";
+}
+
+export function selectLianyingLayeredSuffixFailures(
+  candidates,
+  {
+    limit = 4,
+    failureRowBucketSize = 8,
+    preferDriftedLineages = true,
+  } = {},
+) {
+  const maximum = Math.max(1, Math.floor(Number(limit)));
+  const bucketSize = Math.max(1, Math.floor(Number(failureRowBucketSize)));
+  const groups = new Map();
+  for (const candidate of candidates) {
+    const attempt = candidate?.attempt;
+    if (!Number.isInteger(Number(attempt?.failureIndex))) continue;
+    const category = classifyLianyingSuffixFailure(attempt.failure);
+    const lineage = JSON.stringify(attempt.thunderRows ?? []);
+    const rowBucket = Math.floor(Number(attempt.failureIndex) / bucketSize);
+    const key = `${category}|${lineage}|${rowBucket}`;
+    const previous = groups.get(key);
+    const damage = Number(candidate.boundaryDamage ?? Number.NEGATIVE_INFINITY);
+    const previousDamage = Number(
+      previous?.boundaryDamage ?? Number.NEGATIVE_INFINITY,
+    );
+    if (!previous || damage > previousDamage) {
+      groups.set(key, { ...candidate, failureCategory: category, rowBucket });
+    }
+  }
+  const representatives = [...groups.values()].sort((left, right) => {
+    if (preferDriftedLineages && left.attempt.drifted !== right.attempt.drifted) {
+      return Number(right.attempt.drifted) - Number(left.attempt.drifted);
+    }
+    return Number(right.boundaryDamage) - Number(left.boundaryDamage);
+  });
+  if (representatives.length <= maximum) return representatives;
+
+  const selected = [];
+  const add = (candidate) => {
+    if (candidate && !selected.includes(candidate) && selected.length < maximum) {
+      selected.push(candidate);
+    }
+  };
+  add(representatives[0]);
+  add([...representatives].sort(
+    (left, right) => left.attempt.failureIndex - right.attempt.failureIndex,
+  )[0]);
+  add([...representatives].sort(
+    (left, right) => right.attempt.failureIndex - left.attempt.failureIndex,
+  )[0]);
+  for (const candidate of representatives) add(candidate);
+  return selected;
+}
+
 export function lianyingAdaptiveSuffixEndIndex({
   currentEndIndex,
   initialEndIndex,
@@ -480,19 +541,22 @@ export function lianyingAdaptiveSuffixEndIndex({
   packCount,
   lookaheadRows = 4,
   maximumAddedRows = 16,
+  failureSelection = "earliest",
 }) {
   const failures = failureIndices
     .map(Number)
     .filter((index) => Number.isInteger(index) && index >= currentEndIndex);
   if (failures.length === 0) return null;
-  const firstFailureIndex = Math.min(...failures);
+  const selectedFailureIndex = failureSelection === "latest"
+    ? Math.max(...failures)
+    : Math.min(...failures);
   const hardLimit = Math.min(
     Number(packCount),
     Number(initialEndIndex) + Math.max(0, Number(maximumAddedRows)),
   );
   const nextEndIndex = Math.min(
     hardLimit,
-    firstFailureIndex + 1 + Math.max(0, Number(lookaheadRows)),
+    selectedFailureIndex + 1 + Math.max(0, Number(lookaheadRows)),
   );
   return nextEndIndex > currentEndIndex ? nextEndIndex : null;
 }
@@ -733,6 +797,8 @@ export function optimizeLianyingSegmentResynthesis(
     adaptiveSuffixMaximumAddedRows = 16,
     adaptiveSuffixPreferDriftedLineages = true,
     adaptiveSuffixWarmFailureLimit = 4,
+    adaptiveSuffixFailureChainLimit = 1,
+    adaptiveSuffixFailureRowBucketSize = 8,
     onProgress = null,
   } = {},
 ) {
@@ -928,12 +994,25 @@ export function optimizeLianyingSegmentResynthesis(
           });
         }
 
+        const failureChainLimit = Math.max(
+          1,
+          Math.floor(Number(adaptiveSuffixFailureChainLimit)),
+        );
+        const layeredFailureCandidates = failureChainLimit > 1
+          ? selectLianyingLayeredSuffixFailures(failedWarmAxes, {
+            limit: failureChainLimit,
+            failureRowBucketSize: adaptiveSuffixFailureRowBucketSize,
+            preferDriftedLineages: adaptiveSuffixPreferDriftedLineages,
+          })
+          : null;
         const preferredFailures = adaptiveSuffixPreferDriftedLineages
           ? failedAttempts.filter((attempt) => attempt.drifted)
           : failedAttempts;
-        const repairFailures = preferredFailures.length > 0
-          ? preferredFailures
-          : failedAttempts;
+        const repairFailures = layeredFailureCandidates
+          ? layeredFailureCandidates.map((candidate) => candidate.attempt)
+          : preferredFailures.length > 0
+            ? preferredFailures
+            : failedAttempts;
         const nextEndIndex = adaptiveSuffixRepair &&
           adaptiveAttempt < maximumAdaptiveExpansions
           ? lianyingAdaptiveSuffixEndIndex({
@@ -943,6 +1022,7 @@ export function optimizeLianyingSegmentResynthesis(
             packCount: corePacks.length,
             lookaheadRows: adaptiveSuffixLookaheadRows,
             maximumAddedRows: adaptiveSuffixMaximumAddedRows,
+            failureSelection: failureChainLimit > 1 ? "latest" : "earliest",
           })
           : null;
         adaptiveAttempts.push({
@@ -959,13 +1039,22 @@ export function optimizeLianyingSegmentResynthesis(
           firstFailureRow: repairFailures.length > 0
             ? Math.min(...repairFailures.map((attempt) => attempt.failureRow))
             : null,
+          selectedFailureRows: repairFailures.map((attempt) => attempt.failureRow),
+          failureChains: (layeredFailureCandidates ?? []).map((candidate) => ({
+            category: candidate.failureCategory,
+            rowBucket: candidate.rowBucket,
+            failureRow: candidate.attempt.failureRow,
+            thunderRows: candidate.attempt.thunderRows,
+            drifted: candidate.attempt.drifted,
+            boundaryDamage: candidate.boundaryDamage,
+          })),
           nextEndRow: nextEndIndex,
         });
         if (nextEndIndex === null) break;
         const repairFailureSet = new Set(repairFailures);
-        const selectedFailureWarmAxes = failedWarmAxes
+        const selectedFailureWarmAxes = (layeredFailureCandidates ?? failedWarmAxes
           .filter((candidate) => repairFailureSet.has(candidate.attempt))
-          .sort((left, right) => right.boundaryDamage - left.boundaryDamage)
+          .sort((left, right) => right.boundaryDamage - left.boundaryDamage))
           .slice(0, Math.max(1, Number(adaptiveSuffixWarmFailureLimit)))
           .map((candidate) => candidate.packs);
         adaptiveWarmAxes = [
@@ -981,6 +1070,8 @@ export function optimizeLianyingSegmentResynthesis(
             previousEndRow: currentSegment.endIndex,
             nextEndRow: nextEndIndex,
             firstFailureRow: adaptiveAttempts.at(-1).firstFailureRow,
+            selectedFailureRows: adaptiveAttempts.at(-1).selectedFailureRows,
+            failureChainCount: adaptiveAttempts.at(-1).failureChains.length,
             failureWarmStartCount: selectedFailureWarmAxes.length,
           });
         }
@@ -1138,6 +1229,8 @@ export function optimizeLianyingSegmentResynthesis(
       adaptiveSuffixMaximumAddedRows,
       adaptiveSuffixPreferDriftedLineages,
       adaptiveSuffixWarmFailureLimit,
+      adaptiveSuffixFailureChainLimit,
+      adaptiveSuffixFailureRowBucketSize,
     },
   };
 }

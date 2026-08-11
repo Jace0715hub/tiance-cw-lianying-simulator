@@ -82,6 +82,10 @@ const optimized = optimizeLianyingCrossoverJointBridge(
     adaptiveSuffixMaximumAddedRows: profileName === "fast" ? 48 : 40,
     adaptiveSuffixPreferDriftedLineages: true,
     adaptiveSuffixWarmFailureLimit: profileName === "fast" ? 8 : 4,
+    adaptiveSuffixFailureChainLimit: adaptiveSuffixRepair
+      ? profileName === "fast" ? 6 : 4
+      : 1,
+    adaptiveSuffixFailureRowBucketSize: 8,
     ...profiles[profileName],
     onProgress: (event) => console.log(JSON.stringify({
       phase: adaptiveSuffixRepair ? "adaptive-suffix" : "joint-drift",

@@ -151,6 +151,8 @@ export function optimizeLianyingCrossoverJointBridge(
     adaptiveSuffixMaximumAddedRows = 16,
     adaptiveSuffixPreferDriftedLineages = true,
     adaptiveSuffixWarmFailureLimit = 4,
+    adaptiveSuffixFailureChainLimit = 1,
+    adaptiveSuffixFailureRowBucketSize = 8,
     onProgress = null,
   } = {},
 ) {
@@ -206,6 +208,8 @@ export function optimizeLianyingCrossoverJointBridge(
       adaptiveSuffixMaximumAddedRows,
       adaptiveSuffixPreferDriftedLineages,
       adaptiveSuffixWarmFailureLimit,
+      adaptiveSuffixFailureChainLimit,
+      adaptiveSuffixFailureRowBucketSize,
       excludedCorePackKeys: preserveNovelStructure
         ? [JSON.stringify(stripLianyingDashPacks(incumbentPacks))]
         : [],
@@ -235,6 +239,8 @@ export function optimizeLianyingCrossoverJointBridge(
     thunderPositionWindows,
     warmStartAxisCount: 1 + warmAxes.length,
     adaptiveSuffixRepair,
+    adaptiveSuffixFailureChainLimit,
+    adaptiveSuffixFailureRowBucketSize,
     resynthesis: optimized,
   };
 }
