@@ -12,6 +12,7 @@ import {
   optimizeLianyingAxis,
   optimizeLianyingDashOverlay,
   optimizeLianyingNeighborhoodAxis,
+  lianyingResourceBalanceCompoundMutations,
   lianyingResourceBalanceMutations,
   optimizeLianyingReferenceAxis,
   replayWhitepaperLianying,
@@ -428,10 +429,30 @@ test("资源平衡邻域从失衡事件生成断魂刺、补豆和任驰骋修�
     ]),
   );
   assert.ok(mutations.length > 0);
-  assert.ok(mutations.every((mutation) => mutation.kind === "resourceBalance"));
+  assert.ok(mutations.some((mutation) => mutation.kind === "resourceBalance"));
+  assert.ok(mutations.some((mutation) => mutation.kind === "resourceBalancePair"));
   assert.ok(mutations.some((mutation) => mutation.description.includes("断魂刺移至龙牙后")));
   assert.ok(mutations.some((mutation) => mutation.description.includes("低豆雷前补豆")));
   assert.ok(mutations.some((mutation) => mutation.description.includes("延后任驰骋")));
+
+  const openerMutations = lianyingResourceBalanceMutations([
+    { primary: "destroy" },
+    { primary: "dragonFang" },
+    { primary: "ride", tail: [{ id: "thunder", leadFrames: 1 }] },
+  ], [{ kind: "low-rage-thunder", rowIndex: 2 }], { maxDistance: 3 });
+  assert.ok(openerMutations.some(
+    (mutation) => mutation.description.includes("低豆雷前先消耗后补豆"),
+  ));
+
+  const compounds = lianyingResourceBalanceCompoundMutations(mutations, {
+    maxGapRows: 8,
+    maxCandidates: 32,
+  });
+  assert.ok(compounds.length > 0);
+  assert.ok(compounds.every(
+    (mutation) => mutation.kind === "resourceBalanceCompound",
+  ));
+  assert.ok(compounds.every((mutation) => mutation.changes.size >= 3));
 });
 
 test("组合优化交替运行经验候选和通用机械邻域", () => {

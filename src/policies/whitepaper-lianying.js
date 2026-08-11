@@ -1554,11 +1554,28 @@ export function lianyingResourceBalanceMutations(
     if (signal.kind === "low-rage-thunder") {
       const targetFrom = Math.max(0, rowIndex - 2);
       const sourceUntil = Math.min(packs.length - 1, rowIndex + distance);
+      const sourceFrom = Math.max(0, rowIndex - distance);
+      for (let sourceIndex = sourceFrom; sourceIndex < rowIndex; sourceIndex += 1) {
+        if (!refillPrimaries.has(primaryId(packs[sourceIndex]))) continue;
+        for (let targetIndex = sourceIndex + 1; targetIndex <= rowIndex; targetIndex += 1) {
+          if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+          add(createMutation("resourceBalancePair", primaryOnlySwapChanges(
+            packs,
+            sourceIndex,
+            targetIndex,
+          ), {
+            signalKind: signal.kind,
+            signalRow: rowIndex + 1,
+            coordinationKind: "consume-before-refill",
+            description: `低豆雷前先消耗后补豆 ${sourceIndex + 1}↔${targetIndex + 1}行`,
+          }));
+        }
+      }
       for (let targetIndex = targetFrom; targetIndex <= rowIndex; targetIndex += 1) {
         if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
         for (let sourceIndex = rowIndex + 1; sourceIndex <= sourceUntil; sourceIndex += 1) {
           if (!refillPrimaries.has(primaryId(packs[sourceIndex]))) continue;
-          add(createMutation("resourceBalance", primaryOnlySwapChanges(
+          add(createMutation("resourceBalancePair", primaryOnlySwapChanges(
             packs,
             targetIndex,
             sourceIndex,
@@ -1572,17 +1589,18 @@ export function lianyingResourceBalanceMutations(
     }
 
     if (signal.kind === "rage-overflow" && refillPrimaries.has(primaryId(packs[rowIndex]))) {
-      const from = Math.max(0, rowIndex - distance);
-      for (let targetIndex = from; targetIndex < rowIndex; targetIndex += 1) {
+      const until = Math.min(packs.length - 1, rowIndex + distance);
+      for (let targetIndex = rowIndex + 1; targetIndex <= until; targetIndex += 1) {
         if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
-        add(createMutation("resourceBalance", primaryOnlySwapChanges(
+        add(createMutation("resourceBalancePair", primaryOnlySwapChanges(
           packs,
-          targetIndex,
           rowIndex,
+          targetIndex,
         ), {
           signalKind: signal.kind,
           signalRow: rowIndex + 1,
-          description: `溢出补豆技能 ${rowIndex + 1}→${targetIndex + 1}行`,
+          coordinationKind: "consume-before-refill",
+          description: `溢出补豆技能延后 ${rowIndex + 1}↔${targetIndex + 1}行`,
         }));
       }
     }
@@ -1591,18 +1609,70 @@ export function lianyingResourceBalanceMutations(
       const until = Math.min(packs.length - 1, rowIndex + distance);
       for (let targetIndex = rowIndex + 1; targetIndex <= until; targetIndex += 1) {
         if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
-        add(createMutation("resourceBalance", new Map([
+        add(createMutation("resourceBalancePair", new Map([
           [rowIndex, packs[targetIndex]],
           [targetIndex, packs[rowIndex]],
         ]), {
           signalKind: signal.kind,
           signalRow: rowIndex + 1,
+          coordinationKind: "consume-before-ride",
           description: `延后任驰骋 ${rowIndex + 1}→${targetIndex + 1}行消耗龙驭`,
         }));
       }
     }
   }
   return mutations;
+}
+
+export function lianyingResourceBalanceCompoundMutations(
+  baseMutations,
+  {
+    maxGapRows = 8,
+    maxCandidates = 192,
+  } = {},
+) {
+  const maximumGap = Math.max(0, Math.floor(Number(maxGapRows)));
+  const compounds = [];
+  for (let leftIndex = 0; leftIndex < baseMutations.length; leftIndex += 1) {
+    const left = baseMutations[leftIndex];
+    const leftRows = [...left.changes.keys()];
+    for (
+      let rightIndex = leftIndex + 1;
+      rightIndex < baseMutations.length;
+      rightIndex += 1
+    ) {
+      const right = baseMutations[rightIndex];
+      const rightRows = [...right.changes.keys()];
+      if (leftRows.some((row) => right.changes.has(row))) continue;
+      const gap = Math.max(
+        0,
+        Math.min(...rightRows) - Math.max(...leftRows),
+        Math.min(...leftRows) - Math.max(...rightRows),
+      );
+      if (gap > maximumGap) continue;
+      const rows = [...leftRows, ...rightRows];
+      compounds.push(createMutation(
+        "resourceBalanceCompound",
+        new Map([...left.changes, ...right.changes]),
+        {
+          signalKind: [left.signalKind, right.signalKind].sort().join("+"),
+          signalRow: Math.min(left.signalRow, right.signalRow),
+          coordinationKind: "two-resource-repairs",
+          componentKinds: [left.kind, right.kind],
+          componentDescriptions: [left.description, right.description],
+          gapRows: gap,
+          spanRows: Math.max(...rows) - Math.min(...rows) + 1,
+          description: `${left.description}；${right.description}`,
+        },
+      ));
+    }
+  }
+  return compounds
+    .sort((left, right) =>
+      left.gapRows - right.gapRows ||
+      left.spanRows - right.spanRows ||
+      left.startIndex - right.startIndex)
+    .slice(0, Math.max(0, Math.floor(Number(maxCandidates))));
 }
 
 function neighborhoodMutations(
@@ -1626,12 +1696,28 @@ function neighborhoodMutations(
   const keyFlags = packs.map(isNeighborhoodKeyPack);
   const canonicalPacks = packs.map(canonicalActionPack);
 
-  if (enabled.has("resourceBalance")) {
-    for (const mutation of lianyingResourceBalanceMutations(
+  if (
+    enabled.has("resourceBalance") ||
+    enabled.has("resourceBalancePair") ||
+    enabled.has("resourceBalanceCompound")
+  ) {
+    const resourceMutations = lianyingResourceBalanceMutations(
       packs,
       resourceSignals,
       { maxDistance: maxSwapDistance },
-    )) add(mutation);
+    );
+    for (const mutation of resourceMutations) {
+      if (enabled.has(mutation.kind)) add(mutation);
+    }
+    if (enabled.has("resourceBalanceCompound")) {
+      for (const mutation of lianyingResourceBalanceCompoundMutations(
+        resourceMutations,
+        {
+          maxGapRows: maxSwapDistance + 2,
+          maxCandidates: 192,
+        },
+      )) add(mutation);
+    }
   }
 
   if (enabled.has("swap")) {
@@ -1807,6 +1893,8 @@ export function optimizeLianyingNeighborhoodAxis(
       "offGcdMove",
       "primaryReplace",
       "resourceBalance",
+      "resourceBalancePair",
+      "resourceBalanceCompound",
     ],
     minimumDamageGain = 1e-6,
     onPass = null,
@@ -1825,6 +1913,7 @@ export function optimizeLianyingNeighborhoodAxis(
   let shortlistedCandidates = 0;
   const candidateKinds = {};
   const resourceSignalKinds = {};
+  const resourceCandidateDiagnostics = [];
   const lookaheadHorizons = [
     ...new Set(
       (Array.isArray(localLookaheadRows)
@@ -1856,6 +1945,30 @@ export function optimizeLianyingNeighborhoodAxis(
       mutationKinds,
       resourceSignals,
     });
+    const resourceDiagnostics = new Map();
+    const diagnosticFor = (mutation) => {
+      if (!mutation.kind.startsWith("resourceBalance")) return null;
+      const key = `${mutation.kind}|${mutation.signalKind}`;
+      if (!resourceDiagnostics.has(key)) {
+        resourceDiagnostics.set(key, {
+          kind: mutation.kind,
+          signalKind: mutation.signalKind,
+          generated: 0,
+          legalLocal: 0,
+          illegalLocal: 0,
+          shortlisted: 0,
+          legalFull: 0,
+          illegalFull: 0,
+          bestLocalGain: null,
+          bestFullDamageGain: null,
+        });
+      }
+      return resourceDiagnostics.get(key);
+    };
+    for (const mutation of mutations) {
+      const diagnostic = diagnosticFor(mutation);
+      if (diagnostic) diagnostic.generated += 1;
+    }
     for (const mutation of mutations) incrementCounter(candidateKinds, mutation.kind);
     for (const mutation of mutations) {
       if (decisionTick(prefixStates[mutation.startIndex]) >= endTick) continue;
@@ -1880,8 +1993,18 @@ export function optimizeLianyingNeighborhoodAxis(
           );
         }
         localCandidates.push({ mutation, localScores });
+        const diagnostic = diagnosticFor(mutation);
+        if (diagnostic) {
+          diagnostic.legalLocal += 1;
+          const bestLocalGain = Math.max(...localScores);
+          diagnostic.bestLocalGain = diagnostic.bestLocalGain === null
+            ? bestLocalGain
+            : Math.max(diagnostic.bestLocalGain, bestLocalGain);
+        }
       } catch {
         illegalCandidates += 1;
+        const diagnostic = diagnosticFor(mutation);
+        if (diagnostic) diagnostic.illegalLocal += 1;
       }
     }
     const shortlist = [];
@@ -1913,14 +2036,14 @@ export function optimizeLianyingNeighborhoodAxis(
     const resourceSignalMutationKinds = [
       ...new Set(
         localCandidates
-          .filter((candidate) => candidate.mutation.kind === "resourceBalance")
+          .filter((candidate) => candidate.mutation.kind.startsWith("resourceBalance"))
           .map((candidate) => candidate.mutation.signalKind),
       ),
     ];
     for (const signalKind of resourceSignalMutationKinds) {
       const sameSignal = localCandidates
         .filter((candidate) =>
-          candidate.mutation.kind === "resourceBalance" &&
+          candidate.mutation.kind.startsWith("resourceBalance") &&
           candidate.mutation.signalKind === signalKind)
         .sort((left, right) =>
           Math.max(...right.localScores) - Math.max(...left.localScores));
@@ -1940,6 +2063,10 @@ export function optimizeLianyingNeighborhoodAxis(
       representedBlocks.add(block);
     }
     shortlistedCandidates += shortlist.length;
+    for (const candidate of shortlist) {
+      const diagnostic = diagnosticFor(candidate.mutation);
+      if (diagnostic) diagnostic.shortlisted += 1;
+    }
     if (typeof onPass === "function") {
       onPass({
         stage: "shortlist",
@@ -1953,7 +2080,7 @@ export function optimizeLianyingNeighborhoodAxis(
             .map((kind) => [kind, resourceSignals.filter((signal) => signal.kind === kind).length]),
         ),
         resourceBalanceShortlisted: shortlist.filter(
-          (candidate) => candidate.mutation.kind === "resourceBalance",
+          (candidate) => candidate.mutation.kind.startsWith("resourceBalance"),
         ).length,
       });
     }
@@ -1968,13 +2095,37 @@ export function optimizeLianyingNeighborhoodAxis(
           endTick,
         );
         const damageGain = state.totalDamage - incumbent.state.totalDamage;
+        const diagnostic = diagnosticFor(candidate.mutation);
+        if (diagnostic) {
+          diagnostic.legalFull += 1;
+          diagnostic.bestFullDamageGain = diagnostic.bestFullDamageGain === null
+            ? damageGain
+            : Math.max(diagnostic.bestFullDamageGain, damageGain);
+        }
         if (damageGain <= minimumDamageGain) continue;
         if (!best || state.totalDamage > best.state.totalDamage) {
           best = { ...candidate, state, damageGain };
         }
       } catch {
         illegalCandidates += 1;
+        const diagnostic = diagnosticFor(candidate.mutation);
+        if (diagnostic) diagnostic.illegalFull += 1;
       }
+    }
+    const passResourceDiagnostics = [...resourceDiagnostics.values()]
+      .sort((left, right) =>
+        left.kind.localeCompare(right.kind) ||
+        left.signalKind.localeCompare(right.signalKind));
+    resourceCandidateDiagnostics.push({
+      pass: pass + 1,
+      groups: passResourceDiagnostics,
+    });
+    if (typeof onPass === "function") {
+      onPass({
+        stage: "full-evaluation",
+        pass: pass + 1,
+        resourceCandidateDiagnostics: passResourceDiagnostics,
+      });
     }
     if (!best) break;
     incumbentPacks = applyMutation(incumbentPacks, best.mutation);
@@ -2025,6 +2176,7 @@ export function optimizeLianyingNeighborhoodAxis(
     mutationKinds,
     candidateKinds,
     resourceSignalKinds,
+    resourceCandidateDiagnostics,
   };
 }
 
@@ -2107,6 +2259,8 @@ export function optimizeLianyingAxis(
         mutationKinds: neighborhoodResult.mutationKinds,
         candidateKinds: neighborhoodResult.candidateKinds,
         resourceSignalKinds: neighborhoodResult.resourceSignalKinds,
+        resourceCandidateDiagnostics:
+          neighborhoodResult.resourceCandidateDiagnostics,
         shortlistPerResourceSignal:
           neighborhoodResult.shortlistPerResourceSignal,
       },
@@ -2135,6 +2289,8 @@ export function optimizeLianyingAxis(
         mutationKinds: neighborhoodResult.mutationKinds,
         candidateKinds: neighborhoodResult.candidateKinds,
         resourceSignalKinds: neighborhoodResult.resourceSignalKinds,
+        resourceCandidateDiagnostics:
+          neighborhoodResult.resourceCandidateDiagnostics,
         shortlistPerResourceSignal:
           neighborhoodResult.shortlistPerResourceSignal,
       });

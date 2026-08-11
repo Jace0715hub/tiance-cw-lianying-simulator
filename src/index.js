@@ -43,6 +43,7 @@ export {
   LIANYING_POLICY_MODES,
   buildWhitepaperOpener,
   detectLianyingResourceBalanceSignals,
+  lianyingResourceBalanceCompoundMutations,
   lianyingResourceBalanceMutations,
   legalLianyingPacks,
   legalMechanicalLianyingPacks,
