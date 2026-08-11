@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   crossValidateLianyingRidgeValueModel,
+  evaluateLianyingBaselineQuota,
   evaluateLianyingHybridValueQuota,
   evaluateLianyingValueModel,
   fitLianyingRidgeValueModel,
@@ -93,6 +94,14 @@ test("价值权重为零时严格退化为同预算即时伤害基线", () => {
   assert.equal(guarded.meanRegret, baseline.ranking.meanTop2Regret);
 });
 
+test("广义即时伤害配额与既有 top-k 排名指标一致", () => {
+  const rows = syntheticRows().filter((row) => row.datasetSplit === "test");
+  const ranking = evaluateLianyingValueModel(rows).ranking;
+  const baseline = evaluateLianyingBaselineQuota(rows, { quota: 2 });
+  assert.equal(baseline.oracleRecall, ranking.top2Recall);
+  assert.equal(baseline.meanRegret, ranking.meanTop2Regret);
+});
+
 test("验证集会在价值排序有害时选择零权重回退", () => {
   const rows = [
     { totalDamage: 100, bestFinalDamage: 1000, rage: 0 },
@@ -180,4 +189,23 @@ test("嵌套来源验证完全隔离外层测试轴", () => {
   assert.equal(selected.model.trainingRows, rows.filter(
     (row) => row.sourceAxis !== "axis-0").length);
   assert.equal(selected.strictNonDegrading, true);
+});
+
+test("嵌套验证按五加一实际束配额与六槽基线比较", () => {
+  const rows = syntheticRows().flatMap((row, index) => [
+    { ...row, sourceAxis: `axis-${index % 4}` },
+  ]);
+  const report = crossValidateLianyingRidgeValueModel(rows, {
+    featureColumns: ["rage", "dragonRideStacks"],
+    alphas: [0.01, 1],
+    valueWeights: [0, 1],
+    maximumBaselineRanks: [6, 8],
+    baselineQuota: 5,
+    valueQuota: 1,
+  });
+  assert.equal(report.aggregate.baselineEqualBudgetQuota, 6);
+  assert.ok(report.folds.every((fold) =>
+    fold.baselineEqualBudget.quota === 6 &&
+    fold.hybridOnePlusOne.baselineQuota === 5 &&
+    fold.hybridOnePlusOne.valueQuota === 1));
 });

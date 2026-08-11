@@ -15,6 +15,15 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "balanced";
+const valueShadowPolicyPath = process.argv[5]
+  ? resolveLianyingResearchPath(projectRoot, process.argv[5])
+  : null;
+const valueShadowPolicy = valueShadowPolicyPath
+  ? JSON.parse(fs.readFileSync(valueShadowPolicyPath, "utf8"))
+  : null;
+if (valueShadowPolicy && valueShadowPolicy.enabled !== true) {
+  throw new Error("价值影子策略未通过验证门控，拒绝用于在线搜索");
+}
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const durationSeconds = Number(source.durationSeconds ?? 180);
 const mode = source.mode ?? "fixed";
@@ -61,6 +70,7 @@ const seedReplay = replayWhitepaperLianying(runtime, seedPacks, { durationSecond
 const optimized = optimizeLianyingSegmentResynthesis(runtime, seedPacks, {
   durationSeconds,
   ...profiles[profileName],
+  valueShadowPolicy,
   onProgress: (event) => {
     console.log(JSON.stringify({ phase: "segment-resynthesis", ...event }));
   },
@@ -89,10 +99,15 @@ const searchResult = {
   packs: finalPacks,
   state: finalState,
   axisOptimization: {
-    kind: "segment-resynthesis",
+    kind: valueShadowPolicy
+      ? "segment-resynthesis-value-shadow"
+      : "segment-resynthesis",
     profile: profileName,
     accepted,
     seedPath: path.relative(projectRoot, inputPath),
+    valueShadowPolicyPath: valueShadowPolicyPath
+      ? path.relative(projectRoot, valueShadowPolicyPath)
+      : null,
     damageGain: optimized.damageGain,
     options: optimized.options,
     passes: optimized.passes,
@@ -117,6 +132,7 @@ console.log(JSON.stringify({
   inputPath,
   outputStem,
   profileName,
+  valueShadowPolicyPath,
   accepted,
   seedRotationDamage: seedReplay.state.totalDamage,
   finalRotationDamage: finalState.totalDamage,

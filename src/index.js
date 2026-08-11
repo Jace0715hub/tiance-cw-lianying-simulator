@@ -66,6 +66,7 @@ export {
   evaluateLianyingValueModel,
   evaluateLianyingHybridValueQuota,
   crossValidateLianyingRidgeValueModel,
+  evaluateLianyingBaselineQuota,
   fitLianyingRidgeValueModel,
   LIANYING_VALUE_FEATURE_COLUMNS,
   predictLianyingRidgeValue,
@@ -78,10 +79,13 @@ export {
   buildLianyingValueTrainingRows,
   identifyLianyingThunderSegments,
   lianyingAdaptiveSuffixEndIndex,
+  lianyingCorePackDistance,
   lianyingStateValueFeatures,
   lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
+  selectLianyingDiverseAxisCandidates,
   selectLianyingLayeredSuffixFailures,
+  selectLianyingValueShadowCandidates,
   synthesizeLianyingSegment,
 } from "./policies/lianying-segment-resynthesis.js";
 export {

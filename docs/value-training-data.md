@@ -11,13 +11,19 @@ npm run collect:value-data -- - sample
 npm run collect:value-data -- - screen
 npm run collect:value-data -- portfolio screen
 npm run evaluate:value-model -- output/lianying-value-portfolio-screen.jsonl
+npm run collect:value-data -- output/value-seeds-screen/manifest.json pruning-screen output/value-pruning-screen
+npm run evaluate:value-model -- output/value-pruning-screen.jsonl output/value-pruning-screen-beam-shadow beam-shadow
 ```
 
-参数一为技能轴路径，`-`表示当前180秒最优轴，`portfolio`表示状态价值专用的八条结构跨度种子，也可传逗号分隔的自定义轴；参数二为`sample`或`screen`；参数三可指定输出文件前缀。多种子数据按完整来源轴划分，单轴数据按轨迹划分。命令输出：
+参数一为技能轴路径，`-`表示当前180秒最优轴，`portfolio`表示状态价值专用的八条结构跨度种子，也可传逗号分隔的自定义轴或近优种子清单；参数二为`sample`、`screen`或`pruning-screen`；参数三可指定输出文件前缀。多种子数据按完整来源轴划分，单轴数据按轨迹划分。命令输出：
 
 - `*.jsonl`：训练程序使用的逐节点记录；
 - `*.csv`：人工检查和统计分析；
 - `*-summary.json`：样本量、轨迹数、数据划分、残差范围和特征列。
+
+`pruning-screen`与旧的决赛祖先数据用途不同：它在每层束剪枝前取即时伤害前12名，逐一沿来源轴的统一参考后缀重放，只给完整合法候选贴标签。输出中的`baselineRank`表示剪枝前即时伤害名次，`selectedByBeam`表示原基础束是否保留该状态。该模式用于评估真实剪枝边界，不用于替代完整重合成。
+
+`evaluate:value-model`的第四个参数传`beam-shadow`时，按基础5槽+价值1槽对比同预算即时伤害前6名，并把逐轴外层留出、内层逐来源验证全部通过的策略写入`*-policy.json`。未通过门控的策略会写成`enabled: false`，`optimize:segments`会拒绝加载。
 
 ## 节点与标签
 

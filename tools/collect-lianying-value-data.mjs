@@ -20,14 +20,35 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const inputArgument = process.argv[2] ?? "-";
 const profileName = process.argv[3] ?? "sample";
-const inputPaths = inputArgument === "portfolio"
-  ? resolveLianyingResearchPaths(
-    projectRoot,
-    undefined,
-    LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
-  )
-  : inputArgument.split(",")
+
+function resolveInputPaths(argument) {
+  if (argument === "portfolio") {
+    return resolveLianyingResearchPaths(
+      projectRoot,
+      undefined,
+      LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
+    );
+  }
+  if (!argument.includes(",")) {
+    const possibleManifestPath = resolveLianyingResearchPath(projectRoot, argument);
+    if (fs.existsSync(possibleManifestPath)) {
+      const possibleManifest = JSON.parse(
+        fs.readFileSync(possibleManifestPath, "utf8"));
+      if (
+        possibleManifest.kind ===
+          "tiance-cw-lianying-diverse-value-seed-portfolio" &&
+        Array.isArray(possibleManifest.candidates)
+      ) {
+        return possibleManifest.candidates.map((candidate) =>
+          resolveLianyingResearchPath(projectRoot, candidate.outputPath));
+      }
+    }
+  }
+  return argument.split(",")
     .map((entry) => resolveLianyingResearchPath(projectRoot, entry.trim()));
+}
+
+const inputPaths = resolveInputPaths(inputArgument);
 
 const profiles = {
   sample: {
@@ -51,9 +72,22 @@ const profiles = {
     fullDashStates: 64,
     boundaryPaddingRows: 4,
   },
+  "pruning-screen": {
+    maxPasses: 1,
+    beamWidth: 16,
+    finalistCount: 16,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 1,
+    fullDashStates: 64,
+    boundaryPaddingRows: 4,
+    collectValueTrainingData: false,
+    collectPruningValueData: true,
+    pruningValueBaselineRankLimit: 12,
+  },
 };
 if (!profiles[profileName]) {
-  throw new Error("状态价值数据档位必须是sample或screen");
+  throw new Error("状态价值数据档位必须是sample、screen或pruning-screen");
 }
 
 function loadAxis(inputPath) {
@@ -90,13 +124,16 @@ for (const [sourceIndex, axis] of axes.entries()) {
       ...event,
     })),
   });
-  rawRows.push(...optimized.valueTraining.rows.map((row) => ({
+  const collected = profileName === "pruning-screen"
+    ? optimized.pruningValue
+    : optimized.valueTraining;
+  rawRows.push(...collected.rows.map((row) => ({
     sourceAxis: axis.sourceAxis,
     ...row,
   })));
   sources.push({
     sourceAxis: axis.sourceAxis,
-    ...optimized.valueTraining.summary,
+    ...collected.summary,
   });
 }
 

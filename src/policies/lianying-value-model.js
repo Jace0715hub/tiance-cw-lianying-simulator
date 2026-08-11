@@ -278,6 +278,45 @@ export function evaluateLianyingHybridValueQuota(
   return metrics;
 }
 
+export function evaluateLianyingBaselineQuota(rows, { quota = 2 } = {}) {
+  const groups = new Map();
+  for (const row of rows) {
+    const key = [
+      row.sourceAxis ?? "",
+      row.traceId ?? "",
+      row.layer ?? "",
+    ].join("|");
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+  const usefulGroups = [...groups.values()].filter((group) => group.length > 1);
+  const metrics = {
+    quota: Math.max(0, Math.floor(Number(quota))),
+    decisionGroupCount: usefulGroups.length,
+    oracleRecall: 0,
+    meanRegret: 0,
+    maximumRegret: 0,
+  };
+  if (usefulGroups.length === 0) return metrics;
+  for (const group of usefulGroups) {
+    const oracle = Math.max(...group.map((row) => Number(row.bestFinalDamage)));
+    const selected = [...group]
+      .sort((left, right) => finiteNumber(right.totalDamage) -
+        finiteNumber(left.totalDamage))
+      .slice(0, metrics.quota);
+    const achieved = selected.length > 0
+      ? Math.max(...selected.map((row) => Number(row.bestFinalDamage)))
+      : Number.NEGATIVE_INFINITY;
+    const regret = Math.max(0, oracle - achieved);
+    metrics.oracleRecall += Number(regret <= 1e-6);
+    metrics.meanRegret += regret;
+    metrics.maximumRegret = Math.max(metrics.maximumRegret, regret);
+  }
+  metrics.oracleRecall /= usefulGroups.length;
+  metrics.meanRegret /= usefulGroups.length;
+  return metrics;
+}
+
 export function selectLianyingHybridValueWeight(
   rows,
   model,
@@ -339,6 +378,8 @@ export function selectLianyingRidgeValueModel(
     targetColumn = "centeredRemainingDamageResidual",
     valueWeights = [0, 0.125, 0.25, 0.5, 1, 2],
     maximumBaselineRanks = [2, 4, 8, Number.POSITIVE_INFINITY],
+    baselineQuota = 1,
+    valueQuota = 1,
   } = {},
 ) {
   const trainingRows = rows.filter((row) => row.datasetSplit === "train");
@@ -355,7 +396,12 @@ export function selectLianyingRidgeValueModel(
     const validationWeight = selectLianyingHybridValueWeight(
       validationRows,
       model,
-      { weights: valueWeights, maximumBaselineRanks },
+      {
+        weights: valueWeights,
+        maximumBaselineRanks,
+        baselineQuota,
+        valueQuota,
+      },
     );
     return {
       alpha: Number(alpha),
@@ -414,6 +460,8 @@ export function selectLianyingRidgeValuePolicyBySourceValidation(
     targetColumn = "centeredRemainingDamageResidual",
     valueWeights = [0, 0.125, 0.25, 0.5, 1, 2],
     maximumBaselineRanks = [2, 4, 8, Number.POSITIVE_INFINITY],
+    baselineQuota = 1,
+    valueQuota = 1,
   } = {},
 ) {
   const developmentRows = rows.filter((row) => row.sourceAxis !== testSource);
@@ -430,7 +478,9 @@ export function selectLianyingRidgeValuePolicyBySourceValidation(
       (row) => row.sourceAxis === validationSource);
     const trainingRows = developmentRows.filter(
       (row) => row.sourceAxis !== validationSource);
-    const baseline = evaluateLianyingValueModel(validationRows);
+    const baseline = evaluateLianyingBaselineQuota(validationRows, {
+      quota: baselineQuota + valueQuota,
+    });
     const foldCandidates = [];
     for (const alpha of alphas) {
       const model = fitLianyingRidgeValueModel(trainingRows, {
@@ -441,6 +491,8 @@ export function selectLianyingRidgeValuePolicyBySourceValidation(
       const weights = selectLianyingHybridValueWeight(validationRows, model, {
         weights: valueWeights,
         maximumBaselineRanks,
+        baselineQuota,
+        valueQuota,
       });
       for (const candidate of weights.candidates) {
         const key = JSON.stringify([
@@ -450,9 +502,9 @@ export function selectLianyingRidgeValuePolicyBySourceValidation(
         ]);
         const equalBudget = {
           oracleRecallDelta: candidate.metrics.oracleRecall -
-            baseline.ranking.top2Recall,
+            baseline.oracleRecall,
           meanRegretDelta: candidate.metrics.meanRegret -
-            baseline.ranking.meanTop2Regret,
+            baseline.meanRegret,
         };
         if (!aggregateCandidates.has(key)) {
           aggregateCandidates.set(key, {
@@ -477,8 +529,9 @@ export function selectLianyingRidgeValuePolicyBySourceValidation(
     validationFolds.push({
       validationSource,
       trainingSources: sources.filter((source) => source !== validationSource),
-      baselineTop2Recall: baseline.ranking.top2Recall,
-      baselineTop2MeanRegret: baseline.ranking.meanTop2Regret,
+      baselineQuota: baseline.quota,
+      baselineRecall: baseline.oracleRecall,
+      baselineMeanRegret: baseline.meanRegret,
       candidateCount: foldCandidates.length,
     });
   }
@@ -544,6 +597,9 @@ export function crossValidateLianyingRidgeValueModel(
     throw new Error("逐轴留出交叉验证至少需要三条来源轴");
   }
   const folds = sources.map((testSource, index) => {
+    const baselineQuota = Math.max(0, Math.floor(Number(
+      options.baselineQuota ?? 1)));
+    const valueQuota = Math.max(0, Math.floor(Number(options.valueQuota ?? 1)));
     const validationSource = sources[(index + 1) % sources.length];
     const foldRows = rows.map((row) => ({
       ...row,
@@ -563,11 +619,16 @@ export function crossValidateLianyingRidgeValueModel(
       : selectLianyingRidgeValueModel(foldRows, options);
     const testRows = foldRows.filter((row) => row.datasetSplit === "test");
     const baseline = evaluateLianyingValueModel(testRows);
+    const baselineEqualBudget = evaluateLianyingBaselineQuota(testRows, {
+      quota: baselineQuota + valueQuota,
+    });
     const ridge = evaluateLianyingValueModel(testRows, selected.model);
     const hybrid = evaluateLianyingHybridValueQuota(testRows, selected.model, {
       valueWeight: selected.selectedValueWeight,
       maximumBaselineRank: selected.selectedMaximumBaselineRank ??
         Number.POSITIVE_INFINITY,
+      baselineQuota,
+      valueQuota,
     });
     return {
       testSource,
@@ -585,11 +646,12 @@ export function crossValidateLianyingRidgeValueModel(
       strictNonDegradingValidation: selected.strictNonDegrading ?? null,
       testRows: testRows.length,
       baseline,
+      baselineEqualBudget,
       ridge,
       hybridOnePlusOne: hybrid,
       equalBudget: {
-        oracleRecallDelta: hybrid.oracleRecall - baseline.ranking.top2Recall,
-        meanRegretDelta: hybrid.meanRegret - baseline.ranking.meanTop2Regret,
+        oracleRecallDelta: hybrid.oracleRecall - baselineEqualBudget.oracleRecall,
+        meanRegretDelta: hybrid.meanRegret - baselineEqualBudget.meanRegret,
       },
     };
   });
@@ -604,10 +666,15 @@ export function crossValidateLianyingRidgeValueModel(
         (fold) => fold.ridge.ranking.top1Recall)),
       baselineTop2Recall: average(folds.map(
         (fold) => fold.baseline.ranking.top2Recall)),
+      baselineEqualBudgetQuota: folds[0]?.baselineEqualBudget.quota ?? null,
+      baselineEqualBudgetRecall: average(folds.map(
+        (fold) => fold.baselineEqualBudget.oracleRecall)),
       hybridOnePlusOneRecall: average(folds.map(
         (fold) => fold.hybridOnePlusOne.oracleRecall)),
       baselineTop2MeanRegret: average(folds.map(
         (fold) => fold.baseline.ranking.meanTop2Regret)),
+      baselineEqualBudgetMeanRegret: average(folds.map(
+        (fold) => fold.baselineEqualBudget.meanRegret)),
       hybridOnePlusOneMeanRegret: average(folds.map(
         (fold) => fold.hybridOnePlusOne.meanRegret)),
       equalBudgetRecallDelta: average(folds.map(

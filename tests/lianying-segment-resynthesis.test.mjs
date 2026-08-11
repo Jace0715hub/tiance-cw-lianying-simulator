@@ -6,9 +6,12 @@ import {
   identifyLianyingThunderSegments,
   lianyingAdaptiveSuffixEndIndex,
   lianyingBoundaryStateDistance,
+  lianyingCorePackDistance,
   lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
+  selectLianyingDiverseAxisCandidates,
   selectLianyingLayeredSuffixFailures,
+  selectLianyingValueShadowCandidates,
 } from "../src/policies/lianying-segment-resynthesis.js";
 import {
   replayWhitepaperLianying,
@@ -138,6 +141,78 @@ test("后缀失败修复会按资源、冷却和骑乘状态生成定向热启�
   assert.equal(chargeRepairs[0].packs[1].tail[0].id, "charge");
 });
 
+test("近优候选按区段和结构距离分层保留并过滤低质量轴", () => {
+  const reference = [
+    { primary: "dragonFang" },
+    { primary: "destroy" },
+    { primary: "dragonRoar" },
+  ];
+  const segmentA = structuredClone(reference);
+  segmentA[1] = { primary: "cloudStrike" };
+  const segmentB = structuredClone(reference);
+  segmentB[2] = { primary: "dragonFang" };
+  const lowQuality = structuredClone(reference);
+  lowQuality[0] = { primary: "cloudStrike" };
+  const selected = selectLianyingDiverseAxisCandidates([
+    { segmentId: "incumbent", packs: reference, coreDamage: 100, behaviorKey: "ref" },
+    { segmentId: "pseudo", packs: lowQuality, coreDamage: 100, behaviorKey: "ref" },
+    { segmentId: "segment-a", packs: segmentA, coreDamage: 99.8, behaviorKey: "a" },
+    { segmentId: "segment-b", packs: segmentB, coreDamage: 99.7, behaviorKey: "b" },
+    { segmentId: "low", packs: lowQuality, coreDamage: 98, behaviorKey: "low" },
+  ], {
+    referencePacks: reference,
+    limit: 3,
+    maximumLossRatio: 0.005,
+  });
+  assert.equal(selected.length, 3);
+  assert.equal(selected[0].isReference, true);
+  assert.deepEqual(
+    new Set(selected.map((candidate) => candidate.segmentId)),
+    new Set(["incumbent", "segment-a", "segment-b"]),
+  );
+  assert.equal(lianyingCorePackDistance(reference, segmentA), 1);
+  assert.ok(selected.every((candidate) => candidate.coreDamageLossRatio <= 0.005));
+});
+
+test("价值影子候选只追加独立名额且不移除原束节点", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const base = replayWhitepaperLianying(runtime, [], {
+    durationSeconds: 1,
+  }).state;
+  const makeNode = (totalDamage, rage) => ({
+    state: { ...structuredClone(base), totalDamage, rage },
+  });
+  const nodes = [makeNode(100, 0), makeNode(99, 0), makeNode(98, 5)];
+  const baseline = nodes.slice(0, 2);
+  const policy = {
+    enabled: true,
+    valueQuota: 1,
+    valueWeight: 1,
+    maximumBaselineRank: 3,
+    model: {
+      targetMean: 0,
+      featureColumns: ["rage"],
+      featureMeans: [0],
+      featureScales: [1],
+      coefficients: [100],
+    },
+  };
+  const shadow = selectLianyingValueShadowCandidates(
+    nodes,
+    baseline,
+    1000,
+    policy,
+  );
+  assert.deepEqual(shadow, [nodes[2]]);
+  assert.equal(selectLianyingValueShadowCandidates(
+    nodes,
+    baseline,
+    1000,
+    { ...policy, enabled: false },
+  ).length, 0);
+  assert.deepEqual([...baseline, ...shadow].slice(0, baseline.length), baseline);
+});
+
 test("小规模整段重合成保留合法热启动且不降低总伤害", () => {
   const runtime = loadDefaultGearRuntime({ executePhase: true });
   const seed = searchWhitepaperLianying(runtime, {
@@ -159,6 +234,10 @@ test("小规模整段重合成保留合法热启动且不降低总伤害", () =>
     fullDashStates: 4,
     segmentIndices: [0],
     collectValueTrainingData: true,
+    collectPruningValueData: true,
+    pruningValueBaselineRankLimit: 4,
+    collectDiverseCandidates: true,
+    diverseCandidateLimit: 3,
   });
   const replay = replayWhitepaperLianying(runtime, optimized.packs, {
     durationSeconds: 12,
@@ -171,6 +250,20 @@ test("小规模整段重合成保留合法热启动且不降低总伤害", () =>
   assert.ok(optimized.valueTraining.summary.outcomeCount >= 1);
   assert.ok(optimized.valueTraining.rows.length >= 2);
   assert.ok(optimized.valueTraining.rows.some((row) => row.parentNodeId === null));
+  assert.ok(optimized.diverseCandidates.length >= 1);
+  assert.ok(optimized.passes[0].segments.every((segment) =>
+    segment.valueShadowSelections === 0 &&
+    segment.valueShadowFinalists === 0));
+  assert.ok(optimized.pruningValue.summary.probeCount >=
+    optimized.pruningValue.summary.legalProbeCount);
+  assert.equal(
+    optimized.pruningValue.summary.legalProbeCount,
+    optimized.pruningValue.rows.length,
+  );
+  assert.ok(optimized.pruningValue.rows.every((row) =>
+    row.baselineRank <= 4 &&
+    (row.selectedByBeam === 0 || row.selectedByBeam === 1)));
+  assert.equal(optimized.diverseCandidates[0].isReference, true);
   for (const row of optimized.valueTraining.rows) {
     assert.equal(
       row.remainingDamageResidual,

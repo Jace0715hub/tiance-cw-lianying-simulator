@@ -71,6 +71,9 @@ npm run optimize:crossover-bridge-portfolio
 npm run optimize:crossover-joint-bridge-portfolio
 npm run optimize:joint-drift
 npm run optimize:adaptive-suffix
+npm run collect:value-data -- portfolio screen
+npm run collect:value-data -- output/value-seeds-screen/manifest.json pruning-screen output/value-pruning-screen
+npm run evaluate:value-model -- output/value-pruning-screen.jsonl output/value-pruning-screen-beam-shadow beam-shadow
 npm run refresh:gear -- /path/to/TianCe /path/to/gear-scheme.json
 npm run refresh:golden -- /path/to/TianCe /path/to/gear-scheme.json
 npm run refresh:profiles
@@ -140,7 +143,7 @@ npm run refresh:profiles
 
 `optimize:seed` 从已有技能轴JSON继续运行邻域优化，参数依次为输入JSON、`fast/balanced/deep`档和可选输出文件前缀；省略输入时使用上述当前最优轴。需要保留默认输入但指定后续参数时，可用 `-` 占位，例如 `npm run optimize:seed -- - fast`。旧版JSON没有 `actionPacks` 时会从逐行时间和非GCD动作无损恢复，并先验证重放伤害一致；优化入口的默认输出名均由输入种子派生，不覆盖原种子或历史最优产物。这样可以逐轮分析和重排已有高伤轴，不必每次重新运行初始束搜索。
 
-`optimize:segments` 执行雷锚点整段重合成，参数依次为输入JSON、`fast/balanced/deep`档和可选输出文件前缀。它把“本次雷到下一次雷”作为一个大邻域，并把下一雷后的4/6/8行作为fast/balanced/deep边界修复区，从该段真实起始状态重新束搜索全部主要技能和非GCD结构。每层同时保留区段高伤、机制状态多样性和接近原轴同期边界的桥接状态；最终候选必须能合法接回原后缀，再经过完整180秒重放。最后只对分层短名单重新全局排布突，按含突总伤害决定是否接受。
+`optimize:segments` 执行雷锚点整段重合成，参数依次为输入JSON、`fast/balanced/deep`档、可选输出文件前缀和可选的已验证价值影子策略JSON。它把“本次雷到下一次雷”作为一个大邻域，并把下一雷后的4/6/8行作为fast/balanced/deep边界修复区，从该段真实起始状态重新束搜索全部主要技能和非GCD结构。每层同时保留区段高伤、机制状态多样性和接近原轴同期边界的桥接状态；最终候选必须能合法接回原后缀，再经过完整180秒重放。最后只对分层短名单重新全局排布突，按含突总伤害决定是否接受。价值策略只有在评估脚本的严格嵌套验证门控通过后才会标记为可用；启用时原基础束谱系保持不变，每层和决赛最多额外追加一个影子候选。
 
 `optimize:multisegments`从第一处雷锚点开始连续拼接全部雷区段。与`optimize:segments`逐次替换单段不同，前一段产生的战意、龙驭、冷却、充能和增益状态会直接传给下一段，中间不要求接回原轴；只在每个雷锚点压缩为有界的高伤、帕累托和结构多样性候选。新区段内还会为每个锚点来源至少保留一条后代路径，避免帕累托候选刚进入下一段便被全局即时伤害束淘汰。当前最佳轴始终作为热启动保留，全部区段完成后才统一重排突并按完整180秒伤害决定是否接受。
 
@@ -217,6 +220,10 @@ M5.3现已具备第一版离线状态价值数据采集。`npm run collect:value
 多种子采集现支持`npm run collect:value-data -- portfolio screen`。`portfolio`已独立为八条状态价值结构跨度种子，共形成56条轨迹、462个合法完整后代和4,099条节点，核心结构相对当前最优约相差0至79行。训练目标使用同一轨迹同一层内中心化残差，以消除不影响候选排序的轴/层基准偏移；`npm run evaluate:value-model -- <jsonl>`会完成标准化岭回归、预测权重收缩、即时伤害名次门控和嵌套逐轴验证。
 
 八轴无严格门控时，等预算“即时1+价值1”召回由89.27%提高到91.26%，7/8折有局部改善，但平均遗憾由324,156升至380,368。为避免单一验证轴掩盖高损失误选，外层测试轴现完全隔离，剩余来源轮流内验；只有所有内层轴都不退化的参数组合才能启用模型，否则权重降为0或名次门控退回即时伤害前2名。本轮8个外层折全部回退基线，证明安全门控有效，也表明线性模型尚未达到在线接入标准。
+
+近最优结构种子生成器现能从59条完整合法轴中按区段、雷谱系和结构距离选出8条独立种子，核心伤害损失均不超过0.1241%。旧的决赛祖先数据在`5+1`实际束配额下因每组候选过少而退回零权重，因此未直接上线。新增`pruning-screen`会在每层剪枝前探测即时伤害前12名，并让所有候选沿同一参考后缀完整重放；八轴共探测16,164个候选，得到4,474条完整合法、同口径标签。
+
+剪枝探针的八折严格嵌套验证中，“即时前5+价值1”相对即时前6名将优解召回从94.48%提高到99.61%，平均遗憾从434,905降到11,945，8/8折改善且无回退。第一轮fast在线影子实验保持原16槽基础谱系，最多追加1槽：展开/合法转移由31,296/22,203增至32,856/23,238，完整合法核心候选由59增至61，约5%额外搜索成本；新候选尚未超过当前最优，最终总DPS仍为14,590,381.15且零违规。模型因此保持显式可选实验，不替代默认搜索。
 
 旧的 `report:optimized`、`report:thunder`、`report:binding`、`report:ride`、`report:joint` 保留为历史搜索实验与回归工具。它们基于 Excel 固定行骨架，不再用来判断白皮书约束下的橙武连营最终强度。
 
