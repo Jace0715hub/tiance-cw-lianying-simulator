@@ -17,6 +17,7 @@ const LEADING_COLUMNS = [
   "bestRemainingDamage",
   "referenceRemainingDamage",
   "remainingDamageResidual",
+  "centeredRemainingDamageResidual",
   "descendantOutcomeCount",
 ];
 
@@ -41,10 +42,15 @@ export function lianyingValueDatasetSplit(traceId) {
   return "train";
 }
 
-export function prepareLianyingValueTrainingRows(rows) {
-  const groupKey = (row) => row.sourceAxis
-    ? `${row.sourceAxis}|${row.traceId}`
-    : row.traceId;
+export function prepareLianyingValueTrainingRows(
+  rows,
+  { splitGroup = "trace" } = {},
+) {
+  const groupKey = (row) => splitGroup === "source-axis" && row.sourceAxis
+    ? row.sourceAxis
+    : row.sourceAxis
+      ? `${row.sourceAxis}|${row.traceId}`
+      : row.traceId;
   const groups = [...new Set(rows
     .filter((row) => !row.datasetSplit)
     .map(groupKey))]
@@ -69,6 +75,38 @@ export function prepareLianyingValueTrainingRows(rows) {
       lianyingValueDatasetSplit(groupKey(row)),
     ...row,
   }));
+}
+
+export function addLianyingValueCenteredTargets(rows) {
+  const groups = new Map();
+  for (const row of rows) {
+    const key = [
+      row.sourceAxis ?? "",
+      row.traceId ?? "",
+      row.layer ?? "",
+    ].join("|");
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+  const means = new Map([...groups].map(([key, entries]) => [
+    key,
+    entries.reduce(
+      (sum, row) => sum + Number(row.remainingDamageResidual),
+      0,
+    ) / entries.length,
+  ]));
+  return rows.map((row) => {
+    const key = [
+      row.sourceAxis ?? "",
+      row.traceId ?? "",
+      row.layer ?? "",
+    ].join("|");
+    return {
+      ...row,
+      centeredRemainingDamageResidual:
+        Number(row.remainingDamageResidual) - means.get(key),
+    };
+  });
 }
 
 function csvCell(value) {
@@ -110,7 +148,8 @@ export function summarizeLianyingValueTrainingRows(inputRows) {
   }, {});
   return {
     rowCount: rows.length,
-    traceCount: new Set(rows.map((row) => row.traceId)).size,
+    traceCount: new Set(rows.map((row) =>
+      row.sourceAxis ? `${row.sourceAxis}|${row.traceId}` : row.traceId)).size,
     splitCounts,
     residual: residuals.length > 0
       ? {

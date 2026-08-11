@@ -9,9 +9,11 @@
 ```bash
 npm run collect:value-data -- - sample
 npm run collect:value-data -- - screen
+npm run collect:value-data -- portfolio screen
+npm run evaluate:value-model -- output/lianying-value-portfolio-screen.jsonl
 ```
 
-参数一为技能轴路径，`-`表示当前180秒最优轴；参数二为`sample`或`screen`；参数三可指定输出文件前缀。命令输出：
+参数一为技能轴路径，`-`表示当前180秒最优轴，`portfolio`表示路线图中的四条默认研究种子，也可传逗号分隔的自定义轴；参数二为`sample`或`screen`；参数三可指定输出文件前缀。多种子数据按完整来源轴划分，单轴数据按轨迹划分。命令输出：
 
 - `*.jsonl`：训练程序使用的逐节点记录；
 - `*.csv`：人工检查和统计分析；
@@ -28,9 +30,10 @@ npm run collect:value-data -- - screen
 ```text
 bestRemainingDamage = bestFinalDamage - totalDamage
 remainingDamageResidual = bestRemainingDamage - referenceRemainingDamage
+centeredRemainingDamageResidual = remainingDamageResidual - 同一轨迹同一层均值
 ```
 
-`referenceRemainingDamage`来自同一技能行上当前参考轴的剩余核心循环伤害。突在区段主要技能搜索后独立覆盖，因此该数据集和区段束搜索一致，学习核心轴长期价值，不把后续突重排结果混入标签。
+`referenceRemainingDamage`来自同一技能行上当前参考轴的剩余核心循环伤害。线性模型训练使用层内中心化残差；减去同一决策组的常数不改变候选排序，可以避免模型浪费容量学习不同轴和不同行的绝对基准偏移。突在区段主要技能搜索后独立覆盖，因此该数据集和区段束搜索一致，学习核心轴长期价值，不把后续突重排结果混入标签。
 
 ## 特征
 
@@ -50,4 +53,8 @@ remainingDamageResidual = bestRemainingDamage - referenceRemainingDamage
 
 训练、验证和测试按完整`sourceAxis + traceId`分组，父子节点不会跨集合；轨迹数不少于3时会保证验证和测试各至少一条轨迹。单一180秒轴的相邻雷区段仍可能存在边界状态相似性，因此当前screen数据只验证采集链路，不能单独用于宣称模型泛化效果。
 
-下一步需从多个种子、区段窗口和搜索预算收集数据，再以固定转移预算比较：已知优解召回率、完整后缀合法率、最终最佳伤害和运行时间。
+第一版岭回归使用训练集均值/标准差归一化，验证集选择正则强度。离线评估同时报告纯模型排序，以及等预算的“即时伤害名额+模型独立名额”；逐轴留出时，一条轴作为测试、一条作为验证，其余轴训练。
+
+当前四种子screen共得到28条轨迹、231个合法完整后代和2,008条有标签节点。四折逐轴留出中，岭回归top-1召回均值由57.36%提高到64.44%；等预算“即时1+价值1”相对即时前2名，召回由91.25%提高到93.27%，平均遗憾由104,584降至60,197。但只有3/4折改善，另1折召回下降0.8个百分点且遗憾增加19,794，因此模型尚不接入在线束搜索。
+
+下一步需增加与现最优结构差异更大的来源轴，并在固定转移预算下比较：已知优解召回率、完整后缀合法率、最终最佳伤害和运行时间。

@@ -62,6 +62,15 @@ export {
   LIANYING_OPTIMIZATION_PROFILES,
 } from "./policies/lianying-optimization-profiles.js";
 export {
+  evaluateLianyingValueModel,
+  evaluateLianyingHybridValueQuota,
+  crossValidateLianyingRidgeValueModel,
+  fitLianyingRidgeValueModel,
+  LIANYING_VALUE_FEATURE_COLUMNS,
+  predictLianyingRidgeValue,
+  selectLianyingRidgeValueModel,
+} from "./policies/lianying-value-model.js";
+export {
   classifyLianyingSuffixFailure,
   buildLianyingValueTrainingRows,
   identifyLianyingThunderSegments,
@@ -73,6 +82,7 @@ export {
   synthesizeLianyingSegment,
 } from "./policies/lianying-segment-resynthesis.js";
 export {
+  addLianyingValueCenteredTargets,
   lianyingValueDatasetSplit,
   lianyingValueTrainingToCsv,
   lianyingValueTrainingToJsonl,
