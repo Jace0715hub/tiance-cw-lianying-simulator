@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "durationSeconds": 180,
+  "fixed": {
+    "dps": 14111838.432992926,
+    "totalDamage": 2540130917.9387264,
+    "finalDragonRideStacks": 2,
+    "terminalLiquidationFangs": 3,
+    "rotationDps": 13632092.725445855,
+    "equipmentAndDamageEnchantDps": 479745.70754706976
+  },
+  "stable": {
+    "dps": 13989151.10644498,
+    "totalDamage": 2518047199.160096,
+    "finalDragonRideStacks": 7,
+    "rotationDps": 13509405.39889791,
+    "equipmentAndDamageEnchantDps": 479745.70754706976
+  },
+  "fixedAdvantage": {
+    "damage": 22083718.778630257,
+    "dps": 122687.32654794678,
+    "relative": 0.008770176661500262
+  }
+}

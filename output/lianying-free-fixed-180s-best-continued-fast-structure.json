@@ -1,0 +1,1563 @@
+{
+  "kind": "tiance-cw-lianying-structure-analysis",
+  "source": "output/lianying-free-fixed-180s-best-continued-fast.json",
+  "durationSeconds": 180,
+  "rotationDps": 13972336.930712217,
+  "totalDps": 14452082.638259286,
+  "actionPackSource": "artifact",
+  "recoveredReplayDamageDelta": 0,
+  "actionPacks": [
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "ride",
+      "tail": [
+        {
+          "id": "thunder",
+          "leadFrames": 1
+        },
+        {
+          "id": "orange",
+          "leadFrames": 1
+        }
+      ]
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "charge"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [
+        {
+          "id": "dismount",
+          "reason": "refresh-ride"
+        }
+      ],
+      "primary": "ride",
+      "tail": [
+        {
+          "id": "thunder",
+          "leadFrames": 1
+        }
+      ]
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "charge"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        {
+          "id": "dismount",
+          "reason": "free-search"
+        }
+      ],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "ride",
+      "tail": [
+        {
+          "id": "thunder",
+          "leadFrames": 1
+        }
+      ]
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "charge"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "orange"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        {
+          "id": "dismount",
+          "reason": "free-search"
+        }
+      ],
+      "primary": "dragonRoar",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "ride",
+      "tail": [
+        {
+          "id": "thunder",
+          "leadFrames": 1
+        }
+      ]
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "charge"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        {
+          "id": "dismount",
+          "reason": "free-search"
+        }
+      ],
+      "primary": "cloudStrike",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonRoar",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "cloudStrike",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "thunder"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "orange"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "cloudStrike",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "cloudStrike",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonRoar",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "ride",
+      "tail": [
+        {
+          "id": "thunder",
+          "leadFrames": 1
+        }
+      ]
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "charge"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        {
+          "id": "dismount",
+          "reason": "refresh-ride"
+        }
+      ],
+      "primary": "ride",
+      "tail": [
+        {
+          "id": "charge",
+          "leadFrames": 1
+        }
+      ]
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonRoar",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "thunder"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "orange"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        "charge"
+      ],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [
+        {
+          "id": "dismount",
+          "reason": "refresh-ride"
+        }
+      ],
+      "primary": "ride",
+      "tail": [
+        {
+          "id": "charge",
+          "leadFrames": 1
+        }
+      ]
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "destroy",
+      "tail": []
+    },
+    {
+      "prefix": [],
+      "primary": "dragonFang",
+      "tail": []
+    }
+  ],
+  "analysis": {
+    "schemaVersion": 1,
+    "purpose": "expose-model-dependent-but-mechanically-legal-axis-structures",
+    "modelDependencies": {
+      "rideBuffIsIndependentFromMountedState": true,
+      "dismountDoesNotClearRideBuff": true,
+      "onFootDragonFangBuildsDragonRide": true,
+      "thunderDragonFangCostAppliesOnFoot": true
+    },
+    "summary": {
+      "thunderWindows": 7,
+      "thunderStartsBelowFiveRage": 3,
+      "thunderStartsBoundToRideSameRow": 5,
+      "thunderStartsDelayedUnderRideBuff": 1,
+      "thunderStartsWithoutRideBuff": 1,
+      "rideCastsWithoutSameRowThunder": 2,
+      "dismountsDuringThunder": 1,
+      "onFootDragonFangsDuringThunder": 22,
+      "onFootThunderFangsCoveredByRideBuff": 5,
+      "onFootThunderFangsAfterRideBuff": 17,
+      "dragonRideGainedFromOnFootThunderFangs": 22,
+      "consecutiveDestroyChains": 1
+    },
+    "thunderWindows": [
+      {
+        "index": 1,
+        "startRow": 3,
+        "startSeconds": 3.59,
+        "endSeconds": 21.59,
+        "rageAtStart": 2,
+        "startedBelowFiveRage": true,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 7,
+        "rideBuffActiveAtStart": true,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 2,
+        "startRow": 20,
+        "startSeconds": 24.2875,
+        "endSeconds": 42.2875,
+        "rageAtStart": 4,
+        "startedBelowFiveRage": true,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 6,
+        "rideBuffActiveAtStart": true,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          21,
+          22,
+          23,
+          24,
+          25,
+          27,
+          28,
+          29,
+          31,
+          32,
+          33,
+          34,
+          35
+        ],
+        "onFootDragonFangRows": [
+          27,
+          28,
+          29,
+          31,
+          32,
+          33,
+          34,
+          35
+        ],
+        "onFootDragonFangsCoveredByRideBuff": [
+          27,
+          28,
+          29,
+          31,
+          32
+        ],
+        "onFootDragonFangsAfterRideBuff": [
+          33,
+          34,
+          35
+        ],
+        "dragonRideGainedFromOnFootFangs": 8,
+        "dismounts": [
+          {
+            "rowNumber": 26,
+            "seconds": 30.4375,
+            "rideBuffActive": true,
+            "dragonRideStacks": 1,
+            "reason": "free-search"
+          }
+        ]
+      },
+      {
+        "index": 3,
+        "startRow": 38,
+        "startSeconds": 46.2025,
+        "endSeconds": 64.2025,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 15,
+        "rideBuffActiveAtStart": true,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 4,
+        "startRow": 59,
+        "startSeconds": 71.77,
+        "endSeconds": 89.77,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 9,
+        "rideBuffActiveAtStart": true,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          67,
+          68,
+          69,
+          71,
+          72,
+          73,
+          74
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 5,
+        "startRow": 80,
+        "startSeconds": 96.1825,
+        "endSeconds": 114.1825,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": false,
+        "dragonRideStacksAtStart": 1,
+        "rideBuffActiveAtStart": false,
+        "boundToRideInSameRow": false,
+        "rideThunderBinding": "no-ride-buff",
+        "dragonFangRows": [
+          80,
+          81,
+          82,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94
+        ],
+        "onFootDragonFangRows": [
+          80,
+          81,
+          82,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94
+        ],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [
+          80,
+          81,
+          82,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94
+        ],
+        "dragonRideGainedFromOnFootFangs": 14,
+        "dismounts": []
+      },
+      {
+        "index": 6,
+        "startRow": 105,
+        "startSeconds": 127.775,
+        "endSeconds": 145.775,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 25,
+        "rideBuffActiveAtStart": true,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          106,
+          107,
+          108,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          117,
+          118,
+          119,
+          120
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 7,
+        "startRow": 128,
+        "startSeconds": 154.6225,
+        "endSeconds": 172.6225,
+        "rageAtStart": 3,
+        "startedBelowFiveRage": true,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 15,
+        "rideBuffActiveAtStart": true,
+        "boundToRideInSameRow": false,
+        "rideThunderBinding": "delayed-under-ride-buff",
+        "dragonFangRows": [
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          139,
+          140,
+          141,
+          142
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      }
+    ],
+    "dismountsDuringThunder": [
+      {
+        "rowNumber": 26,
+        "seconds": 30.4375,
+        "rideBuffActive": true,
+        "dragonRideStacks": 1,
+        "reason": "free-search",
+        "thunderWindow": 2
+      }
+    ],
+    "onFootThunderFangs": [
+      {
+        "rowNumber": 27,
+        "skill": "龙牙",
+        "castSeconds": 31.655,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 1,
+        "dragonRideAfter": 2,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 28,
+        "skill": "龙牙",
+        "castSeconds": 32.8725,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 2,
+        "dragonRideAfter": 3,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 29,
+        "skill": "龙牙",
+        "castSeconds": 34.09,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 3,
+        "dragonRideAfter": 4,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 31,
+        "skill": "龙牙",
+        "castSeconds": 36.525,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 4,
+        "dragonRideAfter": 5,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 32,
+        "skill": "龙牙",
+        "castSeconds": 37.7425,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 5,
+        "dragonRideAfter": 6,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 33,
+        "skill": "龙牙",
+        "castSeconds": 38.96,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 7,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 34,
+        "skill": "龙牙",
+        "castSeconds": 40.1775,
+        "rageBeforePrimary": 2,
+        "rageAfterPrimary": 1,
+        "dragonRideBefore": 7,
+        "dragonRideAfter": 8,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 35,
+        "skill": "龙牙",
+        "castSeconds": 41.395,
+        "rageBeforePrimary": 1,
+        "rageAfterPrimary": 0,
+        "dragonRideBefore": 8,
+        "dragonRideAfter": 9,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 80,
+        "skill": "雷→龙牙",
+        "castSeconds": 96.1825,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 1,
+        "dragonRideAfter": 2,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 81,
+        "skill": "龙牙",
+        "castSeconds": 97.4,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 2,
+        "dragonRideAfter": 3,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 82,
+        "skill": "龙牙",
+        "castSeconds": 98.6175,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 3,
+        "dragonRideAfter": 4,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 84,
+        "skill": "龙牙",
+        "castSeconds": 101.0525,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 4,
+        "dragonRideAfter": 5,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 85,
+        "skill": "龙牙",
+        "castSeconds": 102.27,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 5,
+        "dragonRideAfter": 6,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 86,
+        "skill": "龙牙",
+        "castSeconds": 103.4875,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 7,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 87,
+        "skill": "龙牙",
+        "castSeconds": 104.705,
+        "rageBeforePrimary": 2,
+        "rageAfterPrimary": 1,
+        "dragonRideBefore": 7,
+        "dragonRideAfter": 8,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 88,
+        "skill": "龙牙",
+        "castSeconds": 105.9225,
+        "rageBeforePrimary": 1,
+        "rageAfterPrimary": 0,
+        "dragonRideBefore": 8,
+        "dragonRideAfter": 9,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 89,
+        "skill": "CW→龙牙",
+        "castSeconds": 107.14,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 9,
+        "dragonRideAfter": 10,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 90,
+        "skill": "龙牙",
+        "castSeconds": 108.3575,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 10,
+        "dragonRideAfter": 11,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 91,
+        "skill": "龙牙",
+        "castSeconds": 109.575,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 11,
+        "dragonRideAfter": 12,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 92,
+        "skill": "龙牙",
+        "castSeconds": 110.7925,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 12,
+        "dragonRideAfter": 13,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 93,
+        "skill": "龙牙",
+        "castSeconds": 112.01,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 13,
+        "dragonRideAfter": 14,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 94,
+        "skill": "龙牙",
+        "castSeconds": 113.2275,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 14,
+        "dragonRideAfter": 15,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      }
+    ],
+    "consecutiveDestroyChains": [
+      {
+        "startRow": 36,
+        "endRow": 37,
+        "castSeconds": [
+          42.6125,
+          43.83
+        ],
+        "sources": [
+          "normal",
+          "poLouLanBonus"
+        ],
+        "rageFlow": [
+          [
+            0,
+            3
+          ],
+          [
+            3,
+            5
+          ]
+        ],
+        "underThunder": [
+          false,
+          false
+        ],
+        "totalRowDamage": 10970732.347603153
+      }
+    ]
+  },
+  "sensitivity": {
+    "assumption": "dismount-does-not-clear-ride-buff",
+    "comparisonType": "fixed-axis-counterfactual",
+    "durationSeconds": 180,
+    "baseline": {
+      "dismountClearsRideBuff": false,
+      "rotationDamage": 2515020647.528199,
+      "rotationDps": 13972336.930712217
+    },
+    "counterfactual": {
+      "dismountClearsRideBuff": true,
+      "rotationDamage": 2495104931.6328754,
+      "rotationDps": 13861694.064627085
+    },
+    "dependency": {
+      "damageDelta": 19915715.895323753,
+      "dpsDelta": 110642.86608513196,
+      "relativeToBaseline": 0.007918708705193822,
+      "affectedComponents": [
+        {
+          "component": "dragonFang",
+          "baselineDamage": 1065270588.3244268,
+          "counterfactualDamage": 1057719750.7768592,
+          "damageDelta": 7550837.547567606
+        },
+        {
+          "component": "breakGang",
+          "baselineDamage": 331970279.79856545,
+          "counterfactualDamage": 328857773.95189697,
+          "damageDelta": 3112505.846668482
+        },
+        {
+          "component": "dragonBlood",
+          "baselineDamage": 258400381.99422446,
+          "counterfactualDamage": 256137792.59982997,
+          "damageDelta": 2262589.394394487
+        },
+        {
+          "component": "breakArmy",
+          "baselineDamage": 274707352.2919598,
+          "counterfactualDamage": 272615748.3629988,
+          "damageDelta": 2091603.9289610386
+        },
+        {
+          "component": "bleedTick",
+          "baselineDamage": 191934558.23782083,
+          "counterfactualDamage": 189908003.19306454,
+          "damageDelta": 2026555.0447562933
+        },
+        {
+          "component": "destroyPoLouLan",
+          "baselineDamage": 62663185.36823654,
+          "counterfactualDamage": 61362621.8266809,
+          "damageDelta": 1300563.541555643
+        },
+        {
+          "component": "destroy",
+          "baselineDamage": 65014617.60864113,
+          "counterfactualDamage": 63714054.067085505,
+          "damageDelta": 1300563.5415556282
+        },
+        {
+          "component": "autoAttack",
+          "baselineDamage": 38470942.75974249,
+          "counterfactualDamage": 38298689.99061965,
+          "damageDelta": 172252.76912283897
+        },
+        {
+          "component": "dragonFangDivine",
+          "baselineDamage": 10464794.091142528,
+          "counterfactualDamage": 10366549.810401874,
+          "damageDelta": 98244.2807406541
+        }
+      ]
+    }
+  }
+}

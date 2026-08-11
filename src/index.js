@@ -1,0 +1,177 @@
+export { createConfig, DEFAULT_CONFIG, FRAMES_PER_SECOND, seconds } from "./config/defaults.js";
+export {
+  createGearRuntime,
+  loadDefaultGearRuntime,
+  loadGearTemplate,
+} from "./config/gear-template.js";
+export {
+  CLOCK_TICKS_PER_FRAME,
+  CLOCK_TICKS_PER_MS,
+  frameToTicks,
+  millisecondsToTicks,
+  ticksToFrames,
+  ticksToMilliseconds,
+} from "./engine/clock.js";
+export {
+  createIllustrativeDamageOracle,
+  createZeroDamageOracle,
+} from "./engine/damage-oracle.js";
+export { createNativeDamageOracle } from "./damage/native-damage-oracle.js";
+export { calculateNativeDamage } from "./damage/native-formula.js";
+export {
+  applyExpectedEquipmentDamage,
+  expectedEquipmentProcCount,
+} from "./effects/expected-equipment.js";
+export { buildAoxueDamageRow } from "./damage/aoxue-catalog.js";
+export {
+  calculateFrameTiming,
+  createTimedConfig,
+  enumerateTimingBands,
+} from "./mechanics/timing.js";
+export {
+  buildWindowCastSchedule,
+  compareWindowCoverage,
+} from "./mechanics/window-schedule.js";
+export { executeActionPack, runRotation } from "./engine/simulator.js";
+export {
+  LIANYING_POLICY_MODES,
+  buildWhitepaperOpener,
+  legalLianyingPacks,
+  legalMechanicalLianyingPacks,
+  labelWhitepaperPack,
+  legalWhitepaperPacks,
+  optimizeLianyingAxis,
+  optimizeLianyingDashOverlay,
+  optimizeLianyingNeighborhoodAxis,
+  optimizeLianyingReferenceAxis,
+  replayWhitepaperLianying,
+  searchLianyingAxis,
+  searchWhitepaperLianying,
+} from "./policies/whitepaper-lianying.js";
+export {
+  createLianyingOptimizationProfile,
+  LIANYING_OPTIMIZATION_PROFILES,
+} from "./policies/lianying-optimization-profiles.js";
+export {
+  identifyLianyingThunderSegments,
+  lianyingAdaptiveSuffixEndIndex,
+  optimizeLianyingSegmentResynthesis,
+  synthesizeLianyingSegment,
+} from "./policies/lianying-segment-resynthesis.js";
+export {
+  evaluateLianyingReferenceSuffixValue,
+  isLianyingAnchorDriftPackAllowed,
+  isLianyingThunderAnchorPackAllowed,
+  lianyingAnchorDriftLongTermScore,
+  lianyingAnchorDriftScheduleToCsv,
+  lianyingAnchorDriftWindow,
+  lianyingMultiSegmentAnchorDiagnosticsToCsv,
+  optimizeLianyingAnchorDriftResynthesis,
+  optimizeLianyingMultiSegmentResynthesis,
+  selectLianyingJointBoundaryNodes,
+} from "./policies/lianying-multisegment-resynthesis.js";
+export {
+  lianyingPortfolioStructureKey,
+  lianyingSeedPortfolioToCsv,
+  optimizeLianyingAnchorDriftPortfolio,
+} from "./policies/lianying-seed-portfolio.js";
+export {
+  lianyingSeedCrossoverToCsv,
+  optimizeLianyingSeedCrossovers,
+} from "./policies/lianying-seed-crossover.js";
+export {
+  buildLianyingCrossoverJointSegment,
+  lianyingCrossoverBridgeSegmentIndices,
+  optimizeLianyingCrossoverBridge,
+  optimizeLianyingCrossoverJointBridge,
+} from "./policies/lianying-crossover-bridge.js";
+export {
+  lianyingCrossoverBridgePortfolioToCsv,
+  optimizeLianyingCrossoverBridgePortfolio,
+  selectLianyingCrossoverBridgePortfolio,
+} from "./policies/lianying-crossover-bridge-portfolio.js";
+export { auditWhitepaperAxis } from "./reports/whitepaper-audit.js";
+export { analyzeLianyingStructure } from "./reports/lianying-structure-analysis.js";
+export {
+  compareDismountRidePersistence,
+  lianyingRowsToActionPacks,
+} from "./reports/lianying-model-sensitivity.js";
+export {
+  buildWhitepaperAxisArtifact,
+  whitepaperAxisToCsv,
+  whitepaperEquipmentToCsv,
+} from "./reports/whitepaper-axis-export.js";
+export {
+  canonicalPack,
+  compareLianyingAxes,
+  lianyingConvergenceToCsv,
+  packSignature,
+} from "./reports/lianying-convergence.js";
+export {
+  assertState,
+  cloneState,
+  createInitialState,
+  isBuffActive,
+  isMountedAt,
+} from "./engine/state.js";
+export {
+  fullMountedOverlap,
+  orangeBurstOnFoot,
+  orangeBurstThenRide,
+  orangeThunderOverlapOnFoot,
+  partialOrangeThunderOverlapOnFoot,
+  staggeredOrangeAfterThunderOnFoot,
+} from "./policies/scenarios.js";
+export {
+  compileProfileLabel,
+  replayProfileRows,
+} from "./policies/profile-replay.js";
+export {
+  buildOrangeLianyingCandidates,
+  buildThunderWindows,
+  injectOrangeIntoRows,
+  profileRowTiming,
+  selectOrangeRowsGapAligned,
+  selectOrangeRowsOnCooldown,
+  selectOrangeRowsThunderAligned,
+  windowOverlapTicks,
+} from "./policies/orange-injection.js";
+export {
+  ORANGE_WINDOW_PRIMARY_LABELS,
+  rankOrangeWindowRotations,
+  replaceProfilePrimary,
+} from "./policies/orange-window-search.js";
+export { beamSearchThunderWindow } from "./policies/thunder-window-search.js";
+export {
+  identifyRideThunderPairs,
+  moveOrangeSuffix,
+  moveRidePrimary,
+  moveThunderPrefix,
+  orangeRowIndices,
+  rideRowIndices,
+  thunderRowIndices,
+} from "./policies/ride-thunder-binding.js";
+export { summarize, timelineRows } from "./reports/summary.js";
+export {
+  BASELINE_COMPONENT_TO_SKILL,
+  buildBaselineAlignment,
+} from "./reports/baseline-alignment.js";
+export {
+  buildLocallyOptimizedOrangeCandidateReport,
+  buildOrangeCandidateReport,
+  buildThunderOptimizedOrangeCandidateReport,
+} from "./reports/orange-candidates.js";
+export {
+  buildJointCoordinationReport,
+  buildRidePlacementReport,
+  buildRideThunderBindingReport,
+} from "./reports/ride-thunder-binding.js";
+export { timelineToCsv, timelineToJson } from "./reports/export.js";
+export {
+  buildOptimizedAxisArtifact,
+  optimizedAxisToCsv,
+} from "./reports/optimized-axis-export.js";
+export {
+  summarizeOrangeWindow,
+  summarizeOrangeWindows,
+} from "./reports/orange-window.js";

@@ -1,0 +1,649 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "schemeFile": "天策大橙武5速.json",
+    "schemeFormat": "jx3-tiance-gear-scheme",
+    "dataVersion": "jx3-ver13-canonical.xlsx|329|107|19",
+    "extractedData": "jx3-ver13-canonical.xlsx",
+    "note": "装备、增益和阵法来自保存方案；循环由牧云覆盖为连营用于研究。"
+  },
+  "sourceCombatSettings": {
+    "心法": "傲血战意",
+    "战斗时间": "180s",
+    "血量消耗": "不计算血量消耗",
+    "目标选择": "134级木桩·斩",
+    "循环选择": "牧云",
+    "延迟": 30
+  },
+  "defaultSimulation": {
+    "rotation": "lianying",
+    "executePhase": true,
+    "durationSeconds": 180
+  },
+  "timing": {
+    "haste": 43002,
+    "latencyMs": 30,
+    "gcdSeconds": 1.2175,
+    "rideGcdSeconds": 0.5625,
+    "wideGcdSeconds": 1.4375,
+    "dotIntervalSeconds": 1.625,
+    "segment": 5
+  },
+  "damageRules": {
+    "nonPlayerDamageBonus": 0.3896484375,
+    "dragonFangDivineProcChance": 0.2998046875
+  },
+  "expectedEquipmentEffects": [
+    {
+      "component": "kunwuBlade",
+      "skill": "昆吾·弦刃",
+      "damageRow": {
+        "category": "通用",
+        "skill": "昆吾·弦刃",
+        "notes": "",
+        "tags": "恒定伤害",
+        "fixedDamage": 2415000,
+        "attackCoefficient": 0,
+        "weaponCoefficient": 0,
+        "strainCoefficient": 0,
+        "strainMultiplier": 1,
+        "stackCount": 1,
+        "attackBonus": 4635,
+        "damageBonus": 0,
+        "penetrationBonus": -0.5071216900869897,
+        "defenseRate": 0,
+        "levelMultiplier": 0.8,
+        "unshieldedBonus": -1.5054390054390052,
+        "critScale": 1,
+        "critFloor": 0,
+        "critChanceBonus": -0.5672,
+        "critEffectBonus": -2.1334908581,
+        "vulnerability": 0.0205078125,
+        "countSourceRow": 233,
+        "source": {
+          "sheet": "非斩杀伤害与收益计算",
+          "row": 240
+        },
+        "appliesNonPlayerDamageBonus": false,
+        "conditionalSourceId": "major-enchant-wrist-kunwu-xianren"
+      },
+      "countRule": {
+        "type": "intervalExpectedProcs",
+        "attackFrequencyNumerator": 220,
+        "attackFrequencyDenominator": 300,
+        "procChance": 0.1,
+        "internalCooldownSeconds": 10
+      }
+    },
+    {
+      "component": "renling",
+      "skill": "刃凌",
+      "damageRow": {
+        "category": "通用",
+        "skill": "刃凌",
+        "notes": "",
+        "tags": "恒定伤害",
+        "fixedDamage": 1610000,
+        "attackCoefficient": 0,
+        "weaponCoefficient": 0,
+        "strainCoefficient": 0,
+        "strainMultiplier": 1,
+        "stackCount": 1,
+        "attackBonus": 4635,
+        "damageBonus": 0,
+        "penetrationBonus": -0.5071216900869897,
+        "defenseRate": 0,
+        "levelMultiplier": 0.8,
+        "unshieldedBonus": -1.5054390054390052,
+        "critScale": 1,
+        "critFloor": 0,
+        "critChanceBonus": -0.5672,
+        "critEffectBonus": -2.1334908581,
+        "vulnerability": 0.0205078125,
+        "countSourceRow": 234,
+        "source": {
+          "sheet": "非斩杀伤害与收益计算",
+          "row": 241
+        },
+        "appliesNonPlayerDamageBonus": false,
+        "conditionalSourceId": "major-enchant-shoes-renling"
+      },
+      "countRule": {
+        "type": "renlingExpectedProcs",
+        "attackFrequencyNumerator": 407,
+        "attackFrequencyDenominator": 240,
+        "baseCritChance": 0.13,
+        "extraCritChance": 0.09019607843137256,
+        "internalCooldownSeconds": 10
+      }
+    },
+    {
+      "component": "wuxiuHuang",
+      "skill": "无修·荒",
+      "damageRow": {
+        "category": "通用",
+        "skill": "无修·荒",
+        "notes": "",
+        "tags": "恒定伤害",
+        "fixedDamage": 976145,
+        "attackCoefficient": 0,
+        "weaponCoefficient": 0,
+        "strainCoefficient": 0,
+        "strainMultiplier": 1,
+        "stackCount": 1,
+        "attackBonus": 4635,
+        "damageBonus": 0,
+        "penetrationBonus": -0.5071216900869897,
+        "defenseRate": 0,
+        "levelMultiplier": 0.8,
+        "unshieldedBonus": -1.5054390054390052,
+        "critScale": 1,
+        "critFloor": 0,
+        "critChanceBonus": -0.5672,
+        "critEffectBonus": -2.1334908581,
+        "vulnerability": 0.0205078125,
+        "countSourceRow": 236,
+        "source": {
+          "sheet": "非斩杀伤害与收益计算",
+          "row": 243
+        },
+        "appliesNonPlayerDamageBonus": false,
+        "conditionalSourceId": "ranged-weapon-wuxiu-huang"
+      },
+      "countRule": {
+        "type": "intervalExpectedProcs",
+        "attackFrequencyNumerator": 407,
+        "attackFrequencyDenominator": 240,
+        "internalCooldownSeconds": 10
+      }
+    },
+    {
+      "component": "wristEffect",
+      "skill": "特效·腕",
+      "damageRow": {
+        "category": "通用",
+        "skill": "特效·腕",
+        "notes": "",
+        "tags": "恒定伤害",
+        "fixedDamage": 1138846,
+        "attackCoefficient": 0,
+        "weaponCoefficient": 0,
+        "strainCoefficient": 0,
+        "strainMultiplier": 1,
+        "stackCount": 1,
+        "attackBonus": 4635,
+        "damageBonus": 0,
+        "penetrationBonus": -0.5071216900869897,
+        "defenseRate": 0,
+        "levelMultiplier": 0.8,
+        "unshieldedBonus": -1.5054390054390052,
+        "critScale": 1,
+        "critFloor": 0,
+        "critChanceBonus": -0.5672,
+        "critEffectBonus": -2.1334908581,
+        "vulnerability": 0.0205078125,
+        "countSourceRow": 237,
+        "source": {
+          "sheet": "非斩杀伤害与收益计算",
+          "row": 244
+        },
+        "appliesNonPlayerDamageBonus": false,
+        "conditionalSourceId": "wrist-equipment-special-effect"
+      },
+      "countRule": {
+        "type": "intervalExpectedProcs",
+        "attackFrequencyNumerator": 407,
+        "attackFrequencyDenominator": 240,
+        "internalCooldownSeconds": 10
+      }
+    },
+    {
+      "component": "speedShock",
+      "skill": "速·震",
+      "damageRow": {
+        "category": "通用",
+        "skill": "速·震",
+        "notes": "",
+        "tags": "恒定伤害",
+        "fixedDamage": 268000,
+        "attackCoefficient": 0,
+        "weaponCoefficient": 0,
+        "strainCoefficient": 0,
+        "strainMultiplier": 1,
+        "stackCount": 1,
+        "attackBonus": 4635,
+        "damageBonus": 0,
+        "penetrationBonus": -0.5071216900869897,
+        "defenseRate": 0,
+        "levelMultiplier": 0.8,
+        "unshieldedBonus": -1.5054390054390052,
+        "critScale": 1,
+        "critFloor": 0,
+        "critChanceBonus": -0.5672,
+        "critEffectBonus": -2.1334908581,
+        "vulnerability": 0.0205078125,
+        "countSourceRow": 393,
+        "source": {
+          "sheet": "非斩杀伤害与收益计算",
+          "row": 400
+        },
+        "appliesNonPlayerDamageBonus": false,
+        "conditionalSourceId": "haste-equipment-speed-shock"
+      },
+      "countRule": {
+        "type": "hasteDotTicks",
+        "baselineTicks": 20,
+        "maximumTicks": 22,
+        "intervalSeconds": 40
+      }
+    }
+  ],
+  "state": {
+    "slots": {
+      "帽子": {
+        "itemId": "7_109568",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "破防",
+            "level": 8
+          },
+          {
+            "attribute": "攻击",
+            "level": 8
+          }
+        ],
+        "enchant": "3279加速",
+        "majorEnchant": "于阗玉都"
+      },
+      "衣服": {
+        "itemId": "7_109505",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "力道",
+            "level": 8
+          },
+          {
+            "attribute": "会心",
+            "level": 8
+          }
+        ],
+        "enchant": "978无双",
+        "majorEnchant": "于阗玉都"
+      },
+      "腰带": {
+        "itemId": "7_110944",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "会心",
+            "level": 8
+          },
+          {
+            "attribute": "破招",
+            "level": 8
+          }
+        ],
+        "enchant": "978无双",
+        "majorEnchant": "于阗玉都"
+      },
+      "护腕": {
+        "itemId": "7_109419",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "破防",
+            "level": 8
+          },
+          {
+            "attribute": "无双",
+            "level": 8
+          }
+        ],
+        "enchant": "3279无双",
+        "majorEnchant": "于阗玉都"
+      },
+      "下装": {
+        "itemId": "7_109448",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "破防",
+            "level": 8
+          },
+          {
+            "attribute": "攻击",
+            "level": 8
+          }
+        ],
+        "enchant": "3279无双",
+        "majorEnchant": null
+      },
+      "鞋子": {
+        "itemId": "7_109574",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "破防",
+            "level": 8
+          },
+          {
+            "attribute": "无双",
+            "level": 8
+          }
+        ],
+        "enchant": "3279加速",
+        "majorEnchant": "于阗玉都"
+      },
+      "项链": {
+        "itemId": "8_48047",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "破防",
+            "level": 8
+          }
+        ],
+        "enchant": "736力道",
+        "majorEnchant": null
+      },
+      "腰坠": {
+        "itemId": "8_49070",
+        "refinement": 8,
+        "sockets": [
+          {
+            "attribute": "破防",
+            "level": 8
+          }
+        ],
+        "enchant": "5739会心",
+        "majorEnchant": null
+      },
+      "戒指1": {
+        "itemId": "8_47942",
+        "refinement": 6,
+        "sockets": [],
+        "enchant": "1559攻击",
+        "majorEnchant": null
+      },
+      "戒指2": {
+        "itemId": "8_47942",
+        "refinement": 6,
+        "sockets": [],
+        "enchant": "1559攻击",
+        "majorEnchant": null
+      },
+      "长兵": {
+        "itemId": "6_45305",
+        "refinement": 8,
+        "sockets": [
+          {
+            "attribute": "攻击",
+            "level": 8
+          },
+          {
+            "attribute": "力道",
+            "level": 8
+          },
+          {
+            "attribute": "破防",
+            "level": 8
+          }
+        ],
+        "enchant": "891攻击",
+        "majorEnchant": null
+      },
+      "暗器": {
+        "itemId": "6_44538",
+        "refinement": 6,
+        "sockets": [
+          {
+            "attribute": "破防",
+            "level": 8
+          }
+        ],
+        "enchant": "5739加速",
+        "majorEnchant": null
+      }
+    },
+    "combat": {
+      "心法": "傲血战意",
+      "战斗时间": "180s",
+      "血量消耗": "不计算血量消耗",
+      "目标选择": "134级木桩·斩",
+      "循环选择": "连营",
+      "延迟": 30
+    },
+    "fiveColorStoneId": "level-6:彩·破防·无双·会效",
+    "buffs": {
+      "self": {
+        "药品辅助": "风语·上品大力丸(紫力)",
+        "药品增强": "风语·上品活气散(紫速)",
+        "食品辅助": "风语·三鲜粥(紫力)",
+        "食品增强": "风语·红烧扣肉(紫速)",
+        "磨石": "无",
+        "宴席": "风语·玉笛谁家听落梅",
+        "家园菜品": "无",
+        "创意食品减益": "最大气血值降低",
+        "创意食品": "无双值增加",
+        "家园酒品": "汾酒·旬又三(力道)",
+        "家园香水": "煦风·宁为秋霜(破防)",
+        "水煮鱼": "百炼水煮鱼",
+        "蒸鱼菜盘": "蒸鱼菜盘",
+        "同泽宴": "同泽宴"
+      },
+      "support": {
+        "破风": "破风",
+        "易伤": "无",
+        "号令三军": 0,
+        "禅语": 90,
+        "朝圣言类型": "无",
+        "朝圣言": 0,
+        "振奋": 90,
+        "寒啸千军": 0,
+        "乘龙箭": 0,
+        "盾飞(虚弱)": 0,
+        "左旋右转": 90,
+        "飘黄": 0,
+        "仙王蛊鼎": 0,
+        "秋肃": 90,
+        "庄周梦": 90,
+        "袖气": 1,
+        "共战江湖": 0,
+        "碎星辰": 0,
+        "激雷": 0
+      },
+      "enabled": {
+        "self": true,
+        "support": true
+      }
+    },
+    "formation": {
+      "id": "凌雪阵",
+      "coverages": {
+        "凌雪阵": 0.55,
+        "万灵阵": 0.96
+      }
+    }
+  },
+  "combatPanel": {
+    "rules": {
+      "constitutionFlat": 362,
+      "agilityFlat": 361,
+      "strengthFlat": 2587,
+      "attackFlat": 11383,
+      "strengthToBaseAttack": 0.163,
+      "strengthToExtraAttack": 1.7998046875,
+      "baseAttackPercent": 101,
+      "damageBaseAttackPercent": 157.1,
+      "critFlat": 32228,
+      "critChanceFlat": 0.03,
+      "critCoefficient": 197703,
+      "critEffectFlat": 8764,
+      "critEffectPercent": 154,
+      "critEffectCoefficient": 72844.2,
+      "penetrationFlat": 4099,
+      "damagePenetrationBaseFlat": 0,
+      "strengthToBasePenetration": 0.3,
+      "strengthToExtraPenetration": 0.2802734375,
+      "penetrationCoefficient": 225957.6,
+      "thunderIgnoreDefense": 717,
+      "strainFlat": 4748,
+      "unshieldedFlat": 74827,
+      "damageUnshieldedFlat": 50245.67901234568,
+      "damageUnshieldedPercent": 0,
+      "cloudUnshieldedPercent": 204,
+      "cloudCritChancePerStack": 0.06,
+      "cloudCritEffectPerStack": 0.25,
+      "dragonFangManualCritChance": 0.04,
+      "rideAttackBase": 153,
+      "rideAttackBonus": 154,
+      "abyssAttackBonus": 358,
+      "unshieldedCoefficient": 133333.2,
+      "hasteCoefficient": 210078,
+      "smallOrangeUnshieldedByLevel": {
+        "39750": 6205
+      }
+    },
+    "constitution": 222209,
+    "strength": 9599,
+    "baseAttack": 83047,
+    "damageBaseAttack": 83047,
+    "attack": 108514,
+    "damageAttack": 113063,
+    "critLevel": 115402.14285714286,
+    "damageCritLevel": 115402.14285714286,
+    "displayCritLevel": 112545,
+    "critRate": 0.6154,
+    "damageCritRate": 0.6154,
+    "displayCritRate": 0.6009,
+    "critEffectLevel": 38337,
+    "critEffect": 2.4267,
+    "critEffectRaw": 2.426678236093265,
+    "damageCritEffectRaw": 2.426678236093265,
+    "penetrationRate": 0.5936069421873839,
+    "penetration": 134130,
+    "displayPenetrationRate": 0.5936069421873839,
+    "displayPenetration": 134130,
+    "damagePenetrationRate": 0.6094793890535215,
+    "damagePenetration": 137716.5,
+    "damagePenetrationRateDelta": 0,
+    "waistPendantPenetrationAverage": 3586.5,
+    "waistPendantPenetrationDelta": 0,
+    "strain": 13562,
+    "damageStrain": 13562,
+    "unshieldedRate": 1.1984,
+    "unshieldedRateRaw": 1.1983661983661982,
+    "unshielded": 159782,
+    "damageUnshielded": 172292,
+    "damageUnshieldedRateRaw": 1.2921912921912921,
+    "hasteRate": 0.2041,
+    "haste": 43002,
+    "rotation": "连营",
+    "latencyMs": 30,
+    "target": "134级木桩·斩",
+    "durationSeconds": 180,
+    "largeOrangeWeapon": true,
+    "skillCritChanceBonuses": {},
+    "equipmentScalingLevels": {
+      "会心": 115726.14285714286,
+      "破招": 13562,
+      "破防": 135026.5
+    },
+    "equipmentEffectStacks": {
+      "8_48047": 10
+    },
+    "enemyDefenseReduction": 3500,
+    "enemyDefensePercentReduction": 0,
+    "ignoreDefenseLevel": 0,
+    "vulnerabilityLevelDelta": -21,
+    "damageAddPercentDelta": 0,
+    "formationDamageAddPercentDelta": 0,
+    "weaponDamageMin": 12451,
+    "weaponDamageMax": 20752,
+    "damageWeaponDamageMin": 12451,
+    "damageWeaponDamageMax": 20752,
+    "formation": "凌雪阵",
+    "trace": [
+      "固定配置战斗面板",
+      "五彩石基准:level-6:彩·攻击·无双·会效",
+      "自身增益:加速:13118",
+      "自身增益:会心:-21040",
+      "自身增益:攻击:-1337",
+      "自身增益:无双:7184",
+      "自身增益:破防:738",
+      "团队增益面板:无双:-21580",
+      "团队增益伤害:无双:-59315.67901234568",
+      "阵法:凌雪阵",
+      "条件属性:会心:-7908",
+      "条件属性:会效:-2914",
+      "装备特效属性:无双:3857",
+      "装备特效属性:会心:6713.142857142857",
+      "装备特效属性:攻击:40",
+      "神兵·无双:6675",
+      "腰坠破防:3586.5",
+      "帽子自适应:破防:3471",
+      "装备:帽子:7_109568",
+      "精炼:帽子:6",
+      "镶嵌:帽子:破防:8",
+      "镶嵌:帽子:攻击:8",
+      "附魔:帽子:3279加速",
+      "大附魔:帽子:于阗玉都",
+      "装备:衣服:7_109505",
+      "精炼:衣服:6",
+      "镶嵌:衣服:力道:8",
+      "镶嵌:衣服:会心:8",
+      "附魔:衣服:978无双",
+      "大附魔:衣服:于阗玉都",
+      "装备:腰带:7_110944",
+      "精炼:腰带:6",
+      "镶嵌:腰带:会心:8",
+      "镶嵌:腰带:破招:8",
+      "附魔:腰带:978无双",
+      "大附魔:腰带:于阗玉都",
+      "装备:护腕:7_109419",
+      "精炼:护腕:6",
+      "镶嵌:护腕:破防:8",
+      "镶嵌:护腕:无双:8",
+      "附魔:护腕:3279无双",
+      "大附魔:护腕:于阗玉都",
+      "装备:下装:7_109448",
+      "精炼:下装:6",
+      "镶嵌:下装:破防:8",
+      "镶嵌:下装:攻击:8",
+      "附魔:下装:3279无双",
+      "装备:鞋子:7_109574",
+      "精炼:鞋子:6",
+      "镶嵌:鞋子:破防:8",
+      "镶嵌:鞋子:无双:8",
+      "附魔:鞋子:3279加速",
+      "大附魔:鞋子:于阗玉都",
+      "装备:项链:8_48047",
+      "精炼:项链:6",
+      "镶嵌:项链:破防:8",
+      "附魔:项链:736力道",
+      "装备:腰坠:8_49070",
+      "精炼:腰坠:8",
+      "镶嵌:腰坠:破防:8",
+      "附魔:腰坠:5739会心",
+      "装备:戒指1:8_47942",
+      "精炼:戒指1:6",
+      "附魔:戒指1:1559攻击",
+      "装备:戒指2:8_47942",
+      "精炼:戒指2:6",
+      "附魔:戒指2:1559攻击",
+      "装备:长兵:6_45305",
+      "精炼:长兵:8",
+      "镶嵌:长兵:攻击:8",
+      "镶嵌:长兵:力道:8",
+      "镶嵌:长兵:破防:8",
+      "附魔:长兵:891攻击",
+      "装备:暗器:6_44538",
+      "精炼:暗器:6",
+      "镶嵌:暗器:破防:8",
+      "附魔:暗器:5739加速",
+      "五彩石:level-6:彩·破防·无双·会效"
+    ]
+  }
+}

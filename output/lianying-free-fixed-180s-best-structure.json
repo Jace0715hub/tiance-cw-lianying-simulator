@@ -1,0 +1,714 @@
+{
+  "kind": "tiance-cw-lianying-structure-analysis",
+  "source": "output/lianying-free-fixed-180s-best.json",
+  "durationSeconds": 180,
+  "rotationDps": 13947861.757012079,
+  "totalDps": 14427607.464559147,
+  "actionPackSource": "recovered-from-rows",
+  "recoveredReplayDamageDelta": 0,
+  "analysis": {
+    "schemaVersion": 1,
+    "purpose": "expose-model-dependent-but-mechanically-legal-axis-structures",
+    "modelDependencies": {
+      "rideBuffIsIndependentFromMountedState": true,
+      "dismountDoesNotClearRideBuff": true,
+      "onFootDragonFangBuildsDragonRide": true,
+      "thunderDragonFangCostAppliesOnFoot": true
+    },
+    "summary": {
+      "thunderWindows": 7,
+      "thunderStartsBelowFiveRage": 2,
+      "thunderStartsBoundToRideSameRow": 5,
+      "thunderStartsDelayedUnderRideBuff": 1,
+      "thunderStartsWithoutRideBuff": 1,
+      "rideCastsWithoutSameRowThunder": 2,
+      "dismountsDuringThunder": 1,
+      "onFootDragonFangsDuringThunder": 21,
+      "onFootThunderFangsCoveredByRideBuff": 5,
+      "onFootThunderFangsAfterRideBuff": 16,
+      "dragonRideGainedFromOnFootThunderFangs": 21,
+      "consecutiveDestroyChains": 1
+    },
+    "thunderWindows": [
+      {
+        "index": 1,
+        "startRow": 3,
+        "startSeconds": 3.59,
+        "endSeconds": 21.59,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 7,
+        "rideBuffActiveAtStart": false,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 2,
+        "startRow": 20,
+        "startSeconds": 24.2875,
+        "endSeconds": 42.2875,
+        "rageAtStart": 4,
+        "startedBelowFiveRage": true,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 6,
+        "rideBuffActiveAtStart": false,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          21,
+          22,
+          23,
+          24,
+          25,
+          27,
+          28,
+          29,
+          31,
+          32,
+          33,
+          34,
+          35
+        ],
+        "onFootDragonFangRows": [
+          27,
+          28,
+          29,
+          31,
+          32,
+          33,
+          34,
+          35
+        ],
+        "onFootDragonFangsCoveredByRideBuff": [
+          27,
+          28,
+          29,
+          31,
+          32
+        ],
+        "onFootDragonFangsAfterRideBuff": [
+          33,
+          34,
+          35
+        ],
+        "dragonRideGainedFromOnFootFangs": 8,
+        "dismounts": [
+          {
+            "rowNumber": 26,
+            "seconds": 30.4375,
+            "rideBuffActive": true,
+            "dragonRideStacks": 1,
+            "reason": "free-search"
+          }
+        ]
+      },
+      {
+        "index": 3,
+        "startRow": 38,
+        "startSeconds": 46.2025,
+        "endSeconds": 64.2025,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 15,
+        "rideBuffActiveAtStart": false,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 4,
+        "startRow": 59,
+        "startSeconds": 71.77,
+        "endSeconds": 89.77,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 9,
+        "rideBuffActiveAtStart": false,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          67,
+          68,
+          69,
+          71,
+          72,
+          73,
+          74
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 5,
+        "startRow": 80,
+        "startSeconds": 96.1825,
+        "endSeconds": 114.1825,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": false,
+        "dragonRideStacksAtStart": 1,
+        "rideBuffActiveAtStart": false,
+        "boundToRideInSameRow": false,
+        "rideThunderBinding": "no-ride-buff",
+        "dragonFangRows": [
+          80,
+          81,
+          82,
+          84,
+          85,
+          86,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94
+        ],
+        "onFootDragonFangRows": [
+          80,
+          81,
+          82,
+          84,
+          85,
+          86,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94
+        ],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [
+          80,
+          81,
+          82,
+          84,
+          85,
+          86,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94
+        ],
+        "dragonRideGainedFromOnFootFangs": 13,
+        "dismounts": []
+      },
+      {
+        "index": 6,
+        "startRow": 105,
+        "startSeconds": 127.775,
+        "endSeconds": 145.775,
+        "rageAtStart": 5,
+        "startedBelowFiveRage": false,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 24,
+        "rideBuffActiveAtStart": false,
+        "boundToRideInSameRow": true,
+        "rideThunderBinding": "same-row-ride",
+        "dragonFangRows": [
+          106,
+          107,
+          108,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          117,
+          118,
+          119,
+          120
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      },
+      {
+        "index": 7,
+        "startRow": 128,
+        "startSeconds": 154.6225,
+        "endSeconds": 172.6225,
+        "rageAtStart": 3,
+        "startedBelowFiveRage": true,
+        "mountedAtStart": true,
+        "dragonRideStacksAtStart": 14,
+        "rideBuffActiveAtStart": true,
+        "boundToRideInSameRow": false,
+        "rideThunderBinding": "delayed-under-ride-buff",
+        "dragonFangRows": [
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          139,
+          140,
+          141,
+          142
+        ],
+        "onFootDragonFangRows": [],
+        "onFootDragonFangsCoveredByRideBuff": [],
+        "onFootDragonFangsAfterRideBuff": [],
+        "dragonRideGainedFromOnFootFangs": 0,
+        "dismounts": []
+      }
+    ],
+    "dismountsDuringThunder": [
+      {
+        "rowNumber": 26,
+        "seconds": 30.4375,
+        "rideBuffActive": true,
+        "dragonRideStacks": 1,
+        "reason": "free-search",
+        "thunderWindow": 2
+      }
+    ],
+    "onFootThunderFangs": [
+      {
+        "rowNumber": 27,
+        "skill": "龙牙",
+        "castSeconds": 31.655,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 1,
+        "dragonRideAfter": 2,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 28,
+        "skill": "龙牙",
+        "castSeconds": 32.8725,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 2,
+        "dragonRideAfter": 3,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 29,
+        "skill": "龙牙",
+        "castSeconds": 34.09,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 3,
+        "dragonRideAfter": 4,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 31,
+        "skill": "龙牙",
+        "castSeconds": 36.525,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 4,
+        "dragonRideAfter": 5,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 32,
+        "skill": "龙牙",
+        "castSeconds": 37.7425,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 5,
+        "dragonRideAfter": 6,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": true,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 33,
+        "skill": "龙牙",
+        "castSeconds": 38.96,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 7,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 34,
+        "skill": "龙牙",
+        "castSeconds": 40.1775,
+        "rageBeforePrimary": 2,
+        "rageAfterPrimary": 1,
+        "dragonRideBefore": 7,
+        "dragonRideAfter": 8,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 35,
+        "skill": "龙牙",
+        "castSeconds": 41.395,
+        "rageBeforePrimary": 1,
+        "rageAfterPrimary": 0,
+        "dragonRideBefore": 8,
+        "dragonRideAfter": 9,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 80,
+        "skill": "雷→龙牙",
+        "castSeconds": 96.1825,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 1,
+        "dragonRideAfter": 2,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 81,
+        "skill": "龙牙",
+        "castSeconds": 97.4,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 2,
+        "dragonRideAfter": 3,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 82,
+        "skill": "龙牙",
+        "castSeconds": 98.6175,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 3,
+        "dragonRideAfter": 4,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 84,
+        "skill": "龙牙",
+        "castSeconds": 101.0525,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 4,
+        "dragonRideAfter": 5,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 85,
+        "skill": "龙牙",
+        "castSeconds": 102.27,
+        "rageBeforePrimary": 4,
+        "rageAfterPrimary": 3,
+        "dragonRideBefore": 5,
+        "dragonRideAfter": 6,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 86,
+        "skill": "龙牙",
+        "castSeconds": 103.4875,
+        "rageBeforePrimary": 3,
+        "rageAfterPrimary": 2,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 7,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 88,
+        "skill": "龙牙",
+        "castSeconds": 105.9225,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 7,
+        "dragonRideAfter": 8,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 89,
+        "skill": "CW→龙牙",
+        "castSeconds": 107.14,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 8,
+        "dragonRideAfter": 9,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 90,
+        "skill": "龙牙",
+        "castSeconds": 108.3575,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 9,
+        "dragonRideAfter": 10,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 91,
+        "skill": "龙牙",
+        "castSeconds": 109.575,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 10,
+        "dragonRideAfter": 11,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 92,
+        "skill": "龙牙",
+        "castSeconds": 110.7925,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 11,
+        "dragonRideAfter": 12,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 93,
+        "skill": "龙牙",
+        "castSeconds": 112.01,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 5,
+        "dragonRideBefore": 12,
+        "dragonRideAfter": 13,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      },
+      {
+        "rowNumber": 94,
+        "skill": "龙牙",
+        "castSeconds": 113.2275,
+        "rageBeforePrimary": 5,
+        "rageAfterPrimary": 4,
+        "dragonRideBefore": 13,
+        "dragonRideAfter": 14,
+        "mountedAtCast": false,
+        "thunderAtCast": true,
+        "rideAtCast": false,
+        "destroySource": null
+      }
+    ],
+    "consecutiveDestroyChains": [
+      {
+        "startRow": 36,
+        "endRow": 37,
+        "castSeconds": [
+          42.6125,
+          43.83
+        ],
+        "sources": [
+          "normal",
+          "poLouLanBonus"
+        ],
+        "rageFlow": [
+          [
+            0,
+            3
+          ],
+          [
+            3,
+            5
+          ]
+        ],
+        "underThunder": [
+          false,
+          false
+        ],
+        "totalRowDamage": 10970732.347603153
+      }
+    ]
+  },
+  "sensitivity": {
+    "assumption": "dismount-does-not-clear-ride-buff",
+    "comparisonType": "fixed-axis-counterfactual",
+    "durationSeconds": 180,
+    "baseline": {
+      "dismountClearsRideBuff": false,
+      "rotationDamage": 2510615116.262174,
+      "rotationDps": 13947861.757012079
+    },
+    "counterfactual": {
+      "dismountClearsRideBuff": true,
+      "rotationDamage": 2490294089.3579,
+      "rotationDps": 13834967.163099445
+    },
+    "dependency": {
+      "damageDelta": 20321026.904273987,
+      "dpsDelta": 112894.59391263327,
+      "relativeToBaseline": 0.008094043078386348,
+      "affectedComponents": [
+        {
+          "component": "dragonFang",
+          "baselineDamage": 1059671797.1419952,
+          "counterfactualDamage": 1052120959.5944276,
+          "damageDelta": 7550837.547567606
+        },
+        {
+          "component": "breakGang",
+          "baselineDamage": 329139111.70975924,
+          "counterfactualDamage": 326026605.86309075,
+          "damageDelta": 3112505.846668482
+        },
+        {
+          "component": "bleedTick",
+          "baselineDamage": 192834555.6518665,
+          "counterfactualDamage": 190402689.59815896,
+          "damageDelta": 2431866.05370754
+        },
+        {
+          "component": "dragonBlood",
+          "baselineDamage": 256566515.32745454,
+          "counterfactualDamage": 254303925.93306008,
+          "damageDelta": 2262589.3943944573
+        },
+        {
+          "component": "breakArmy",
+          "baselineDamage": 274321157.75574195,
+          "counterfactualDamage": 272229553.8267808,
+          "damageDelta": 2091603.9289611578
+        },
+        {
+          "component": "destroyPoLouLan",
+          "baselineDamage": 65424218.211056024,
+          "counterfactualDamage": 64123654.66950038,
+          "damageDelta": 1300563.541555643
+        },
+        {
+          "component": "destroy",
+          "baselineDamage": 67891811.53106523,
+          "counterfactualDamage": 66591247.98950959,
+          "damageDelta": 1300563.5415556356
+        },
+        {
+          "component": "autoAttack",
+          "baselineDamage": 38470942.75974249,
+          "counterfactualDamage": 38298689.99061965,
+          "damageDelta": 172252.76912283897
+        },
+        {
+          "component": "dragonFangDivine",
+          "baselineDamage": 10375561.593290746,
+          "counterfactualDamage": 10277317.312550092,
+          "damageDelta": 98244.2807406541
+        }
+      ]
+    }
+  }
+}

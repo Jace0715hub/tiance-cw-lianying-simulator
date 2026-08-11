@@ -1,0 +1,41 @@
+{
+  "name": "tiance-cw-lianying-simulator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "demo": "node src/cli.js",
+    "report:window": "node tools/report-window-coverage.mjs",
+    "report:baseline": "node tools/report-baseline-alignment.mjs",
+    "report:overlap": "node tools/report-overlap-templates.mjs",
+    "report:candidates": "node tools/report-orange-candidates.mjs",
+    "report:optimized": "node tools/report-optimized-candidates.mjs",
+    "report:thunder": "node tools/report-thunder-optimized.mjs",
+    "report:binding": "node tools/report-ride-thunder-binding.mjs",
+    "report:ride": "node tools/report-ride-placement.mjs",
+    "report:joint": "node tools/report-joint-coordination.mjs",
+    "export:joint": "node tools/export-joint-axis.mjs",
+    "export:whitepaper": "node tools/export-whitepaper-axes.mjs",
+    "export:research": "node tools/export-lianying-research.mjs",
+    "report:convergence": "node tools/report-lianying-convergence.mjs",
+    "report:structure": "node tools/report-lianying-structure.mjs",
+    "optimize:seed": "node tools/optimize-lianying-seed.mjs",
+    "optimize:segments": "node tools/optimize-lianying-segments.mjs",
+    "optimize:multisegments": "node tools/optimize-lianying-multisegments.mjs",
+    "optimize:anchor-drift": "node tools/optimize-lianying-anchor-drift.mjs",
+    "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",
+    "optimize:crossover": "node tools/optimize-lianying-seed-crossover.mjs",
+    "optimize:crossover-bridge": "node tools/optimize-lianying-crossover-bridge.mjs",
+    "optimize:crossover-bridge-portfolio": "node tools/optimize-lianying-crossover-bridge-portfolio.mjs",
+    "optimize:crossover-joint-bridge-portfolio": "node tools/optimize-lianying-crossover-bridge-portfolio.mjs - joint-screen",
+    "optimize:joint-drift": "node tools/optimize-lianying-joint-drift.mjs",
+    "optimize:adaptive-suffix": "node tools/optimize-lianying-joint-drift.mjs --adaptive",
+    "refresh:golden": "node tools/extract-excel-reference.mjs",
+    "refresh:profiles": "node tools/extract-profile-reference.mjs",
+    "refresh:gear": "node tools/extract-default-gear-template.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

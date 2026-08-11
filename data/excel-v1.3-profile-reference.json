@@ -1,0 +1,1669 @@
+{
+  "schemaVersion": 1,
+  "source": "傲血配装计算器暗影千机测试版ver1.3离线拆解数据",
+  "validationOnly": true,
+  "durationSeconds": 180,
+  "timing": {
+    "haste": 43002,
+    "latencyMs": 30,
+    "gcdSeconds": 1.2175,
+    "segment": 5,
+    "rowCount": 148
+  },
+  "profiles": {
+    "lianying": {
+      "prefix": "连营-5段加速",
+      "rows": [
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "雷龙吟",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 2,
+          "resourceAfter": 1
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 1,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 2,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "雷断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 2,
+          "resourceAfter": 1
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 1,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 2,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "雷断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 2,
+          "resourceAfter": 1
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 1,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "雷灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 2,
+          "resourceAfter": 1
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 1,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 2,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "雷断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 2,
+          "resourceAfter": 1
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 1,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 2,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "雷断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 2,
+          "resourceAfter": 1
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 1,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 2,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "雷断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 4,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 3,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 2,
+          "resourceAfter": 1
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 1,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        }
+      ]
+    },
+    "muyunOrange": {
+      "prefix": "牧云-5段加速-CW",
+      "rows": [
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "雷龙吟",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙-CW",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 4,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "雷穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 2,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "雷断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟-CW",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "雷龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 4,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "雷穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟-CW",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "任驰骋",
+          "resourceBefore": 3,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "雷灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "断魂刺龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 2,
+          "resourceAfter": 4
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 4,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 2,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "灭",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        },
+        {
+          "skill": "龙牙",
+          "resourceBefore": 5,
+          "resourceAfter": 2
+        },
+        {
+          "skill": "穿云",
+          "resourceBefore": 2,
+          "resourceAfter": 3
+        },
+        {
+          "skill": "龙吟",
+          "resourceBefore": 3,
+          "resourceAfter": 5
+        }
+      ]
+    }
+  },
+  "references": {
+    "lianying": {
+      "totalDamage": 2223208593.927064,
+      "dps": 12422068.160902163,
+      "durationSeconds": 178.97250000000014,
+      "skills": {
+        "龙牙": {
+          "count": 95,
+          "damage": 929712999.9434001
+        },
+        "灭": {
+          "count": 20,
+          "damage": 61502551.72849954
+        },
+        "穿云": {
+          "count": 14,
+          "damage": 29443065.212434128
+        },
+        "龙吟": {
+          "count": 13,
+          "damage": 65266395.607725516
+        },
+        "断魂刺": {
+          "count": 7,
+          "damage": 1799603.792911089
+        },
+        "流血": {
+          "count": 41.20769230769231,
+          "damage": 56801651.179711536
+        },
+        "流血-战心": {
+          "count": 68.92923076923077,
+          "damage": 129614722.8794779
+        },
+        "龙血": {
+          "count": 95,
+          "damage": 224662110.35751295
+        },
+        "新破招(牙)": {
+          "count": 95,
+          "damage": 51067881.451793954
+        },
+        "梅花枪法": {
+          "count": 124.50260869565219,
+          "damage": 38100531.60737943
+        },
+        "昆吾·弦刃": {
+          "count": 7.615384615384615,
+          "damage": 14712923.076923076
+        },
+        "刃凌": {
+          "count": 16.81347237492584,
+          "damage": 21655752.418904483
+        },
+        "无修·荒": {
+          "count": 16.99767981438515,
+          "damage": 13273760.129930394
+        },
+        "特效·腕": {
+          "count": 16.99767981438515,
+          "damage": 15486191.732714618
+        },
+        "龙牙·神兵": {
+          "count": 28.481445312499996,
+          "damage": 8511157.988855196
+        },
+        "速·震": {
+          "count": 99,
+          "damage": 21225600
+        },
+        "破罡": {
+          "count": 95,
+          "damage": 289676871.8337655
+        },
+        "破军": {
+          "count": 243,
+          "damage": 250694822.9851242
+        }
+      }
+    },
+    "muyunOrange": {
+      "totalDamage": 2411232516.212721,
+      "dps": 13472642.535656143,
+      "durationSeconds": 178.97250000000014,
+      "skills": {
+        "龙牙": {
+          "count": 66,
+          "damage": 838320507.2507637
+        },
+        "灭": {
+          "count": 21,
+          "damage": 80454700.8336528
+        },
+        "穿云": {
+          "count": 33,
+          "damage": 130133556.20728372
+        },
+        "龙吟": {
+          "count": 22,
+          "damage": 131242198.84127882
+        },
+        "断魂刺": {
+          "count": 8,
+          "damage": 2483468.8359076628
+        },
+        "流血": {
+          "count": 72.67538461538463,
+          "damage": 131396368.88889523
+        },
+        "流血-战心": {
+          "count": 37.46153846153846,
+          "damage": 81240125.2961424
+        },
+        "龙血": {
+          "count": 66,
+          "damage": 195493082.2536071
+        },
+        "新破招(牙)": {
+          "count": 66,
+          "damage": 42140615.35420065
+        },
+        "梅花枪法": {
+          "count": 124.50260869565217,
+          "damage": 46370076.48104423
+        },
+        "昆吾·弦刃": {
+          "count": 7.615384615384615,
+          "damage": 14712923.076923076
+        },
+        "刃凌": {
+          "count": 16.81347237492584,
+          "damage": 21655752.418904483
+        },
+        "无修·荒": {
+          "count": 16.99767981438515,
+          "damage": 13273760.129930394
+        },
+        "特效·腕": {
+          "count": 16.99767981438515,
+          "damage": 15486191.732714618
+        },
+        "画角闻龙": {
+          "count": 15,
+          "damage": 126712376.87098366
+        },
+        "龙牙·神兵": {
+          "count": 19.787109375,
+          "damage": 7214825.786532803
+        },
+        "速·震": {
+          "count": 99,
+          "damage": 21225600
+        },
+        "破罡": {
+          "count": 66,
+          "damage": 243743885.31831384
+        },
+        "破军": {
+          "count": 215,
+          "damage": 267932500.63564116
+        }
+      }
+    }
+  }
+}
