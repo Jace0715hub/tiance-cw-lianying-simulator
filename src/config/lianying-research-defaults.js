@@ -10,6 +10,17 @@ export const LIANYING_DEFAULT_RESEARCH_SEEDS = Object.freeze([
   "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative.json",
 ]);
 
+export const LIANYING_DEFAULT_VALUE_TRAINING_SEEDS = Object.freeze([
+  LIANYING_CURRENT_BEST_AXIS,
+  "output/lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json",
+  "output/lianying-free-fixed-180s-adaptive-suffix-screen.json",
+  "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative.json",
+  "output/lianying-free-fixed-180s-best-continued-fast.json",
+  "output/lianying-free-fixed-180s.json",
+  "output/whitepaper-fixed-180s.json",
+  "output/whitepaper-stable-180s.json",
+]);
+
 export function resolveLianyingResearchPath(
   projectRoot,
   inputPath = LIANYING_CURRENT_BEST_AXIS,

@@ -27,6 +27,8 @@ const report = {
     Object.entries(splitRows).map(([split, entries]) => [split, entries.length]),
   ),
   selectedAlpha: selected.selectedAlpha,
+  selectedValueWeight: selected.selectedValueWeight,
+  selectedMaximumBaselineRank: selected.selectedMaximumBaselineRank,
   validationCandidates: selected.candidates,
   baseline: Object.fromEntries(
     Object.entries(splitRows).map(([split, entries]) => [
@@ -52,6 +54,16 @@ const report = {
       },
     ]),
   ),
+  guardedHybridQuota: Object.fromEntries(
+    Object.entries(splitRows).map(([split, entries]) => [
+      split,
+      evaluateLianyingHybridValueQuota(entries, selected.model, {
+        valueWeight: selected.selectedValueWeight,
+        maximumBaselineRank: selected.selectedMaximumBaselineRank ??
+          Number.POSITIVE_INFINITY,
+      }),
+    ]),
+  ),
 };
 report.equalBudgetComparison = Object.fromEntries(
   ["train", "validation", "test"].map((split) => [split, {
@@ -61,6 +73,14 @@ report.equalBudgetComparison = Object.fromEntries(
         report.baseline[split].ranking.top2Recall,
       meanRegretDelta:
         report.hybridQuota[split].onePlusOne.meanRegret -
+        report.baseline[split].ranking.meanTop2Regret,
+    },
+    guardedOnePlusOneVsBaselineTop2: {
+      oracleRecallDelta:
+        report.guardedHybridQuota[split].oracleRecall -
+        report.baseline[split].ranking.top2Recall,
+      meanRegretDelta:
+        report.guardedHybridQuota[split].meanRegret -
         report.baseline[split].ranking.meanTop2Regret,
     },
     twoPlusTwoVsBaselineTop4: {

@@ -7,6 +7,7 @@ export {
 export {
   LIANYING_CURRENT_BEST_AXIS,
   LIANYING_DEFAULT_RESEARCH_SEEDS,
+  LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
   resolveLianyingResearchPath,
   resolveLianyingResearchPaths,
 } from "./config/lianying-research-defaults.js";
@@ -68,7 +69,9 @@ export {
   fitLianyingRidgeValueModel,
   LIANYING_VALUE_FEATURE_COLUMNS,
   predictLianyingRidgeValue,
+  selectLianyingHybridValueWeight,
   selectLianyingRidgeValueModel,
+  selectLianyingRidgeValuePolicyBySourceValidation,
 } from "./policies/lianying-value-model.js";
 export {
   classifyLianyingSuffixFailure,

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import {
   LIANYING_CURRENT_BEST_AXIS,
   LIANYING_DEFAULT_RESEARCH_SEEDS,
+  LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
   resolveLianyingResearchPath,
   resolveLianyingResearchPaths,
 } from "../src/config/lianying-research-defaults.js";
@@ -32,6 +33,21 @@ test("default research seed portfolio is deduplicated and available", () => {
   const resolved = resolveLianyingResearchPaths(projectRoot);
   assert.equal(resolved.length, LIANYING_DEFAULT_RESEARCH_SEEDS.length);
   assert.equal(new Set(resolved).size, resolved.length);
+  for (const seedPath of resolved) assert.equal(fs.existsSync(seedPath), true, seedPath);
+});
+
+test("状态价值默认组合覆盖八条可用且互异的来源轴", () => {
+  const resolved = resolveLianyingResearchPaths(
+    projectRoot,
+    undefined,
+    LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
+  );
+  assert.equal(resolved.length, 8);
+  assert.equal(new Set(resolved).size, resolved.length);
+  assert.equal(
+    LIANYING_DEFAULT_VALUE_TRAINING_SEEDS[0],
+    LIANYING_CURRENT_BEST_AXIS,
+  );
   for (const seedPath of resolved) assert.equal(fs.existsSync(seedPath), true, seedPath);
 });
 

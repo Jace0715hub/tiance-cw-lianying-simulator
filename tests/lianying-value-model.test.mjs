@@ -6,7 +6,9 @@ import {
   evaluateLianyingValueModel,
   fitLianyingRidgeValueModel,
   predictLianyingRidgeValue,
+  selectLianyingHybridValueWeight,
   selectLianyingRidgeValueModel,
+  selectLianyingRidgeValuePolicyBySourceValidation,
 } from "../src/policies/lianying-value-model.js";
 
 function syntheticRows() {
@@ -77,6 +79,73 @@ test("混合配额同时保留即时伤害与状态价值候选", () => {
   assert.ok(hybrid.meanUniqueCandidates <= 2);
 });
 
+test("价值权重为零时严格退化为同预算即时伤害基线", () => {
+  const rows = syntheticRows().filter((row) => row.datasetSplit === "test");
+  const model = fitLianyingRidgeValueModel(
+    syntheticRows().filter((row) => row.datasetSplit === "train"),
+    { featureColumns: ["rage", "dragonRideStacks"], alpha: 0.01 },
+  );
+  const baseline = evaluateLianyingValueModel(rows);
+  const guarded = evaluateLianyingHybridValueQuota(rows, model, {
+    valueWeight: 0,
+  });
+  assert.equal(guarded.oracleRecall, baseline.ranking.top2Recall);
+  assert.equal(guarded.meanRegret, baseline.ranking.meanTop2Regret);
+});
+
+test("验证集会在价值排序有害时选择零权重回退", () => {
+  const rows = [
+    { totalDamage: 100, bestFinalDamage: 1000, rage: 0 },
+    { totalDamage: 99, bestFinalDamage: 1100, rage: 0 },
+    { totalDamage: 98, bestFinalDamage: 900, rage: 1 },
+  ].map((row, nodeId) => ({
+    ...row,
+    sourceAxis: "validation-axis",
+    traceId: "trace",
+    layer: 0,
+    nodeId,
+  }));
+  const harmfulModel = {
+    targetMean: 0,
+    featureColumns: ["rage"],
+    featureMeans: [0],
+    featureScales: [1],
+    coefficients: [1000],
+  };
+  const selected = selectLianyingHybridValueWeight(rows, harmfulModel, {
+    weights: [0, 0.5, 1],
+  });
+  assert.equal(selected.selectedValueWeight, 0);
+  assert.equal(selected.metrics.meanRegret, 0);
+});
+
+test("基线名次门控阻止价值槽跳到过远候选", () => {
+  const rows = [
+    { totalDamage: 100, bestFinalDamage: 1000, rage: 0 },
+    { totalDamage: 99, bestFinalDamage: 1100, rage: 0 },
+    { totalDamage: 98, bestFinalDamage: 900, rage: 1 },
+  ].map((row, nodeId) => ({
+    ...row,
+    sourceAxis: "test-axis",
+    traceId: "trace",
+    layer: 0,
+    nodeId,
+  }));
+  const model = {
+    targetMean: 0,
+    featureColumns: ["rage"],
+    featureMeans: [0],
+    featureScales: [1],
+    coefficients: [1000],
+  };
+  const open = evaluateLianyingHybridValueQuota(rows, model);
+  const guarded = evaluateLianyingHybridValueQuota(rows, model, {
+    maximumBaselineRank: 2,
+  });
+  assert.equal(open.meanRegret, 100);
+  assert.equal(guarded.meanRegret, 0);
+});
+
 test("逐轴留出交叉验证轮流隔离测试轴和验证轴", () => {
   const rows = syntheticRows().flatMap((row, index) => [
     { ...row, sourceAxis: `axis-${index % 4}` },
@@ -90,6 +159,25 @@ test("逐轴留出交叉验证轮流隔离测试轴和验证轴", () => {
   for (const fold of report.folds) {
     assert.notEqual(fold.testSource, fold.validationSource);
     assert.ok(!fold.trainingSources.includes(fold.testSource));
-    assert.ok(!fold.trainingSources.includes(fold.validationSource));
+    assert.equal(fold.selectionMode, "nested-source-validation");
+    assert.ok(fold.validationSources.includes(fold.validationSource));
+    assert.equal(fold.strictNonDegradingValidation, true);
   }
+});
+
+test("嵌套来源验证完全隔离外层测试轴", () => {
+  const rows = syntheticRows().flatMap((row, index) => [
+    { ...row, sourceAxis: `axis-${index % 4}` },
+  ]);
+  const selected = selectLianyingRidgeValuePolicyBySourceValidation(rows, {
+    testSource: "axis-0",
+    featureColumns: ["rage", "dragonRideStacks"],
+    alphas: [0.01, 1],
+    valueWeights: [0, 1],
+    maximumBaselineRanks: [2, 4],
+  });
+  assert.ok(!selected.validationSources.includes("axis-0"));
+  assert.equal(selected.model.trainingRows, rows.filter(
+    (row) => row.sourceAxis !== "axis-0").length);
+  assert.equal(selected.strictNonDegrading, true);
 });

@@ -3,12 +3,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
-  addLianyingValueCenteredTargets,
+  LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
   resolveLianyingResearchPath,
   resolveLianyingResearchPaths,
 } from "../src/config/lianying-research-defaults.js";
 import { optimizeLianyingSegmentResynthesis } from "../src/policies/lianying-segment-resynthesis.js";
 import {
+  addLianyingValueCenteredTargets,
   lianyingValueTrainingToCsv,
   lianyingValueTrainingToJsonl,
   prepareLianyingValueTrainingRows,
@@ -20,7 +21,11 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const inputArgument = process.argv[2] ?? "-";
 const profileName = process.argv[3] ?? "sample";
 const inputPaths = inputArgument === "portfolio"
-  ? resolveLianyingResearchPaths(projectRoot)
+  ? resolveLianyingResearchPaths(
+    projectRoot,
+    undefined,
+    LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
+  )
   : inputArgument.split(",")
     .map((entry) => resolveLianyingResearchPath(projectRoot, entry.trim()));
 
