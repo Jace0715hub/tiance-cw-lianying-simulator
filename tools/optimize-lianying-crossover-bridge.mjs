@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { resolveLianyingResearchPaths } from "../src/config/lianying-research-defaults.js";
 import { optimizeLianyingCrossoverBridge } from "../src/policies/lianying-crossover-bridge.js";
 import { optimizeLianyingSeedCrossovers } from "../src/policies/lianying-seed-crossover.js";
 import { replayWhitepaperLianying } from "../src/policies/whitepaper-lianying.js";
@@ -13,16 +14,7 @@ import {
 import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensitivity.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const defaultInputs = [
-  "output/lianying-free-fixed-180s-segments-balanced.json",
-  "output/lianying-free-fixed-180s-segments-fast-guided-pass2.json",
-  "output/lianying-free-fixed-180s-best-continued-fast.json",
-  "output/lianying-free-fixed-180s-best.json",
-];
-const inputPaths = (process.argv[2] ?? defaultInputs.join(","))
-  .split(",")
-  .map((value) => path.resolve(value.trim()))
-  .filter(Boolean);
+const inputPaths = resolveLianyingResearchPaths(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "screen";
 const profiles = {
   screen: {

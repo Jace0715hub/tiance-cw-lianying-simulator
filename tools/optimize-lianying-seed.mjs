@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { resolveLianyingResearchPath } from "../src/config/lianying-research-defaults.js";
 import {
   createLianyingOptimizationProfile,
   LIANYING_OPTIMIZATION_PROFILES,
@@ -18,10 +19,7 @@ import {
 import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensitivity.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const inputPath = path.resolve(
-  process.argv[2] ??
-    path.join(projectRoot, "output/lianying-free-fixed-180s-best.json"),
-);
+const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "balanced";
 if (!LIANYING_OPTIMIZATION_PROFILES.includes(profileName)) {
   throw new Error(`优化档位必须是${LIANYING_OPTIMIZATION_PROFILES.join("、")}`);

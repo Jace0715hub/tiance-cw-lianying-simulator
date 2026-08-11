@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { resolveLianyingResearchPath } from "../src/config/lianying-research-defaults.js";
 import { optimizeLianyingCrossoverJointBridge } from "../src/policies/lianying-crossover-bridge.js";
 import {
   buildWhitepaperAxisArtifact,
@@ -13,10 +14,9 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const adaptiveSuffixRepair = process.argv.includes("--adaptive");
 const positionalArgs = process.argv.slice(2).filter((value) => value !== "--adaptive");
-const incumbentPath = path.resolve(
-  positionalArgs[0] ?? "output/lianying-free-fixed-180s-segments-balanced.json",
-);
-const targetPath = path.resolve(
+const incumbentPath = resolveLianyingResearchPath(projectRoot, positionalArgs[0]);
+const targetPath = resolveLianyingResearchPath(
+  projectRoot,
   positionalArgs[1] ??
     "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative.json",
 );
@@ -165,12 +165,13 @@ const candidateArtifact = makeArtifact(
     ? "crossover-joint-adaptive-suffix-candidate"
     : "crossover-joint-anchor-drift-candidate",
 );
+const incumbentParsed = path.parse(incumbentPath);
 const outputStem = path.resolve(
   positionalArgs[3] ?? path.join(
-    projectRoot,
-    adaptiveSuffixRepair
-      ? `output/lianying-free-fixed-${durationSeconds}s-adaptive-suffix-${profileName}`
-      : `output/lianying-free-fixed-${durationSeconds}s-joint-drift-${profileName}`,
+    incumbentParsed.dir,
+    `${incumbentParsed.name}-${
+      adaptiveSuffixRepair ? "adaptive-suffix" : "joint-drift"
+    }-${profileName}`,
   ),
 );
 for (const [suffix, value] of [

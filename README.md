@@ -61,7 +61,9 @@ npm run export:joint -- 128 24 4
 npm run export:whitepaper -- 48 16 180 600
 npm run export:research -- free 32 180 fixed
 npm run report:convergence -- 16,32,64 180 fixed
-npm run optimize:anchor-drift -- output/lianying-free-fixed-180s-segments-balanced.json balanced output/lianying-free-fixed-180s-anchor-drift-balanced
+npm run optimize:seed
+npm run optimize:segments
+npm run optimize:anchor-drift
 npm run optimize:portfolio
 npm run optimize:crossover
 npm run optimize:crossover-bridge
@@ -134,7 +136,9 @@ npm run refresh:profiles
 
 已确认主动下马不会清除任驰骋15秒攻击增益。状态机继续把“马上状态”和“任驰骋攻击增益”作为两个独立状态；结构报告中的雷内下马不再属于待确认假设。保留“下马清除增益”的反事实开关，仅用于测量当前轴对该机制的伤害敏感度。
 
-`optimize:seed` 从已有技能轴JSON继续运行邻域优化，参数依次为输入JSON、`fast/balanced/deep`档和可选输出文件前缀。旧版JSON没有 `actionPacks` 时会从逐行时间和非GCD动作无损恢复，并先验证重放伤害一致；输出使用新文件名，不覆盖原种子。这样可以逐轮分析和重排已有高伤轴，不必每次重新运行初始束搜索。
+所有现行连营优化入口共享同一份研究默认值：单种子工具默认读取当前最优轴 `output/lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json`；多种子工具默认以它为全局基线，并搭配三条结构不同的历史高质量轴。显式传入JSON路径或逗号分隔路径列表时仍会覆盖默认值，便于复现实验。默认值集中在 `src/config/lianying-research-defaults.js`，避免新增最优轴后各工具仍从旧种子开始。
+
+`optimize:seed` 从已有技能轴JSON继续运行邻域优化，参数依次为输入JSON、`fast/balanced/deep`档和可选输出文件前缀；省略输入时使用上述当前最优轴。需要保留默认输入但指定后续参数时，可用 `-` 占位，例如 `npm run optimize:seed -- - fast`。旧版JSON没有 `actionPacks` 时会从逐行时间和非GCD动作无损恢复，并先验证重放伤害一致；优化入口的默认输出名均由输入种子派生，不覆盖原种子或历史最优产物。这样可以逐轮分析和重排已有高伤轴，不必每次重新运行初始束搜索。
 
 `optimize:segments` 执行雷锚点整段重合成，参数依次为输入JSON、`fast/balanced/deep`档和可选输出文件前缀。它把“本次雷到下一次雷”作为一个大邻域，并把下一雷后的4/6/8行作为fast/balanced/deep边界修复区，从该段真实起始状态重新束搜索全部主要技能和非GCD结构。每层同时保留区段高伤、机制状态多样性和接近原轴同期边界的桥接状态；最终候选必须能合法接回原后缀，再经过完整180秒重放。最后只对分层短名单重新全局排布突，按含突总伤害决定是否接受。
 
@@ -181,6 +185,10 @@ npm run refresh:profiles
 180秒screen从第3→43行开始，先定位第19行提前雷谱系在第74行以0豆施展龙牙失败，随后把窗口扩展到第78、83行。失败路径热启动后，第19行谱系首次产生可完整复演的合法轴；与此同时，原第20行谱系找到更高的新结构。最终只改变9行动作，首处分歧为第75行（90.095秒），技能总数净变化为多1次灭、1次龙牙和1次断魂刺，少2次穿云和1次突。循环伤害相对旧全局最优提高1,991,023.18，循环DPS更新为14,070,515.89，计入装备与附魔后的总DPS为14,550,261.60，机制违规为0。
 
 fast以screen新轴作为全局不降级回退，沿第46、55、63、74行的失败链把窗口从第45行依次扩展到52、61、69、80行；共完成180,208次区段转移、143,404次合法转移，并保留第19与20行两种雷谱系。提前雷同样能生成完整合法轴，但没有超过screen新轴，因此当前最佳结果保持不变。该结果证明后缀失败不是候选应被立即淘汰的理由，同时也说明最终收益不一定来自最初触发扩展的坐标谱系。
+
+把上述轴提升为统一默认种子后，通用机械邻域`fast`生成2,474个候选、640个局部合法候选和27个完整复评候选，未继续增伤。随后单雷区段重合成`fast`在第1→2雷区段增加305,380.23循环伤害；升级`balanced`后又在第6→7雷区段增加3,926,855.87。相对原adaptive-suffix轴累计增加4,232,236.10循环伤害，循环DPS更新为14,094,028.31，总DPS更新为14,573,774.02，机制违规为0。`deep`扩大到64状态束、8行边界修复和64条区段决赛候选后没有继续提高。
+
+新轴相对原adaptive-suffix轴只改变6行动作。早段把第20行的突移到第23行断魂刺后，并在第23行龙牙前主动下马；对应下一发突从第34行移到第37行灭后。末段则把第121行任驰骋前的下马和突提前到第120行龙牙前，使该发雷内龙牙在马下施展并多积累1层龙驭。这个结果来自完整180秒含突重放，不是把“雷内主动下马”写成硬规则。
 
 旧的 `report:optimized`、`report:thunder`、`report:binding`、`report:ride`、`report:joint` 保留为历史搜索实验与回归工具。它们基于 Excel 固定行骨架，不再用来判断白皮书约束下的橙武连营最终强度。
 

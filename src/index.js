@@ -5,6 +5,12 @@ export {
   loadGearTemplate,
 } from "./config/gear-template.js";
 export {
+  LIANYING_CURRENT_BEST_AXIS,
+  LIANYING_DEFAULT_RESEARCH_SEEDS,
+  resolveLianyingResearchPath,
+  resolveLianyingResearchPaths,
+} from "./config/lianying-research-defaults.js";
+export {
   CLOCK_TICKS_PER_FRAME,
   CLOCK_TICKS_PER_MS,
   frameToTicks,
