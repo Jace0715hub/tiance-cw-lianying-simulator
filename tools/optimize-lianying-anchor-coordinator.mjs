@@ -236,6 +236,36 @@ const profiles = {
     finalDashCandidateCount: 2,
     fullDashStates: 128,
   },
+  "focused-rides-dismount-wide-screen": {
+    ...common,
+    companionTypes: ["ride", "dismount"],
+    companionPolicies: {
+      ride: { fixedThroughOrdinal: 7, beforeRows: 0, afterRows: 0 },
+      dismount: { fixedThroughOrdinal: 4, beforeRows: 12, afterRows: 12 },
+    },
+    rowBeamWidth: 24,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "focused-rides-dismount-joint-wide-screen": {
+    ...common,
+    companionTypes: ["ride", "dismount"],
+    companionPolicies: {
+      ride: { fixedThroughOrdinal: 4, beforeRows: 4, afterRows: 4 },
+      dismount: { fixedThroughOrdinal: 4, beforeRows: 12, afterRows: 12 },
+    },
+    rowBeamWidth: 24,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(
