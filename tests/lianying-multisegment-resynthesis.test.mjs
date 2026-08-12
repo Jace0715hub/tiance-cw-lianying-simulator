@@ -21,6 +21,7 @@ import {
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingHierarchicalAnchorCoordination,
   optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
+  selectLianyingStructuralSeedCandidates,
 } from "../src/policies/lianying-anchor-coordinator.js";
 import { lianyingResynthesisStateKey } from "../src/policies/lianying-segment-resynthesis.js";
 import {
@@ -680,6 +681,35 @@ test("不同伴随动作可以使用独立的固定数量和双向窗口", () =>
     (window) => [window.earliestRow, window.latestRow]), [
     [100, 104], [117, 121], [145, 149],
   ]);
+});
+
+test("结构种子按移动雷分组保留高伤候选并过滤过度损失", () => {
+  const incumbentRows = [3, 20, 38, 59, 79, 107, 128];
+  const candidates = [
+    [incumbentRows, 1000],
+    [[3, 20, 38, 59, 79, 103, 128], 970],
+    [[3, 20, 38, 59, 79, 104, 128], 965],
+    [[3, 20, 38, 59, 80, 104, 128], 960],
+    [[3, 20, 38, 55, 79, 107, 128], 900],
+  ].map(([anchorRows, bestCoreDamage]) => ({
+    anchorRows,
+    bestCoreDamage,
+    packs: [{ primary: "dragonFang" }],
+  }));
+  const selected = selectLianyingStructuralSeedCandidates(
+    candidates,
+    incumbentRows,
+    { limit: 3, maximumCoreDamageLossRatio: 0.05 },
+  );
+  assert.deepEqual(selected.map((candidate) => candidate.anchorRows), [
+    [3, 20, 38, 59, 79, 103, 128],
+    [3, 20, 38, 59, 80, 104, 128],
+    [3, 20, 38, 59, 79, 104, 128],
+  ]);
+  assert.deepEqual(selected.map((candidate) => candidate.changedAnchors), [
+    [6], [5, 6], [6],
+  ]);
+  assert.equal(selected.some((candidate) => candidate.bestCoreDamage === 900), false);
 });
 
 test("聚焦伴随协调可按上限重新居中并汇总每轮诊断", () => {

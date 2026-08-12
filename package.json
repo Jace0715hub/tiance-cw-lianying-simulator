@@ -26,6 +26,7 @@
     "optimize:segments": "node tools/optimize-lianying-segments.mjs",
     "optimize:multisegments": "node tools/optimize-lianying-multisegments.mjs",
     "optimize:anchor-drift": "node tools/optimize-lianying-anchor-drift.mjs",
+    "generate:structural-seeds": "node tools/optimize-lianying-anchor-drift.mjs - structural-screen",
     "optimize:anchor-coordinator": "node tools/optimize-lianying-anchor-coordinator.mjs",
     "optimize:anchor-pairs": "node tools/optimize-lianying-anchor-coordinator.mjs - pair-screen",
     "optimize:anchor-pairs-fast": "node tools/optimize-lianying-anchor-coordinator.mjs - pair-fast",

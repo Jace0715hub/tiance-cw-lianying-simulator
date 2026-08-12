@@ -4,6 +4,10 @@ import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import { resolveLianyingResearchPath } from "../src/config/lianying-research-defaults.js";
 import {
+  buildLianyingFocusedCompanionAnchorTemplate,
+  selectLianyingStructuralSeedCandidates,
+} from "../src/policies/lianying-anchor-coordinator.js";
+import {
   lianyingAnchorDriftScheduleToCsv,
   lianyingMultiSegmentAnchorDiagnosticsToCsv,
   optimizeLianyingAnchorDriftResynthesis,
@@ -63,16 +67,40 @@ const profiles = {
     finalDashCandidateCount: 3,
     fullDashStates: 256,
   },
+  "structural-screen": {
+    ...common,
+    anchorSlackRows: 4,
+    rowBeamWidth: 64,
+    boundaryBeamWidth: 32,
+    coreFinalistCount: 32,
+    coarseCandidateLimit: 7,
+    coarseDashStates: 16,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    includeScheduleCandidatePacks: true,
+    structuralSeedLimit: 4,
+    structuralSeedMaximumCoreLossRatio: 0.05,
+  },
 };
 if (!profiles[profileName]) {
-  throw new Error("雷锚点漂移档位必须是fast、balanced或deep");
+  throw new Error("雷锚点漂移档位必须是fast、balanced、deep或structural-screen");
 }
 
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
 const seedReplay = replayWhitepaperLianying(runtime, seedPacks, { durationSeconds });
+const companionAnchorTemplate = profileName === "structural-screen"
+  ? buildLianyingFocusedCompanionAnchorTemplate(seedPacks, {
+      companionTypes: ["ride", "dismount"],
+      companionPolicies: {
+        ride: { fixedThroughOrdinal: 0, beforeRows: 6, afterRows: 6 },
+        dismount: { fixedThroughOrdinal: 0, beforeRows: 12, afterRows: 12 },
+      },
+    })
+  : null;
 const optimized = optimizeLianyingAnchorDriftResynthesis(runtime, seedPacks, {
   durationSeconds,
   ...profiles[profileName],
+  companionAnchorTemplate,
   onProgress: (event) => {
     console.log(JSON.stringify({ phase: "anchor-drift-resynthesis", ...event }));
   },
@@ -121,6 +149,87 @@ const outputStem = path.resolve(
     `${parsed.name}-anchor-drift-${profileName}`,
   ),
 );
+const structuralSeeds = profileName === "structural-screen"
+  ? selectLianyingStructuralSeedCandidates(
+      optimized.coreScheduleCandidates,
+      optimized.anchors,
+      {
+        limit: profiles[profileName].structuralSeedLimit,
+        maximumCoreDamageLossRatio:
+          profiles[profileName].structuralSeedMaximumCoreLossRatio,
+      },
+    )
+  : [];
+const structuralSeedDirectory = structuralSeeds.length > 0
+  ? path.resolve(process.argv[5] ?? `${outputStem}-seeds`)
+  : null;
+const structuralSeedManifest = [];
+if (structuralSeedDirectory) {
+  fs.mkdirSync(structuralSeedDirectory, { recursive: true });
+  for (let index = 0; index < structuralSeeds.length; index += 1) {
+    const candidate = structuralSeeds[index];
+    const replay = replayWhitepaperLianying(runtime, candidate.packs, {
+      durationSeconds,
+    });
+    const candidateArtifact = buildWhitepaperAxisArtifact({
+      durationSeconds,
+      mode,
+      policyMode: "free",
+      beamWidth: profiles[profileName].rowBeamWidth,
+      explored: optimized.explored,
+      legal: optimized.legal,
+      warmStarted: true,
+      warmStartCount: 1,
+      warmStartDamages: [seedReplay.state.totalDamage],
+      warmStartDamage: seedReplay.state.totalDamage,
+      telemetry: null,
+      packs: candidate.packs,
+      state: replay.state,
+      axisOptimization: {
+        kind: "structural-anchor-seed",
+        profile: profileName,
+        source: path.relative(projectRoot, inputPath),
+        anchorRows: candidate.anchorRows,
+        changedAnchors: candidate.changedAnchors,
+        anchorDistance: candidate.anchorDistance,
+        coreDamageLoss: candidate.coreDamageLoss,
+        coreDamageLossRatio: candidate.coreDamageLossRatio,
+      },
+    }, runtime, { durationSeconds, mode });
+    const filename = `seed-${String(index + 1).padStart(2, "0")}-${
+      candidate.anchorRows.join("-")}.json`;
+    const candidatePath = path.join(structuralSeedDirectory, filename);
+    fs.writeFileSync(
+      candidatePath,
+      `${JSON.stringify(candidateArtifact, null, 2)}\n`,
+      "utf8",
+    );
+    structuralSeedManifest.push({
+      path: candidatePath,
+      anchorRows: candidate.anchorRows,
+      changedAnchors: candidate.changedAnchors,
+      anchorDistance: candidate.anchorDistance,
+      coreDamage: candidate.bestCoreDamage,
+      coreDamageLoss: candidate.coreDamageLoss,
+      coreDamageLossRatio: candidate.coreDamageLossRatio,
+    });
+  }
+  fs.writeFileSync(
+    path.join(structuralSeedDirectory, "manifest.json"),
+    `${JSON.stringify({
+      kind: "tiance-cw-lianying-structural-seed-portfolio",
+      profileName,
+      source: path.relative(projectRoot, inputPath),
+      incumbentAnchors: optimized.anchors,
+      baselineCoreDamage:
+        optimized.coreScheduleDiagnostics.find((candidate) =>
+          JSON.stringify(candidate.anchorRows) ===
+          JSON.stringify(optimized.anchors))?.bestCoreDamage ?? null,
+      candidates: structuralSeedManifest,
+    }, null, 2)}\n`,
+    "utf8",
+  );
+}
 fs.writeFileSync(`${outputStem}.json`, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
 fs.writeFileSync(`${outputStem}.csv`, `\uFEFF${whitepaperAxisToCsv(artifact)}\n`, "utf8");
 fs.writeFileSync(
@@ -163,4 +272,6 @@ console.log(JSON.stringify({
   finalSchedules: optimized.finalSchedules,
   coreCandidates: optimized.coreCandidates,
   coarseCandidates: optimized.coarseCandidates,
+  structuralSeedDirectory,
+  structuralSeeds: structuralSeedManifest,
 }, null, 2));

@@ -16,6 +16,81 @@ function isStrictlyIncreasing(rows) {
 }
 
 /**
+ * 从全局锚点漂移的合法核心轴中保留少量结构种子。先按“哪几个雷
+ * 发生了移动”分组，再按核心伤害排序，避免短名单全被同一个雷的相邻坐标
+ * 占满。该函数只分配后续搜索预算，不改变完整180秒选优规则。
+ */
+export function selectLianyingStructuralSeedCandidates(
+  candidates,
+  incumbentRows,
+  {
+    limit = 4,
+    maximumCoreDamageLossRatio = 0.05,
+  } = {},
+) {
+  const incumbent = incumbentRows.map(Number);
+  const normalized = (candidates ?? []).map((candidate) => {
+    const rows = (candidate.anchorRows ?? []).map(Number);
+    const changedAnchors = rows.flatMap((row, index) =>
+      row === incumbent[index] ? [] : [index + 1]);
+    return {
+      ...candidate,
+      anchorRows: rows,
+      changedAnchors,
+      anchorDistance: rows.reduce(
+        (sum, row, index) => sum + Math.abs(row - incumbent[index]),
+        0,
+      ),
+      structureGroup: changedAnchors.join("+"),
+    };
+  });
+  const incumbentCandidate = normalized.find(
+    (candidate) => candidate.changedAnchors.length === 0,
+  );
+  const baselineDamage = Number(
+    incumbentCandidate?.bestCoreDamage ??
+      Math.max(...normalized.map((candidate) => Number(candidate.bestCoreDamage))),
+  );
+  const maximumLossRatio = Math.max(
+    0,
+    Number(maximumCoreDamageLossRatio),
+  );
+  const eligible = normalized
+    .filter((candidate) => candidate.changedAnchors.length > 0)
+    .map((candidate) => ({
+      ...candidate,
+      coreDamageLoss: baselineDamage - Number(candidate.bestCoreDamage),
+      coreDamageLossRatio: baselineDamage > 0
+        ? (baselineDamage - Number(candidate.bestCoreDamage)) / baselineDamage
+        : 0,
+    }))
+    .filter((candidate) =>
+      Number.isFinite(candidate.bestCoreDamage) &&
+      candidate.coreDamageLossRatio <= maximumLossRatio)
+    .sort((left, right) =>
+      right.bestCoreDamage - left.bestCoreDamage ||
+      right.anchorDistance - left.anchorDistance);
+  const groupBest = new Map();
+  for (const candidate of eligible) {
+    if (!groupBest.has(candidate.structureGroup)) {
+      groupBest.set(candidate.structureGroup, candidate);
+    }
+  }
+  const selected = [];
+  const selectedKeys = new Set();
+  const add = (candidate) => {
+    if (!candidate || selected.length >= Math.max(0, Math.floor(limit))) return;
+    const key = JSON.stringify(candidate.anchorRows);
+    if (selectedKeys.has(key)) return;
+    selected.push(candidate);
+    selectedKeys.add(key);
+  };
+  for (const candidate of groupBest.values()) add(candidate);
+  for (const candidate of eligible) add(candidate);
+  return selected;
+}
+
+/**
  * 生成少量高层雷锚点模板。默认只允许一个中间雷移动一行，因此7雷轴
  * 最多得到1条原轴和10条单移位模板，不会隐式展开3^5种组合。
  */

@@ -105,6 +105,7 @@ export {
   optimizeLianyingFocusedCompanionAnchorCoordination,
   optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
   optimizeLianyingRankedPairAnchorCoordination,
+  selectLianyingStructuralSeedCandidates,
 } from "./policies/lianying-anchor-coordinator.js";
 export {
   evaluateLianyingReferenceSuffixValue,
