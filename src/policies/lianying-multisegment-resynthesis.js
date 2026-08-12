@@ -387,15 +387,36 @@ function selectPropagatedValueShadowCandidates(
   nodes,
   baselineNodes,
   quota,
+  shadowKind = "value",
 ) {
   const baselineKeys = new Set(baselineNodes.map((node) =>
     lianyingResynthesisStateKey(node.state)));
   return [...nodes]
-    .filter((node) => node.valueShadow === true)
+    .filter((node) => node.valueShadowKind === shadowKind || (
+      shadowKind === "value" &&
+      node.valueShadow === true &&
+      node.valueShadowKind == null
+    ))
     .filter((node) => !baselineKeys.has(
       lianyingResynthesisStateKey(node.state)))
     .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
     .slice(0, Math.max(0, Math.floor(Number(quota))));
+}
+
+function selectDamageShadowCandidates(nodes, excludedNodes, quota) {
+  const excludedKeys = new Set(excludedNodes.map((node) =>
+    lianyingResynthesisStateKey(node.state)));
+  return [...nodes]
+    .filter((node) => !excludedKeys.has(
+      lianyingResynthesisStateKey(node.state)))
+    .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+    .slice(0, Math.max(0, Math.floor(Number(quota))));
+}
+
+function shadowQuota(policy, kind) {
+  return Math.max(0, Math.floor(Number(kind === "damage"
+    ? policy?.damageShadowQuota ?? 0
+    : policy?.valueQuota ?? 0)));
 }
 
 function selectAnchorDriftRowBeam(
@@ -812,6 +833,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
     state: warmState,
     packs: [],
     valueShadow: false,
+    valueShadowKind: null,
     boundaryProbeIds: [],
   }];
   let explored = 0;
@@ -924,6 +946,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
               packs: [...node.packs, cloneLianyingPack(pack)],
               lineageId: node.lineageId,
               valueShadow: node.valueShadow === true,
+              valueShadowKind: node.valueShadowKind ?? null,
               boundaryProbeIds: node.boundaryProbeIds ?? [],
             };
             const key = lianyingResynthesisStateKey(state);
@@ -961,6 +984,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
         packs: warmGeneratedPacks,
         lineageId: warmLineageId,
         valueShadow: false,
+        valueShadowKind: null,
         boundaryProbeIds: warmBoundaryProbeIds,
       };
       addCandidate(candidates, warmKey, warmCandidate);
@@ -975,19 +999,42 @@ export function optimizeLianyingMultiSegmentResynthesis(
         valueShadowPolicy,
         "row",
       );
-      const shadowNodes = (introduceRowShadows
-        ? selectLianyingValueShadowCandidates(
+      const damageShadowNodes = (introduceRowShadows
+        ? selectDamageShadowCandidates(
             candidates.values(),
             baselineNodes,
+            shadowQuota(valueShadowPolicy, "damage"),
+          )
+        : selectPropagatedValueShadowCandidates(
+            candidates.values(),
+            baselineNodes,
+            shadowQuota(valueShadowPolicy, "damage"),
+            "damage",
+          )
+      ).map((node) => ({
+        ...node,
+        valueShadow: true,
+        valueShadowKind: "damage",
+      }));
+      const valueShadowNodes = (introduceRowShadows
+        ? selectLianyingValueShadowCandidates(
+            candidates.values(),
+            [...baselineNodes, ...damageShadowNodes],
             endTick,
             valueShadowPolicy,
           )
         : selectPropagatedValueShadowCandidates(
             candidates.values(),
-            baselineNodes,
-            valueShadowPolicy?.valueQuota ?? 0,
+            [...baselineNodes, ...damageShadowNodes],
+            shadowQuota(valueShadowPolicy, "value"),
+            "value",
           )
-      ).map((node) => ({ ...node, valueShadow: true }));
+      ).map((node) => ({
+        ...node,
+        valueShadow: true,
+        valueShadowKind: "value",
+      }));
+      const shadowNodes = [...damageShadowNodes, ...valueShadowNodes];
       if (shadowNodes.length > 0) valueShadowRows += 1;
       valueShadowSelections += shadowNodes.length;
       if (introduceRowShadows) {
@@ -1120,18 +1167,41 @@ export function optimizeLianyingMultiSegmentResynthesis(
           : null,
       },
     );
-    const boundaryShadowNodes = (lianyingValuePolicyAppliesAt(
+    const boundaryDamageShadowNodes = (lianyingValuePolicyAppliesAt(
+      valueShadowPolicy,
+      "boundary",
+    )
+      ? selectDamageShadowCandidates(
+          nodes,
+          baselineBoundary.nodes,
+          shadowQuota(valueShadowPolicy, "damage"),
+        )
+      : []
+    ).map((node) => ({
+      ...node,
+      valueShadow: true,
+      valueShadowKind: "damage",
+    }));
+    const boundaryValueShadowNodes = (lianyingValuePolicyAppliesAt(
       valueShadowPolicy,
       "boundary",
     )
       ? selectLianyingValueShadowCandidates(
           nodes,
-          baselineBoundary.nodes,
+          [...baselineBoundary.nodes, ...boundaryDamageShadowNodes],
           endTick,
           valueShadowPolicy,
         )
       : []
-    ).map((node) => ({ ...node, valueShadow: true }));
+    ).map((node) => ({
+      ...node,
+      valueShadow: true,
+      valueShadowKind: "value",
+    }));
+    const boundaryShadowNodes = [
+      ...boundaryDamageShadowNodes,
+      ...boundaryValueShadowNodes,
+    ];
     const boundaryDamageRanking = [...nodes].sort(
       (left, right) => right.state.totalDamage - left.state.totalDamage);
     const boundaryRankByKey = new Map(boundaryDamageRanking.map(
@@ -1143,6 +1213,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
         features,
       );
       return {
+        shadowKind: node.valueShadowKind ?? "value",
         lineageId: node.lineageId,
         stateKey: lianyingResynthesisStateKey(node.state),
         baselineRank: boundaryRankByKey.get(
@@ -1240,6 +1311,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
       outgoingStates: nodes.length,
       baselineOutgoingStates: baselineBoundary.nodes.length,
       valueShadowOutgoingStates: boundaryShadowNodes.length,
+      damageShadowOutgoingStates: boundaryDamageShadowNodes.length,
+      modelValueShadowOutgoingStates: boundaryValueShadowNodes.length,
       paretoStates: baselineBoundary.paretoCount,
       diversityBuckets: baselineBoundary.diversityBuckets,
       bestDamageGainAtBoundary:
@@ -1283,16 +1356,26 @@ export function optimizeLianyingMultiSegmentResynthesis(
     coreDamage: coreBaseline.state.totalDamage,
     isIncumbent: true,
     valueShadow: false,
+    valueShadowKind: null,
   });
   const baselineCoreFinalists = nodes
     .filter((node) => node.valueShadow !== true)
     .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
     .slice(0, coreFinalistCount);
-  const valueShadowCoreFinalists = nodes
-    .filter((node) => node.valueShadow === true)
+  const damageShadowCoreFinalists = nodes
+    .filter((node) => node.valueShadowKind === "damage")
     .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
-    .slice(0, Math.max(0, Math.floor(Number(valueShadowPolicy?.valueQuota ?? 0))));
-  for (const node of [...baselineCoreFinalists, ...valueShadowCoreFinalists]) {
+    .slice(0, shadowQuota(valueShadowPolicy, "damage"));
+  const valueShadowCoreFinalists = nodes
+    .filter((node) => node.valueShadowKind === "value" || (
+      node.valueShadow === true && node.valueShadowKind == null))
+    .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+    .slice(0, shadowQuota(valueShadowPolicy, "value"));
+  for (const node of [
+    ...baselineCoreFinalists,
+    ...damageShadowCoreFinalists,
+    ...valueShadowCoreFinalists,
+  ]) {
     const candidatePacks = [...prefixPacks, ...clonePacks(node.packs)];
     try {
       const replay = replayWhitepaperLianying(runtime, candidatePacks, {
@@ -1314,6 +1397,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
         coreDamage: replay.state.totalDamage,
         isIncumbent: JSON.stringify(candidatePacks) === JSON.stringify(corePacks),
         valueShadow: node.valueShadow === true,
+        valueShadowKind: node.valueShadowKind ?? null,
       });
     } catch {
       // 联合候选仍以完整180秒重放作为最终合法性门槛。
@@ -1379,6 +1463,14 @@ export function optimizeLianyingMultiSegmentResynthesis(
   }
   const valueShadowCoreCandidates = [...coreCandidatesByPath.values()].filter(
     (candidate) => candidate.valueShadow === true);
+  const damageShadowCoreCandidates = valueShadowCoreCandidates.filter(
+    (candidate) => candidate.valueShadowKind === "damage");
+  const modelValueShadowCoreCandidates = valueShadowCoreCandidates.filter(
+    (candidate) => candidate.valueShadowKind === "value" ||
+      candidate.valueShadowKind == null);
+  const bestCoreDamage = (candidates) => candidates.length > 0
+    ? Math.max(...candidates.map((candidate) => candidate.coreDamage))
+    : null;
   const coarseCandidates = selectedCore.map((candidate, index) => {
     if (typeof onProgress === "function") {
       onProgress({
@@ -1464,8 +1556,23 @@ export function optimizeLianyingMultiSegmentResynthesis(
       ? Math.max(...valueShadowCoreCandidates.map(
         (candidate) => candidate.coreDamage)) - coreBaseline.state.totalDamage
       : null,
+    damageShadowCoreCandidates: damageShadowCoreCandidates.length,
+    bestDamageShadowCoreDamage: bestCoreDamage(damageShadowCoreCandidates),
+    bestDamageShadowCoreDamageGain: damageShadowCoreCandidates.length > 0
+      ? bestCoreDamage(damageShadowCoreCandidates) -
+        coreBaseline.state.totalDamage
+      : null,
+    modelValueShadowCoreCandidates: modelValueShadowCoreCandidates.length,
+    bestModelValueShadowCoreDamage: bestCoreDamage(
+      modelValueShadowCoreCandidates),
+    bestModelValueShadowCoreDamageGain:
+      modelValueShadowCoreCandidates.length > 0
+        ? bestCoreDamage(modelValueShadowCoreCandidates) -
+          coreBaseline.state.totalDamage
+        : null,
     baselineCoreFinalists: baselineCoreFinalists.length,
     valueShadowCoreFinalists: valueShadowCoreFinalists.length,
+    damageShadowCoreFinalists: damageShadowCoreFinalists.length,
     valueShadowRows,
     valueShadowSelections,
     valueShadowRowIntroductions,
@@ -1498,6 +1605,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
     coarseCandidates: coarseCandidates.map((candidate) => ({
       isIncumbent: candidate.isIncumbent,
       valueShadow: candidate.valueShadow === true,
+      valueShadowKind: candidate.valueShadowKind ?? null,
       coreDamage: candidate.coreDamage,
       totalDamage: candidate.totalDamage,
       dashCount: candidate.dashCount,
@@ -1519,6 +1627,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
             enabled: valueShadowPolicy.enabled === true,
             baselineQuota: Number(valueShadowPolicy.baselineQuota ?? 5),
             valueQuota: Number(valueShadowPolicy.valueQuota ?? 1),
+            damageShadowQuota: Number(
+              valueShadowPolicy.damageShadowQuota ?? 0),
             valueWeight: Number(valueShadowPolicy.valueWeight ?? 1),
             maximumBaselineRank: Number(valueShadowPolicy.maximumBaselineRank),
             modelKind: valueShadowPolicy.model?.kind ?? null,

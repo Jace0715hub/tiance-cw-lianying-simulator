@@ -402,6 +402,62 @@ test("边界专用价值策略只在雷边界引入影子并在区段内机械�
   );
 });
 
+test("双影子策略独立保留纯伤害与模型价值谱系", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const optimized = optimizeLianyingMultiSegmentResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      rowBeamWidth: 6,
+      boundaryBeamWidth: 2,
+      coreFinalistCount: 2,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+      valueShadowPolicy: {
+        enabled: true,
+        applicationStages: ["boundary"],
+        baselineQuota: 2,
+        damageShadowQuota: 1,
+        valueQuota: 1,
+        valueWeight: 1,
+        maximumBaselineRank: 12,
+        model: {
+          kind: "ridge-residual",
+          trainingRows: 1,
+          targetMean: 0,
+          featureColumns: ["rage"],
+          featureMeans: [0],
+          featureScales: [1],
+          coefficients: [1000000],
+        },
+      },
+    },
+  );
+
+  const dualBoundaries = optimized.segments.filter((segment) =>
+    segment.damageShadowOutgoingStates === 1 &&
+    segment.modelValueShadowOutgoingStates === 1);
+  assert.ok(dualBoundaries.length > 0);
+  assert.ok(dualBoundaries.every((segment) =>
+    new Set(segment.valueShadowDiagnostics.map(
+      (entry) => entry.shadowKind)).size === 2));
+  assert.ok(optimized.valueShadowRowPropagations > 0);
+  assert.ok(optimized.finalBoundaryStates <= 4);
+  assert.ok(optimized.damageShadowCoreCandidates >= 1);
+  assert.ok(optimized.modelValueShadowCoreCandidates >= 1);
+  assert.ok(Number.isFinite(optimized.bestDamageShadowCoreDamage));
+  assert.ok(Number.isFinite(optimized.bestModelValueShadowCoreDamage));
+  assert.equal(optimized.options.valueShadowPolicy.damageShadowQuota, 1);
+});
+
 test("三雷样例只漂移中间锚点并完成不降级复演", () => {
   const runtime = loadDefaultGearRuntime({ executePhase: true });
   const seed = searchWhitepaperLianying(runtime, {
