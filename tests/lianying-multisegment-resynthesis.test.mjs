@@ -16,9 +16,11 @@ import {
 } from "../src/policies/lianying-multisegment-resynthesis.js";
 import {
   buildLianyingBoundedThunderTemplates,
+  buildLianyingFocusedCompanionAnchorTemplate,
   buildLianyingRankedPairThunderTemplates,
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingHierarchicalAnchorCoordination,
+  optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
 } from "../src/policies/lianying-anchor-coordinator.js";
 import { lianyingResynthesisStateKey } from "../src/policies/lianying-segment-resynthesis.js";
 import {
@@ -628,4 +630,62 @@ test("伴随锚点模板只约束显式指定的动作类型", () => {
     { prefix: [], primary: "dragonFang", tail: [] }, 3, windows), false);
   assert.equal(isLianyingCompanionAnchorPackAllowed(
     { prefix: [], primary: "ride", tail: [] }, 1, windows), true);
+});
+
+test("定向伴随模板固定早段任驰骋并只向后开放末三次窗口", () => {
+  const rideRows = [3, 20, 38, 59, 107, 123, 145];
+  const packs = Array.from({ length: 148 }, (_, index) => ({
+    prefix: [],
+    primary: rideRows.includes(index + 1) ? "ride" : "dragonFang",
+    tail: [],
+  }));
+  const template = buildLianyingFocusedCompanionAnchorTemplate(packs, {
+    fixedThroughOrdinal: 4,
+    beforeRows: 0,
+    afterRows: 2,
+  });
+  assert.deepEqual(template.rideWindows.slice(0, 4).map(
+    (window) => [window.earliestRow, window.latestRow]), [
+    [3, 3], [20, 20], [38, 38], [59, 59],
+  ]);
+  assert.deepEqual(template.rideWindows.slice(4).map(
+    (window) => [window.earliestRow, window.latestRow]), [
+    [107, 109], [123, 125], [145, 147],
+  ]);
+});
+
+test("聚焦伴随协调可按上限重新居中并汇总每轮诊断", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const optimized =
+    optimizeLianyingIterativeFocusedCompanionAnchorCoordination(
+      runtime,
+      seed.packs,
+      {
+        durationSeconds: 30,
+        maximumFocusedPasses: 1,
+        fixedThroughOrdinal: 1,
+        beforeRows: 0,
+        afterRows: 1,
+        rowBeamWidth: 4,
+        boundaryBeamWidth: 4,
+        coreFinalistCount: 2,
+        coarseCandidateLimit: 2,
+        coarseDashStates: 2,
+        finalDashCandidateCount: 2,
+        fullDashStates: 2,
+      },
+    );
+  assert.equal(optimized.iteration.executedPasses, 1);
+  assert.equal(optimized.iteration.maximumPasses, 1);
+  assert.equal(optimized.iteration.passes.length, 1);
+  assert.equal(
+    optimized.coordination.kind,
+    "iterative-focused-companion-anchor-coordination",
+  );
+  assert.ok(optimized.state.totalDamage >= optimized.baselineDamage);
 });

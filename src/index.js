@@ -98,9 +98,12 @@ export {
 } from "./reports/lianying-value-training.js";
 export {
   buildLianyingBoundedThunderTemplates,
+  buildLianyingFocusedCompanionAnchorTemplate,
   buildLianyingRankedPairThunderTemplates,
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingHierarchicalAnchorCoordination,
+  optimizeLianyingFocusedCompanionAnchorCoordination,
+  optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
   optimizeLianyingRankedPairAnchorCoordination,
 } from "./policies/lianying-anchor-coordinator.js";
 export {

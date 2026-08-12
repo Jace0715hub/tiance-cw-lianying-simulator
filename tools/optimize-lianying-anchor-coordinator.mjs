@@ -5,7 +5,9 @@ import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import { resolveLianyingResearchPath } from "../src/config/lianying-research-defaults.js";
 import {
   lianyingAnchorCoordinationTemplatesToCsv,
+  optimizeLianyingFocusedCompanionAnchorCoordination,
   optimizeLianyingHierarchicalAnchorCoordination,
+  optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
   optimizeLianyingRankedPairAnchorCoordination,
 } from "../src/policies/lianying-anchor-coordinator.js";
 import { replayWhitepaperLianying } from "../src/policies/whitepaper-lianying.js";
@@ -20,10 +22,11 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "screen";
 const pairProfile = profileName.startsWith("pair-");
-const singleResultPath = process.argv[5]
+const focusedProfile = profileName.startsWith("focused-");
+const singleResultPath = pairProfile && process.argv[5]
   ? path.resolve(process.argv[5])
   : null;
-const pairTemplateLimit = process.argv[6] == null
+const pairTemplateLimit = !pairProfile || process.argv[6] == null
   ? null
   : Number(process.argv[6]);
 if (
@@ -32,7 +35,7 @@ if (
 ) {
   throw new Error("双锚点模板数量必须是正整数");
 }
-const companionSlackOverride = process.argv[7] == null
+const companionSlackOverride = !pairProfile || process.argv[7] == null
   ? null
   : Number(process.argv[7]);
 if (
@@ -41,9 +44,31 @@ if (
 ) {
   throw new Error("伴随锚点窗口必须是非负整数");
 }
-const pairTemplateIds = process.argv[8]
+const pairTemplateIds = pairProfile && process.argv[8]
   ? process.argv[8].split(",").map((id) => id.trim()).filter(Boolean)
   : null;
+const focusedFixedThroughOrdinal = focusedProfile && process.argv[5] != null
+  ? Number(process.argv[5])
+  : null;
+const focusedBeforeRows = focusedProfile && process.argv[6] != null
+  ? Number(process.argv[6])
+  : null;
+const focusedAfterRows = focusedProfile && process.argv[7] != null
+  ? Number(process.argv[7])
+  : null;
+const focusedMaximumPasses = focusedProfile && process.argv[8] != null
+  ? Number(process.argv[8])
+  : null;
+for (const [label, value] of [
+  ["固定任驰骋序号", focusedFixedThroughOrdinal],
+  ["前向窗口", focusedBeforeRows],
+  ["后向窗口", focusedAfterRows],
+  ["聚焦重心轮次", focusedMaximumPasses],
+]) {
+  if (value !== null && (!Number.isInteger(value) || value < 0)) {
+    throw new Error(`${label}必须是非负整数`);
+  }
+}
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const durationSeconds = Number(source.durationSeconds ?? 180);
 const seedPacks = source.actionPacks ??
@@ -121,10 +146,55 @@ const profiles = {
     finalDashCandidateCount: 1,
     fullDashStates: 128,
   },
+  "focused-rides-screen": {
+    ...common,
+    companionTypes: ["ride"],
+    fixedThroughOrdinal: 4,
+    beforeRows: 0,
+    afterRows: 2,
+    rowBeamWidth: 24,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    // Keep one slot for the incumbent and one for the strongest challenger.
+    // A limit of one is diagnostic-only because the incumbent is pinned.
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "focused-rides-fast": {
+    ...common,
+    companionTypes: ["ride"],
+    fixedThroughOrdinal: 4,
+    beforeRows: 0,
+    afterRows: 2,
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 16,
+    coreFinalistCount: 16,
+    coarseCandidateLimit: 5,
+    coarseDashStates: 12,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "focused-rides-iterative-fast": {
+    ...common,
+    companionTypes: ["ride"],
+    fixedThroughOrdinal: 4,
+    beforeRows: 0,
+    afterRows: 2,
+    maximumFocusedPasses: 3,
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 16,
+    coreFinalistCount: 16,
+    coarseCandidateLimit: 5,
+    coarseDashStates: 12,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(
-    "锚点协调档位必须是screen、fast、pair-screen、pair-fast或pair-rides-screen",
+    "未知锚点协调档位",
   );
 }
 
@@ -157,7 +227,15 @@ const optimizeOptions = {
     ...(pairProfile && pairTemplateIds
       ? { pairTemplateIds }
       : {}),
-    includeScheduleCandidatePacks: pairProfile,
+    ...(focusedFixedThroughOrdinal !== null
+      ? { fixedThroughOrdinal: focusedFixedThroughOrdinal }
+      : {}),
+    ...(focusedBeforeRows !== null ? { beforeRows: focusedBeforeRows } : {}),
+    ...(focusedAfterRows !== null ? { afterRows: focusedAfterRows } : {}),
+    ...(focusedMaximumPasses !== null
+      ? { maximumFocusedPasses: focusedMaximumPasses }
+      : {}),
+    includeScheduleCandidatePacks: pairProfile || focusedProfile,
     onProgress: (event) => {
       console.log(JSON.stringify({ phase: "anchor-coordination", ...event }));
     },
@@ -169,6 +247,18 @@ const optimized = pairProfile
       singleTemplateDiagnostics,
       optimizeOptions,
     )
+  : focusedProfile
+    ? profileName.includes("iterative")
+      ? optimizeLianyingIterativeFocusedCompanionAnchorCoordination(
+          runtime,
+          seedPacks,
+          optimizeOptions,
+        )
+      : optimizeLianyingFocusedCompanionAnchorCoordination(
+        runtime,
+        seedPacks,
+        optimizeOptions,
+      )
   : optimizeLianyingHierarchicalAnchorCoordination(
       runtime,
       seedPacks,
@@ -211,6 +301,7 @@ const searchResult = {
     coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
     coreScheduleCandidates: optimized.coreScheduleCandidates,
     coarseCandidates: optimized.coarseCandidates,
+    iteration: optimized.iteration ?? null,
   },
 };
 const artifact = buildWhitepaperAxisArtifact(searchResult, runtime, {
@@ -253,4 +344,5 @@ console.log(JSON.stringify({
   coreCandidates: optimized.coreCandidates,
   coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
   coarseCandidates: optimized.coarseCandidates,
+  iteration: optimized.iteration ?? null,
 }, null, 2));

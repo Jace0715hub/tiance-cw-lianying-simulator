@@ -433,6 +433,165 @@ export function optimizeLianyingRankedPairAnchorCoordination(
   return result;
 }
 
+export function buildLianyingFocusedCompanionAnchorTemplate(
+  packs,
+  {
+    companionTypes = ["ride"],
+    fixedThroughOrdinal = 4,
+    beforeRows = 0,
+    afterRows = 2,
+  } = {},
+) {
+  const anchors = lianyingCompanionAnchorRows(stripLianyingDashPacks(packs));
+  const selectedTypes = new Set(companionTypes);
+  const fixedCount = Math.max(0, Math.floor(Number(fixedThroughOrdinal)));
+  const before = Math.max(0, Math.floor(Number(beforeRows)));
+  const after = Math.max(0, Math.floor(Number(afterRows)));
+  return Object.fromEntries([
+    ["ride", "rideRows"],
+    ["orange", "orangeRows"],
+    ["dismount", "dismountRows"],
+  ].flatMap(([type, key]) => {
+    if (!selectedTypes.has(type)) return [];
+    return [[key.replace("Rows", "Windows"), anchors[key].map(
+      (row, index) => ({
+        targetRow: row,
+        earliestRow: index < fixedCount ? row : row - before,
+        latestRow: index < fixedCount ? row : row + after,
+      }))]];
+  }));
+}
+
+export function optimizeLianyingFocusedCompanionAnchorCoordination(
+  runtime,
+  packs,
+  options = {},
+) {
+  const corePacks = stripLianyingDashPacks(packs);
+  const anchors = identifyLianyingThunderSegments(corePacks).anchors;
+  const companionAnchorTemplate = buildLianyingFocusedCompanionAnchorTemplate(
+    corePacks,
+    options,
+  );
+  const result = optimizeLianyingHierarchicalAnchorCoordination(
+    runtime,
+    packs,
+    {
+      ...options,
+      evaluationMode: "shared",
+      maximumShiftedAnchors: 0,
+      companionAnchorTemplate,
+      anchorTemplates: [{
+        templateId: "focused-incumbent",
+        anchorRows: anchors,
+        shiftedAnchors: [],
+      }],
+    },
+  );
+  result.coordination.kind = "focused-companion-anchor-coordination";
+  result.coordination.companionTypes = [...(
+    options.companionTypes ?? ["ride"]
+  )];
+  result.coordination.fixedThroughOrdinal =
+    options.fixedThroughOrdinal ?? 4;
+  result.coordination.beforeRows = options.beforeRows ?? 0;
+  result.coordination.afterRows = options.afterRows ?? 2;
+  result.coordination.companionAnchorTemplate = companionAnchorTemplate;
+  return result;
+}
+
+/**
+ * 在每次接受改进后，以新轴的伴随锚点重新生成有限窗口。
+ * 这使落在窗口边界的优胜者可以继续向同一方向探索，同时用轮次上限
+ * 保持计算量可控。
+ */
+export function optimizeLianyingIterativeFocusedCompanionAnchorCoordination(
+  runtime,
+  packs,
+  options = {},
+) {
+  const maximumPasses = Math.max(
+    1,
+    Math.floor(Number(options.maximumFocusedPasses ?? 3)),
+  );
+  const minimumDamageGain = Math.max(
+    0,
+    Number(options.minimumFocusedDamageGain ?? 0),
+  );
+  const onProgress = options.onProgress;
+  let currentPacks = packs;
+  let initialDamage = null;
+  let finalResult = null;
+  let explored = 0;
+  let legal = 0;
+  let stopReason = "maximum-passes";
+  const passes = [];
+
+  for (let pass = 1; pass <= maximumPasses; pass += 1) {
+    const result = optimizeLianyingFocusedCompanionAnchorCoordination(
+      runtime,
+      currentPacks,
+      {
+        ...options,
+        onProgress: typeof onProgress === "function"
+          ? (event) => onProgress({ focusedPass: pass, ...event })
+          : undefined,
+      },
+    );
+    if (initialDamage === null) initialDamage = result.baselineDamage;
+    explored += result.explored;
+    legal += result.legal;
+    finalResult = result;
+    passes.push({
+      pass,
+      accepted: result.accepted,
+      baselineDamage: result.baselineDamage,
+      finalDamage: result.state.totalDamage,
+      damageGain: result.damageGain,
+      selectedAnchors: result.selectedAnchors,
+      companionAnchors:
+        result.coordination?.templateDiagnostics?.find(
+          (diagnostic) => diagnostic.reachedCore,
+        )?.bestCoreCompanionAnchors ?? null,
+      explored: result.explored,
+      legal: result.legal,
+    });
+    if (!result.accepted || result.damageGain <= minimumDamageGain) {
+      stopReason = result.accepted
+        ? "minimum-damage-gain"
+        : "converged";
+      break;
+    }
+    currentPacks = result.packs;
+  }
+
+  const finalDamage = finalResult.state.totalDamage;
+  const accepted = finalDamage > initialDamage;
+  const iteration = {
+    maximumPasses,
+    minimumDamageGain,
+    executedPasses: passes.length,
+    acceptedPasses: passes.filter((pass) => pass.accepted).length,
+    stopReason,
+    passes,
+  };
+  return {
+    ...finalResult,
+    packs: accepted ? finalResult.packs : packs,
+    baselineDamage: initialDamage,
+    damageGain: accepted ? finalDamage - initialDamage : 0,
+    accepted,
+    explored,
+    legal,
+    iteration,
+    coordination: {
+      ...finalResult.coordination,
+      kind: "iterative-focused-companion-anchor-coordination",
+      iteration,
+    },
+  };
+}
+
 export function lianyingAnchorCoordinationTemplatesToCsv(result) {
   const selected = JSON.stringify(result.selectedAnchors ?? []);
   const rows = [[
