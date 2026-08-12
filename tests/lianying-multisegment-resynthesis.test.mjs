@@ -13,6 +13,11 @@ import {
   optimizeLianyingMultiSegmentResynthesis,
   selectLianyingJointBoundaryNodes,
 } from "../src/policies/lianying-multisegment-resynthesis.js";
+import {
+  buildLianyingBoundedThunderTemplates,
+  lianyingAnchorCoordinationTemplatesToCsv,
+  optimizeLianyingHierarchicalAnchorCoordination,
+} from "../src/policies/lianying-anchor-coordinator.js";
 import { lianyingResynthesisStateKey } from "../src/policies/lianying-segment-resynthesis.js";
 import {
   replayWhitepaperLianying,
@@ -506,4 +511,64 @@ test("三雷样例只漂移中间锚点并完成不降级复演", () => {
   assert.match(scheduleCsv, /雷序号/u);
   assert.ok(optimized.state.totalDamage >= baseline.state.totalDamage);
   assert.equal(replay.state.totalDamage, optimized.state.totalDamage);
+});
+
+test("层次协调器只提出单个中间雷相邻移动并由低层完整复演", () => {
+  const templates = buildLianyingBoundedThunderTemplates(
+    [2, 19, 37, 58, 79, 104, 127],
+  );
+  assert.equal(templates.length, 11);
+  assert.deepEqual(templates[0].anchorRows, [2, 19, 37, 58, 79, 104, 127]);
+  assert.ok(templates.slice(1).every(
+    (template) => template.shiftedAnchors.length === 1));
+  assert.ok(templates.every(
+    (template) => template.anchorRows[0] === 2 &&
+      template.anchorRows.at(-1) === 127));
+
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 50,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const baseline = replayWhitepaperLianying(runtime, seed.packs, {
+    durationSeconds: 50,
+  });
+  const optimized = optimizeLianyingHierarchicalAnchorCoordination(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 50,
+      evaluationMode: "independent",
+      rowBeamWidth: 6,
+      boundaryBeamWidth: 6,
+      coreFinalistCount: 3,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 2,
+      fullDashStates: 4,
+    },
+  );
+  const allowed = new Set(optimized.coordination.proposedTemplates.map(
+    (template) => JSON.stringify(template.anchorRows),
+  ));
+  assert.equal(optimized.coordination.proposedTemplateCount, 3);
+  assert.ok(allowed.has(JSON.stringify(optimized.selectedAnchors)));
+  assert.ok(optimized.coarseCandidates.every(
+    (candidate) => allowed.has(JSON.stringify(candidate.anchorRows)),
+  ));
+  assert.ok(optimized.state.totalDamage >= baseline.state.totalDamage);
+  assert.equal(optimized.options.allowedAnchorScheduleCount, 2);
+  assert.equal(optimized.coordination.evaluationMode, "independent");
+  assert.equal(optimized.coordination.independentEvaluations, 2);
+  assert.equal(optimized.coordination.templateDiagnostics.length, 3);
+  assert.ok(optimized.coordination.templateDiagnostics.every(
+    (template) => template.survivedThroughAnchorCount >= 1));
+  assert.ok(optimized.coordination.finalBoundaryTemplateCount >= 1);
+  assert.ok(optimized.coordination.templateDiagnostics.some(
+    (template) => template.reachedCore));
+  const csv = lianyingAnchorCoordinationTemplatesToCsv(optimized);
+  assert.match(csv, /incumbent/);
+  assert.match(csv, /shift-2:-1/);
+  assert.match(csv, /存活至雷序号/);
 });

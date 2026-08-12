@@ -97,6 +97,11 @@ export {
   summarizeLianyingValueTrainingRows,
 } from "./reports/lianying-value-training.js";
 export {
+  buildLianyingBoundedThunderTemplates,
+  lianyingAnchorCoordinationTemplatesToCsv,
+  optimizeLianyingHierarchicalAnchorCoordination,
+} from "./policies/lianying-anchor-coordinator.js";
+export {
   evaluateLianyingReferenceSuffixValue,
   isLianyingAnchorDriftPackAllowed,
   isLianyingThunderAnchorPackAllowed,

@@ -25,6 +25,7 @@
     "optimize:segments": "node tools/optimize-lianying-segments.mjs",
     "optimize:multisegments": "node tools/optimize-lianying-multisegments.mjs",
     "optimize:anchor-drift": "node tools/optimize-lianying-anchor-drift.mjs",
+    "optimize:anchor-coordinator": "node tools/optimize-lianying-anchor-coordinator.mjs",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",
     "optimize:crossover": "node tools/optimize-lianying-seed-crossover.mjs",
     "optimize:crossover-bridge": "node tools/optimize-lianying-crossover-bridge.mjs",

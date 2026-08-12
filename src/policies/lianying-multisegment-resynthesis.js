@@ -124,13 +124,30 @@ function evaluateLianyingSegmentHorizonProbe(
 export function lianyingAnchorDriftWindow(
   anchors,
   anchorIndex,
-  {
+  options = {},
+) {
+  if (anchorIndex < 0 || anchorIndex >= anchors.length) return null;
+  const {
     slackRows = 1,
     fixFirstAnchor = true,
     fixLastAnchor = true,
-  } = {},
-) {
-  if (anchorIndex < 0 || anchorIndex >= anchors.length) return null;
+    allowedAnchorSchedules = [],
+  } = options;
+  const explicitRows = allowedAnchorSchedules
+    .map((schedule) => Number(schedule?.[anchorIndex]))
+    .filter(Number.isInteger);
+  if (explicitRows.length > 0) {
+    const target = Number(anchors[anchorIndex]);
+    const earliest = Math.min(...explicitRows);
+    const latest = Math.max(...explicitRows);
+    return {
+      target,
+      earliest,
+      latest,
+      slack: Math.max(target - earliest, latest - target),
+      fixed: earliest === latest,
+    };
+  }
   const fixed =
     (fixFirstAnchor && anchorIndex === 0) ||
     (fixLastAnchor && anchorIndex === anchors.length - 1);
@@ -151,9 +168,23 @@ export function isLianyingAnchorDriftPackAllowed(
   thunderCount,
   anchors,
   options = {},
+  selectedAnchorRows = [],
 ) {
   const hasThunder = lianyingPackHasAction(pack, "thunder");
   if (thunderCount >= anchors.length) return !hasThunder;
+  const explicitSchedules = options.allowedAnchorSchedules ?? [];
+  if (explicitSchedules.length > 0) {
+    const matchingSchedules = explicitSchedules.filter((schedule) =>
+      selectedAnchorRows.every(
+        (row, index) => Number(schedule[index]) === Number(row),
+      ));
+    if (matchingSchedules.length === 0) return false;
+    const allowedRows = new Set(matchingSchedules.map(
+      (schedule) => Number(schedule[thunderCount]),
+    ));
+    if (hasThunder) return allowedRows.has(Number(rowIndex));
+    return [...allowedRows].some((row) => row > rowIndex);
+  }
   const window = lianyingAnchorDriftWindow(
     anchors,
     thunderCount,
@@ -504,7 +535,7 @@ function selectAnchorDriftBoundaryNodes(
   beamWidth,
   pinnedKey,
   pinnedScheduleKey,
-  { scoreNode = null } = {},
+  { scoreNode = null, minimumScheduleQuota = 0 } = {},
 ) {
   const all = [...nodes];
   const score = typeof scoreNode === "function"
@@ -534,7 +565,11 @@ function selectAnchorDriftBoundaryNodes(
   add(pinned);
   const scheduleQuota = Math.min(
     scheduleNodes.length,
-    Math.max(1, Math.ceil(beamWidth / 2)),
+    Math.max(
+      1,
+      Math.ceil(beamWidth / 2),
+      Math.floor(Number(minimumScheduleQuota ?? 0)),
+    ),
   );
   for (const node of scheduleNodes) {
     add(node);
@@ -1665,6 +1700,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     useSuffixValue = true,
     suffixRepairPenaltyRows = 1,
     boundaryDiagnosticCount = 3,
+    allowedAnchorSchedules = null,
     onProgress = null,
   } = {},
 ) {
@@ -1693,10 +1729,32 @@ export function optimizeLianyingAnchorDriftResynthesis(
     };
   }
 
+  const normalizedAllowedAnchorSchedules = Array.isArray(allowedAnchorSchedules)
+    ? [...new Map(allowedAnchorSchedules.map((schedule) => {
+        const normalized = schedule.map(Number);
+        if (
+          normalized.length !== anchors.length ||
+          normalized.some((row) => !Number.isInteger(row))
+        ) {
+          throw new Error("显式雷锚点模板必须与原锚点等长且全部为整数行索引");
+        }
+        return [JSON.stringify(normalized), normalized];
+      })).values()]
+    : [];
+  if (
+    normalizedAllowedAnchorSchedules.length > 0 &&
+    !normalizedAllowedAnchorSchedules.some(
+      (schedule) => JSON.stringify(schedule) === JSON.stringify(anchors),
+    )
+  ) {
+    throw new Error("显式雷锚点模板必须包含原轴锚点，以保证不降级回退");
+  }
+
   const driftOptions = {
     slackRows: anchorSlackRows,
     fixFirstAnchor,
     fixLastAnchor,
+    allowedAnchorSchedules: normalizedAllowedAnchorSchedules,
   };
   const firstAnchor = anchors[0];
   const prefixPacks = clonePacks(corePacks.slice(0, firstAnchor));
@@ -1743,6 +1801,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
           node.thunderCount,
           anchors,
           driftOptions,
+          node.anchorRows,
         )) continue;
         explored += 1;
         try {
@@ -1785,6 +1844,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       warmThunderCount,
       anchors,
       driftOptions,
+      anchors.slice(0, warmThunderCount),
     )) {
       throw new Error(`第${rowIndex + 1}行热启动轴不满足雷锚点漂移约束`);
     }
@@ -1864,6 +1924,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
         scoreNode: useSuffixValue
           ? (node) => node.suffixValue.score
           : null,
+        minimumScheduleQuota: normalizedAllowedAnchorSchedules.length,
       },
     );
     nodes = boundary.nodes;
@@ -1901,6 +1962,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
       ).size,
       availableSchedules: boundary.scheduleBuckets,
       actualRowHistogram,
+      survivingAnchorSchedules: [...new Set(nodes.map(
+        (node) => JSON.stringify(node.anchorRows.map((row) => row + 1)),
+      ))].map((schedule) => JSON.parse(schedule)),
       paretoStates: boundary.paretoCount,
       diversityBuckets: boundary.diversityBuckets,
       bestDamageGainAtBoundary:
@@ -1951,6 +2015,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     boundaryBeamWidth,
     warmFinalKey,
     JSON.stringify(anchors),
+    { minimumScheduleQuota: normalizedAllowedAnchorSchedules.length },
   ).nodes;
   const coreCandidatesByPath = new Map();
   const addCoreCandidate = (candidate) => {
@@ -1988,6 +2053,22 @@ export function optimizeLianyingAnchorDriftResynthesis(
   const selectedCore = selectAnchorDriftCoreCandidates(
     coreCandidatesByPath.values(),
     coarseCandidateLimit,
+  );
+  const coreBestBySchedule = new Map();
+  for (const candidate of coreCandidatesByPath.values()) {
+    const key = JSON.stringify(candidate.anchorRows);
+    const current = coreBestBySchedule.get(key);
+    if (!current || candidate.coreDamage > current.bestCoreDamage) {
+      coreBestBySchedule.set(key, {
+        anchorRows: candidate.anchorRows.map((row) => row + 1),
+        bestCoreDamage: candidate.coreDamage,
+        bestCoreDamageGain:
+          candidate.coreDamage - coreBaseline.state.totalDamage,
+      });
+    }
+  }
+  const coreScheduleDiagnostics = [...coreBestBySchedule.values()].sort(
+    (left, right) => right.bestCoreDamage - left.bestCoreDamage,
   );
   const coarseCandidates = selectedCore.map((candidate, index) => {
     if (typeof onProgress === "function") {
@@ -2070,7 +2151,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
     finalSchedules: new Set(
       nodes.map((node) => JSON.stringify(node.anchorRows)),
     ).size,
+    finalScheduleRows: [...new Set(nodes.map(
+      (node) => JSON.stringify(node.anchorRows.map((row) => row + 1)),
+    ))].map((schedule) => JSON.parse(schedule)),
     coreCandidates: coreCandidatesByPath.size,
+    coreScheduleDiagnostics,
     coarseCandidates: coarseCandidates.map((candidate) => ({
       isIncumbent: candidate.isIncumbent,
       anchorRows: candidate.anchorRows.map((row) => row + 1),
@@ -2094,6 +2179,10 @@ export function optimizeLianyingAnchorDriftResynthesis(
       lineageLongTermScoring: true,
       suffixRepairPenaltyRows,
       boundaryDiagnosticCount,
+      allowedAnchorScheduleCount: normalizedAllowedAnchorSchedules.length,
+      allowedAnchorSchedules: normalizedAllowedAnchorSchedules.map(
+        (schedule) => schedule.map((row) => row + 1),
+      ),
     },
   };
 }
