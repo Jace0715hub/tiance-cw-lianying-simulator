@@ -35,6 +35,15 @@ const seedPacks = source.actionPacks ??
 if (!seedPacks) throw new Error("输入文件既没有actionPacks，也没有可恢复的rows");
 
 const profiles = {
+  screen: {
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 1,
+    fullDashStates: 64,
+  },
   fast: {
     rowBeamWidth: 24,
     boundaryBeamWidth: 12,
@@ -64,7 +73,7 @@ const profiles = {
   },
 };
 if (!profiles[profileName]) {
-  throw new Error("多区段联合重合成档位必须是fast、balanced或deep");
+  throw new Error("多区段联合重合成档位必须是screen、fast、balanced或deep");
 }
 
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
@@ -115,6 +124,8 @@ const searchResult = {
     bestValueShadowCoreDamageGain: optimized.bestValueShadowCoreDamageGain,
     valueShadowRows: optimized.valueShadowRows,
     valueShadowSelections: optimized.valueShadowSelections,
+    valueShadowRowIntroductions: optimized.valueShadowRowIntroductions,
+    valueShadowRowPropagations: optimized.valueShadowRowPropagations,
     valueShadowBoundarySelections: optimized.valueShadowBoundarySelections,
     valueShadowCoreFinalists: optimized.valueShadowCoreFinalists,
     coarseCandidates: optimized.coarseCandidates,
@@ -171,6 +182,8 @@ console.log(JSON.stringify({
   bestValueShadowCoreDamageGain: optimized.bestValueShadowCoreDamageGain,
   valueShadowRows: optimized.valueShadowRows,
   valueShadowSelections: optimized.valueShadowSelections,
+  valueShadowRowIntroductions: optimized.valueShadowRowIntroductions,
+  valueShadowRowPropagations: optimized.valueShadowRowPropagations,
   valueShadowBoundarySelections: optimized.valueShadowBoundarySelections,
   valueShadowCoreFinalists: optimized.valueShadowCoreFinalists,
   coarseCandidates: optimized.coarseCandidates,

@@ -369,6 +369,28 @@ function selectJointRowBeam(
   return selected;
 }
 
+function lianyingValuePolicyAppliesAt(policy, stage) {
+  return policy?.enabled === true && (
+    !Array.isArray(policy.applicationStages) ||
+    policy.applicationStages.includes(stage)
+  );
+}
+
+function selectPropagatedValueShadowCandidates(
+  nodes,
+  baselineNodes,
+  quota,
+) {
+  const baselineKeys = new Set(baselineNodes.map((node) =>
+    lianyingResynthesisStateKey(node.state)));
+  return [...nodes]
+    .filter((node) => node.valueShadow === true)
+    .filter((node) => !baselineKeys.has(
+      lianyingResynthesisStateKey(node.state)))
+    .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+    .slice(0, Math.max(0, Math.floor(Number(quota))));
+}
+
 function selectAnchorDriftRowBeam(
   nodes,
   beamWidth,
@@ -789,6 +811,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
   let peakRowStates = 1;
   let valueShadowRows = 0;
   let valueShadowSelections = 0;
+  let valueShadowRowIntroductions = 0;
+  let valueShadowRowPropagations = 0;
   let valueShadowBoundarySelections = 0;
   const valueTrainingRows = [];
   const boundaryValueProbes = new Map();
@@ -939,14 +963,30 @@ export function optimizeLianyingMultiSegmentResynthesis(
         warmKey,
         warmState,
       );
-      const shadowNodes = selectLianyingValueShadowCandidates(
-        candidates.values(),
-        baselineNodes,
-        endTick,
+      const introduceRowShadows = lianyingValuePolicyAppliesAt(
         valueShadowPolicy,
+        "row",
+      );
+      const shadowNodes = (introduceRowShadows
+        ? selectLianyingValueShadowCandidates(
+            candidates.values(),
+            baselineNodes,
+            endTick,
+            valueShadowPolicy,
+          )
+        : selectPropagatedValueShadowCandidates(
+            candidates.values(),
+            baselineNodes,
+            valueShadowPolicy?.valueQuota ?? 0,
+          )
       ).map((node) => ({ ...node, valueShadow: true }));
       if (shadowNodes.length > 0) valueShadowRows += 1;
       valueShadowSelections += shadowNodes.length;
+      if (introduceRowShadows) {
+        valueShadowRowIntroductions += shadowNodes.length;
+      } else {
+        valueShadowRowPropagations += shadowNodes.length;
+      }
       nodes = [...baselineNodes, ...shadowNodes];
       const globalRow = segment.startIndex + offset;
       const stride = Math.max(1, Math.floor(Number(valueProbeRowStride)));
@@ -1070,11 +1110,17 @@ export function optimizeLianyingMultiSegmentResynthesis(
           : null,
       },
     );
-    const boundaryShadowNodes = selectLianyingValueShadowCandidates(
-      nodes,
-      baselineBoundary.nodes,
-      endTick,
+    const boundaryShadowNodes = (lianyingValuePolicyAppliesAt(
       valueShadowPolicy,
+      "boundary",
+    )
+      ? selectLianyingValueShadowCandidates(
+          nodes,
+          baselineBoundary.nodes,
+          endTick,
+          valueShadowPolicy,
+        )
+      : []
     ).map((node) => ({ ...node, valueShadow: true }));
     valueShadowBoundarySelections += boundaryShadowNodes.length;
     nodes = [...baselineBoundary.nodes, ...boundaryShadowNodes];
@@ -1367,6 +1413,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
     valueShadowCoreFinalists: valueShadowCoreFinalists.length,
     valueShadowRows,
     valueShadowSelections,
+    valueShadowRowIntroductions,
+    valueShadowRowPropagations,
     valueShadowBoundarySelections,
     valueTraining: collectValueTrainingData
       ? {
@@ -1418,6 +1466,9 @@ export function optimizeLianyingMultiSegmentResynthesis(
             maximumBaselineRank: Number(valueShadowPolicy.maximumBaselineRank),
             modelKind: valueShadowPolicy.model?.kind ?? null,
             modelTrainingRows: valueShadowPolicy.model?.trainingRows ?? null,
+            applicationStages: Array.isArray(valueShadowPolicy.applicationStages)
+              ? [...valueShadowPolicy.applicationStages]
+              : null,
           }
         : null,
       collectValueTrainingData,

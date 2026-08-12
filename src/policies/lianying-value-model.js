@@ -317,6 +317,268 @@ export function evaluateLianyingBaselineQuota(rows, { quota = 2 } = {}) {
   return metrics;
 }
 
+export function evaluateLianyingObservedSelectorShadow(
+  rows,
+  model,
+  {
+    selectedColumn = "selectedByBaselineBeam",
+    valueQuota = 1,
+    valueWeight = 1,
+    maximumBaselineRank = Number.POSITIVE_INFINITY,
+  } = {},
+) {
+  const groups = new Map();
+  for (const row of rows) {
+    const key = [
+      row.sourceAxis ?? "",
+      row.traceId ?? "",
+      row.layer ?? "",
+    ].join("|");
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push({
+      row,
+      baselineScore: finiteNumber(row.totalDamage),
+      valueScore: finiteNumber(row.totalDamage) +
+        finiteNumber(valueWeight, 1) * predictLianyingRidgeValue(model, row),
+    });
+  }
+  const usefulGroups = [...groups.values()].filter((group) =>
+    group.length > 1 && group.some(({ row }) => Number(row[selectedColumn]) === 1));
+  const metrics = {
+    selectedColumn,
+    valueQuota: Math.max(0, Math.floor(Number(valueQuota))),
+    valueWeight: finiteNumber(valueWeight, 1),
+    maximumBaselineRank: Number.isFinite(Number(maximumBaselineRank))
+      ? Math.max(0, Math.floor(Number(maximumBaselineRank)))
+      : null,
+    decisionGroupCount: usefulGroups.length,
+    meanBaselineCandidates: 0,
+    meanAdditiveCandidates: 0,
+    baselineOracleRecall: 0,
+    damageShadowOracleRecall: 0,
+    additiveOracleRecall: 0,
+    baselineMeanRegret: 0,
+    damageShadowMeanRegret: 0,
+    additiveMeanRegret: 0,
+    baselineMaximumRegret: 0,
+    damageShadowMaximumRegret: 0,
+    additiveMaximumRegret: 0,
+    improvedGroups: 0,
+    unchangedGroups: 0,
+    valueImprovedGroups: 0,
+    valueUnchangedGroups: 0,
+  };
+  if (usefulGroups.length === 0) return metrics;
+  for (const group of usefulGroups) {
+    const oracle = Math.max(...group.map(({ row }) => Number(row.bestFinalDamage)));
+    const baseline = group.filter(
+      ({ row }) => Number(row[selectedColumn]) === 1);
+    const baselineSet = new Set(baseline);
+    const baselineRanking = [...group].sort(
+      (left, right) => right.baselineScore - left.baselineScore);
+    const valuePool = metrics.maximumBaselineRank === null
+      ? baselineRanking
+      : baselineRanking.slice(0, metrics.maximumBaselineRank);
+    const shadow = valuePool
+      .filter((candidate) => !baselineSet.has(candidate))
+      .sort((left, right) => right.valueScore - left.valueScore)
+      .slice(0, metrics.valueQuota);
+    const damageShadow = valuePool
+      .filter((candidate) => !baselineSet.has(candidate))
+      .sort((left, right) => right.baselineScore - left.baselineScore)
+      .slice(0, metrics.valueQuota);
+    const additive = [...baseline, ...shadow];
+    const damageAdditive = [...baseline, ...damageShadow];
+    const baselineAchieved = Math.max(...baseline.map(
+      ({ row }) => Number(row.bestFinalDamage)));
+    const additiveAchieved = Math.max(...additive.map(
+      ({ row }) => Number(row.bestFinalDamage)));
+    const damageShadowAchieved = Math.max(...damageAdditive.map(
+      ({ row }) => Number(row.bestFinalDamage)));
+    const baselineRegret = Math.max(0, oracle - baselineAchieved);
+    const damageShadowRegret = Math.max(0, oracle - damageShadowAchieved);
+    const additiveRegret = Math.max(0, oracle - additiveAchieved);
+    metrics.meanBaselineCandidates += baseline.length;
+    metrics.meanAdditiveCandidates += additive.length;
+    metrics.baselineOracleRecall += Number(baselineRegret <= 1e-6);
+    metrics.damageShadowOracleRecall += Number(damageShadowRegret <= 1e-6);
+    metrics.additiveOracleRecall += Number(additiveRegret <= 1e-6);
+    metrics.baselineMeanRegret += baselineRegret;
+    metrics.damageShadowMeanRegret += damageShadowRegret;
+    metrics.additiveMeanRegret += additiveRegret;
+    metrics.baselineMaximumRegret = Math.max(
+      metrics.baselineMaximumRegret,
+      baselineRegret,
+    );
+    metrics.additiveMaximumRegret = Math.max(
+      metrics.additiveMaximumRegret,
+      additiveRegret,
+    );
+    metrics.damageShadowMaximumRegret = Math.max(
+      metrics.damageShadowMaximumRegret,
+      damageShadowRegret,
+    );
+    if (additiveRegret < baselineRegret - 1e-6) metrics.improvedGroups += 1;
+    else metrics.unchangedGroups += 1;
+    if (additiveRegret < damageShadowRegret - 1e-6) {
+      metrics.valueImprovedGroups += 1;
+    } else {
+      metrics.valueUnchangedGroups += 1;
+    }
+  }
+  for (const column of [
+    "meanBaselineCandidates",
+    "meanAdditiveCandidates",
+    "baselineOracleRecall",
+    "damageShadowOracleRecall",
+    "additiveOracleRecall",
+    "baselineMeanRegret",
+    "damageShadowMeanRegret",
+    "additiveMeanRegret",
+  ]) metrics[column] /= usefulGroups.length;
+  return metrics;
+}
+
+export function selectLianyingObservedSelectorPolicyBySourceValidation(
+  rows,
+  {
+    testSource = null,
+    alphas = [0.01, 0.1, 1, 10, 100, 1000, 10000],
+    featureColumns = LIANYING_VALUE_FEATURE_COLUMNS,
+    targetColumn = "centeredRemainingDamageResidual",
+    valueWeights = [0, 0.125, 0.25, 0.5, 1, 2],
+    maximumBaselineRanks = [2, 4, 8, Number.POSITIVE_INFINITY],
+    valueQuota = 1,
+    selectedColumn = "selectedByBaselineBeam",
+  } = {},
+) {
+  const developmentRows = rows.filter((row) => row.sourceAxis !== testSource);
+  const sources = [...new Set(developmentRows
+    .map((row) => row.sourceAxis)
+    .filter(Boolean))].sort();
+  if (sources.length < 2) {
+    throw new Error("观测选择器嵌套验证至少需要两个非测试来源轴");
+  }
+  const aggregateCandidates = new Map();
+  const validationFolds = [];
+  for (const validationSource of sources) {
+    const validationRows = developmentRows.filter(
+      (row) => row.sourceAxis === validationSource);
+    const trainingRows = developmentRows.filter(
+      (row) => row.sourceAxis !== validationSource);
+    const foldCandidates = [];
+    for (const alpha of alphas) {
+      const model = fitLianyingRidgeValueModel(trainingRows, {
+        alpha,
+        featureColumns,
+        targetColumn,
+      });
+      for (const valueWeight of [...new Set(valueWeights.map((weight) =>
+        finiteNumber(weight, 0)))]) {
+        for (const rank of [...new Set(maximumBaselineRanks.map((entry) =>
+          Number.isFinite(Number(entry))
+            ? Math.max(0, Math.floor(Number(entry)))
+            : null))]) {
+          const metrics = evaluateLianyingObservedSelectorShadow(
+            validationRows,
+            model,
+            {
+              selectedColumn,
+              valueQuota,
+              valueWeight,
+              maximumBaselineRank: rank ?? Number.POSITIVE_INFINITY,
+            },
+          );
+          const candidate = {
+            alpha: Number(alpha),
+            valueWeight,
+            maximumBaselineRank: rank,
+            oracleRecallDelta:
+              metrics.additiveOracleRecall - metrics.damageShadowOracleRecall,
+            meanRegretDelta:
+              metrics.additiveMeanRegret - metrics.damageShadowMeanRegret,
+          };
+          const key = JSON.stringify([
+            candidate.alpha,
+            candidate.valueWeight,
+            candidate.maximumBaselineRank,
+          ]);
+          if (!aggregateCandidates.has(key)) {
+            aggregateCandidates.set(key, {
+              alpha: candidate.alpha,
+              valueWeight: candidate.valueWeight,
+              maximumBaselineRank: candidate.maximumBaselineRank,
+              folds: [],
+            });
+          }
+          aggregateCandidates.get(key).folds.push({
+            validationSource,
+            oracleRecallDelta: candidate.oracleRecallDelta,
+            meanRegretDelta: candidate.meanRegretDelta,
+          });
+          foldCandidates.push(candidate);
+        }
+      }
+    }
+    validationFolds.push({
+      validationSource,
+      trainingSources: sources.filter((source) => source !== validationSource),
+      selectedColumn,
+      candidateCount: foldCandidates.length,
+    });
+  }
+  const candidates = [...aggregateCandidates.values()].map((candidate) => {
+    const nonDegradingFolds = candidate.folds.filter((fold) =>
+      fold.oracleRecallDelta >= -1e-12 && fold.meanRegretDelta <= 1e-6).length;
+    return {
+      ...candidate,
+      validationFoldCount: sources.length,
+      nonDegradingFolds,
+      averageRecallDelta: average(candidate.folds.map(
+        (fold) => fold.oracleRecallDelta)),
+      averageMeanRegretDelta: average(candidate.folds.map(
+        (fold) => fold.meanRegretDelta)),
+      worstRecallDelta: Math.min(...candidate.folds.map(
+        (fold) => fold.oracleRecallDelta)),
+      worstMeanRegretDelta: Math.max(...candidate.folds.map(
+        (fold) => fold.meanRegretDelta)),
+    };
+  }).sort((left, right) => {
+    const leftStrict = left.nonDegradingFolds === left.validationFoldCount;
+    const rightStrict = right.nonDegradingFolds === right.validationFoldCount;
+    if (leftStrict !== rightStrict) return Number(rightStrict) - Number(leftStrict);
+    const regret = left.averageMeanRegretDelta - right.averageMeanRegretDelta;
+    if (Math.abs(regret) > 1e-9) return regret;
+    const recall = right.averageRecallDelta - left.averageRecallDelta;
+    if (Math.abs(recall) > 1e-12) return recall;
+    const leftRank = left.maximumBaselineRank ?? Number.POSITIVE_INFINITY;
+    const rightRank = right.maximumBaselineRank ?? Number.POSITIVE_INFINITY;
+    if (leftRank !== rightRank) return leftRank - rightRank;
+    if (left.valueWeight !== right.valueWeight) {
+      return left.valueWeight - right.valueWeight;
+    }
+    return left.alpha - right.alpha;
+  });
+  const selected = candidates[0];
+  const model = fitLianyingRidgeValueModel(developmentRows, {
+    alpha: selected.alpha,
+    featureColumns,
+    targetColumn,
+  });
+  return {
+    model,
+    selectedAlpha: selected.alpha,
+    selectedValueWeight: selected.valueWeight,
+    selectedMaximumBaselineRank: selected.maximumBaselineRank,
+    strictNonDegrading: selected.nonDegradingFolds ===
+      selected.validationFoldCount,
+    validationSources: sources,
+    validationFolds,
+    selectedValidation: selected,
+    candidateCount: candidates.length,
+  };
+}
+
 export function selectLianyingHybridValueWeight(
   rows,
   model,

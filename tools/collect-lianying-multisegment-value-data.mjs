@@ -155,6 +155,13 @@ for (const [sourceIndex, axis] of axes.entries()) {
     explored: optimized.explored,
     legal: optimized.legal,
     segmentCount: optimized.segments.length,
+    accepted: optimized.accepted,
+    baselineDamage: optimized.baselineDamage,
+    finalDamage: optimized.state.totalDamage,
+    damageGain: optimized.damageGain,
+    valueShadowRows: optimized.valueShadowRows,
+    valueShadowSelections: optimized.valueShadowSelections,
+    valueShadowBoundarySelections: optimized.valueShadowBoundarySelections,
     ...optimized.valueTraining.summary,
   });
 }

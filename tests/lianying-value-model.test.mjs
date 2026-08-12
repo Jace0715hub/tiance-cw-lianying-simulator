@@ -4,9 +4,11 @@ import {
   crossValidateLianyingRidgeValueModel,
   evaluateLianyingBaselineQuota,
   evaluateLianyingHybridValueQuota,
+  evaluateLianyingObservedSelectorShadow,
   evaluateLianyingValueModel,
   fitLianyingRidgeValueModel,
   predictLianyingRidgeValue,
+  selectLianyingObservedSelectorPolicyBySourceValidation,
   selectLianyingHybridValueWeight,
   selectLianyingRidgeValueModel,
   selectLianyingRidgeValuePolicyBySourceValidation,
@@ -100,6 +102,86 @@ test("广义即时伤害配额与既有 top-k 排名指标一致", () => {
   const baseline = evaluateLianyingBaselineQuota(rows, { quota: 2 });
   assert.equal(baseline.oracleRecall, ranking.top2Recall);
   assert.equal(baseline.meanRegret, ranking.meanTop2Regret);
+});
+
+test("观测边界选择器评估只追加价值槽且不替换既有候选", () => {
+  const rows = [
+    {
+      totalDamage: 100,
+      bestFinalDamage: 1000,
+      rage: 0,
+      selectedByBaselineBeam: 1,
+    },
+    {
+      totalDamage: 99,
+      bestFinalDamage: 1200,
+      rage: 1,
+      selectedByBaselineBeam: 0,
+    },
+    {
+      totalDamage: 98,
+      bestFinalDamage: 900,
+      rage: 0,
+      selectedByBaselineBeam: 1,
+    },
+  ].map((row, nodeId) => ({
+    ...row,
+    sourceAxis: "axis",
+    traceId: "boundary",
+    layer: 1,
+    nodeId,
+  }));
+  const model = {
+    targetMean: 0,
+    featureColumns: ["rage"],
+    featureMeans: [0],
+    featureScales: [1],
+    coefficients: [1000],
+  };
+  const metrics = evaluateLianyingObservedSelectorShadow(rows, model, {
+    valueQuota: 1,
+    maximumBaselineRank: 3,
+  });
+
+  assert.equal(metrics.meanBaselineCandidates, 2);
+  assert.equal(metrics.meanAdditiveCandidates, 3);
+  assert.equal(metrics.baselineOracleRecall, 0);
+  assert.equal(metrics.damageShadowOracleRecall, 1);
+  assert.equal(metrics.additiveOracleRecall, 1);
+  assert.equal(metrics.baselineMeanRegret, 200);
+  assert.equal(metrics.additiveMeanRegret, 0);
+  assert.equal(metrics.improvedGroups, 1);
+  assert.equal(metrics.valueImprovedGroups, 0);
+});
+
+test("观测边界策略按来源嵌套验证且完全隔离外层测试轴", () => {
+  const rows = ["axis-0", "axis-1", "axis-2", "axis-3"].flatMap(
+    (sourceAxis, sourceIndex) => [0, 1].flatMap((layer) => [
+      { totalDamage: 100, bestFinalDamage: 1000, rage: 0, selectedByBaselineBeam: 1 },
+      { totalDamage: 99, bestFinalDamage: 1200, rage: 1, selectedByBaselineBeam: 0 },
+      { totalDamage: 98, bestFinalDamage: 900, rage: 0, selectedByBaselineBeam: 0 },
+    ].map((row, nodeIndex) => ({
+      ...row,
+      sourceAxis,
+      traceId: `${sourceIndex}-${layer}`,
+      layer,
+      nodeId: nodeIndex,
+      centeredRemainingDamageResidual: row.rage * 200,
+    }))),
+  );
+  const selected = selectLianyingObservedSelectorPolicyBySourceValidation(rows, {
+    testSource: "axis-0",
+    featureColumns: ["rage"],
+    alphas: [0.01, 1],
+    valueWeights: [0, 1],
+    maximumBaselineRanks: [2, 3],
+  });
+
+  assert.ok(!selected.validationSources.includes("axis-0"));
+  assert.equal(selected.model.trainingRows, 18);
+  assert.equal(selected.strictNonDegrading, true);
+  assert.ok([0, 1].includes(selected.selectedValueWeight));
+  assert.equal(selected.selectedMaximumBaselineRank, 2);
 });
 
 test("验证集会在价值排序有害时选择零权重回退", () => {

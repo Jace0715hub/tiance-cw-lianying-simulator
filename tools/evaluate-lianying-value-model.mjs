@@ -5,7 +5,9 @@ import {
   crossValidateLianyingRidgeValueModel,
   evaluateLianyingBaselineQuota,
   evaluateLianyingHybridValueQuota,
+  evaluateLianyingObservedSelectorShadow,
   evaluateLianyingValueModel,
+  selectLianyingObservedSelectorPolicyBySourceValidation,
   selectLianyingRidgeValueModel,
   selectLianyingRidgeValuePolicyBySourceValidation,
 } from "../src/policies/lianying-value-model.js";
@@ -16,11 +18,19 @@ const profiles = {
     baselineQuota: 1,
     valueQuota: 1,
     maximumBaselineRanks: [2, 4, 8, Number.POSITIVE_INFINITY],
+    applicationStages: ["row", "boundary"],
   },
   "beam-shadow": {
     baselineQuota: 5,
     valueQuota: 1,
     maximumBaselineRanks: [6, 8, 12, Number.POSITIVE_INFINITY],
+    applicationStages: ["row", "boundary"],
+  },
+  "boundary-shadow": {
+    baselineQuota: 11,
+    valueQuota: 1,
+    maximumBaselineRanks: [12, 16, 24, 32],
+    applicationStages: ["boundary"],
   },
 };
 const policyOptions = profiles[profileName];
@@ -128,6 +138,73 @@ report.equalBudgetBaseline = Object.fromEntries(
 report.crossValidation = new Set(rows.map((row) => row.sourceAxis).filter(Boolean)).size >= 3
   ? crossValidateLianyingRidgeValueModel(rows, policyOptions)
   : null;
+report.observedSelector = Object.fromEntries(
+  Object.entries(splitRows).map(([split, entries]) => [
+    split,
+    evaluateLianyingObservedSelectorShadow(entries, selected.model, {
+      valueQuota: policyOptions.valueQuota,
+      valueWeight: selected.selectedValueWeight,
+      maximumBaselineRank: selected.selectedMaximumBaselineRank ??
+        Number.POSITIVE_INFINITY,
+    }),
+  ]),
+);
+const observedSources = [...new Set(rows
+  .map((row) => row.sourceAxis)
+  .filter(Boolean))].sort();
+report.observedSelectorCrossValidation = observedSources.length >= 3
+  ? {
+      folds: observedSources.map((testSource) => {
+        const selectedFold = selectLianyingObservedSelectorPolicyBySourceValidation(
+          rows,
+          { ...policyOptions, testSource },
+        );
+        return {
+          testSource,
+          selectedAlpha: selectedFold.selectedAlpha,
+          selectedValueWeight: selectedFold.selectedValueWeight,
+          selectedMaximumBaselineRank:
+            selectedFold.selectedMaximumBaselineRank,
+          strictNonDegradingValidation: selectedFold.strictNonDegrading,
+          metrics: evaluateLianyingObservedSelectorShadow(
+            rows.filter((row) => row.sourceAxis === testSource),
+            selectedFold.model,
+            {
+              valueQuota: policyOptions.valueQuota,
+              valueWeight: selectedFold.selectedValueWeight,
+              maximumBaselineRank:
+                selectedFold.selectedMaximumBaselineRank ??
+                Number.POSITIVE_INFINITY,
+            },
+          ),
+        };
+      }),
+    }
+  : null;
+if (report.observedSelectorCrossValidation) {
+  const folds = report.observedSelectorCrossValidation.folds;
+  const average = (column) => folds.reduce(
+    (sum, fold) => sum + fold.metrics[column], 0) / folds.length;
+  report.observedSelectorCrossValidation.aggregate = {
+    baselineOracleRecall: average("baselineOracleRecall"),
+    damageShadowOracleRecall: average("damageShadowOracleRecall"),
+    additiveOracleRecall: average("additiveOracleRecall"),
+    baselineMeanRegret: average("baselineMeanRegret"),
+    damageShadowMeanRegret: average("damageShadowMeanRegret"),
+    additiveMeanRegret: average("additiveMeanRegret"),
+    improvedGroups: folds.reduce(
+      (sum, fold) => sum + fold.metrics.improvedGroups, 0),
+    unchangedGroups: folds.reduce(
+      (sum, fold) => sum + fold.metrics.unchangedGroups, 0),
+    valueImprovedGroups: folds.reduce(
+      (sum, fold) => sum + fold.metrics.valueImprovedGroups, 0),
+    valueUnchangedGroups: folds.reduce(
+      (sum, fold) => sum + fold.metrics.valueUnchangedGroups, 0),
+    improvedFolds: folds.filter((fold) =>
+      fold.metrics.additiveMeanRegret < fold.metrics.damageShadowMeanRegret - 1e-6)
+      .length,
+  };
+}
 const parsed = path.parse(inputPath);
 const outputStem = path.resolve(
   process.argv[3] ?? path.join(parsed.dir, `${parsed.name}-ridge`),
@@ -142,21 +219,42 @@ const crossValidationGate = report.crossValidation
     report.crossValidation.aggregate.equalBudgetRecallDelta >= -1e-12 &&
     report.crossValidation.aggregate.equalBudgetMeanRegretDelta <= 1e-6
   : false;
+const usesObservedSelector = profileName === "boundary-shadow";
+const observedSelectorGate = report.observedSelectorCrossValidation
+  ? report.observedSelectorCrossValidation.folds.every((fold) =>
+    fold.strictNonDegradingValidation === true &&
+    fold.metrics.additiveOracleRecall >= fold.metrics.damageShadowOracleRecall - 1e-12 &&
+    fold.metrics.additiveMeanRegret <= fold.metrics.damageShadowMeanRegret + 1e-6 &&
+    fold.metrics.valueImprovedGroups > 0) &&
+    report.observedSelectorCrossValidation.aggregate.improvedFolds ===
+      report.observedSelectorCrossValidation.folds.length
+  : false;
+const validationGate = usesObservedSelector
+  ? observedSelectorGate
+  : crossValidationGate;
 const deploymentSelection = report.crossValidation
-  ? selectLianyingRidgeValuePolicyBySourceValidation(rows, policyOptions)
+  ? usesObservedSelector
+    ? selectLianyingObservedSelectorPolicyBySourceValidation(rows, policyOptions)
+    : selectLianyingRidgeValuePolicyBySourceValidation(rows, policyOptions)
   : null;
 const deploymentPolicy = {
   kind: "lianying-ridge-value-shadow-policy",
-  enabled: crossValidationGate &&
+  enabled: validationGate &&
     deploymentSelection?.strictNonDegrading === true,
   profileName,
   baselineQuota: policyOptions.baselineQuota,
   valueQuota: policyOptions.valueQuota,
   valueWeight: deploymentSelection?.selectedValueWeight ?? 0,
   maximumBaselineRank: deploymentSelection?.selectedMaximumBaselineRank ?? null,
-  validationGatePassed: crossValidationGate &&
+  applicationStages: policyOptions.applicationStages,
+  validationComparator: usesObservedSelector
+    ? "observed-baseline-selector-plus-shadow"
+    : "equal-budget-damage-quota",
+  validationGatePassed: validationGate &&
     deploymentSelection?.strictNonDegrading === true,
   crossValidationAggregate: report.crossValidation?.aggregate ?? null,
+  observedSelectorCrossValidationAggregate:
+    report.observedSelectorCrossValidation?.aggregate ?? null,
   deploymentValidation: deploymentSelection?.selectedValidation ?? null,
   model: deploymentSelection?.model ?? selected.model,
 };

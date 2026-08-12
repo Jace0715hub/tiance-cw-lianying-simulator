@@ -300,6 +300,54 @@ test("联合区段价值探针同时记录参考后缀和真实跨区段后代",
   assert.equal(optimized.options.valueProbeNextSegmentBeamWidth, 2);
 });
 
+test("边界专用价值策略只在雷边界引入影子并在区段内机械传播", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const optimized = optimizeLianyingMultiSegmentResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      rowBeamWidth: 4,
+      boundaryBeamWidth: 2,
+      coreFinalistCount: 2,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 2,
+      fullDashStates: 4,
+      valueShadowPolicy: {
+        enabled: true,
+        applicationStages: ["boundary"],
+        baselineQuota: 1,
+        valueQuota: 1,
+        valueWeight: 0,
+        maximumBaselineRank: 12,
+        model: {
+          kind: "ridge-residual",
+          trainingRows: 1,
+          targetMean: 0,
+          featureColumns: [],
+          featureMeans: [],
+          featureScales: [],
+          coefficients: [],
+        },
+      },
+    },
+  );
+
+  assert.equal(optimized.valueShadowRowIntroductions, 0);
+  assert.ok(optimized.valueShadowBoundarySelections > 0);
+  assert.ok(optimized.valueShadowRowPropagations > 0);
+  assert.deepEqual(
+    optimized.options.valueShadowPolicy.applicationStages,
+    ["boundary"],
+  );
+});
+
 test("三雷样例只漂移中间锚点并完成不降级复演", () => {
   const runtime = loadDefaultGearRuntime({ executePhase: true });
   const seed = searchWhitepaperLianying(runtime, {
