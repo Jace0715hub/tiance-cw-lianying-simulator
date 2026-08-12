@@ -31,6 +31,65 @@ function clonePacks(packs) {
   return packs.map(cloneLianyingPack);
 }
 
+function actionId(action) {
+  return typeof action === "string" ? action : action?.id;
+}
+
+export function lianyingCompanionAnchorRows(packs) {
+  const rowsFor = (predicate) => packs.flatMap((pack, index) =>
+    predicate(pack) ? [index + 1] : []);
+  return {
+    rideRows: rowsFor((pack) => actionId(pack.primary) === "ride"),
+    orangeRows: rowsFor((pack) => lianyingPackHasAction(pack, "orange")),
+    dismountRows: rowsFor((pack) => lianyingPackHasAction(pack, "dismount")),
+  };
+}
+
+export function isLianyingCompanionAnchorPackAllowed(
+  pack,
+  rowIndex,
+  template = null,
+  priorPacks = [],
+) {
+  if (!template) return true;
+  const rowNumber = Number(rowIndex) + 1;
+  const expected = (rows) => new Set((rows ?? []).map(Number)).has(rowNumber);
+  const windowAllows = (windows, id) => {
+    if (!Array.isArray(windows)) return true;
+    const priorCount = priorPacks.filter((prior) =>
+      id === "ride"
+        ? actionId(prior.primary) === "ride"
+        : lianyingPackHasAction(prior, id)).length;
+    const hasAction = id === "ride"
+      ? actionId(pack.primary) === "ride"
+      : lianyingPackHasAction(pack, id);
+    if (priorCount >= windows.length) return !hasAction;
+    const window = windows[priorCount];
+    const earliest = Number(window.earliestRow);
+    const latest = Number(window.latestRow);
+    if (rowNumber < earliest) return !hasAction;
+    if (rowNumber > latest) return false;
+    if (rowNumber === latest) return hasAction;
+    return true;
+  };
+  if (!windowAllows(template.rideWindows, "ride")) return false;
+  if (!windowAllows(template.orangeWindows, "orange")) return false;
+  if (!windowAllows(template.dismountWindows, "dismount")) return false;
+  if (
+    Array.isArray(template.rideRows) &&
+    (actionId(pack.primary) === "ride") !== expected(template.rideRows)
+  ) return false;
+  if (
+    Array.isArray(template.orangeRows) &&
+    lianyingPackHasAction(pack, "orange") !== expected(template.orangeRows)
+  ) return false;
+  if (
+    Array.isArray(template.dismountRows) &&
+    lianyingPackHasAction(pack, "dismount") !== expected(template.dismountRows)
+  ) return false;
+  return true;
+}
+
 function buildWarmStates(runtime, packs, endTick) {
   let state = createInitialState(runtime.config, {
     rage: 5,
@@ -1701,6 +1760,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
     suffixRepairPenaltyRows = 1,
     boundaryDiagnosticCount = 3,
     allowedAnchorSchedules = null,
+    companionAnchorTemplate = null,
+    includeScheduleCandidatePacks = false,
     onProgress = null,
   } = {},
 ) {
@@ -1758,6 +1819,16 @@ export function optimizeLianyingAnchorDriftResynthesis(
   };
   const firstAnchor = anchors[0];
   const prefixPacks = clonePacks(corePacks.slice(0, firstAnchor));
+  for (let rowIndex = 0; rowIndex < prefixPacks.length; rowIndex += 1) {
+    if (!isLianyingCompanionAnchorPackAllowed(
+      prefixPacks[rowIndex],
+      rowIndex,
+      companionAnchorTemplate,
+      prefixPacks.slice(0, rowIndex),
+    )) {
+      throw new Error(`第${rowIndex + 1}行固定前缀不满足伴随锚点模板`);
+    }
+  }
   const warmStates = buildWarmStates(runtime, corePacks, endTick);
   let warmState = warmStates[firstAnchor];
   let warmGeneratedPacks = [];
@@ -1803,6 +1874,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
           driftOptions,
           node.anchorRows,
         )) continue;
+        if (!isLianyingCompanionAnchorPackAllowed(
+          pack,
+          rowIndex,
+          companionAnchorTemplate,
+          [...prefixPacks, ...node.packs],
+        )) continue;
         explored += 1;
         try {
           const state = executeActionPack(
@@ -1847,6 +1924,14 @@ export function optimizeLianyingAnchorDriftResynthesis(
       anchors.slice(0, warmThunderCount),
     )) {
       throw new Error(`第${rowIndex + 1}行热启动轴不满足雷锚点漂移约束`);
+    }
+    if (!isLianyingCompanionAnchorPackAllowed(
+      warmPack,
+      rowIndex,
+      companionAnchorTemplate,
+      [...prefixPacks, ...warmGeneratedPacks],
+    )) {
+      throw new Error(`第${rowIndex + 1}行热启动轴不满足伴随锚点模板`);
     }
     warmState = executeActionPack(
       warmState,
@@ -2058,18 +2143,28 @@ export function optimizeLianyingAnchorDriftResynthesis(
   for (const candidate of coreCandidatesByPath.values()) {
     const key = JSON.stringify(candidate.anchorRows);
     const current = coreBestBySchedule.get(key);
-    if (!current || candidate.coreDamage > current.bestCoreDamage) {
-      coreBestBySchedule.set(key, {
-        anchorRows: candidate.anchorRows.map((row) => row + 1),
-        bestCoreDamage: candidate.coreDamage,
-        bestCoreDamageGain:
-          candidate.coreDamage - coreBaseline.state.totalDamage,
-      });
+    if (!current || candidate.coreDamage > current.coreDamage) {
+      coreBestBySchedule.set(key, candidate);
     }
   }
-  const coreScheduleDiagnostics = [...coreBestBySchedule.values()].sort(
+  const coreScheduleDiagnostics = [...coreBestBySchedule.values()].map(
+    (candidate) => ({
+      anchorRows: candidate.anchorRows.map((row) => row + 1),
+      bestCoreDamage: candidate.coreDamage,
+      bestCoreDamageGain:
+        candidate.coreDamage - coreBaseline.state.totalDamage,
+      bestCoreCompanionAnchors: lianyingCompanionAnchorRows(candidate.packs),
+    }),
+  ).sort(
     (left, right) => right.bestCoreDamage - left.bestCoreDamage,
   );
+  const coreScheduleCandidates = includeScheduleCandidatePacks
+    ? [...coreBestBySchedule.values()].map((candidate) => ({
+        anchorRows: candidate.anchorRows.map((row) => row + 1),
+        bestCoreDamage: candidate.coreDamage,
+        packs: clonePacks(candidate.packs),
+      }))
+    : [];
   const coarseCandidates = selectedCore.map((candidate, index) => {
     if (typeof onProgress === "function") {
       onProgress({
@@ -2156,6 +2251,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     ))].map((schedule) => JSON.parse(schedule)),
     coreCandidates: coreCandidatesByPath.size,
     coreScheduleDiagnostics,
+    coreScheduleCandidates,
     coarseCandidates: coarseCandidates.map((candidate) => ({
       isIncumbent: candidate.isIncumbent,
       anchorRows: candidate.anchorRows.map((row) => row + 1),
@@ -2183,6 +2279,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
       allowedAnchorSchedules: normalizedAllowedAnchorSchedules.map(
         (schedule) => schedule.map((row) => row + 1),
       ),
+      companionAnchorTemplate,
+      includeScheduleCandidatePacks,
     },
   };
 }

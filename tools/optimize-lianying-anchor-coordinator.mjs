@@ -6,6 +6,7 @@ import { resolveLianyingResearchPath } from "../src/config/lianying-research-def
 import {
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingHierarchicalAnchorCoordination,
+  optimizeLianyingRankedPairAnchorCoordination,
 } from "../src/policies/lianying-anchor-coordinator.js";
 import { replayWhitepaperLianying } from "../src/policies/whitepaper-lianying.js";
 import {
@@ -18,6 +19,31 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "screen";
+const pairProfile = profileName.startsWith("pair-");
+const singleResultPath = process.argv[5]
+  ? path.resolve(process.argv[5])
+  : null;
+const pairTemplateLimit = process.argv[6] == null
+  ? null
+  : Number(process.argv[6]);
+if (
+  pairTemplateLimit !== null &&
+  (!Number.isInteger(pairTemplateLimit) || pairTemplateLimit < 1)
+) {
+  throw new Error("双锚点模板数量必须是正整数");
+}
+const companionSlackOverride = process.argv[7] == null
+  ? null
+  : Number(process.argv[7]);
+if (
+  companionSlackOverride !== null &&
+  (!Number.isInteger(companionSlackOverride) || companionSlackOverride < 0)
+) {
+  throw new Error("伴随锚点窗口必须是非负整数");
+}
+const pairTemplateIds = process.argv[8]
+  ? process.argv[8].split(",").map((id) => id.trim()).filter(Boolean)
+  : null;
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const durationSeconds = Number(source.durationSeconds ?? 180);
 const seedPacks = source.actionPacks ??
@@ -54,24 +80,100 @@ const profiles = {
     finalDashCandidateCount: 2,
     fullDashStates: 128,
   },
+  "pair-screen": {
+    ...common,
+    maximumShiftedAnchors: 2,
+    rankedSingleTemplateLimit: 5,
+    maximumPairTemplates: 6,
+    rowBeamWidth: 24,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 1,
+    fullDashStates: 128,
+  },
+  "pair-fast": {
+    ...common,
+    maximumShiftedAnchors: 2,
+    rankedSingleTemplateLimit: 5,
+    maximumPairTemplates: 6,
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 16,
+    coreFinalistCount: 16,
+    coarseCandidateLimit: 5,
+    coarseDashStates: 12,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "pair-rides-screen": {
+    ...common,
+    maximumShiftedAnchors: 2,
+    rankedSingleTemplateLimit: 5,
+    maximumPairTemplates: 6,
+    preserveCompanionAnchorTypes: ["ride"],
+    companionAnchorSlackRows: 1,
+    rowBeamWidth: 24,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 1,
+    fullDashStates: 128,
+  },
 };
 if (!profiles[profileName]) {
-  throw new Error("锚点协调档位必须是screen或fast");
+  throw new Error(
+    "锚点协调档位必须是screen、fast、pair-screen、pair-fast或pair-rides-screen",
+  );
+}
+
+let singleTemplateDiagnostics = null;
+if (pairProfile) {
+  if (!singleResultPath) {
+    throw new Error("pair-screen需要第5个参数指定单锚点协调结果JSON");
+  }
+  const singleResult = JSON.parse(fs.readFileSync(singleResultPath, "utf8"));
+  singleTemplateDiagnostics =
+    singleResult.search?.axisOptimization?.coordination?.templateDiagnostics ??
+    singleResult.coordination?.templateDiagnostics ??
+    null;
+  if (!Array.isArray(singleTemplateDiagnostics)) {
+    throw new Error("单锚点协调结果中缺少templateDiagnostics");
+  }
 }
 
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
 const seedReplay = replayWhitepaperLianying(runtime, seedPacks, { durationSeconds });
-const optimized = optimizeLianyingHierarchicalAnchorCoordination(
-  runtime,
-  seedPacks,
-  {
+const optimizeOptions = {
     durationSeconds,
     ...profiles[profileName],
+    ...(pairProfile && pairTemplateLimit !== null
+      ? { maximumPairTemplates: pairTemplateLimit }
+      : {}),
+    ...(pairProfile && companionSlackOverride !== null
+      ? { companionAnchorSlackRows: companionSlackOverride }
+      : {}),
+    ...(pairProfile && pairTemplateIds
+      ? { pairTemplateIds }
+      : {}),
+    includeScheduleCandidatePacks: pairProfile,
     onProgress: (event) => {
       console.log(JSON.stringify({ phase: "anchor-coordination", ...event }));
     },
-  },
-);
+  };
+const optimized = pairProfile
+  ? optimizeLianyingRankedPairAnchorCoordination(
+      runtime,
+      seedPacks,
+      singleTemplateDiagnostics,
+      optimizeOptions,
+    )
+  : optimizeLianyingHierarchicalAnchorCoordination(
+      runtime,
+      seedPacks,
+      optimizeOptions,
+    );
 const finalPacks = optimized.accepted ? optimized.packs : seedPacks;
 const finalState = optimized.accepted ? optimized.state : seedReplay.state;
 const searchResult = {
@@ -91,6 +193,9 @@ const searchResult = {
   axisOptimization: {
     kind: "hierarchical-anchor-coordination",
     profile: profileName,
+    singleResultPath: singleResultPath
+      ? path.relative(projectRoot, singleResultPath)
+      : null,
     accepted: optimized.accepted,
     seedPath: path.relative(projectRoot, inputPath),
     damageGain: optimized.damageGain,
@@ -104,6 +209,7 @@ const searchResult = {
     finalSchedules: optimized.finalSchedules,
     coreCandidates: optimized.coreCandidates,
     coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
+    coreScheduleCandidates: optimized.coreScheduleCandidates,
     coarseCandidates: optimized.coarseCandidates,
   },
 };
@@ -132,6 +238,7 @@ console.log(JSON.stringify({
   inputPath,
   outputStem,
   profileName,
+  singleResultPath,
   accepted: optimized.accepted,
   seedRotationDamage: seedReplay.state.totalDamage,
   finalRotationDamage: finalState.totalDamage,

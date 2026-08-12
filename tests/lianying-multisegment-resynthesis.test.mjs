@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import { createInitialState } from "../src/engine/state.js";
 import {
+  isLianyingCompanionAnchorPackAllowed,
   isLianyingThunderAnchorPackAllowed,
   lianyingAnchorDriftLongTermScore,
   isLianyingAnchorDriftPackAllowed,
@@ -15,6 +16,7 @@ import {
 } from "../src/policies/lianying-multisegment-resynthesis.js";
 import {
   buildLianyingBoundedThunderTemplates,
+  buildLianyingRankedPairThunderTemplates,
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingHierarchicalAnchorCoordination,
 } from "../src/policies/lianying-anchor-coordinator.js";
@@ -567,8 +569,63 @@ test("层次协调器只提出单个中间雷相邻移动并由低层完整复�
   assert.ok(optimized.coordination.finalBoundaryTemplateCount >= 1);
   assert.ok(optimized.coordination.templateDiagnostics.some(
     (template) => template.reachedCore));
+  assert.ok(optimized.coordination.templateDiagnostics
+    .filter((template) => template.reachedCore)
+    .every((template) =>
+      Array.isArray(template.bestCoreCompanionAnchors?.rideRows) &&
+      Array.isArray(template.bestCoreCompanionAnchors?.orangeRows) &&
+      Array.isArray(template.bestCoreCompanionAnchors?.dismountRows)));
   const csv = lianyingAnchorCoordinationTemplatesToCsv(optimized);
   assert.match(csv, /incumbent/);
   assert.match(csv, /shift-2:-1/);
   assert.match(csv, /存活至雷序号/);
+});
+
+test("双雷协调模板只组合排名靠前且锚点不同的单移动", () => {
+  const anchors = [2, 19, 37, 58, 79, 104, 127];
+  const diagnostics = [
+    ["shift-6:-1", [3, 20, 38, 59, 80, 104, 128], -10],
+    ["shift-5:-1", [3, 20, 38, 59, 79, 105, 128], -20],
+    ["shift-6:+1", [3, 20, 38, 59, 80, 106, 128], -30],
+    ["shift-5:+1", [3, 20, 38, 59, 81, 105, 128], -40],
+    ["shift-4:-1", [3, 20, 38, 58, 80, 105, 128], -50],
+    ["shift-3:-1", [3, 20, 37, 59, 80, 105, 128], -60],
+  ].map(([templateId, anchorRows, bestCoreDamageGain]) => ({
+    templateId,
+    anchorRows,
+    bestCoreDamageGain,
+  }));
+  const pairs = buildLianyingRankedPairThunderTemplates(
+    anchors,
+    diagnostics,
+  );
+  assert.equal(pairs.length, 6);
+  assert.ok(pairs.every((template) => template.shiftedAnchors.length === 2));
+  assert.ok(pairs.every((template) =>
+    new Set(template.shiftedAnchors.map(
+      (shift) => shift.anchorNumber)).size === 2));
+  assert.ok(pairs.every((template) =>
+    template.sourceTemplateIds.every((id) => id !== "shift-3:-1")));
+  assert.deepEqual(pairs[0].anchorRows, [2, 19, 37, 58, 78, 103, 127]);
+});
+
+test("伴随锚点模板只约束显式指定的动作类型", () => {
+  const template = { rideRows: [3], orangeRows: [4] };
+  assert.equal(isLianyingCompanionAnchorPackAllowed(
+    { prefix: [], primary: "ride", tail: [] }, 2, template), true);
+  assert.equal(isLianyingCompanionAnchorPackAllowed(
+    { prefix: [], primary: "dragonFang", tail: [] }, 2, template), false);
+  assert.equal(isLianyingCompanionAnchorPackAllowed(
+    { prefix: [], primary: "dragonFang", tail: ["orange"] }, 3, template), true);
+  assert.equal(isLianyingCompanionAnchorPackAllowed(
+    { prefix: ["dismount"], primary: "dragonFang", tail: [] }, 4, template), true);
+  const windows = {
+    rideWindows: [{ earliestRow: 2, latestRow: 4 }],
+  };
+  assert.equal(isLianyingCompanionAnchorPackAllowed(
+    { prefix: [], primary: "dragonFang", tail: [] }, 2, windows), true);
+  assert.equal(isLianyingCompanionAnchorPackAllowed(
+    { prefix: [], primary: "dragonFang", tail: [] }, 3, windows), false);
+  assert.equal(isLianyingCompanionAnchorPackAllowed(
+    { prefix: [], primary: "ride", tail: [] }, 1, windows), true);
 });

@@ -98,13 +98,17 @@ export {
 } from "./reports/lianying-value-training.js";
 export {
   buildLianyingBoundedThunderTemplates,
+  buildLianyingRankedPairThunderTemplates,
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingHierarchicalAnchorCoordination,
+  optimizeLianyingRankedPairAnchorCoordination,
 } from "./policies/lianying-anchor-coordinator.js";
 export {
   evaluateLianyingReferenceSuffixValue,
   isLianyingAnchorDriftPackAllowed,
+  isLianyingCompanionAnchorPackAllowed,
   isLianyingThunderAnchorPackAllowed,
+  lianyingCompanionAnchorRows,
   lianyingAnchorDriftLongTermScore,
   lianyingAnchorDriftScheduleToCsv,
   lianyingAnchorDriftWindow,

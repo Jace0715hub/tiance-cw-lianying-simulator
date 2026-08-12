@@ -2,7 +2,10 @@ import {
   identifyLianyingThunderSegments,
   stripLianyingDashPacks,
 } from "./lianying-segment-resynthesis.js";
-import { optimizeLianyingAnchorDriftResynthesis } from "./lianying-multisegment-resynthesis.js";
+import {
+  lianyingCompanionAnchorRows,
+  optimizeLianyingAnchorDriftResynthesis,
+} from "./lianying-multisegment-resynthesis.js";
 
 function scheduleKey(rows) {
   return JSON.stringify(rows);
@@ -91,6 +94,84 @@ export function buildLianyingBoundedThunderTemplates(
   return [...selected.values()];
 }
 
+export function buildLianyingRankedPairThunderTemplates(
+  anchors,
+  singleTemplateDiagnostics,
+  {
+    rankedSingleTemplateLimit = 5,
+    maximumPairTemplates = 6,
+  } = {},
+) {
+  const incumbent = anchors.map(Number);
+  const rankedSingles = (singleTemplateDiagnostics ?? [])
+    .map((diagnostic) => {
+      const rows = (diagnostic.anchorRows ?? []).map(
+        (row) => Number(row) - 1,
+      );
+      const shifted = rows.flatMap((row, index) =>
+        row === incumbent[index]
+          ? []
+          : [{
+              anchorIndex: index,
+              anchorNumber: index + 1,
+              fromRow: incumbent[index] + 1,
+              toRow: row + 1,
+              deltaRows: row - incumbent[index],
+            }]);
+      return { diagnostic, rows, shifted };
+    })
+    .filter((entry) =>
+      entry.rows.length === incumbent.length &&
+      entry.shifted.length === 1 &&
+      Number.isFinite(Number(entry.diagnostic.bestCoreDamageGain)))
+    .sort((left, right) =>
+      Number(right.diagnostic.bestCoreDamageGain) -
+        Number(left.diagnostic.bestCoreDamageGain))
+    .slice(0, Math.max(0, Math.floor(rankedSingleTemplateLimit)));
+  const selected = new Map();
+  for (let leftIndex = 0; leftIndex < rankedSingles.length; leftIndex += 1) {
+    for (
+      let rightIndex = leftIndex + 1;
+      rightIndex < rankedSingles.length;
+      rightIndex += 1
+    ) {
+      const left = rankedSingles[leftIndex];
+      const right = rankedSingles[rightIndex];
+      if (left.shifted[0].anchorIndex === right.shifted[0].anchorIndex) continue;
+      const candidate = [...incumbent];
+      candidate[left.shifted[0].anchorIndex] =
+        left.rows[left.shifted[0].anchorIndex];
+      candidate[right.shifted[0].anchorIndex] =
+        right.rows[right.shifted[0].anchorIndex];
+      if (!isStrictlyIncreasing(candidate)) continue;
+      const key = scheduleKey(candidate);
+      if (selected.has(key)) continue;
+      const shiftedAnchors = [left.shifted[0], right.shifted[0]]
+        .sort((a, b) => a.anchorNumber - b.anchorNumber)
+        .map(({ anchorIndex: _anchorIndex, ...shift }) => shift);
+      selected.set(key, {
+        templateId: `pair-${shiftedAnchors.map(
+          (shift) => `${shift.anchorNumber}:${shift.deltaRows > 0 ? "+" : ""}${shift.deltaRows}`,
+        ).join("+")}`,
+        anchorRows: candidate,
+        shiftedAnchors,
+        sourceTemplateIds: [
+          left.diagnostic.templateId,
+          right.diagnostic.templateId,
+        ],
+        sourceCoreDamageGains: [
+          left.diagnostic.bestCoreDamageGain,
+          right.diagnostic.bestCoreDamageGain,
+        ],
+      });
+      if (selected.size >= Math.max(0, Math.floor(maximumPairTemplates))) {
+        return [...selected.values()];
+      }
+    }
+  }
+  return [...selected.values()];
+}
+
 function diagnoseTemplate(template, optimized) {
   const finalSchedules = new Set((optimized.finalScheduleRows ?? []).map(
     (schedule) => JSON.stringify(schedule),
@@ -126,6 +207,7 @@ function diagnoseTemplate(template, optimized) {
     reachedCore: core !== null,
     bestCoreDamage: core?.bestCoreDamage ?? null,
     bestCoreDamageGain: core?.bestCoreDamageGain ?? null,
+    bestCoreCompanionAnchors: core?.bestCoreCompanionAnchors ?? null,
     reachedCoarse: coarse.length > 0,
     bestCoarseDamage,
     bestCoarseDamageGain: bestCoarseDamage === null
@@ -166,13 +248,15 @@ export function optimizeLianyingHierarchicalAnchorCoordination(
 ) {
   const corePacks = stripLianyingDashPacks(packs);
   const anchors = identifyLianyingThunderSegments(corePacks).anchors;
-  const templates = buildLianyingBoundedThunderTemplates(anchors, {
-    slackRows: options.anchorSlackRows ?? 1,
-    fixFirstAnchor: options.fixFirstAnchor ?? true,
-    fixLastAnchor: options.fixLastAnchor ?? true,
-    maximumShiftedAnchors: options.maximumShiftedAnchors ?? 1,
-    maximumTemplates: options.maximumTemplates ?? 16,
-  });
+  const templates = Array.isArray(options.anchorTemplates)
+    ? options.anchorTemplates
+    : buildLianyingBoundedThunderTemplates(anchors, {
+        slackRows: options.anchorSlackRows ?? 1,
+        fixFirstAnchor: options.fixFirstAnchor ?? true,
+        fixLastAnchor: options.fixLastAnchor ?? true,
+        maximumShiftedAnchors: options.maximumShiftedAnchors ?? 1,
+        maximumTemplates: options.maximumTemplates ?? 16,
+      });
   if ((options.evaluationMode ?? "shared") !== "independent") {
     const optimized = optimizeLianyingAnchorDriftResynthesis(runtime, packs, {
       ...options,
@@ -210,6 +294,7 @@ export function optimizeLianyingHierarchicalAnchorCoordination(
     right.optimized.state.totalDamage - left.optimized.state.totalDamage)[0];
   const mergedCoarse = new Map();
   const mergedCore = new Map();
+  const mergedScheduleCandidates = new Map();
   for (const evaluation of evaluations) {
     for (const candidate of evaluation.optimized.coarseCandidates ?? []) {
       const key = JSON.stringify(candidate.anchorRows);
@@ -223,6 +308,13 @@ export function optimizeLianyingHierarchicalAnchorCoordination(
       const current = mergedCore.get(key);
       if (!current || candidate.bestCoreDamage > current.bestCoreDamage) {
         mergedCore.set(key, candidate);
+      }
+    }
+    for (const candidate of evaluation.optimized.coreScheduleCandidates ?? []) {
+      const key = JSON.stringify(candidate.anchorRows);
+      const current = mergedScheduleCandidates.get(key);
+      if (!current || candidate.bestCoreDamage > current.bestCoreDamage) {
+        mergedScheduleCandidates.set(key, candidate);
       }
     }
   }
@@ -240,6 +332,9 @@ export function optimizeLianyingHierarchicalAnchorCoordination(
       (left, right) => right.totalDamage - left.totalDamage,
     ),
     coreScheduleDiagnostics: [...mergedCore.values()].sort(
+      (left, right) => right.bestCoreDamage - left.bestCoreDamage,
+    ),
+    coreScheduleCandidates: [...mergedScheduleCandidates.values()].sort(
       (left, right) => right.bestCoreDamage - left.bestCoreDamage,
     ),
   };
@@ -263,6 +358,81 @@ export function optimizeLianyingHierarchicalAnchorCoordination(
   return result;
 }
 
+export function optimizeLianyingRankedPairAnchorCoordination(
+  runtime,
+  packs,
+  singleTemplateDiagnostics,
+  options = {},
+) {
+  const anchors = identifyLianyingThunderSegments(
+    stripLianyingDashPacks(packs),
+  ).anchors;
+  let pairs = buildLianyingRankedPairThunderTemplates(
+    anchors,
+    singleTemplateDiagnostics,
+    options,
+  );
+  if (Array.isArray(options.pairTemplateIds) && options.pairTemplateIds.length > 0) {
+    const selectedIds = new Set(options.pairTemplateIds);
+    pairs = pairs.filter((pair) => selectedIds.has(pair.templateId));
+  }
+  const incumbent = {
+    templateId: "incumbent",
+    anchorRows: anchors,
+    shiftedAnchors: [],
+  };
+  const companionTypes = new Set(options.preserveCompanionAnchorTypes ?? []);
+  const sourceCompanionAnchors = lianyingCompanionAnchorRows(
+    stripLianyingDashPacks(packs),
+  );
+  const companionSlackRows = Math.max(
+    0,
+    Math.floor(Number(options.companionAnchorSlackRows ?? 0)),
+  );
+  const companionAnchorTemplate = Object.fromEntries([
+    ["ride", "rideRows"],
+    ["orange", "orangeRows"],
+    ["dismount", "dismountRows"],
+  ].flatMap(([type, key]) =>
+    companionTypes.has(type)
+      ? companionSlackRows > 0
+        ? [[key.replace("Rows", "Windows"), sourceCompanionAnchors[key].map(
+            (row) => ({
+              targetRow: row,
+              earliestRow: row - companionSlackRows,
+              latestRow: row + companionSlackRows,
+            }))]]
+        : [[key, sourceCompanionAnchors[key]]]
+      : []));
+  const result = optimizeLianyingHierarchicalAnchorCoordination(
+    runtime,
+    packs,
+    {
+      ...options,
+      evaluationMode: "independent",
+      maximumShiftedAnchors: 2,
+      companionAnchorTemplate: companionTypes.size > 0
+        ? companionAnchorTemplate
+        : null,
+      anchorTemplates: [incumbent, ...pairs],
+    },
+  );
+  result.coordination.kind = "ranked-pair-thunder-anchor-coordination";
+  result.coordination.rankedSingleTemplateLimit =
+    options.rankedSingleTemplateLimit ?? 5;
+  result.coordination.maximumPairTemplates =
+    options.maximumPairTemplates ?? 6;
+  result.coordination.sourceSingleTemplateIds = [...new Set(
+    pairs.flatMap((pair) => pair.sourceTemplateIds),
+  )];
+  result.coordination.preservedCompanionAnchorTypes = [...companionTypes];
+  result.coordination.companionAnchorSlackRows = companionSlackRows;
+  result.coordination.companionAnchorTemplate = companionTypes.size > 0
+    ? companionAnchorTemplate
+    : null;
+  return result;
+}
+
 export function lianyingAnchorCoordinationTemplatesToCsv(result) {
   const selected = JSON.stringify(result.selectedAnchors ?? []);
   const rows = [[
@@ -274,6 +444,9 @@ export function lianyingAnchorCoordinationTemplatesToCsv(result) {
     "到达最终边界",
     "进入核心复演",
     "核心最佳伤害差",
+    "核心任驰骋行",
+    "核心橙武行",
+    "核心下马行",
     "进入粗排",
     "粗排最佳伤害差",
     "最终选择",
@@ -297,6 +470,9 @@ export function lianyingAnchorCoordinationTemplatesToCsv(result) {
       diagnostic?.reachedFinalBoundary ?? false,
       diagnostic?.reachedCore ?? false,
       diagnostic?.bestCoreDamageGain ?? "",
+      diagnostic?.bestCoreCompanionAnchors?.rideRows?.join("/") ?? "",
+      diagnostic?.bestCoreCompanionAnchors?.orangeRows?.join("/") ?? "",
+      diagnostic?.bestCoreCompanionAnchors?.dismountRows?.join("/") ?? "",
       diagnostic?.reachedCoarse ?? coarse.has(key),
       diagnostic?.bestCoarseDamageGain ?? "",
       key === selected,
