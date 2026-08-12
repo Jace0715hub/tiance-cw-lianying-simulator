@@ -1,0 +1,6597 @@
+{
+  "schemaVersion": 1,
+  "kind": "tiance-cw-lianying-anchor-template",
+  "purpose": "read-only-high-level-anchor-audit",
+  "durationSeconds": 180,
+  "summary": {
+    "totalAnchors": 25,
+    "thunderAnchors": 7,
+    "orangeAnchors": 4,
+    "rideAnchors": 7,
+    "dismountAnchors": 7,
+    "sameRowRideThunder": 5,
+    "thunderWithoutRideOverlap": 1,
+    "totalRideThunderOverlapSeconds": 79.0775,
+    "totalOrangeThunderOverlapSeconds": 24
+  },
+  "compactTemplate": {
+    "thunderRows": [
+      3,
+      20,
+      38,
+      59,
+      80,
+      105,
+      128
+    ],
+    "orangeRows": [
+      3,
+      47,
+      89,
+      131
+    ],
+    "rideRows": [
+      3,
+      20,
+      38,
+      59,
+      105,
+      121,
+      143
+    ],
+    "dismountRows": [
+      20,
+      23,
+      25,
+      53,
+      82,
+      120,
+      143
+    ]
+  },
+  "anchors": [
+    {
+      "anchorId": "ride-1",
+      "type": "ride",
+      "rowIndex": 2,
+      "rowNumber": 3,
+      "placement": "primary",
+      "tick": 38960,
+      "seconds": 2.435,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 2.9975,
+        "untilSeconds": 17.9975
+      },
+      "rowStart": {
+        "seconds": 2.435,
+        "rage": 2,
+        "dragonRide": 1,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 17.9375,
+          "orange": 0
+        },
+        "charges": {
+          "thunder": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          },
+          "ride": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 5.565
+        }
+      },
+      "eventState": {
+        "rageBefore": 2,
+        "rageAfter": 5,
+        "dragonRideBefore": 1,
+        "dragonRideAfter": 7,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 3.6525,
+        "rage": 5,
+        "dragonRide": 7,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 16.72,
+          "orange": 49.9375
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 29.9375,
+            "rechargeQueueInSeconds": [
+              29.9375
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 32.7825,
+            "rechargeQueueInSeconds": [
+              32.7825
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 5.9375,
+          "ride": 14.345,
+          "poLouLan": 4.3475
+        }
+      },
+      "ordinal": 1,
+      "previousSameTypeGapSeconds": null,
+      "nextSameTypeGapSeconds": 20.6975,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-2",
+          "rowDelta": 0,
+          "secondsDelta": 1.155
+        },
+        "orange": {
+          "anchorId": "orange-3",
+          "rowDelta": 0,
+          "secondsDelta": 1.155
+        },
+        "ride": null,
+        "dismount": {
+          "anchorId": "dismount-4",
+          "rowDelta": 17,
+          "secondsDelta": 20.6975
+        }
+      },
+      "sequenceIndex": 0
+    },
+    {
+      "anchorId": "thunder-2",
+      "type": "thunder",
+      "rowIndex": 2,
+      "rowNumber": 3,
+      "placement": "tail",
+      "tick": 57440,
+      "seconds": 3.59,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 3.59,
+        "untilSeconds": 21.59
+      },
+      "rowStart": {
+        "seconds": 2.435,
+        "rage": 2,
+        "dragonRide": 1,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 17.9375,
+          "orange": 0
+        },
+        "charges": {
+          "thunder": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          },
+          "ride": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 5.565
+        }
+      },
+      "eventState": {
+        "rageBefore": 2,
+        "rageAfter": 5,
+        "dragonRideBefore": 7,
+        "dragonRideAfter": 7,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 3.6525,
+        "rage": 5,
+        "dragonRide": 7,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 16.72,
+          "orange": 49.9375
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 29.9375,
+            "rechargeQueueInSeconds": [
+              29.9375
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 32.7825,
+            "rechargeQueueInSeconds": [
+              32.7825
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 5.9375,
+          "ride": 14.345,
+          "poLouLan": 4.3475
+        }
+      },
+      "ordinal": 1,
+      "previousSameTypeGapSeconds": null,
+      "nextSameTypeGapSeconds": 20.6975,
+      "nearestByType": {
+        "thunder": null,
+        "orange": {
+          "anchorId": "orange-3",
+          "rowDelta": 0,
+          "secondsDelta": 0
+        },
+        "ride": {
+          "anchorId": "ride-1",
+          "rowDelta": 0,
+          "secondsDelta": -1.155
+        },
+        "dismount": {
+          "anchorId": "dismount-4",
+          "rowDelta": 17,
+          "secondsDelta": 19.5425
+        }
+      },
+      "sequenceIndex": 1
+    },
+    {
+      "anchorId": "orange-3",
+      "type": "orange",
+      "rowIndex": 2,
+      "rowNumber": 3,
+      "placement": "tail",
+      "tick": 57440,
+      "seconds": 3.59,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 3.59,
+        "untilSeconds": 9.59
+      },
+      "rowStart": {
+        "seconds": 2.435,
+        "rage": 2,
+        "dragonRide": 1,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 17.9375,
+          "orange": 0
+        },
+        "charges": {
+          "thunder": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          },
+          "ride": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 5.565
+        }
+      },
+      "eventState": {
+        "rageBefore": 2,
+        "rageAfter": 5,
+        "dragonRideBefore": 1,
+        "dragonRideAfter": 7,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 3.6525,
+        "rage": 5,
+        "dragonRide": 7,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 16.72,
+          "orange": 49.9375
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 29.9375,
+            "rechargeQueueInSeconds": [
+              29.9375
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 32.7825,
+            "rechargeQueueInSeconds": [
+              32.7825
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 5.9375,
+          "ride": 14.345,
+          "poLouLan": 4.3475
+        }
+      },
+      "ordinal": 1,
+      "previousSameTypeGapSeconds": null,
+      "nextSameTypeGapSeconds": 52.415,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-2",
+          "rowDelta": 0,
+          "secondsDelta": 0
+        },
+        "orange": null,
+        "ride": {
+          "anchorId": "ride-1",
+          "rowDelta": 0,
+          "secondsDelta": -1.155
+        },
+        "dismount": {
+          "anchorId": "dismount-4",
+          "rowDelta": 17,
+          "secondsDelta": 19.5425
+        }
+      },
+      "sequenceIndex": 2
+    },
+    {
+      "anchorId": "dismount-4",
+      "type": "dismount",
+      "rowIndex": 19,
+      "rowNumber": 20,
+      "placement": "prefix",
+      "tick": 370120,
+      "seconds": 23.1325,
+      "reason": "refresh-ride",
+      "activeWindow": {
+        "fromSeconds": null,
+        "untilSeconds": null
+      },
+      "rowStart": {
+        "seconds": 23.1325,
+        "rage": 4,
+        "dragonRide": 0,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 16.9125,
+          "dash": 0,
+          "orange": 30.4575
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.4575,
+            "rechargeQueueInSeconds": [
+              10.4575
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 13.3025,
+            "rechargeQueueInSeconds": [
+              13.3025
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 6.7825
+        }
+      },
+      "eventState": {
+        "rageBefore": 4,
+        "rageAfter": 4,
+        "dragonRideBefore": 0,
+        "dragonRideAfter": 6,
+        "mountedBefore": true,
+        "mountedAfter": false,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 24.35,
+        "rage": 4,
+        "dragonRide": 6,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 0,
+          "orange": 29.24
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 9.24,
+            "rechargeQueueInSeconds": [
+              9.24,
+              39.24
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 12.085,
+            "rechargeQueueInSeconds": [
+              12.085,
+              46.085
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 5.565
+        }
+      },
+      "ordinal": 1,
+      "previousSameTypeGapSeconds": null,
+      "nextSameTypeGapSeconds": 3.6525,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-6",
+          "rowDelta": 0,
+          "secondsDelta": 1.155
+        },
+        "orange": {
+          "anchorId": "orange-3",
+          "rowDelta": -17,
+          "secondsDelta": -19.5425
+        },
+        "ride": {
+          "anchorId": "ride-5",
+          "rowDelta": 0,
+          "secondsDelta": 0
+        },
+        "dismount": null
+      },
+      "sequenceIndex": 3
+    },
+    {
+      "anchorId": "ride-5",
+      "type": "ride",
+      "rowIndex": 19,
+      "rowNumber": 20,
+      "placement": "primary",
+      "tick": 370120,
+      "seconds": 23.1325,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 23.695,
+        "untilSeconds": 38.695
+      },
+      "rowStart": {
+        "seconds": 23.1325,
+        "rage": 4,
+        "dragonRide": 0,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 16.9125,
+          "dash": 0,
+          "orange": 30.4575
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.4575,
+            "rechargeQueueInSeconds": [
+              10.4575
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 13.3025,
+            "rechargeQueueInSeconds": [
+              13.3025
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 6.7825
+        }
+      },
+      "eventState": {
+        "rageBefore": 4,
+        "rageAfter": 4,
+        "dragonRideBefore": 0,
+        "dragonRideAfter": 6,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 24.35,
+        "rage": 4,
+        "dragonRide": 6,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 0,
+          "orange": 29.24
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 9.24,
+            "rechargeQueueInSeconds": [
+              9.24,
+              39.24
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 12.085,
+            "rechargeQueueInSeconds": [
+              12.085,
+              46.085
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 5.565
+        }
+      },
+      "ordinal": 2,
+      "previousSameTypeGapSeconds": 20.6975,
+      "nextSameTypeGapSeconds": 21.915,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-6",
+          "rowDelta": 0,
+          "secondsDelta": 1.155
+        },
+        "orange": {
+          "anchorId": "orange-3",
+          "rowDelta": -17,
+          "secondsDelta": -19.5425
+        },
+        "ride": null,
+        "dismount": {
+          "anchorId": "dismount-4",
+          "rowDelta": 0,
+          "secondsDelta": 0
+        }
+      },
+      "sequenceIndex": 4
+    },
+    {
+      "anchorId": "thunder-6",
+      "type": "thunder",
+      "rowIndex": 19,
+      "rowNumber": 20,
+      "placement": "tail",
+      "tick": 388600,
+      "seconds": 24.2875,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 24.2875,
+        "untilSeconds": 42.2875
+      },
+      "rowStart": {
+        "seconds": 23.1325,
+        "rage": 4,
+        "dragonRide": 0,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 16.9125,
+          "dash": 0,
+          "orange": 30.4575
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.4575,
+            "rechargeQueueInSeconds": [
+              10.4575
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 13.3025,
+            "rechargeQueueInSeconds": [
+              13.3025
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 6.7825
+        }
+      },
+      "eventState": {
+        "rageBefore": 4,
+        "rageAfter": 4,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 6,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 24.35,
+        "rage": 4,
+        "dragonRide": 6,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 0,
+          "orange": 29.24
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 9.24,
+            "rechargeQueueInSeconds": [
+              9.24,
+              39.24
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 12.085,
+            "rechargeQueueInSeconds": [
+              12.085,
+              46.085
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 5.565
+        }
+      },
+      "ordinal": 2,
+      "previousSameTypeGapSeconds": 20.6975,
+      "nextSameTypeGapSeconds": 21.915,
+      "nearestByType": {
+        "thunder": null,
+        "orange": {
+          "anchorId": "orange-3",
+          "rowDelta": -17,
+          "secondsDelta": -20.6975
+        },
+        "ride": {
+          "anchorId": "ride-5",
+          "rowDelta": 0,
+          "secondsDelta": -1.155
+        },
+        "dismount": {
+          "anchorId": "dismount-4",
+          "rowDelta": 0,
+          "secondsDelta": -1.155
+        }
+      },
+      "sequenceIndex": 5
+    },
+    {
+      "anchorId": "dismount-7",
+      "type": "dismount",
+      "rowIndex": 22,
+      "rowNumber": 23,
+      "placement": "prefix",
+      "tick": 428560,
+      "seconds": 26.785,
+      "reason": "free-search",
+      "activeWindow": {
+        "fromSeconds": null,
+        "untilSeconds": null
+      },
+      "rowStart": {
+        "seconds": 26.785,
+        "rage": 2,
+        "dragonRide": 4,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 0,
+          "orange": 26.805
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 6.805,
+            "rechargeQueueInSeconds": [
+              6.805,
+              36.805
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 9.65,
+            "rechargeQueueInSeconds": [
+              9.65,
+              43.65
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 15.5025,
+          "orange": 0,
+          "ride": 11.91,
+          "poLouLan": 3.13
+        }
+      },
+      "eventState": {
+        "rageBefore": 2,
+        "rageAfter": 4,
+        "dragonRideBefore": 4,
+        "dragonRideAfter": 5,
+        "mountedBefore": true,
+        "mountedAfter": false,
+        "thunderActive": true,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 28.0025,
+        "rage": 4,
+        "dragonRide": 5,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 21.7825,
+          "dash": 16.7825,
+          "orange": 25.5875
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 5.5875,
+            "rechargeQueueInSeconds": [
+              5.5875,
+              35.5875
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 8.4325,
+            "rechargeQueueInSeconds": [
+              8.4325,
+              42.4325
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 14.285,
+          "orange": 0,
+          "ride": 10.6925,
+          "poLouLan": 1.9125
+        }
+      },
+      "ordinal": 2,
+      "previousSameTypeGapSeconds": 3.6525,
+      "nextSameTypeGapSeconds": 2.435,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-6",
+          "rowDelta": -3,
+          "secondsDelta": -2.4975
+        },
+        "orange": {
+          "anchorId": "orange-3",
+          "rowDelta": -20,
+          "secondsDelta": -23.195
+        },
+        "ride": {
+          "anchorId": "ride-5",
+          "rowDelta": -3,
+          "secondsDelta": -3.6525
+        },
+        "dismount": null
+      },
+      "sequenceIndex": 6
+    },
+    {
+      "anchorId": "dismount-8",
+      "type": "dismount",
+      "rowIndex": 24,
+      "rowNumber": 25,
+      "placement": "prefix",
+      "tick": 467520,
+      "seconds": 29.22,
+      "reason": "free-search",
+      "activeWindow": {
+        "fromSeconds": null,
+        "untilSeconds": null
+      },
+      "rowStart": {
+        "seconds": 29.22,
+        "rage": 3,
+        "dragonRide": 6,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 20.565,
+          "dash": 15.565,
+          "orange": 24.37
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 4.37,
+            "rechargeQueueInSeconds": [
+              4.37,
+              34.37
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 7.215,
+            "rechargeQueueInSeconds": [
+              7.215,
+              41.215
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 13.0675,
+          "orange": 0,
+          "ride": 9.475,
+          "poLouLan": 0.695
+        }
+      },
+      "eventState": {
+        "rageBefore": 3,
+        "rageAfter": 2,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 7,
+        "mountedBefore": false,
+        "mountedAfter": false,
+        "thunderActive": true,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 30.4375,
+        "rage": 2,
+        "dragonRide": 7,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 19.3475,
+          "dash": 14.3475,
+          "orange": 23.1525
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 3.1525,
+            "rechargeQueueInSeconds": [
+              3.1525,
+              33.1525
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 5.9975,
+            "rechargeQueueInSeconds": [
+              5.9975,
+              39.9975
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 11.85,
+          "orange": 0,
+          "ride": 8.2575,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 3,
+      "previousSameTypeGapSeconds": 2.435,
+      "nextSameTypeGapSeconds": 34.09,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-6",
+          "rowDelta": -5,
+          "secondsDelta": -4.9325
+        },
+        "orange": {
+          "anchorId": "orange-3",
+          "rowDelta": -22,
+          "secondsDelta": -25.63
+        },
+        "ride": {
+          "anchorId": "ride-5",
+          "rowDelta": -5,
+          "secondsDelta": -6.0875
+        },
+        "dismount": null
+      },
+      "sequenceIndex": 7
+    },
+    {
+      "anchorId": "ride-9",
+      "type": "ride",
+      "rowIndex": 37,
+      "rowNumber": 38,
+      "placement": "primary",
+      "tick": 720760,
+      "seconds": 45.0475,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 45.61,
+        "untilSeconds": 60.61
+      },
+      "rowStart": {
+        "seconds": 45.0475,
+        "rage": 5,
+        "dragonRide": 15,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 0,
+          "charge": 4.7375,
+          "dash": 17.9375,
+          "orange": 8.5425
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 18.5425,
+            "rechargeQueueInSeconds": [
+              18.5425
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 25.3875,
+            "rechargeQueueInSeconds": [
+              25.3875
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 5,
+        "rageAfter": 5,
+        "dragonRideBefore": 15,
+        "dragonRideAfter": 21,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 46.265,
+        "rage": 5,
+        "dragonRide": 21,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 4.565,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 16.72,
+          "orange": 7.325
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 17.325,
+            "rechargeQueueInSeconds": [
+              17.325,
+              47.325
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 24.17,
+            "rechargeQueueInSeconds": [
+              24.17,
+              58.17
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 3,
+      "previousSameTypeGapSeconds": 21.915,
+      "nextSameTypeGapSeconds": 25.5675,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-10",
+          "rowDelta": 0,
+          "secondsDelta": 1.155
+        },
+        "orange": {
+          "anchorId": "orange-11",
+          "rowDelta": 9,
+          "secondsDelta": 10.9575
+        },
+        "ride": null,
+        "dismount": {
+          "anchorId": "dismount-8",
+          "rowDelta": -13,
+          "secondsDelta": -15.8275
+        }
+      },
+      "sequenceIndex": 8
+    },
+    {
+      "anchorId": "thunder-10",
+      "type": "thunder",
+      "rowIndex": 37,
+      "rowNumber": 38,
+      "placement": "tail",
+      "tick": 739240,
+      "seconds": 46.2025,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 46.2025,
+        "untilSeconds": 64.2025
+      },
+      "rowStart": {
+        "seconds": 45.0475,
+        "rage": 5,
+        "dragonRide": 15,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 0,
+          "charge": 4.7375,
+          "dash": 17.9375,
+          "orange": 8.5425
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 18.5425,
+            "rechargeQueueInSeconds": [
+              18.5425
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 25.3875,
+            "rechargeQueueInSeconds": [
+              25.3875
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 5,
+        "rageAfter": 5,
+        "dragonRideBefore": 21,
+        "dragonRideAfter": 21,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 46.265,
+        "rage": 5,
+        "dragonRide": 21,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 4.565,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 16.72,
+          "orange": 7.325
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 17.325,
+            "rechargeQueueInSeconds": [
+              17.325,
+              47.325
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 24.17,
+            "rechargeQueueInSeconds": [
+              24.17,
+              58.17
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 3,
+      "previousSameTypeGapSeconds": 21.915,
+      "nextSameTypeGapSeconds": 25.5675,
+      "nearestByType": {
+        "thunder": null,
+        "orange": {
+          "anchorId": "orange-11",
+          "rowDelta": 9,
+          "secondsDelta": 9.8025
+        },
+        "ride": {
+          "anchorId": "ride-9",
+          "rowDelta": 0,
+          "secondsDelta": -1.155
+        },
+        "dismount": {
+          "anchorId": "dismount-8",
+          "rowDelta": -13,
+          "secondsDelta": -16.9825
+        }
+      },
+      "sequenceIndex": 9
+    },
+    {
+      "anchorId": "orange-11",
+      "type": "orange",
+      "rowIndex": 46,
+      "rowNumber": 47,
+      "placement": "prefix",
+      "tick": 896080,
+      "seconds": 56.005,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 56.005,
+        "untilSeconds": 62.005
+      },
+      "rowStart": {
+        "seconds": 56.005,
+        "rage": 3,
+        "dragonRide": 14,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 16.9125,
+          "dash": 6.98,
+          "orange": 0
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 7.585,
+            "rechargeQueueInSeconds": [
+              7.585,
+              37.585
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 14.43,
+            "rechargeQueueInSeconds": [
+              14.43,
+              48.43
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 8.1975,
+          "orange": 0,
+          "ride": 4.605,
+          "poLouLan": 4.3475
+        }
+      },
+      "eventState": {
+        "rageBefore": 3,
+        "rageAfter": 5,
+        "dragonRideBefore": 14,
+        "dragonRideAfter": 13,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 57.2225,
+        "rage": 5,
+        "dragonRide": 13,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 15.695,
+          "dash": 5.7625,
+          "orange": 48.7825
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 6.3675,
+            "rechargeQueueInSeconds": [
+              6.3675,
+              36.3675
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 13.2125,
+            "rechargeQueueInSeconds": [
+              13.2125,
+              47.2125
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 6.98,
+          "orange": 4.7825,
+          "ride": 3.3875,
+          "poLouLan": 3.13
+        }
+      },
+      "ordinal": 2,
+      "previousSameTypeGapSeconds": 52.415,
+      "nextSameTypeGapSeconds": 51.135,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-10",
+          "rowDelta": -9,
+          "secondsDelta": -9.8025
+        },
+        "orange": null,
+        "ride": {
+          "anchorId": "ride-9",
+          "rowDelta": -9,
+          "secondsDelta": -10.9575
+        },
+        "dismount": {
+          "anchorId": "dismount-12",
+          "rowDelta": 6,
+          "secondsDelta": 7.305
+        }
+      },
+      "sequenceIndex": 10
+    },
+    {
+      "anchorId": "dismount-12",
+      "type": "dismount",
+      "rowIndex": 52,
+      "rowNumber": 53,
+      "placement": "prefix",
+      "tick": 1012960,
+      "seconds": 63.31,
+      "reason": "free-search",
+      "activeWindow": {
+        "fromSeconds": null,
+        "untilSeconds": null
+      },
+      "rowStart": {
+        "seconds": 63.31,
+        "rage": 4,
+        "dragonRide": 8,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 9.6075,
+          "dash": 0,
+          "orange": 42.695
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 0.28,
+            "rechargeQueueInSeconds": [
+              0.28,
+              30.28
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 7.125,
+            "rechargeQueueInSeconds": [
+              7.125,
+              41.125
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0.8925,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 4,
+        "rageAfter": 3,
+        "dragonRideBefore": 8,
+        "dragonRideAfter": 9,
+        "mountedBefore": true,
+        "mountedAfter": false,
+        "thunderActive": true,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 64.5275,
+        "rage": 3,
+        "dragonRide": 9,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 8.39,
+          "dash": 16.7825,
+          "orange": 41.4775
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 29.0625,
+            "rechargeQueueInSeconds": [
+              29.0625
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 5.9075,
+            "rechargeQueueInSeconds": [
+              5.9075,
+              39.9075
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 4,
+      "previousSameTypeGapSeconds": 34.09,
+      "nextSameTypeGapSeconds": 35.3075,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-14",
+          "rowDelta": 6,
+          "secondsDelta": 8.46
+        },
+        "orange": {
+          "anchorId": "orange-11",
+          "rowDelta": -6,
+          "secondsDelta": -7.305
+        },
+        "ride": {
+          "anchorId": "ride-13",
+          "rowDelta": 6,
+          "secondsDelta": 7.305
+        },
+        "dismount": null
+      },
+      "sequenceIndex": 11
+    },
+    {
+      "anchorId": "ride-13",
+      "type": "ride",
+      "rowIndex": 58,
+      "rowNumber": 59,
+      "placement": "primary",
+      "tick": 1129840,
+      "seconds": 70.615,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 71.1775,
+        "untilSeconds": 86.1775
+      },
+      "rowStart": {
+        "seconds": 70.615,
+        "rage": 5,
+        "dragonRide": 11,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 0.9125,
+          "charge": 2.3025,
+          "dash": 10.695,
+          "orange": 35.39
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 22.975,
+            "rechargeQueueInSeconds": [
+              22.975
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 33.82,
+            "rechargeQueueInSeconds": [
+              33.82
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 5,
+        "rageAfter": 5,
+        "dragonRideBefore": 11,
+        "dragonRideAfter": 17,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 71.8325,
+        "rage": 5,
+        "dragonRide": 17,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 4.565,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 9.4775,
+          "orange": 34.1725
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 21.7575,
+            "rechargeQueueInSeconds": [
+              21.7575,
+              51.7575
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 32.6025,
+            "rechargeQueueInSeconds": [
+              32.6025,
+              66.6025
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 4,
+      "previousSameTypeGapSeconds": 25.5675,
+      "nextSameTypeGapSeconds": 56.005,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-14",
+          "rowDelta": 0,
+          "secondsDelta": 1.155
+        },
+        "orange": {
+          "anchorId": "orange-11",
+          "rowDelta": -12,
+          "secondsDelta": -14.61
+        },
+        "ride": null,
+        "dismount": {
+          "anchorId": "dismount-12",
+          "rowDelta": -6,
+          "secondsDelta": -7.305
+        }
+      },
+      "sequenceIndex": 12
+    },
+    {
+      "anchorId": "thunder-14",
+      "type": "thunder",
+      "rowIndex": 58,
+      "rowNumber": 59,
+      "placement": "tail",
+      "tick": 1148320,
+      "seconds": 71.77,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 71.77,
+        "untilSeconds": 89.77
+      },
+      "rowStart": {
+        "seconds": 70.615,
+        "rage": 5,
+        "dragonRide": 11,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 0.9125,
+          "charge": 2.3025,
+          "dash": 10.695,
+          "orange": 35.39
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 22.975,
+            "rechargeQueueInSeconds": [
+              22.975
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 33.82,
+            "rechargeQueueInSeconds": [
+              33.82
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 5,
+        "rageAfter": 5,
+        "dragonRideBefore": 17,
+        "dragonRideAfter": 17,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 71.8325,
+        "rage": 5,
+        "dragonRide": 17,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 4.565,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 9.4775,
+          "orange": 34.1725
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 21.7575,
+            "rechargeQueueInSeconds": [
+              21.7575,
+              51.7575
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 32.6025,
+            "rechargeQueueInSeconds": [
+              32.6025,
+              66.6025
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 4,
+      "previousSameTypeGapSeconds": 25.5675,
+      "nextSameTypeGapSeconds": 24.4125,
+      "nearestByType": {
+        "thunder": null,
+        "orange": {
+          "anchorId": "orange-11",
+          "rowDelta": -12,
+          "secondsDelta": -15.765
+        },
+        "ride": {
+          "anchorId": "ride-13",
+          "rowDelta": 0,
+          "secondsDelta": -1.155
+        },
+        "dismount": {
+          "anchorId": "dismount-12",
+          "rowDelta": -6,
+          "secondsDelta": -8.46
+        }
+      },
+      "sequenceIndex": 13
+    },
+    {
+      "anchorId": "thunder-15",
+      "type": "thunder",
+      "rowIndex": 79,
+      "rowNumber": 80,
+      "placement": "prefix",
+      "tick": 1538920,
+      "seconds": 96.1825,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 96.1825,
+        "untilSeconds": 114.1825
+      },
+      "rowStart": {
+        "seconds": 96.1825,
+        "rage": 2,
+        "dragonRide": 2,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 4.565,
+          "dragonRoar": 0.9125,
+          "charge": 2.3025,
+          "dash": 0,
+          "orange": 9.8225
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 27.4075,
+            "rechargeQueueInSeconds": [
+              27.4075
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 8.2525,
+            "rechargeQueueInSeconds": [
+              8.2525,
+              42.2525
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 2,
+        "rageAfter": 1,
+        "dragonRideBefore": 2,
+        "dragonRideAfter": 1,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 97.4,
+        "rage": 1,
+        "dragonRide": 1,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 3.3475,
+          "dragonRoar": 0,
+          "charge": 1.085,
+          "dash": 0,
+          "orange": 8.605
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 26.19,
+            "rechargeQueueInSeconds": [
+              26.19,
+              56.19
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 7.035,
+            "rechargeQueueInSeconds": [
+              7.035,
+              41.035
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 16.7825,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 5,
+      "previousSameTypeGapSeconds": 24.4125,
+      "nextSameTypeGapSeconds": 31.5925,
+      "nearestByType": {
+        "thunder": null,
+        "orange": {
+          "anchorId": "orange-17",
+          "rowDelta": 9,
+          "secondsDelta": 10.9575
+        },
+        "ride": {
+          "anchorId": "ride-13",
+          "rowDelta": -21,
+          "secondsDelta": -25.5675
+        },
+        "dismount": {
+          "anchorId": "dismount-16",
+          "rowDelta": 2,
+          "secondsDelta": 2.435
+        }
+      },
+      "sequenceIndex": 14
+    },
+    {
+      "anchorId": "dismount-16",
+      "type": "dismount",
+      "rowIndex": 81,
+      "rowNumber": 82,
+      "placement": "prefix",
+      "tick": 1577880,
+      "seconds": 98.6175,
+      "reason": "free-search",
+      "activeWindow": {
+        "fromSeconds": null,
+        "untilSeconds": null
+      },
+      "rowStart": {
+        "seconds": 98.6175,
+        "rage": 0,
+        "dragonRide": 0,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 2.13,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 0,
+          "orange": 7.3875
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 24.9725,
+            "rechargeQueueInSeconds": [
+              24.9725,
+              54.9725
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 5.8175,
+            "rechargeQueueInSeconds": [
+              5.8175,
+              39.8175
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 15.565,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 0,
+        "rageAfter": 2,
+        "dragonRideBefore": 0,
+        "dragonRideAfter": 1,
+        "mountedBefore": true,
+        "mountedAfter": false,
+        "thunderActive": true,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 99.835,
+        "rage": 2,
+        "dragonRide": 1,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0.9125,
+          "dragonRoar": 0,
+          "charge": 21.7825,
+          "dash": 16.7825,
+          "orange": 6.17
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 23.755,
+            "rechargeQueueInSeconds": [
+              23.755,
+              53.755
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 4.6,
+            "rechargeQueueInSeconds": [
+              4.6,
+              38.6
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 14.3475,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 5,
+      "previousSameTypeGapSeconds": 35.3075,
+      "nextSameTypeGapSeconds": 46.265,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-15",
+          "rowDelta": -2,
+          "secondsDelta": -2.435
+        },
+        "orange": {
+          "anchorId": "orange-17",
+          "rowDelta": 7,
+          "secondsDelta": 8.5225
+        },
+        "ride": {
+          "anchorId": "ride-18",
+          "rowDelta": 23,
+          "secondsDelta": 28.0025
+        },
+        "dismount": null
+      },
+      "sequenceIndex": 15
+    },
+    {
+      "anchorId": "orange-17",
+      "type": "orange",
+      "rowIndex": 88,
+      "rowNumber": 89,
+      "placement": "prefix",
+      "tick": 1714240,
+      "seconds": 107.14,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 107.14,
+        "untilSeconds": 113.14
+      },
+      "rowStart": {
+        "seconds": 107.14,
+        "rage": 0,
+        "dragonRide": 6,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 14.4775,
+          "dash": 9.4775,
+          "orange": 0
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 16.45,
+            "rechargeQueueInSeconds": [
+              16.45,
+              46.45
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 31.295,
+            "rechargeQueueInSeconds": [
+              31.295
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 7.0425,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 1.9125
+        }
+      },
+      "eventState": {
+        "rageBefore": 0,
+        "rageAfter": 5,
+        "dragonRideBefore": 6,
+        "dragonRideAfter": 7,
+        "mountedBefore": false,
+        "mountedAfter": false,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 108.3575,
+        "rage": 5,
+        "dragonRide": 7,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 13.26,
+          "dash": 8.26,
+          "orange": 48.7825
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 15.2325,
+            "rechargeQueueInSeconds": [
+              15.2325,
+              45.2325
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 30.0775,
+            "rechargeQueueInSeconds": [
+              30.0775
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 5.825,
+          "orange": 4.7825,
+          "ride": 0,
+          "poLouLan": 0.695
+        }
+      },
+      "ordinal": 3,
+      "previousSameTypeGapSeconds": 51.135,
+      "nextSameTypeGapSeconds": 51.135,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-15",
+          "rowDelta": -9,
+          "secondsDelta": -10.9575
+        },
+        "orange": null,
+        "ride": {
+          "anchorId": "ride-18",
+          "rowDelta": 16,
+          "secondsDelta": 19.48
+        },
+        "dismount": {
+          "anchorId": "dismount-16",
+          "rowDelta": -7,
+          "secondsDelta": -8.5225
+        }
+      },
+      "sequenceIndex": 16
+    },
+    {
+      "anchorId": "ride-18",
+      "type": "ride",
+      "rowIndex": 104,
+      "rowNumber": 105,
+      "placement": "primary",
+      "tick": 2025920,
+      "seconds": 126.62,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 127.1825,
+        "untilSeconds": 142.1825
+      },
+      "rowStart": {
+        "seconds": 126.62,
+        "rage": 5,
+        "dragonRide": 16,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 3.3475,
+          "charge": 0,
+          "dash": 8.1975,
+          "orange": 30.52
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 26.97,
+            "rechargeQueueInSeconds": [
+              26.97
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 11.815,
+            "rechargeQueueInSeconds": [
+              11.815
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 6.7825
+        }
+      },
+      "eventState": {
+        "rageBefore": 5,
+        "rageAfter": 5,
+        "dragonRideBefore": 16,
+        "dragonRideAfter": 22,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 127.8375,
+        "rage": 5,
+        "dragonRide": 22,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 2.13,
+          "charge": 0,
+          "dash": 6.98,
+          "orange": 29.3025
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 25.7525,
+            "rechargeQueueInSeconds": [
+              25.7525,
+              55.7525
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.5975,
+            "rechargeQueueInSeconds": [
+              10.5975,
+              44.5975
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 5.565
+        }
+      },
+      "ordinal": 5,
+      "previousSameTypeGapSeconds": 56.005,
+      "nextSameTypeGapSeconds": 19.48,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-19",
+          "rowDelta": 0,
+          "secondsDelta": 1.155
+        },
+        "orange": {
+          "anchorId": "orange-17",
+          "rowDelta": -16,
+          "secondsDelta": -19.48
+        },
+        "ride": null,
+        "dismount": {
+          "anchorId": "dismount-20",
+          "rowDelta": 15,
+          "secondsDelta": 18.2625
+        }
+      },
+      "sequenceIndex": 17
+    },
+    {
+      "anchorId": "thunder-19",
+      "type": "thunder",
+      "rowIndex": 104,
+      "rowNumber": 105,
+      "placement": "tail",
+      "tick": 2044400,
+      "seconds": 127.775,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 127.775,
+        "untilSeconds": 145.775
+      },
+      "rowStart": {
+        "seconds": 126.62,
+        "rage": 5,
+        "dragonRide": 16,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 3.3475,
+          "charge": 0,
+          "dash": 8.1975,
+          "orange": 30.52
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 26.97,
+            "rechargeQueueInSeconds": [
+              26.97
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 11.815,
+            "rechargeQueueInSeconds": [
+              11.815
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 6.7825
+        }
+      },
+      "eventState": {
+        "rageBefore": 5,
+        "rageAfter": 5,
+        "dragonRideBefore": 22,
+        "dragonRideAfter": 22,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 127.8375,
+        "rage": 5,
+        "dragonRide": 22,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 2.13,
+          "charge": 0,
+          "dash": 6.98,
+          "orange": 29.3025
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 25.7525,
+            "rechargeQueueInSeconds": [
+              25.7525,
+              55.7525
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.5975,
+            "rechargeQueueInSeconds": [
+              10.5975,
+              44.5975
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 17.9375,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 5.565
+        }
+      },
+      "ordinal": 6,
+      "previousSameTypeGapSeconds": 31.5925,
+      "nextSameTypeGapSeconds": 26.8475,
+      "nearestByType": {
+        "thunder": null,
+        "orange": {
+          "anchorId": "orange-17",
+          "rowDelta": -16,
+          "secondsDelta": -20.635
+        },
+        "ride": {
+          "anchorId": "ride-18",
+          "rowDelta": 0,
+          "secondsDelta": -1.155
+        },
+        "dismount": {
+          "anchorId": "dismount-20",
+          "rowDelta": 15,
+          "secondsDelta": 17.1075
+        }
+      },
+      "sequenceIndex": 18
+    },
+    {
+      "anchorId": "dismount-20",
+      "type": "dismount",
+      "rowIndex": 119,
+      "rowNumber": 120,
+      "placement": "prefix",
+      "tick": 2318120,
+      "seconds": 144.8825,
+      "reason": "free-search",
+      "activeWindow": {
+        "fromSeconds": null,
+        "untilSeconds": null
+      },
+      "rowStart": {
+        "seconds": 144.8825,
+        "rage": 2,
+        "dragonRide": 10,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 14.4775,
+          "dash": 0,
+          "orange": 12.2575
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 8.7075,
+            "rechargeQueueInSeconds": [
+              8.7075,
+              38.7075
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 27.5525,
+            "rechargeQueueInSeconds": [
+              27.5525
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0.8925,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 3.13
+        }
+      },
+      "eventState": {
+        "rageBefore": 2,
+        "rageAfter": 1,
+        "dragonRideBefore": 10,
+        "dragonRideAfter": 11,
+        "mountedBefore": true,
+        "mountedAfter": false,
+        "thunderActive": true,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 146.1,
+        "rage": 1,
+        "dragonRide": 11,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 13.26,
+          "dash": 16.7825,
+          "orange": 11.04
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 7.49,
+            "rechargeQueueInSeconds": [
+              7.49,
+              37.49
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 26.335,
+            "rechargeQueueInSeconds": [
+              26.335
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 1.9125
+        }
+      },
+      "ordinal": 6,
+      "previousSameTypeGapSeconds": 46.265,
+      "nextSameTypeGapSeconds": 28.0025,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-22",
+          "rowDelta": 8,
+          "secondsDelta": 9.74
+        },
+        "orange": {
+          "anchorId": "orange-23",
+          "rowDelta": 11,
+          "secondsDelta": 13.3925
+        },
+        "ride": {
+          "anchorId": "ride-21",
+          "rowDelta": 1,
+          "secondsDelta": 1.2175
+        },
+        "dismount": null
+      },
+      "sequenceIndex": 19
+    },
+    {
+      "anchorId": "ride-21",
+      "type": "ride",
+      "rowIndex": 120,
+      "rowNumber": 121,
+      "placement": "primary",
+      "tick": 2337600,
+      "seconds": 146.1,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 146.6625,
+        "untilSeconds": 161.6625
+      },
+      "rowStart": {
+        "seconds": 146.1,
+        "rage": 1,
+        "dragonRide": 11,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 13.26,
+          "dash": 16.7825,
+          "orange": 11.04
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 7.49,
+            "rechargeQueueInSeconds": [
+              7.49,
+              37.49
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 26.335,
+            "rechargeQueueInSeconds": [
+              26.335
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 1.9125
+        }
+      },
+      "eventState": {
+        "rageBefore": 1,
+        "rageAfter": 4,
+        "dragonRideBefore": 11,
+        "dragonRideAfter": 17,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 147.3175,
+        "rage": 4,
+        "dragonRide": 17,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 22.9375,
+          "dash": 15.565,
+          "orange": 9.8225
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 6.2725,
+            "rechargeQueueInSeconds": [
+              6.2725,
+              36.2725
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 25.1175,
+            "rechargeQueueInSeconds": [
+              25.1175,
+              59.1175
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 0.695
+        }
+      },
+      "ordinal": 6,
+      "previousSameTypeGapSeconds": 19.48,
+      "nextSameTypeGapSeconds": 26.785,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-22",
+          "rowDelta": 7,
+          "secondsDelta": 8.5225
+        },
+        "orange": {
+          "anchorId": "orange-23",
+          "rowDelta": 10,
+          "secondsDelta": 12.175
+        },
+        "ride": null,
+        "dismount": {
+          "anchorId": "dismount-20",
+          "rowDelta": -1,
+          "secondsDelta": -1.2175
+        }
+      },
+      "sequenceIndex": 20
+    },
+    {
+      "anchorId": "thunder-22",
+      "type": "thunder",
+      "rowIndex": 127,
+      "rowNumber": 128,
+      "placement": "prefix",
+      "tick": 2473960,
+      "seconds": 154.6225,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 154.6225,
+        "untilSeconds": 172.6225
+      },
+      "rowStart": {
+        "seconds": 154.6225,
+        "rage": 3,
+        "dragonRide": 14,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 3.3475,
+          "charge": 15.6325,
+          "dash": 8.26,
+          "orange": 2.5175
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 28.9675,
+            "rechargeQueueInSeconds": [
+              28.9675
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 17.8125,
+            "rechargeQueueInSeconds": [
+              17.8125,
+              51.8125
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 7.04,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 3,
+        "rageAfter": 2,
+        "dragonRideBefore": 14,
+        "dragonRideAfter": 13,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": true
+      },
+      "rowEnd": {
+        "seconds": 155.84,
+        "rage": 2,
+        "dragonRide": 13,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 4.565,
+          "dragonRoar": 2.13,
+          "charge": 14.415,
+          "dash": 7.0425,
+          "orange": 1.3
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 27.75,
+            "rechargeQueueInSeconds": [
+              27.75,
+              57.75
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 16.595,
+            "rechargeQueueInSeconds": [
+              16.595,
+              50.595
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 16.7825,
+          "orange": 0,
+          "ride": 5.8225,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 7,
+      "previousSameTypeGapSeconds": 26.8475,
+      "nextSameTypeGapSeconds": null,
+      "nearestByType": {
+        "thunder": null,
+        "orange": {
+          "anchorId": "orange-23",
+          "rowDelta": 3,
+          "secondsDelta": 3.6525
+        },
+        "ride": {
+          "anchorId": "ride-21",
+          "rowDelta": -7,
+          "secondsDelta": -8.5225
+        },
+        "dismount": {
+          "anchorId": "dismount-20",
+          "rowDelta": -8,
+          "secondsDelta": -9.74
+        }
+      },
+      "sequenceIndex": 21
+    },
+    {
+      "anchorId": "orange-23",
+      "type": "orange",
+      "rowIndex": 130,
+      "rowNumber": 131,
+      "placement": "prefix",
+      "tick": 2532400,
+      "seconds": 158.275,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 158.275,
+        "untilSeconds": 164.275
+      },
+      "rowStart": {
+        "seconds": 158.275,
+        "rage": 0,
+        "dragonRide": 11,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 2.13,
+          "dragonRoar": 0,
+          "charge": 11.98,
+          "dash": 4.6075,
+          "orange": 0
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 25.315,
+            "rechargeQueueInSeconds": [
+              25.315,
+              55.315
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 14.16,
+            "rechargeQueueInSeconds": [
+              14.16,
+              48.16
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 14.3475,
+          "orange": 0,
+          "ride": 3.3875,
+          "poLouLan": 0
+        }
+      },
+      "eventState": {
+        "rageBefore": 0,
+        "rageAfter": 5,
+        "dragonRideBefore": 11,
+        "dragonRideAfter": 10,
+        "mountedBefore": true,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 159.4925,
+        "rage": 5,
+        "dragonRide": 10,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0.9125,
+          "dragonRoar": 0,
+          "charge": 10.7625,
+          "dash": 3.39,
+          "orange": 48.7825
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 24.0975,
+            "rechargeQueueInSeconds": [
+              24.0975,
+              54.0975
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 12.9425,
+            "rechargeQueueInSeconds": [
+              12.9425,
+              46.9425
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 13.13,
+          "orange": 4.7825,
+          "ride": 2.17,
+          "poLouLan": 0
+        }
+      },
+      "ordinal": 4,
+      "previousSameTypeGapSeconds": 51.135,
+      "nextSameTypeGapSeconds": null,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-22",
+          "rowDelta": -3,
+          "secondsDelta": -3.6525
+        },
+        "orange": null,
+        "ride": {
+          "anchorId": "ride-21",
+          "rowDelta": -10,
+          "secondsDelta": -12.175
+        },
+        "dismount": {
+          "anchorId": "dismount-20",
+          "rowDelta": -11,
+          "secondsDelta": -13.3925
+        }
+      },
+      "sequenceIndex": 22
+    },
+    {
+      "anchorId": "dismount-24",
+      "type": "dismount",
+      "rowIndex": 142,
+      "rowNumber": 143,
+      "placement": "prefix",
+      "tick": 2766160,
+      "seconds": 172.885,
+      "reason": "refresh-ride",
+      "activeWindow": {
+        "fromSeconds": null,
+        "untilSeconds": null
+      },
+      "rowStart": {
+        "seconds": 172.885,
+        "rage": 3,
+        "dragonRide": 0,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 20.565,
+          "dash": 0,
+          "orange": 35.39
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.705,
+            "rechargeQueueInSeconds": [
+              10.705,
+              40.705
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 33.55,
+            "rechargeQueueInSeconds": [
+              33.55
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 1.9125
+        }
+      },
+      "eventState": {
+        "rageBefore": 3,
+        "rageAfter": 5,
+        "dragonRideBefore": 0,
+        "dragonRideAfter": 6,
+        "mountedBefore": true,
+        "mountedAfter": false,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 174.1025,
+        "rage": 5,
+        "dragonRide": 6,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 22.9375,
+          "dash": 16.7825,
+          "orange": 34.1725
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 9.4875,
+            "rechargeQueueInSeconds": [
+              9.4875,
+              39.4875
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 32.3325,
+            "rechargeQueueInSeconds": [
+              32.3325,
+              66.3325
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 0.695
+        }
+      },
+      "ordinal": 7,
+      "previousSameTypeGapSeconds": 28.0025,
+      "nextSameTypeGapSeconds": null,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-22",
+          "rowDelta": -15,
+          "secondsDelta": -18.2625
+        },
+        "orange": {
+          "anchorId": "orange-23",
+          "rowDelta": -12,
+          "secondsDelta": -14.61
+        },
+        "ride": {
+          "anchorId": "ride-25",
+          "rowDelta": 0,
+          "secondsDelta": 0
+        },
+        "dismount": null
+      },
+      "sequenceIndex": 23
+    },
+    {
+      "anchorId": "ride-25",
+      "type": "ride",
+      "rowIndex": 142,
+      "rowNumber": 143,
+      "placement": "primary",
+      "tick": 2766160,
+      "seconds": 172.885,
+      "reason": null,
+      "activeWindow": {
+        "fromSeconds": 173.4475,
+        "untilSeconds": 188.4475
+      },
+      "rowStart": {
+        "seconds": 172.885,
+        "rage": 3,
+        "dragonRide": 0,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 20.565,
+          "dash": 0,
+          "orange": 35.39
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.705,
+            "rechargeQueueInSeconds": [
+              10.705,
+              40.705
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 33.55,
+            "rechargeQueueInSeconds": [
+              33.55
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 1.9125
+        }
+      },
+      "eventState": {
+        "rageBefore": 3,
+        "rageAfter": 5,
+        "dragonRideBefore": 0,
+        "dragonRideAfter": 6,
+        "mountedBefore": false,
+        "mountedAfter": true,
+        "thunderActive": false,
+        "orangeActive": false,
+        "rideActive": false
+      },
+      "rowEnd": {
+        "seconds": 174.1025,
+        "rage": 5,
+        "dragonRide": 6,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 22.9375,
+          "dash": 16.7825,
+          "orange": 34.1725
+        },
+        "charges": {
+          "thunder": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 9.4875,
+            "rechargeQueueInSeconds": [
+              9.4875,
+              39.4875
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 32.3325,
+            "rechargeQueueInSeconds": [
+              32.3325,
+              66.3325
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 14.345,
+          "poLouLan": 0.695
+        }
+      },
+      "ordinal": 7,
+      "previousSameTypeGapSeconds": 26.785,
+      "nextSameTypeGapSeconds": null,
+      "nearestByType": {
+        "thunder": {
+          "anchorId": "thunder-22",
+          "rowDelta": -15,
+          "secondsDelta": -18.2625
+        },
+        "orange": {
+          "anchorId": "orange-23",
+          "rowDelta": -12,
+          "secondsDelta": -14.61
+        },
+        "ride": null,
+        "dismount": {
+          "anchorId": "dismount-24",
+          "rowDelta": 0,
+          "secondsDelta": 0
+        }
+      },
+      "sequenceIndex": 24
+    }
+  ],
+  "byType": {
+    "thunder": [
+      {
+        "anchorId": "thunder-2",
+        "type": "thunder",
+        "rowIndex": 2,
+        "rowNumber": 3,
+        "placement": "tail",
+        "tick": 57440,
+        "seconds": 3.59,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 3.59,
+          "untilSeconds": 21.59
+        },
+        "rowStart": {
+          "seconds": 2.435,
+          "rage": 2,
+          "dragonRide": 1,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 17.9375,
+            "orange": 0
+          },
+          "charges": {
+            "thunder": {
+              "ready": 2,
+              "capacity": 2,
+              "nextReadyInSeconds": 0,
+              "rechargeQueueInSeconds": []
+            },
+            "ride": {
+              "ready": 2,
+              "capacity": 2,
+              "nextReadyInSeconds": 0,
+              "rechargeQueueInSeconds": []
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 5.565
+          }
+        },
+        "eventState": {
+          "rageBefore": 2,
+          "rageAfter": 5,
+          "dragonRideBefore": 7,
+          "dragonRideAfter": 7,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 3.6525,
+          "rage": 5,
+          "dragonRide": 7,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 16.72,
+            "orange": 49.9375
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 29.9375,
+              "rechargeQueueInSeconds": [
+                29.9375
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 32.7825,
+              "rechargeQueueInSeconds": [
+                32.7825
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 5.9375,
+            "ride": 14.345,
+            "poLouLan": 4.3475
+          }
+        },
+        "ordinal": 1,
+        "previousSameTypeGapSeconds": null,
+        "nextSameTypeGapSeconds": 20.6975,
+        "nearestByType": {
+          "thunder": null,
+          "orange": {
+            "anchorId": "orange-3",
+            "rowDelta": 0,
+            "secondsDelta": 0
+          },
+          "ride": {
+            "anchorId": "ride-1",
+            "rowDelta": 0,
+            "secondsDelta": -1.155
+          },
+          "dismount": {
+            "anchorId": "dismount-4",
+            "rowDelta": 17,
+            "secondsDelta": 19.5425
+          }
+        },
+        "sequenceIndex": 1
+      },
+      {
+        "anchorId": "thunder-6",
+        "type": "thunder",
+        "rowIndex": 19,
+        "rowNumber": 20,
+        "placement": "tail",
+        "tick": 388600,
+        "seconds": 24.2875,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 24.2875,
+          "untilSeconds": 42.2875
+        },
+        "rowStart": {
+          "seconds": 23.1325,
+          "rage": 4,
+          "dragonRide": 0,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 16.9125,
+            "dash": 0,
+            "orange": 30.4575
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 10.4575,
+              "rechargeQueueInSeconds": [
+                10.4575
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 13.3025,
+              "rechargeQueueInSeconds": [
+                13.3025
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 6.7825
+          }
+        },
+        "eventState": {
+          "rageBefore": 4,
+          "rageAfter": 4,
+          "dragonRideBefore": 6,
+          "dragonRideAfter": 6,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 24.35,
+          "rage": 4,
+          "dragonRide": 6,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 0,
+            "orange": 29.24
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 9.24,
+              "rechargeQueueInSeconds": [
+                9.24,
+                39.24
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 12.085,
+              "rechargeQueueInSeconds": [
+                12.085,
+                46.085
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 5.565
+          }
+        },
+        "ordinal": 2,
+        "previousSameTypeGapSeconds": 20.6975,
+        "nextSameTypeGapSeconds": 21.915,
+        "nearestByType": {
+          "thunder": null,
+          "orange": {
+            "anchorId": "orange-3",
+            "rowDelta": -17,
+            "secondsDelta": -20.6975
+          },
+          "ride": {
+            "anchorId": "ride-5",
+            "rowDelta": 0,
+            "secondsDelta": -1.155
+          },
+          "dismount": {
+            "anchorId": "dismount-4",
+            "rowDelta": 0,
+            "secondsDelta": -1.155
+          }
+        },
+        "sequenceIndex": 5
+      },
+      {
+        "anchorId": "thunder-10",
+        "type": "thunder",
+        "rowIndex": 37,
+        "rowNumber": 38,
+        "placement": "tail",
+        "tick": 739240,
+        "seconds": 46.2025,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 46.2025,
+          "untilSeconds": 64.2025
+        },
+        "rowStart": {
+          "seconds": 45.0475,
+          "rage": 5,
+          "dragonRide": 15,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 5.7825,
+            "dragonRoar": 0,
+            "charge": 4.7375,
+            "dash": 17.9375,
+            "orange": 8.5425
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 18.5425,
+              "rechargeQueueInSeconds": [
+                18.5425
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 25.3875,
+              "rechargeQueueInSeconds": [
+                25.3875
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 5,
+          "rageAfter": 5,
+          "dragonRideBefore": 21,
+          "dragonRideAfter": 21,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 46.265,
+          "rage": 5,
+          "dragonRide": 21,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 4.565,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 16.72,
+            "orange": 7.325
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 17.325,
+              "rechargeQueueInSeconds": [
+                17.325,
+                47.325
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 24.17,
+              "rechargeQueueInSeconds": [
+                24.17,
+                58.17
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 3,
+        "previousSameTypeGapSeconds": 21.915,
+        "nextSameTypeGapSeconds": 25.5675,
+        "nearestByType": {
+          "thunder": null,
+          "orange": {
+            "anchorId": "orange-11",
+            "rowDelta": 9,
+            "secondsDelta": 9.8025
+          },
+          "ride": {
+            "anchorId": "ride-9",
+            "rowDelta": 0,
+            "secondsDelta": -1.155
+          },
+          "dismount": {
+            "anchorId": "dismount-8",
+            "rowDelta": -13,
+            "secondsDelta": -16.9825
+          }
+        },
+        "sequenceIndex": 9
+      },
+      {
+        "anchorId": "thunder-14",
+        "type": "thunder",
+        "rowIndex": 58,
+        "rowNumber": 59,
+        "placement": "tail",
+        "tick": 1148320,
+        "seconds": 71.77,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 71.77,
+          "untilSeconds": 89.77
+        },
+        "rowStart": {
+          "seconds": 70.615,
+          "rage": 5,
+          "dragonRide": 11,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 5.7825,
+            "dragonRoar": 0.9125,
+            "charge": 2.3025,
+            "dash": 10.695,
+            "orange": 35.39
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 22.975,
+              "rechargeQueueInSeconds": [
+                22.975
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 33.82,
+              "rechargeQueueInSeconds": [
+                33.82
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 5,
+          "rageAfter": 5,
+          "dragonRideBefore": 17,
+          "dragonRideAfter": 17,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 71.8325,
+          "rage": 5,
+          "dragonRide": 17,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 4.565,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 9.4775,
+            "orange": 34.1725
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 21.7575,
+              "rechargeQueueInSeconds": [
+                21.7575,
+                51.7575
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 32.6025,
+              "rechargeQueueInSeconds": [
+                32.6025,
+                66.6025
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 4,
+        "previousSameTypeGapSeconds": 25.5675,
+        "nextSameTypeGapSeconds": 24.4125,
+        "nearestByType": {
+          "thunder": null,
+          "orange": {
+            "anchorId": "orange-11",
+            "rowDelta": -12,
+            "secondsDelta": -15.765
+          },
+          "ride": {
+            "anchorId": "ride-13",
+            "rowDelta": 0,
+            "secondsDelta": -1.155
+          },
+          "dismount": {
+            "anchorId": "dismount-12",
+            "rowDelta": -6,
+            "secondsDelta": -8.46
+          }
+        },
+        "sequenceIndex": 13
+      },
+      {
+        "anchorId": "thunder-15",
+        "type": "thunder",
+        "rowIndex": 79,
+        "rowNumber": 80,
+        "placement": "prefix",
+        "tick": 1538920,
+        "seconds": 96.1825,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 96.1825,
+          "untilSeconds": 114.1825
+        },
+        "rowStart": {
+          "seconds": 96.1825,
+          "rage": 2,
+          "dragonRide": 2,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 4.565,
+            "dragonRoar": 0.9125,
+            "charge": 2.3025,
+            "dash": 0,
+            "orange": 9.8225
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 27.4075,
+              "rechargeQueueInSeconds": [
+                27.4075
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 8.2525,
+              "rechargeQueueInSeconds": [
+                8.2525,
+                42.2525
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 2,
+          "rageAfter": 1,
+          "dragonRideBefore": 2,
+          "dragonRideAfter": 1,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 97.4,
+          "rage": 1,
+          "dragonRide": 1,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 3.3475,
+            "dragonRoar": 0,
+            "charge": 1.085,
+            "dash": 0,
+            "orange": 8.605
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 26.19,
+              "rechargeQueueInSeconds": [
+                26.19,
+                56.19
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 7.035,
+              "rechargeQueueInSeconds": [
+                7.035,
+                41.035
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 16.7825,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 5,
+        "previousSameTypeGapSeconds": 24.4125,
+        "nextSameTypeGapSeconds": 31.5925,
+        "nearestByType": {
+          "thunder": null,
+          "orange": {
+            "anchorId": "orange-17",
+            "rowDelta": 9,
+            "secondsDelta": 10.9575
+          },
+          "ride": {
+            "anchorId": "ride-13",
+            "rowDelta": -21,
+            "secondsDelta": -25.5675
+          },
+          "dismount": {
+            "anchorId": "dismount-16",
+            "rowDelta": 2,
+            "secondsDelta": 2.435
+          }
+        },
+        "sequenceIndex": 14
+      },
+      {
+        "anchorId": "thunder-19",
+        "type": "thunder",
+        "rowIndex": 104,
+        "rowNumber": 105,
+        "placement": "tail",
+        "tick": 2044400,
+        "seconds": 127.775,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 127.775,
+          "untilSeconds": 145.775
+        },
+        "rowStart": {
+          "seconds": 126.62,
+          "rage": 5,
+          "dragonRide": 16,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 3.3475,
+            "charge": 0,
+            "dash": 8.1975,
+            "orange": 30.52
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 26.97,
+              "rechargeQueueInSeconds": [
+                26.97
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 11.815,
+              "rechargeQueueInSeconds": [
+                11.815
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 6.7825
+          }
+        },
+        "eventState": {
+          "rageBefore": 5,
+          "rageAfter": 5,
+          "dragonRideBefore": 22,
+          "dragonRideAfter": 22,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 127.8375,
+          "rage": 5,
+          "dragonRide": 22,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 2.13,
+            "charge": 0,
+            "dash": 6.98,
+            "orange": 29.3025
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 25.7525,
+              "rechargeQueueInSeconds": [
+                25.7525,
+                55.7525
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 10.5975,
+              "rechargeQueueInSeconds": [
+                10.5975,
+                44.5975
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 5.565
+          }
+        },
+        "ordinal": 6,
+        "previousSameTypeGapSeconds": 31.5925,
+        "nextSameTypeGapSeconds": 26.8475,
+        "nearestByType": {
+          "thunder": null,
+          "orange": {
+            "anchorId": "orange-17",
+            "rowDelta": -16,
+            "secondsDelta": -20.635
+          },
+          "ride": {
+            "anchorId": "ride-18",
+            "rowDelta": 0,
+            "secondsDelta": -1.155
+          },
+          "dismount": {
+            "anchorId": "dismount-20",
+            "rowDelta": 15,
+            "secondsDelta": 17.1075
+          }
+        },
+        "sequenceIndex": 18
+      },
+      {
+        "anchorId": "thunder-22",
+        "type": "thunder",
+        "rowIndex": 127,
+        "rowNumber": 128,
+        "placement": "prefix",
+        "tick": 2473960,
+        "seconds": 154.6225,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 154.6225,
+          "untilSeconds": 172.6225
+        },
+        "rowStart": {
+          "seconds": 154.6225,
+          "rage": 3,
+          "dragonRide": 14,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 5.7825,
+            "dragonRoar": 3.3475,
+            "charge": 15.6325,
+            "dash": 8.26,
+            "orange": 2.5175
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 28.9675,
+              "rechargeQueueInSeconds": [
+                28.9675
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 17.8125,
+              "rechargeQueueInSeconds": [
+                17.8125,
+                51.8125
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 7.04,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 3,
+          "rageAfter": 2,
+          "dragonRideBefore": 14,
+          "dragonRideAfter": 13,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 155.84,
+          "rage": 2,
+          "dragonRide": 13,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 4.565,
+            "dragonRoar": 2.13,
+            "charge": 14.415,
+            "dash": 7.0425,
+            "orange": 1.3
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 27.75,
+              "rechargeQueueInSeconds": [
+                27.75,
+                57.75
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 16.595,
+              "rechargeQueueInSeconds": [
+                16.595,
+                50.595
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 16.7825,
+            "orange": 0,
+            "ride": 5.8225,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 7,
+        "previousSameTypeGapSeconds": 26.8475,
+        "nextSameTypeGapSeconds": null,
+        "nearestByType": {
+          "thunder": null,
+          "orange": {
+            "anchorId": "orange-23",
+            "rowDelta": 3,
+            "secondsDelta": 3.6525
+          },
+          "ride": {
+            "anchorId": "ride-21",
+            "rowDelta": -7,
+            "secondsDelta": -8.5225
+          },
+          "dismount": {
+            "anchorId": "dismount-20",
+            "rowDelta": -8,
+            "secondsDelta": -9.74
+          }
+        },
+        "sequenceIndex": 21
+      }
+    ],
+    "orange": [
+      {
+        "anchorId": "orange-3",
+        "type": "orange",
+        "rowIndex": 2,
+        "rowNumber": 3,
+        "placement": "tail",
+        "tick": 57440,
+        "seconds": 3.59,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 3.59,
+          "untilSeconds": 9.59
+        },
+        "rowStart": {
+          "seconds": 2.435,
+          "rage": 2,
+          "dragonRide": 1,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 17.9375,
+            "orange": 0
+          },
+          "charges": {
+            "thunder": {
+              "ready": 2,
+              "capacity": 2,
+              "nextReadyInSeconds": 0,
+              "rechargeQueueInSeconds": []
+            },
+            "ride": {
+              "ready": 2,
+              "capacity": 2,
+              "nextReadyInSeconds": 0,
+              "rechargeQueueInSeconds": []
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 5.565
+          }
+        },
+        "eventState": {
+          "rageBefore": 2,
+          "rageAfter": 5,
+          "dragonRideBefore": 1,
+          "dragonRideAfter": 7,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 3.6525,
+          "rage": 5,
+          "dragonRide": 7,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 16.72,
+            "orange": 49.9375
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 29.9375,
+              "rechargeQueueInSeconds": [
+                29.9375
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 32.7825,
+              "rechargeQueueInSeconds": [
+                32.7825
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 5.9375,
+            "ride": 14.345,
+            "poLouLan": 4.3475
+          }
+        },
+        "ordinal": 1,
+        "previousSameTypeGapSeconds": null,
+        "nextSameTypeGapSeconds": 52.415,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-2",
+            "rowDelta": 0,
+            "secondsDelta": 0
+          },
+          "orange": null,
+          "ride": {
+            "anchorId": "ride-1",
+            "rowDelta": 0,
+            "secondsDelta": -1.155
+          },
+          "dismount": {
+            "anchorId": "dismount-4",
+            "rowDelta": 17,
+            "secondsDelta": 19.5425
+          }
+        },
+        "sequenceIndex": 2
+      },
+      {
+        "anchorId": "orange-11",
+        "type": "orange",
+        "rowIndex": 46,
+        "rowNumber": 47,
+        "placement": "prefix",
+        "tick": 896080,
+        "seconds": 56.005,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 56.005,
+          "untilSeconds": 62.005
+        },
+        "rowStart": {
+          "seconds": 56.005,
+          "rage": 3,
+          "dragonRide": 14,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 16.9125,
+            "dash": 6.98,
+            "orange": 0
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 7.585,
+              "rechargeQueueInSeconds": [
+                7.585,
+                37.585
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 14.43,
+              "rechargeQueueInSeconds": [
+                14.43,
+                48.43
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 8.1975,
+            "orange": 0,
+            "ride": 4.605,
+            "poLouLan": 4.3475
+          }
+        },
+        "eventState": {
+          "rageBefore": 3,
+          "rageAfter": 5,
+          "dragonRideBefore": 14,
+          "dragonRideAfter": 13,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 57.2225,
+          "rage": 5,
+          "dragonRide": 13,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 15.695,
+            "dash": 5.7625,
+            "orange": 48.7825
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 6.3675,
+              "rechargeQueueInSeconds": [
+                6.3675,
+                36.3675
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 13.2125,
+              "rechargeQueueInSeconds": [
+                13.2125,
+                47.2125
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 6.98,
+            "orange": 4.7825,
+            "ride": 3.3875,
+            "poLouLan": 3.13
+          }
+        },
+        "ordinal": 2,
+        "previousSameTypeGapSeconds": 52.415,
+        "nextSameTypeGapSeconds": 51.135,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-10",
+            "rowDelta": -9,
+            "secondsDelta": -9.8025
+          },
+          "orange": null,
+          "ride": {
+            "anchorId": "ride-9",
+            "rowDelta": -9,
+            "secondsDelta": -10.9575
+          },
+          "dismount": {
+            "anchorId": "dismount-12",
+            "rowDelta": 6,
+            "secondsDelta": 7.305
+          }
+        },
+        "sequenceIndex": 10
+      },
+      {
+        "anchorId": "orange-17",
+        "type": "orange",
+        "rowIndex": 88,
+        "rowNumber": 89,
+        "placement": "prefix",
+        "tick": 1714240,
+        "seconds": 107.14,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 107.14,
+          "untilSeconds": 113.14
+        },
+        "rowStart": {
+          "seconds": 107.14,
+          "rage": 0,
+          "dragonRide": 6,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 14.4775,
+            "dash": 9.4775,
+            "orange": 0
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 16.45,
+              "rechargeQueueInSeconds": [
+                16.45,
+                46.45
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 31.295,
+              "rechargeQueueInSeconds": [
+                31.295
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 7.0425,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 1.9125
+          }
+        },
+        "eventState": {
+          "rageBefore": 0,
+          "rageAfter": 5,
+          "dragonRideBefore": 6,
+          "dragonRideAfter": 7,
+          "mountedBefore": false,
+          "mountedAfter": false,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 108.3575,
+          "rage": 5,
+          "dragonRide": 7,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 13.26,
+            "dash": 8.26,
+            "orange": 48.7825
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 15.2325,
+              "rechargeQueueInSeconds": [
+                15.2325,
+                45.2325
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 30.0775,
+              "rechargeQueueInSeconds": [
+                30.0775
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 5.825,
+            "orange": 4.7825,
+            "ride": 0,
+            "poLouLan": 0.695
+          }
+        },
+        "ordinal": 3,
+        "previousSameTypeGapSeconds": 51.135,
+        "nextSameTypeGapSeconds": 51.135,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-15",
+            "rowDelta": -9,
+            "secondsDelta": -10.9575
+          },
+          "orange": null,
+          "ride": {
+            "anchorId": "ride-18",
+            "rowDelta": 16,
+            "secondsDelta": 19.48
+          },
+          "dismount": {
+            "anchorId": "dismount-16",
+            "rowDelta": -7,
+            "secondsDelta": -8.5225
+          }
+        },
+        "sequenceIndex": 16
+      },
+      {
+        "anchorId": "orange-23",
+        "type": "orange",
+        "rowIndex": 130,
+        "rowNumber": 131,
+        "placement": "prefix",
+        "tick": 2532400,
+        "seconds": 158.275,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 158.275,
+          "untilSeconds": 164.275
+        },
+        "rowStart": {
+          "seconds": 158.275,
+          "rage": 0,
+          "dragonRide": 11,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 2.13,
+            "dragonRoar": 0,
+            "charge": 11.98,
+            "dash": 4.6075,
+            "orange": 0
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 25.315,
+              "rechargeQueueInSeconds": [
+                25.315,
+                55.315
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 14.16,
+              "rechargeQueueInSeconds": [
+                14.16,
+                48.16
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 14.3475,
+            "orange": 0,
+            "ride": 3.3875,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 0,
+          "rageAfter": 5,
+          "dragonRideBefore": 11,
+          "dragonRideAfter": 10,
+          "mountedBefore": true,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 159.4925,
+          "rage": 5,
+          "dragonRide": 10,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0.9125,
+            "dragonRoar": 0,
+            "charge": 10.7625,
+            "dash": 3.39,
+            "orange": 48.7825
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 24.0975,
+              "rechargeQueueInSeconds": [
+                24.0975,
+                54.0975
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 12.9425,
+              "rechargeQueueInSeconds": [
+                12.9425,
+                46.9425
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 13.13,
+            "orange": 4.7825,
+            "ride": 2.17,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 4,
+        "previousSameTypeGapSeconds": 51.135,
+        "nextSameTypeGapSeconds": null,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-22",
+            "rowDelta": -3,
+            "secondsDelta": -3.6525
+          },
+          "orange": null,
+          "ride": {
+            "anchorId": "ride-21",
+            "rowDelta": -10,
+            "secondsDelta": -12.175
+          },
+          "dismount": {
+            "anchorId": "dismount-20",
+            "rowDelta": -11,
+            "secondsDelta": -13.3925
+          }
+        },
+        "sequenceIndex": 22
+      }
+    ],
+    "ride": [
+      {
+        "anchorId": "ride-1",
+        "type": "ride",
+        "rowIndex": 2,
+        "rowNumber": 3,
+        "placement": "primary",
+        "tick": 38960,
+        "seconds": 2.435,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 2.9975,
+          "untilSeconds": 17.9975
+        },
+        "rowStart": {
+          "seconds": 2.435,
+          "rage": 2,
+          "dragonRide": 1,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 17.9375,
+            "orange": 0
+          },
+          "charges": {
+            "thunder": {
+              "ready": 2,
+              "capacity": 2,
+              "nextReadyInSeconds": 0,
+              "rechargeQueueInSeconds": []
+            },
+            "ride": {
+              "ready": 2,
+              "capacity": 2,
+              "nextReadyInSeconds": 0,
+              "rechargeQueueInSeconds": []
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 5.565
+          }
+        },
+        "eventState": {
+          "rageBefore": 2,
+          "rageAfter": 5,
+          "dragonRideBefore": 1,
+          "dragonRideAfter": 7,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 3.6525,
+          "rage": 5,
+          "dragonRide": 7,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 16.72,
+            "orange": 49.9375
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 29.9375,
+              "rechargeQueueInSeconds": [
+                29.9375
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 32.7825,
+              "rechargeQueueInSeconds": [
+                32.7825
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 5.9375,
+            "ride": 14.345,
+            "poLouLan": 4.3475
+          }
+        },
+        "ordinal": 1,
+        "previousSameTypeGapSeconds": null,
+        "nextSameTypeGapSeconds": 20.6975,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-2",
+            "rowDelta": 0,
+            "secondsDelta": 1.155
+          },
+          "orange": {
+            "anchorId": "orange-3",
+            "rowDelta": 0,
+            "secondsDelta": 1.155
+          },
+          "ride": null,
+          "dismount": {
+            "anchorId": "dismount-4",
+            "rowDelta": 17,
+            "secondsDelta": 20.6975
+          }
+        },
+        "sequenceIndex": 0
+      },
+      {
+        "anchorId": "ride-5",
+        "type": "ride",
+        "rowIndex": 19,
+        "rowNumber": 20,
+        "placement": "primary",
+        "tick": 370120,
+        "seconds": 23.1325,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 23.695,
+          "untilSeconds": 38.695
+        },
+        "rowStart": {
+          "seconds": 23.1325,
+          "rage": 4,
+          "dragonRide": 0,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 16.9125,
+            "dash": 0,
+            "orange": 30.4575
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 10.4575,
+              "rechargeQueueInSeconds": [
+                10.4575
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 13.3025,
+              "rechargeQueueInSeconds": [
+                13.3025
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 6.7825
+          }
+        },
+        "eventState": {
+          "rageBefore": 4,
+          "rageAfter": 4,
+          "dragonRideBefore": 0,
+          "dragonRideAfter": 6,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 24.35,
+          "rage": 4,
+          "dragonRide": 6,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 0,
+            "orange": 29.24
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 9.24,
+              "rechargeQueueInSeconds": [
+                9.24,
+                39.24
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 12.085,
+              "rechargeQueueInSeconds": [
+                12.085,
+                46.085
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 5.565
+          }
+        },
+        "ordinal": 2,
+        "previousSameTypeGapSeconds": 20.6975,
+        "nextSameTypeGapSeconds": 21.915,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-6",
+            "rowDelta": 0,
+            "secondsDelta": 1.155
+          },
+          "orange": {
+            "anchorId": "orange-3",
+            "rowDelta": -17,
+            "secondsDelta": -19.5425
+          },
+          "ride": null,
+          "dismount": {
+            "anchorId": "dismount-4",
+            "rowDelta": 0,
+            "secondsDelta": 0
+          }
+        },
+        "sequenceIndex": 4
+      },
+      {
+        "anchorId": "ride-9",
+        "type": "ride",
+        "rowIndex": 37,
+        "rowNumber": 38,
+        "placement": "primary",
+        "tick": 720760,
+        "seconds": 45.0475,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 45.61,
+          "untilSeconds": 60.61
+        },
+        "rowStart": {
+          "seconds": 45.0475,
+          "rage": 5,
+          "dragonRide": 15,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 5.7825,
+            "dragonRoar": 0,
+            "charge": 4.7375,
+            "dash": 17.9375,
+            "orange": 8.5425
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 18.5425,
+              "rechargeQueueInSeconds": [
+                18.5425
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 25.3875,
+              "rechargeQueueInSeconds": [
+                25.3875
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 5,
+          "rageAfter": 5,
+          "dragonRideBefore": 15,
+          "dragonRideAfter": 21,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 46.265,
+          "rage": 5,
+          "dragonRide": 21,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 4.565,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 16.72,
+            "orange": 7.325
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 17.325,
+              "rechargeQueueInSeconds": [
+                17.325,
+                47.325
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 24.17,
+              "rechargeQueueInSeconds": [
+                24.17,
+                58.17
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 3,
+        "previousSameTypeGapSeconds": 21.915,
+        "nextSameTypeGapSeconds": 25.5675,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-10",
+            "rowDelta": 0,
+            "secondsDelta": 1.155
+          },
+          "orange": {
+            "anchorId": "orange-11",
+            "rowDelta": 9,
+            "secondsDelta": 10.9575
+          },
+          "ride": null,
+          "dismount": {
+            "anchorId": "dismount-8",
+            "rowDelta": -13,
+            "secondsDelta": -15.8275
+          }
+        },
+        "sequenceIndex": 8
+      },
+      {
+        "anchorId": "ride-13",
+        "type": "ride",
+        "rowIndex": 58,
+        "rowNumber": 59,
+        "placement": "primary",
+        "tick": 1129840,
+        "seconds": 70.615,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 71.1775,
+          "untilSeconds": 86.1775
+        },
+        "rowStart": {
+          "seconds": 70.615,
+          "rage": 5,
+          "dragonRide": 11,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 5.7825,
+            "dragonRoar": 0.9125,
+            "charge": 2.3025,
+            "dash": 10.695,
+            "orange": 35.39
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 22.975,
+              "rechargeQueueInSeconds": [
+                22.975
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 33.82,
+              "rechargeQueueInSeconds": [
+                33.82
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 5,
+          "rageAfter": 5,
+          "dragonRideBefore": 11,
+          "dragonRideAfter": 17,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 71.8325,
+          "rage": 5,
+          "dragonRide": 17,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 4.565,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 9.4775,
+            "orange": 34.1725
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 21.7575,
+              "rechargeQueueInSeconds": [
+                21.7575,
+                51.7575
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 32.6025,
+              "rechargeQueueInSeconds": [
+                32.6025,
+                66.6025
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 4,
+        "previousSameTypeGapSeconds": 25.5675,
+        "nextSameTypeGapSeconds": 56.005,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-14",
+            "rowDelta": 0,
+            "secondsDelta": 1.155
+          },
+          "orange": {
+            "anchorId": "orange-11",
+            "rowDelta": -12,
+            "secondsDelta": -14.61
+          },
+          "ride": null,
+          "dismount": {
+            "anchorId": "dismount-12",
+            "rowDelta": -6,
+            "secondsDelta": -7.305
+          }
+        },
+        "sequenceIndex": 12
+      },
+      {
+        "anchorId": "ride-18",
+        "type": "ride",
+        "rowIndex": 104,
+        "rowNumber": 105,
+        "placement": "primary",
+        "tick": 2025920,
+        "seconds": 126.62,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 127.1825,
+          "untilSeconds": 142.1825
+        },
+        "rowStart": {
+          "seconds": 126.62,
+          "rage": 5,
+          "dragonRide": 16,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 3.3475,
+            "charge": 0,
+            "dash": 8.1975,
+            "orange": 30.52
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 26.97,
+              "rechargeQueueInSeconds": [
+                26.97
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 11.815,
+              "rechargeQueueInSeconds": [
+                11.815
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 6.7825
+          }
+        },
+        "eventState": {
+          "rageBefore": 5,
+          "rageAfter": 5,
+          "dragonRideBefore": 16,
+          "dragonRideAfter": 22,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 127.8375,
+          "rage": 5,
+          "dragonRide": 22,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 2.13,
+            "charge": 0,
+            "dash": 6.98,
+            "orange": 29.3025
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 25.7525,
+              "rechargeQueueInSeconds": [
+                25.7525,
+                55.7525
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 10.5975,
+              "rechargeQueueInSeconds": [
+                10.5975,
+                44.5975
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 5.565
+          }
+        },
+        "ordinal": 5,
+        "previousSameTypeGapSeconds": 56.005,
+        "nextSameTypeGapSeconds": 19.48,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-19",
+            "rowDelta": 0,
+            "secondsDelta": 1.155
+          },
+          "orange": {
+            "anchorId": "orange-17",
+            "rowDelta": -16,
+            "secondsDelta": -19.48
+          },
+          "ride": null,
+          "dismount": {
+            "anchorId": "dismount-20",
+            "rowDelta": 15,
+            "secondsDelta": 18.2625
+          }
+        },
+        "sequenceIndex": 17
+      },
+      {
+        "anchorId": "ride-21",
+        "type": "ride",
+        "rowIndex": 120,
+        "rowNumber": 121,
+        "placement": "primary",
+        "tick": 2337600,
+        "seconds": 146.1,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 146.6625,
+          "untilSeconds": 161.6625
+        },
+        "rowStart": {
+          "seconds": 146.1,
+          "rage": 1,
+          "dragonRide": 11,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 13.26,
+            "dash": 16.7825,
+            "orange": 11.04
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 7.49,
+              "rechargeQueueInSeconds": [
+                7.49,
+                37.49
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 26.335,
+              "rechargeQueueInSeconds": [
+                26.335
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 1.9125
+          }
+        },
+        "eventState": {
+          "rageBefore": 1,
+          "rageAfter": 4,
+          "dragonRideBefore": 11,
+          "dragonRideAfter": 17,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 147.3175,
+          "rage": 4,
+          "dragonRide": 17,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 22.9375,
+            "dash": 15.565,
+            "orange": 9.8225
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 6.2725,
+              "rechargeQueueInSeconds": [
+                6.2725,
+                36.2725
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 25.1175,
+              "rechargeQueueInSeconds": [
+                25.1175,
+                59.1175
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 0.695
+          }
+        },
+        "ordinal": 6,
+        "previousSameTypeGapSeconds": 19.48,
+        "nextSameTypeGapSeconds": 26.785,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-22",
+            "rowDelta": 7,
+            "secondsDelta": 8.5225
+          },
+          "orange": {
+            "anchorId": "orange-23",
+            "rowDelta": 10,
+            "secondsDelta": 12.175
+          },
+          "ride": null,
+          "dismount": {
+            "anchorId": "dismount-20",
+            "rowDelta": -1,
+            "secondsDelta": -1.2175
+          }
+        },
+        "sequenceIndex": 20
+      },
+      {
+        "anchorId": "ride-25",
+        "type": "ride",
+        "rowIndex": 142,
+        "rowNumber": 143,
+        "placement": "primary",
+        "tick": 2766160,
+        "seconds": 172.885,
+        "reason": null,
+        "activeWindow": {
+          "fromSeconds": 173.4475,
+          "untilSeconds": 188.4475
+        },
+        "rowStart": {
+          "seconds": 172.885,
+          "rage": 3,
+          "dragonRide": 0,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 20.565,
+            "dash": 0,
+            "orange": 35.39
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 10.705,
+              "rechargeQueueInSeconds": [
+                10.705,
+                40.705
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 33.55,
+              "rechargeQueueInSeconds": [
+                33.55
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 1.9125
+          }
+        },
+        "eventState": {
+          "rageBefore": 3,
+          "rageAfter": 5,
+          "dragonRideBefore": 0,
+          "dragonRideAfter": 6,
+          "mountedBefore": false,
+          "mountedAfter": true,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 174.1025,
+          "rage": 5,
+          "dragonRide": 6,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 22.9375,
+            "dash": 16.7825,
+            "orange": 34.1725
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 9.4875,
+              "rechargeQueueInSeconds": [
+                9.4875,
+                39.4875
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 32.3325,
+              "rechargeQueueInSeconds": [
+                32.3325,
+                66.3325
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 0.695
+          }
+        },
+        "ordinal": 7,
+        "previousSameTypeGapSeconds": 26.785,
+        "nextSameTypeGapSeconds": null,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-22",
+            "rowDelta": -15,
+            "secondsDelta": -18.2625
+          },
+          "orange": {
+            "anchorId": "orange-23",
+            "rowDelta": -12,
+            "secondsDelta": -14.61
+          },
+          "ride": null,
+          "dismount": {
+            "anchorId": "dismount-24",
+            "rowDelta": 0,
+            "secondsDelta": 0
+          }
+        },
+        "sequenceIndex": 24
+      }
+    ],
+    "dismount": [
+      {
+        "anchorId": "dismount-4",
+        "type": "dismount",
+        "rowIndex": 19,
+        "rowNumber": 20,
+        "placement": "prefix",
+        "tick": 370120,
+        "seconds": 23.1325,
+        "reason": "refresh-ride",
+        "activeWindow": {
+          "fromSeconds": null,
+          "untilSeconds": null
+        },
+        "rowStart": {
+          "seconds": 23.1325,
+          "rage": 4,
+          "dragonRide": 0,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 16.9125,
+            "dash": 0,
+            "orange": 30.4575
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 10.4575,
+              "rechargeQueueInSeconds": [
+                10.4575
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 13.3025,
+              "rechargeQueueInSeconds": [
+                13.3025
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 6.7825
+          }
+        },
+        "eventState": {
+          "rageBefore": 4,
+          "rageAfter": 4,
+          "dragonRideBefore": 0,
+          "dragonRideAfter": 6,
+          "mountedBefore": true,
+          "mountedAfter": false,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 24.35,
+          "rage": 4,
+          "dragonRide": 6,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 0,
+            "orange": 29.24
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 9.24,
+              "rechargeQueueInSeconds": [
+                9.24,
+                39.24
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 12.085,
+              "rechargeQueueInSeconds": [
+                12.085,
+                46.085
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 17.9375,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 5.565
+          }
+        },
+        "ordinal": 1,
+        "previousSameTypeGapSeconds": null,
+        "nextSameTypeGapSeconds": 3.6525,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-6",
+            "rowDelta": 0,
+            "secondsDelta": 1.155
+          },
+          "orange": {
+            "anchorId": "orange-3",
+            "rowDelta": -17,
+            "secondsDelta": -19.5425
+          },
+          "ride": {
+            "anchorId": "ride-5",
+            "rowDelta": 0,
+            "secondsDelta": 0
+          },
+          "dismount": null
+        },
+        "sequenceIndex": 3
+      },
+      {
+        "anchorId": "dismount-7",
+        "type": "dismount",
+        "rowIndex": 22,
+        "rowNumber": 23,
+        "placement": "prefix",
+        "tick": 428560,
+        "seconds": 26.785,
+        "reason": "free-search",
+        "activeWindow": {
+          "fromSeconds": null,
+          "untilSeconds": null
+        },
+        "rowStart": {
+          "seconds": 26.785,
+          "rage": 2,
+          "dragonRide": 4,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 0,
+            "orange": 26.805
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 6.805,
+              "rechargeQueueInSeconds": [
+                6.805,
+                36.805
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 9.65,
+              "rechargeQueueInSeconds": [
+                9.65,
+                43.65
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 15.5025,
+            "orange": 0,
+            "ride": 11.91,
+            "poLouLan": 3.13
+          }
+        },
+        "eventState": {
+          "rageBefore": 2,
+          "rageAfter": 4,
+          "dragonRideBefore": 4,
+          "dragonRideAfter": 5,
+          "mountedBefore": true,
+          "mountedAfter": false,
+          "thunderActive": true,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 28.0025,
+          "rage": 4,
+          "dragonRide": 5,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 21.7825,
+            "dash": 16.7825,
+            "orange": 25.5875
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 5.5875,
+              "rechargeQueueInSeconds": [
+                5.5875,
+                35.5875
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 8.4325,
+              "rechargeQueueInSeconds": [
+                8.4325,
+                42.4325
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 14.285,
+            "orange": 0,
+            "ride": 10.6925,
+            "poLouLan": 1.9125
+          }
+        },
+        "ordinal": 2,
+        "previousSameTypeGapSeconds": 3.6525,
+        "nextSameTypeGapSeconds": 2.435,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-6",
+            "rowDelta": -3,
+            "secondsDelta": -2.4975
+          },
+          "orange": {
+            "anchorId": "orange-3",
+            "rowDelta": -20,
+            "secondsDelta": -23.195
+          },
+          "ride": {
+            "anchorId": "ride-5",
+            "rowDelta": -3,
+            "secondsDelta": -3.6525
+          },
+          "dismount": null
+        },
+        "sequenceIndex": 6
+      },
+      {
+        "anchorId": "dismount-8",
+        "type": "dismount",
+        "rowIndex": 24,
+        "rowNumber": 25,
+        "placement": "prefix",
+        "tick": 467520,
+        "seconds": 29.22,
+        "reason": "free-search",
+        "activeWindow": {
+          "fromSeconds": null,
+          "untilSeconds": null
+        },
+        "rowStart": {
+          "seconds": 29.22,
+          "rage": 3,
+          "dragonRide": 6,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 20.565,
+            "dash": 15.565,
+            "orange": 24.37
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 4.37,
+              "rechargeQueueInSeconds": [
+                4.37,
+                34.37
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 7.215,
+              "rechargeQueueInSeconds": [
+                7.215,
+                41.215
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 13.0675,
+            "orange": 0,
+            "ride": 9.475,
+            "poLouLan": 0.695
+          }
+        },
+        "eventState": {
+          "rageBefore": 3,
+          "rageAfter": 2,
+          "dragonRideBefore": 6,
+          "dragonRideAfter": 7,
+          "mountedBefore": false,
+          "mountedAfter": false,
+          "thunderActive": true,
+          "orangeActive": false,
+          "rideActive": true
+        },
+        "rowEnd": {
+          "seconds": 30.4375,
+          "rage": 2,
+          "dragonRide": 7,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 19.3475,
+            "dash": 14.3475,
+            "orange": 23.1525
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 3.1525,
+              "rechargeQueueInSeconds": [
+                3.1525,
+                33.1525
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 5.9975,
+              "rechargeQueueInSeconds": [
+                5.9975,
+                39.9975
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 11.85,
+            "orange": 0,
+            "ride": 8.2575,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 3,
+        "previousSameTypeGapSeconds": 2.435,
+        "nextSameTypeGapSeconds": 34.09,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-6",
+            "rowDelta": -5,
+            "secondsDelta": -4.9325
+          },
+          "orange": {
+            "anchorId": "orange-3",
+            "rowDelta": -22,
+            "secondsDelta": -25.63
+          },
+          "ride": {
+            "anchorId": "ride-5",
+            "rowDelta": -5,
+            "secondsDelta": -6.0875
+          },
+          "dismount": null
+        },
+        "sequenceIndex": 7
+      },
+      {
+        "anchorId": "dismount-12",
+        "type": "dismount",
+        "rowIndex": 52,
+        "rowNumber": 53,
+        "placement": "prefix",
+        "tick": 1012960,
+        "seconds": 63.31,
+        "reason": "free-search",
+        "activeWindow": {
+          "fromSeconds": null,
+          "untilSeconds": null
+        },
+        "rowStart": {
+          "seconds": 63.31,
+          "rage": 4,
+          "dragonRide": 8,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 9.6075,
+            "dash": 0,
+            "orange": 42.695
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 0.28,
+              "rechargeQueueInSeconds": [
+                0.28,
+                30.28
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 7.125,
+              "rechargeQueueInSeconds": [
+                7.125,
+                41.125
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0.8925,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 4,
+          "rageAfter": 3,
+          "dragonRideBefore": 8,
+          "dragonRideAfter": 9,
+          "mountedBefore": true,
+          "mountedAfter": false,
+          "thunderActive": true,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 64.5275,
+          "rage": 3,
+          "dragonRide": 9,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 8.39,
+            "dash": 16.7825,
+            "orange": 41.4775
+          },
+          "charges": {
+            "thunder": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 29.0625,
+              "rechargeQueueInSeconds": [
+                29.0625
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 5.9075,
+              "rechargeQueueInSeconds": [
+                5.9075,
+                39.9075
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 4,
+        "previousSameTypeGapSeconds": 34.09,
+        "nextSameTypeGapSeconds": 35.3075,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-14",
+            "rowDelta": 6,
+            "secondsDelta": 8.46
+          },
+          "orange": {
+            "anchorId": "orange-11",
+            "rowDelta": -6,
+            "secondsDelta": -7.305
+          },
+          "ride": {
+            "anchorId": "ride-13",
+            "rowDelta": 6,
+            "secondsDelta": 7.305
+          },
+          "dismount": null
+        },
+        "sequenceIndex": 11
+      },
+      {
+        "anchorId": "dismount-16",
+        "type": "dismount",
+        "rowIndex": 81,
+        "rowNumber": 82,
+        "placement": "prefix",
+        "tick": 1577880,
+        "seconds": 98.6175,
+        "reason": "free-search",
+        "activeWindow": {
+          "fromSeconds": null,
+          "untilSeconds": null
+        },
+        "rowStart": {
+          "seconds": 98.6175,
+          "rage": 0,
+          "dragonRide": 0,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 2.13,
+            "dragonRoar": 0,
+            "charge": 0,
+            "dash": 0,
+            "orange": 7.3875
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 24.9725,
+              "rechargeQueueInSeconds": [
+                24.9725,
+                54.9725
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 5.8175,
+              "rechargeQueueInSeconds": [
+                5.8175,
+                39.8175
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 15.565,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "eventState": {
+          "rageBefore": 0,
+          "rageAfter": 2,
+          "dragonRideBefore": 0,
+          "dragonRideAfter": 1,
+          "mountedBefore": true,
+          "mountedAfter": false,
+          "thunderActive": true,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 99.835,
+          "rage": 2,
+          "dragonRide": 1,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0.9125,
+            "dragonRoar": 0,
+            "charge": 21.7825,
+            "dash": 16.7825,
+            "orange": 6.17
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 23.755,
+              "rechargeQueueInSeconds": [
+                23.755,
+                53.755
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 4.6,
+              "rechargeQueueInSeconds": [
+                4.6,
+                38.6
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 14.3475,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 0
+          }
+        },
+        "ordinal": 5,
+        "previousSameTypeGapSeconds": 35.3075,
+        "nextSameTypeGapSeconds": 46.265,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-15",
+            "rowDelta": -2,
+            "secondsDelta": -2.435
+          },
+          "orange": {
+            "anchorId": "orange-17",
+            "rowDelta": 7,
+            "secondsDelta": 8.5225
+          },
+          "ride": {
+            "anchorId": "ride-18",
+            "rowDelta": 23,
+            "secondsDelta": 28.0025
+          },
+          "dismount": null
+        },
+        "sequenceIndex": 15
+      },
+      {
+        "anchorId": "dismount-20",
+        "type": "dismount",
+        "rowIndex": 119,
+        "rowNumber": 120,
+        "placement": "prefix",
+        "tick": 2318120,
+        "seconds": 144.8825,
+        "reason": "free-search",
+        "activeWindow": {
+          "fromSeconds": null,
+          "untilSeconds": null
+        },
+        "rowStart": {
+          "seconds": 144.8825,
+          "rage": 2,
+          "dragonRide": 10,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 14.4775,
+            "dash": 0,
+            "orange": 12.2575
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 8.7075,
+              "rechargeQueueInSeconds": [
+                8.7075,
+                38.7075
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 27.5525,
+              "rechargeQueueInSeconds": [
+                27.5525
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0.8925,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 3.13
+          }
+        },
+        "eventState": {
+          "rageBefore": 2,
+          "rageAfter": 1,
+          "dragonRideBefore": 10,
+          "dragonRideAfter": 11,
+          "mountedBefore": true,
+          "mountedAfter": false,
+          "thunderActive": true,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 146.1,
+          "rage": 1,
+          "dragonRide": 11,
+          "mounted": false,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 13.26,
+            "dash": 16.7825,
+            "orange": 11.04
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 7.49,
+              "rechargeQueueInSeconds": [
+                7.49,
+                37.49
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 26.335,
+              "rechargeQueueInSeconds": [
+                26.335
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 1.9125
+          }
+        },
+        "ordinal": 6,
+        "previousSameTypeGapSeconds": 46.265,
+        "nextSameTypeGapSeconds": 28.0025,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-22",
+            "rowDelta": 8,
+            "secondsDelta": 9.74
+          },
+          "orange": {
+            "anchorId": "orange-23",
+            "rowDelta": 11,
+            "secondsDelta": 13.3925
+          },
+          "ride": {
+            "anchorId": "ride-21",
+            "rowDelta": 1,
+            "secondsDelta": 1.2175
+          },
+          "dismount": null
+        },
+        "sequenceIndex": 19
+      },
+      {
+        "anchorId": "dismount-24",
+        "type": "dismount",
+        "rowIndex": 142,
+        "rowNumber": 143,
+        "placement": "prefix",
+        "tick": 2766160,
+        "seconds": 172.885,
+        "reason": "refresh-ride",
+        "activeWindow": {
+          "fromSeconds": null,
+          "untilSeconds": null
+        },
+        "rowStart": {
+          "seconds": 172.885,
+          "rage": 3,
+          "dragonRide": 0,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 20.565,
+            "dash": 0,
+            "orange": 35.39
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 10.705,
+              "rechargeQueueInSeconds": [
+                10.705,
+                40.705
+              ]
+            },
+            "ride": {
+              "ready": 1,
+              "capacity": 2,
+              "nextReadyInSeconds": 33.55,
+              "rechargeQueueInSeconds": [
+                33.55
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 0,
+            "poLouLan": 1.9125
+          }
+        },
+        "eventState": {
+          "rageBefore": 3,
+          "rageAfter": 5,
+          "dragonRideBefore": 0,
+          "dragonRideAfter": 6,
+          "mountedBefore": true,
+          "mountedAfter": false,
+          "thunderActive": false,
+          "orangeActive": false,
+          "rideActive": false
+        },
+        "rowEnd": {
+          "seconds": 174.1025,
+          "rage": 5,
+          "dragonRide": 6,
+          "mounted": true,
+          "cooldownReadyInSeconds": {
+            "destroy": 0,
+            "dragonRoar": 0,
+            "charge": 22.9375,
+            "dash": 16.7825,
+            "orange": 34.1725
+          },
+          "charges": {
+            "thunder": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 9.4875,
+              "rechargeQueueInSeconds": [
+                9.4875,
+                39.4875
+              ]
+            },
+            "ride": {
+              "ready": 0,
+              "capacity": 2,
+              "nextReadyInSeconds": 32.3325,
+              "rechargeQueueInSeconds": [
+                32.3325,
+                66.3325
+              ]
+            }
+          },
+          "buffRemainingSeconds": {
+            "thunder": 0,
+            "orange": 0,
+            "ride": 14.345,
+            "poLouLan": 0.695
+          }
+        },
+        "ordinal": 7,
+        "previousSameTypeGapSeconds": 28.0025,
+        "nextSameTypeGapSeconds": null,
+        "nearestByType": {
+          "thunder": {
+            "anchorId": "thunder-22",
+            "rowDelta": -15,
+            "secondsDelta": -18.2625
+          },
+          "orange": {
+            "anchorId": "orange-23",
+            "rowDelta": -12,
+            "secondsDelta": -14.61
+          },
+          "ride": {
+            "anchorId": "ride-25",
+            "rowDelta": 0,
+            "secondsDelta": 0
+          },
+          "dismount": null
+        },
+        "sequenceIndex": 23
+      }
+    ]
+  },
+  "thunderSegments": [
+    {
+      "segment": 1,
+      "fromAnchorId": "thunder-2",
+      "startRow": 3,
+      "startSeconds": 3.59,
+      "endSeconds": 24.2875,
+      "thunderUntilSeconds": 21.59,
+      "startState": {
+        "seconds": 2.435,
+        "rage": 2,
+        "dragonRide": 1,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 0,
+          "dash": 17.9375,
+          "orange": 0
+        },
+        "charges": {
+          "thunder": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          },
+          "ride": {
+            "ready": 2,
+            "capacity": 2,
+            "nextReadyInSeconds": 0,
+            "rechargeQueueInSeconds": []
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 5.565
+        }
+      },
+      "pairedRideAnchorId": "ride-1",
+      "rideToThunderSeconds": 1.155,
+      "rideBuffToThunderSeconds": 0.5925,
+      "rideThunderOverlapSeconds": 14.4075,
+      "orangeAnchorIds": [
+        "orange-3"
+      ],
+      "orangeThunderOverlapSeconds": 6,
+      "dismountAnchorIds": [
+        "dismount-4"
+      ]
+    },
+    {
+      "segment": 2,
+      "fromAnchorId": "thunder-6",
+      "startRow": 20,
+      "startSeconds": 24.2875,
+      "endSeconds": 46.2025,
+      "thunderUntilSeconds": 42.2875,
+      "startState": {
+        "seconds": 23.1325,
+        "rage": 4,
+        "dragonRide": 0,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 0,
+          "charge": 16.9125,
+          "dash": 0,
+          "orange": 30.4575
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 10.4575,
+            "rechargeQueueInSeconds": [
+              10.4575
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 13.3025,
+            "rechargeQueueInSeconds": [
+              13.3025
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 6.7825
+        }
+      },
+      "pairedRideAnchorId": "ride-5",
+      "rideToThunderSeconds": 1.155,
+      "rideBuffToThunderSeconds": 0.5925,
+      "rideThunderOverlapSeconds": 14.4075,
+      "orangeAnchorIds": [],
+      "orangeThunderOverlapSeconds": 0,
+      "dismountAnchorIds": [
+        "dismount-7",
+        "dismount-8"
+      ]
+    },
+    {
+      "segment": 3,
+      "fromAnchorId": "thunder-10",
+      "startRow": 38,
+      "startSeconds": 46.2025,
+      "endSeconds": 71.77,
+      "thunderUntilSeconds": 64.2025,
+      "startState": {
+        "seconds": 45.0475,
+        "rage": 5,
+        "dragonRide": 15,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 0,
+          "charge": 4.7375,
+          "dash": 17.9375,
+          "orange": 8.5425
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 18.5425,
+            "rechargeQueueInSeconds": [
+              18.5425
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 25.3875,
+            "rechargeQueueInSeconds": [
+              25.3875
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "pairedRideAnchorId": "ride-9",
+      "rideToThunderSeconds": 1.155,
+      "rideBuffToThunderSeconds": 0.5925,
+      "rideThunderOverlapSeconds": 14.4075,
+      "orangeAnchorIds": [
+        "orange-11"
+      ],
+      "orangeThunderOverlapSeconds": 6,
+      "dismountAnchorIds": [
+        "dismount-12"
+      ]
+    },
+    {
+      "segment": 4,
+      "fromAnchorId": "thunder-14",
+      "startRow": 59,
+      "startSeconds": 71.77,
+      "endSeconds": 96.1825,
+      "thunderUntilSeconds": 89.77,
+      "startState": {
+        "seconds": 70.615,
+        "rage": 5,
+        "dragonRide": 11,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 0.9125,
+          "charge": 2.3025,
+          "dash": 10.695,
+          "orange": 35.39
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 22.975,
+            "rechargeQueueInSeconds": [
+              22.975
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 33.82,
+            "rechargeQueueInSeconds": [
+              33.82
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "pairedRideAnchorId": "ride-13",
+      "rideToThunderSeconds": 1.155,
+      "rideBuffToThunderSeconds": 0.5925,
+      "rideThunderOverlapSeconds": 14.4075,
+      "orangeAnchorIds": [],
+      "orangeThunderOverlapSeconds": 0,
+      "dismountAnchorIds": []
+    },
+    {
+      "segment": 5,
+      "fromAnchorId": "thunder-15",
+      "startRow": 80,
+      "startSeconds": 96.1825,
+      "endSeconds": 127.775,
+      "thunderUntilSeconds": 114.1825,
+      "startState": {
+        "seconds": 96.1825,
+        "rage": 2,
+        "dragonRide": 2,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 4.565,
+          "dragonRoar": 0.9125,
+          "charge": 2.3025,
+          "dash": 0,
+          "orange": 9.8225
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 27.4075,
+            "rechargeQueueInSeconds": [
+              27.4075
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 8.2525,
+            "rechargeQueueInSeconds": [
+              8.2525,
+              42.2525
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 0
+        }
+      },
+      "pairedRideAnchorId": "ride-13",
+      "rideToThunderSeconds": 25.5675,
+      "rideBuffToThunderSeconds": 25.005,
+      "rideThunderOverlapSeconds": 0,
+      "orangeAnchorIds": [
+        "orange-17"
+      ],
+      "orangeThunderOverlapSeconds": 6,
+      "dismountAnchorIds": [
+        "dismount-16"
+      ]
+    },
+    {
+      "segment": 6,
+      "fromAnchorId": "thunder-19",
+      "startRow": 105,
+      "startSeconds": 127.775,
+      "endSeconds": 154.6225,
+      "thunderUntilSeconds": 145.775,
+      "startState": {
+        "seconds": 126.62,
+        "rage": 5,
+        "dragonRide": 16,
+        "mounted": false,
+        "cooldownReadyInSeconds": {
+          "destroy": 0,
+          "dragonRoar": 3.3475,
+          "charge": 0,
+          "dash": 8.1975,
+          "orange": 30.52
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 26.97,
+            "rechargeQueueInSeconds": [
+              26.97
+            ]
+          },
+          "ride": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 11.815,
+            "rechargeQueueInSeconds": [
+              11.815
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 0,
+          "poLouLan": 6.7825
+        }
+      },
+      "pairedRideAnchorId": "ride-18",
+      "rideToThunderSeconds": 1.155,
+      "rideBuffToThunderSeconds": 0.5925,
+      "rideThunderOverlapSeconds": 14.4075,
+      "orangeAnchorIds": [],
+      "orangeThunderOverlapSeconds": 0,
+      "dismountAnchorIds": [
+        "dismount-20"
+      ]
+    },
+    {
+      "segment": 7,
+      "fromAnchorId": "thunder-22",
+      "startRow": 128,
+      "startSeconds": 154.6225,
+      "endSeconds": 180,
+      "thunderUntilSeconds": 172.6225,
+      "startState": {
+        "seconds": 154.6225,
+        "rage": 3,
+        "dragonRide": 14,
+        "mounted": true,
+        "cooldownReadyInSeconds": {
+          "destroy": 5.7825,
+          "dragonRoar": 3.3475,
+          "charge": 15.6325,
+          "dash": 8.26,
+          "orange": 2.5175
+        },
+        "charges": {
+          "thunder": {
+            "ready": 1,
+            "capacity": 2,
+            "nextReadyInSeconds": 28.9675,
+            "rechargeQueueInSeconds": [
+              28.9675
+            ]
+          },
+          "ride": {
+            "ready": 0,
+            "capacity": 2,
+            "nextReadyInSeconds": 17.8125,
+            "rechargeQueueInSeconds": [
+              17.8125,
+              51.8125
+            ]
+          }
+        },
+        "buffRemainingSeconds": {
+          "thunder": 0,
+          "orange": 0,
+          "ride": 7.04,
+          "poLouLan": 0
+        }
+      },
+      "pairedRideAnchorId": "ride-21",
+      "rideToThunderSeconds": 8.5225,
+      "rideBuffToThunderSeconds": 7.96,
+      "rideThunderOverlapSeconds": 7.04,
+      "orangeAnchorIds": [
+        "orange-23"
+      ],
+      "orangeThunderOverlapSeconds": 6,
+      "dismountAnchorIds": [
+        "dismount-24"
+      ]
+    }
+  ],
+  "source": "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-fast-segments-fast.json",
+  "sourceDamage": 2626268606.7553277
+}

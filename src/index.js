@@ -131,6 +131,10 @@ export {
 export { auditWhitepaperAxis } from "./reports/whitepaper-audit.js";
 export { analyzeLianyingStructure } from "./reports/lianying-structure-analysis.js";
 export {
+  extractLianyingAnchorTemplate,
+  lianyingAnchorTemplateToCsv,
+} from "./reports/lianying-anchor-template.js";
+export {
   compareDismountRidePersistence,
   lianyingRowsToActionPacks,
 } from "./reports/lianying-model-sensitivity.js";

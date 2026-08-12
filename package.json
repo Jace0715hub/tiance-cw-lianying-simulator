@@ -20,6 +20,7 @@
     "export:research": "node tools/export-lianying-research.mjs",
     "report:convergence": "node tools/report-lianying-convergence.mjs",
     "report:structure": "node tools/report-lianying-structure.mjs",
+    "report:anchors": "node tools/report-lianying-anchor-template.mjs",
     "optimize:seed": "node tools/optimize-lianying-seed.mjs",
     "optimize:segments": "node tools/optimize-lianying-segments.mjs",
     "optimize:multisegments": "node tools/optimize-lianying-multisegments.mjs",
