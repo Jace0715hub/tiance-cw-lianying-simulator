@@ -131,8 +131,10 @@ export {
   optimizeLianyingSeedCrossovers,
 } from "./policies/lianying-seed-crossover.js";
 export {
+  buildLianyingCrossScheduleBridgePlan,
   buildLianyingCrossoverJointSegment,
   lianyingCrossoverBridgeSegmentIndices,
+  optimizeLianyingCrossScheduleBridge,
   optimizeLianyingCrossoverBridge,
   optimizeLianyingCrossoverJointBridge,
 } from "./policies/lianying-crossover-bridge.js";

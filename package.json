@@ -42,6 +42,7 @@
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",
     "optimize:crossover": "node tools/optimize-lianying-seed-crossover.mjs",
     "optimize:crossover-bridge": "node tools/optimize-lianying-crossover-bridge.mjs",
+    "optimize:cross-schedule-bridge": "node tools/optimize-lianying-cross-schedule-bridge.mjs",
     "optimize:crossover-bridge-portfolio": "node tools/optimize-lianying-crossover-bridge-portfolio.mjs",
     "optimize:crossover-joint-bridge-portfolio": "node tools/optimize-lianying-crossover-bridge-portfolio.mjs - joint-screen",
     "optimize:joint-drift": "node tools/optimize-lianying-joint-drift.mjs",

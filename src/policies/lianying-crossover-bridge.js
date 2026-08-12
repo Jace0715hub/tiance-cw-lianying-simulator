@@ -3,7 +3,10 @@ import {
   optimizeLianyingSegmentResynthesis,
   stripLianyingDashPacks,
 } from "./lianying-segment-resynthesis.js";
-import { replayWhitepaperLianying } from "./whitepaper-lianying.js";
+import {
+  optimizeLianyingDashOverlay,
+  replayWhitepaperLianying,
+} from "./whitepaper-lianying.js";
 
 function clonePack(pack) {
   return {
@@ -124,6 +127,250 @@ export function buildLianyingCrossoverJointSegment(packs, anchorNumber) {
     crossoverThunderNumber: Number(anchorNumber),
     endThunderNumber: after.endThunderNumber,
     sourceSegmentIds: [before.id, after.id],
+  };
+}
+
+export function buildLianyingCrossScheduleBridgePlan(
+  incumbentAnchors,
+  alternateAnchors,
+  { thunderDriftRows = 0 } = {},
+) {
+  const incumbent = incumbentAnchors.map(Number);
+  const alternate = alternateAnchors.map(Number);
+  if (
+    incumbent.length !== alternate.length ||
+    incumbent.length < 3 ||
+    incumbent.some((row) => !Number.isInteger(row)) ||
+    alternate.some((row) => !Number.isInteger(row))
+  ) {
+    throw new Error("跨坐标桥接要求两条雷表等长且至少包含3次雷");
+  }
+  const differing = incumbent.flatMap((row, index) =>
+    row === alternate[index] ? [] : [index]);
+  if (differing.length === 0) {
+    throw new Error("跨坐标桥接要求两条雷表至少有一处不同");
+  }
+  const firstDifference = differing[0];
+  const lastDifference = differing.at(-1);
+  let previousCommon = firstDifference - 1;
+  while (
+    previousCommon >= 0 &&
+    incumbent[previousCommon] !== alternate[previousCommon]
+  ) previousCommon -= 1;
+  let nextCommon = lastDifference + 1;
+  while (
+    nextCommon < incumbent.length &&
+    incumbent[nextCommon] !== alternate[nextCommon]
+  ) nextCommon += 1;
+  if (previousCommon < 0 || nextCommon >= incumbent.length) {
+    throw new Error("跨坐标桥接需要在差异雷前后各有一个相同雷作为边界");
+  }
+  const drift = Math.max(0, Math.floor(Number(thunderDriftRows)));
+  const thunderPositionWindows = differing.map((anchorIndex) => {
+    const lowerBound = Math.max(
+      alternate[previousCommon] + 1,
+      Math.min(incumbent[anchorIndex], alternate[anchorIndex]) - drift,
+    );
+    const upperBound = Math.min(
+      alternate[nextCommon] - 1,
+      Math.max(incumbent[anchorIndex], alternate[anchorIndex]) + drift,
+    );
+    return {
+      anchorNumber: anchorIndex + 1,
+      sourceIndex: alternate[anchorIndex],
+      earliestIndex: lowerBound,
+      latestIndex: upperBound,
+    };
+  });
+  for (let index = 1; index < thunderPositionWindows.length; index += 1) {
+    if (
+      thunderPositionWindows[index - 1].latestIndex >=
+      thunderPositionWindows[index].earliestIndex
+    ) {
+      throw new Error("跨坐标桥接的雷窗口重叠，请缩小额外漂移范围");
+    }
+  }
+  return {
+    firstDifferingAnchorNumber: firstDifference + 1,
+    lastDifferingAnchorNumber: lastDifference + 1,
+    previousCommonAnchorNumber: previousCommon + 1,
+    nextCommonAnchorNumber: nextCommon + 1,
+    differingAnchorNumbers: differing.map((index) => index + 1),
+    incumbentAnchors: incumbent.map((row) => row + 1),
+    alternateAnchors: alternate.map((row) => row + 1),
+    segment: {
+      id: `cross-schedule-thunder-${previousCommon + 1}-to-${nextCommon + 1}`,
+      kind: "cross-schedule-bridge",
+      startIndex: alternate[previousCommon],
+      endIndex: alternate[nextCommon] + 1,
+      rowCount: alternate[nextCommon] + 1 - alternate[previousCommon],
+      startThunderNumber: previousCommon + 1,
+      endThunderNumber: nextCommon + 1,
+    },
+    thunderPositionWindows,
+    thunderDriftRows: drift,
+  };
+}
+
+export function optimizeLianyingCrossScheduleBridge(
+  runtime,
+  incumbentPacks,
+  alternatePacks,
+  {
+    durationSeconds = 180,
+    maxPasses = 1,
+    beamWidth = 32,
+    finalistCount = 8,
+    coarseCandidateLimit = 8,
+    coarseDashStates = 16,
+    finalDashCandidateCount = 2,
+    fullDashStates = 128,
+    boundaryPaddingRows = 6,
+    thunderDriftRows = 0,
+    preserveNovelStructure = true,
+    additionalWarmAxes = [],
+    adaptiveSuffixRepair = false,
+    adaptiveSuffixMaxExpansions = 1,
+    adaptiveSuffixLookaheadRows = 4,
+    adaptiveSuffixMaximumAddedRows = 12,
+    adaptiveSuffixFailureChainLimit = 2,
+    adaptiveSuffixDirectedRepairLimit = 4,
+    onProgress = null,
+  } = {},
+) {
+  const incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
+    durationSeconds,
+  });
+  const alternate = replayWhitepaperLianying(runtime, alternatePacks, {
+    durationSeconds,
+  });
+  const incumbentCore = stripLianyingDashPacks(incumbentPacks);
+  const alternateCore = stripLianyingDashPacks(alternatePacks);
+  const incumbentAnchors = identifyLianyingThunderSegments(incumbentCore).anchors;
+  const alternateAnchors = identifyLianyingThunderSegments(alternateCore).anchors;
+  const plan = buildLianyingCrossScheduleBridgePlan(
+    incumbentAnchors,
+    alternateAnchors,
+    { thunderDriftRows },
+  );
+  const optimized = optimizeLianyingSegmentResynthesis(
+    runtime,
+    incumbentPacks,
+    {
+      durationSeconds,
+      maxPasses,
+      beamWidth,
+      finalistCount,
+      coarseCandidateLimit,
+      coarseDashStates,
+      finalDashCandidateCount,
+      fullDashStates,
+      boundaryPaddingRows,
+      segmentRanges: [plan.segment],
+      preserveThunderPositions: true,
+      thunderPositionWindows: plan.thunderPositionWindows,
+      additionalWarmAxes: [alternatePacks, ...additionalWarmAxes],
+      adaptiveSuffixRepair,
+      adaptiveSuffixMaxExpansions,
+      adaptiveSuffixLookaheadRows,
+      adaptiveSuffixMaximumAddedRows,
+      adaptiveSuffixPreferDriftedLineages: true,
+      adaptiveSuffixFailureChainLimit,
+      adaptiveSuffixDirectedRepairLimit,
+      excludedCorePackKeys: preserveNovelStructure
+        ? [JSON.stringify(incumbentCore)]
+        : [],
+      collectDiverseCandidates: true,
+      diverseCandidateLimit: Math.max(8, coarseCandidateLimit * 2),
+      diverseCandidateMaximumLossRatio: 0.05,
+      onProgress,
+    },
+  );
+  const incumbentAnchorKey = JSON.stringify(
+    incumbentAnchors.map((row) => row + 1),
+  );
+  const structuralCoreBySchedule = new Map();
+  for (const candidate of optimized.diverseCandidates) {
+    const anchorRows = identifyLianyingThunderSegments(candidate.packs).anchors.map(
+      (row) => row + 1);
+    const key = JSON.stringify(anchorRows);
+    if (key === incumbentAnchorKey) continue;
+    const current = structuralCoreBySchedule.get(key);
+    if (!current || candidate.coreDamage > current.coreDamage) {
+      structuralCoreBySchedule.set(key, { ...candidate, anchorRows });
+    }
+  }
+  const structuralCoarse = [...structuralCoreBySchedule.values()].map(
+    (candidate) => {
+      const dash = optimizeLianyingDashOverlay(runtime, candidate.packs, {
+        durationSeconds,
+        maxStatesPerRow: coarseDashStates,
+      });
+      return {
+        ...candidate,
+        packs: dash.packs,
+        state: dash.state,
+        totalDamage: dash.state.totalDamage,
+        dashCount: dash.dashCount,
+      };
+    },
+  ).sort((left, right) => right.totalDamage - left.totalDamage);
+  const structuralFinalists = structuralCoarse
+    .slice(0, Math.max(1, finalDashCandidateCount))
+    .map((candidate) => {
+      const dash = optimizeLianyingDashOverlay(
+        runtime,
+        stripLianyingDashPacks(candidate.packs),
+        { durationSeconds, maxStatesPerRow: fullDashStates },
+      );
+      return {
+        ...candidate,
+        packs: dash.packs,
+        state: dash.state,
+        totalDamage: dash.state.totalDamage,
+        dashCount: dash.dashCount,
+      };
+    })
+    .sort((left, right) => right.totalDamage - left.totalDamage);
+  const bestStructuralAlternative = structuralFinalists[0] ?? {
+    packs: alternatePacks.map(clonePack),
+    state: alternate.state,
+    totalDamage: alternate.state.totalDamage,
+    anchorRows: alternateAnchors.map((row) => row + 1),
+    dashCount: alternate.state.timeline.filter(
+      (event) => event.type === "offGcd" && event.action === "dash",
+    ).length,
+  };
+  const accepted = optimized.state.totalDamage > incumbent.state.totalDamage;
+  return {
+    packs: accepted ? optimized.packs : incumbentPacks.map(clonePack),
+    state: accepted ? optimized.state : incumbent.state,
+    accepted,
+    baselineDamage: incumbent.state.totalDamage,
+    alternateDamage: alternate.state.totalDamage,
+    bridgedDamage: optimized.state.totalDamage,
+    bridgeDamageGain: optimized.state.totalDamage - alternate.state.totalDamage,
+    globalDamageGain: optimized.state.totalDamage - incumbent.state.totalDamage,
+    candidatePacks: bestStructuralAlternative.packs,
+    candidateState: bestStructuralAlternative.state,
+    structuralBridgedDamage: bestStructuralAlternative.totalDamage,
+    structuralBridgeDamageGain:
+      bestStructuralAlternative.totalDamage - alternate.state.totalDamage,
+    structuralGlobalDamageGain:
+      bestStructuralAlternative.totalDamage - incumbent.state.totalDamage,
+    structuralAnchorRows: bestStructuralAlternative.anchorRows,
+    structuralFinalists: structuralFinalists.map((candidate) => ({
+      anchorRows: candidate.anchorRows,
+      totalDamage: candidate.totalDamage,
+      dashCount: candidate.dashCount,
+      coreDamageLoss: candidate.coreDamageLoss,
+      structuralDistanceFromReference:
+        candidate.structuralDistanceFromReference,
+    })),
+    adaptiveSuffixRepair,
+    plan,
+    preserveNovelStructure,
+    resynthesis: optimized,
   };
 }
 

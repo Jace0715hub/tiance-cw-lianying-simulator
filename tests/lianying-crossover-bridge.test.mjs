@@ -2,11 +2,35 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
+  buildLianyingCrossScheduleBridgePlan,
   buildLianyingCrossoverJointSegment,
   lianyingCrossoverBridgeSegmentIndices,
   optimizeLianyingCrossoverBridge,
   optimizeLianyingCrossoverJointBridge,
 } from "../src/policies/lianying-crossover-bridge.js";
+
+test("跨雷坐标桥接只覆盖首个差异到重新会合的有界区段", () => {
+  const plan = buildLianyingCrossScheduleBridgePlan(
+    [2, 19, 37, 58, 78, 106, 127],
+    [2, 19, 37, 58, 80, 108, 127],
+  );
+  assert.equal(plan.previousCommonAnchorNumber, 4);
+  assert.equal(plan.nextCommonAnchorNumber, 7);
+  assert.deepEqual(plan.differingAnchorNumbers, [5, 6]);
+  assert.deepEqual(plan.segment, {
+    id: "cross-schedule-thunder-4-to-7",
+    kind: "cross-schedule-bridge",
+    startIndex: 58,
+    endIndex: 128,
+    rowCount: 70,
+    startThunderNumber: 4,
+    endThunderNumber: 7,
+  });
+  assert.deepEqual(plan.thunderPositionWindows, [
+    { anchorNumber: 5, sourceIndex: 80, earliestIndex: 78, latestIndex: 80 },
+    { anchorNumber: 6, sourceIndex: 108, earliestIndex: 106, latestIndex: 108 },
+  ]);
+});
 import {
   replayWhitepaperLianying,
   searchWhitepaperLianying,
