@@ -300,6 +300,52 @@ test("联合区段价值探针同时记录参考后缀和真实跨区段后代",
   assert.equal(optimized.options.valueProbeNextSegmentBeamWidth, 2);
 });
 
+test("两段价值探针跨过第二个雷边界且尾部自动缩短视野", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 60,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const optimized = optimizeLianyingMultiSegmentResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 60,
+      rowBeamWidth: 4,
+      boundaryBeamWidth: 2,
+      coreFinalistCount: 2,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+      collectValueTrainingData: true,
+      valueProbeMaximumBaselineRank: 4,
+      valueProbeRowStride: 4,
+      valueProbeNextSegmentBeamWidth: 2,
+      valueProbeSegmentHorizon: 2,
+    },
+  );
+
+  const horizonRows = optimized.valueTraining.rows.filter(
+    (row) => row.labelKind === "actual-segment-horizon");
+  const tailRows = optimized.valueTraining.rows.filter(
+    (row) => row.labelKind === "actual-next-segment");
+  assert.ok(horizonRows.length > 0);
+  assert.ok(tailRows.length > 0);
+  assert.ok(horizonRows.every((row) =>
+    row.probeSegmentHorizon === 2 &&
+    row.probeSegmentCount === 2 &&
+    row.probeEndRow > row.globalRow));
+  assert.ok(tailRows.every((row) =>
+    row.probeSegmentHorizon === 2 && row.probeSegmentCount === 1));
+  assert.equal(
+    optimized.valueTraining.summary.boundarySegmentHorizonRows,
+    horizonRows.length,
+  );
+  assert.equal(optimized.options.valueProbeSegmentHorizon, 2);
+});
+
 test("边界专用价值策略只在雷边界引入影子并在区段内机械传播", () => {
   const runtime = loadDefaultGearRuntime({ executePhase: true });
   const seed = searchWhitepaperLianying(runtime, {
@@ -342,6 +388,14 @@ test("边界专用价值策略只在雷边界引入影子并在区段内机械�
   assert.equal(optimized.valueShadowRowIntroductions, 0);
   assert.ok(optimized.valueShadowBoundarySelections > 0);
   assert.ok(optimized.valueShadowRowPropagations > 0);
+  const diagnostics = optimized.segments.flatMap(
+    (segment) => segment.valueShadowDiagnostics);
+  assert.ok(diagnostics.length > 0);
+  assert.ok(diagnostics.every((entry) =>
+    entry.baselineRank >= 1 &&
+    Number.isFinite(entry.totalDamage) &&
+    Number.isFinite(entry.predictedValue) &&
+    Number.isFinite(entry.valueScore)));
   assert.deepEqual(
     optimized.options.valueShadowPolicy.applicationStages,
     ["boundary"],

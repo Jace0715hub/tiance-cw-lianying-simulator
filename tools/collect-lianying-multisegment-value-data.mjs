@@ -67,6 +67,32 @@ const profiles = {
     valueProbeRowStride: 4,
     valueProbeNextSegmentBeamWidth: 2,
   },
+  "horizon-sample": {
+    rowBeamWidth: 12,
+    boundaryBeamWidth: 6,
+    coreFinalistCount: 6,
+    coarseCandidateLimit: 2,
+    coarseDashStates: 4,
+    finalDashCandidateCount: 1,
+    fullDashStates: 4,
+    valueProbeMaximumBaselineRank: 16,
+    valueProbeRowStride: 8,
+    valueProbeNextSegmentBeamWidth: 2,
+    valueProbeSegmentHorizon: 2,
+  },
+  "horizon-screen": {
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 1,
+    fullDashStates: 64,
+    valueProbeMaximumBaselineRank: 24,
+    valueProbeRowStride: 4,
+    valueProbeNextSegmentBeamWidth: 2,
+    valueProbeSegmentHorizon: 2,
+  },
   balanced: {
     rowBeamWidth: 48,
     boundaryBeamWidth: 24,
@@ -81,7 +107,9 @@ const profiles = {
   },
 };
 if (!profiles[profileName]) {
-  throw new Error("联合区段状态价值数据档位必须是sample、screen或balanced");
+  throw new Error(
+    "联合区段状态价值数据档位必须是sample、screen、horizon-sample、horizon-screen或balanced",
+  );
 }
 
 function loadAxis(inputPath) {
@@ -172,7 +200,8 @@ const rows = addLianyingValueCenteredTargets(
 );
 const referenceRows = rows.filter((row) => row.labelKind === "reference-suffix");
 const actualRows = rows.filter((row) =>
-  row.labelKind === "actual-next-segment");
+  row.labelKind === "actual-next-segment" ||
+  row.labelKind === "actual-segment-horizon");
 const fullDescendantRows = rows.filter((row) =>
   row.labelKind === "actual-full-descendant");
 const firstParsed = path.parse(inputPaths[0]);
@@ -212,6 +241,8 @@ const summary = {
       (sum, source) => sum + source.boundaryActualRows, 0),
     boundaryNextSegmentRows: sources.reduce(
       (sum, source) => sum + source.boundaryNextSegmentRows, 0),
+    boundarySegmentHorizonRows: sources.reduce(
+      (sum, source) => sum + source.boundarySegmentHorizonRows, 0),
     boundaryFullDescendantRows: sources.reduce(
       (sum, source) => sum + source.boundaryFullDescendantRows, 0),
     boundaryNextSegmentProbeAttempts: sources.reduce(

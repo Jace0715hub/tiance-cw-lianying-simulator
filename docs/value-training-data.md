@@ -17,6 +17,8 @@ npm run collect:multisegment-value-data -- current sample
 npm run collect:multisegment-value-data -- portfolio sample output/lianying-multisegment-value-portfolio-sample
 npm run evaluate:value-model -- output/lianying-multisegment-value-portfolio-sample-actual.jsonl output/lianying-multisegment-value-portfolio-sample-actual-ridge beam-shadow
 npm run evaluate:value-model -- output/lianying-multisegment-value-portfolio-screen-actual.jsonl output/lianying-multisegment-value-portfolio-screen-actual-ridge boundary-shadow
+npm run collect:multisegment-value-data -- portfolio horizon-sample output/lianying-multisegment-value-portfolio-horizon-sample
+npm run evaluate:value-model -- output/lianying-multisegment-value-portfolio-horizon-sample-actual.jsonl output/lianying-multisegment-value-portfolio-horizon-sample-actual-ridge boundary-shadow-sample
 ```
 
 参数一为技能轴路径，`-`表示当前180秒最优轴，`portfolio`表示状态价值专用的八条结构跨度种子，也可传逗号分隔的自定义轴或近优种子清单；参数二为`sample`、`screen`或`pruning-screen`；参数三可指定输出文件前缀。多种子数据按完整来源轴划分，单轴数据按轨迹划分。命令输出：
@@ -32,6 +34,8 @@ npm run evaluate:value-model -- output/lianying-multisegment-value-portfolio-scr
 ### 联合区段专用探针
 
 `collect:multisegment-value-data`复用同一特征、残差和来源轴隔离规则，但标签与单区段决赛祖先不同。`sample`使用逐行束12、边界束6，每8行探测即时伤害前16名；`screen`使用逐行束32、边界束12，每4行探测前32名。所有额外工作只在`collectValueTrainingData`显式开启时发生，不进入正式联合搜索候选。
+
+`horizon-sample`沿用sample正式束，并从每个边界继续搜索最多两个完整雷区段；`horizon-screen`使用逐行束32、边界束12，逐行参考后缀只抽取前24名，边界实际标签仍覆盖剪枝前全部32个状态，在线策略再用前24名门控控制探索范围。每个被探测区段都会重新执行“首行必须有雷、其余行不得重复雷”的锚点约束。若战斗尾部只剩一个区段，视野自动缩短为该剩余区段，并通过`probeSegmentCount`明确记录，不填充虚构的第二段收益。
 
 该命令同时生成四套文件：
 
@@ -49,6 +53,12 @@ screen的正式边界束为12，因此离线评估必须使用`boundary-shadow`�
 八来源轴screen共执行299,672/227,417次正式展开/合法转移，以及522,296/351,374次只读下一段探针；总文件4,347条，`*-actual`含1,536条记录，对应48个边界决策组。逐轴外层留出结果为：原12槽基础选择器召回66.67%、平均遗憾2,986,505；追加纯伤害影子后为66.67%和2,949,219；追加线性价值影子后为95.83%和238,055。模型相对纯伤害影子在8/8个来源改善，因此生成的`boundary-shadow`策略允许显式在线加载。
 
 在线阶段严格按训练分布应用：只在雷区段边界引入价值影子，区段逐行束仅传播该谱系。当前180秒screen中价值影子贯穿7个边界，最终核心仍低基础8,908,417伤害；同成本纯伤害影子低7,899,407，反而更接近基线。结论是“一段最佳收益”标签能准确改善下一段选择，却不足以代表180秒终局价值。下一版数据将把实际探针视野扩为两个雷区段，并在战斗尾部使用剩余全轴视野；现有一段策略继续保留为可复现实验，不设为默认搜索。
+
+两段视野现已完成两档验证。`horizon-sample`产生480条两段与96条尾部单段标签；实际6槽基础束召回89.58%，价值影子在逐来源留出中未改善，策略保持禁用。`horizon-screen`产生1,280条两段与256条尾部单段标签，探针全部合法；在真实12槽基础束外追加同成本影子时，纯伤害/价值召回为52.08%/77.08%，平均遗憾为10,598,083/7,895,825，8/8来源改善并允许显式在线加载。
+
+离线通过仍不等于终局增伤。两段模型在线最终影子核心低基础8,908,417，与一段模型相同；边界诊断显示它在首两段选择即时伤害第20名，纯伤害影子则为第7/10名，最终后者只低7,899,407。权重0.25–1、最大名次16/24的保守消融都会收敛到同一价值影子核心。因此下一实验不再扩大标签视野，而是用两个独立影子槽同时保留纯伤害和价值谱系，并以两个纯伤害影子作为等预算基线。
+
+在线输出的每个`segments[].valueShadowDiagnostics`记录影子状态键、谱系、即时伤害名次、模型预测、混合分数和关键资源摘要，可用于判断价值收益是否偿还了即时伤害债务；诊断不参与候选选择或最终结算。
 
 ## 节点与标签
 

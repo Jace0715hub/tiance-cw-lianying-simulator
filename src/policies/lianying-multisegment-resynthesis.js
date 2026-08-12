@@ -21,6 +21,7 @@ import {
   optimizeLianyingDashOverlay,
   replayWhitepaperLianying,
 } from "./whitepaper-lianying.js";
+import { predictLianyingRidgeValue } from "./lianying-value-model.js";
 
 function remainingTicks(readyTick, tick) {
   return Math.max(0, Number(readyTick ?? 0) - tick);
@@ -58,57 +59,63 @@ export function isLianyingThunderAnchorPackAllowed(pack, offset) {
   return offset === 0 ? hasThunder : !hasThunder;
 }
 
-function evaluateLianyingNextSegmentProbe(
+function evaluateLianyingSegmentHorizonProbe(
   runtime,
   state,
-  sourcePacks,
+  sourceSegments,
   { endTick, beamWidth = 2 } = {},
 ) {
   let nodes = [{ state, lineageId: "probe" }];
   let explored = 0;
   let legal = 0;
-  for (let offset = 0; offset < sourcePacks.length; offset += 1) {
-    const candidates = new Map();
-    for (const node of nodes) {
-      for (const pack of legalMechanicalLianyingPacks(
-        node.state,
-        runtime.config,
-      )) {
-        if (!isLianyingThunderAnchorPackAllowed(pack, offset)) continue;
-        explored += 1;
-        try {
-          const nextState = executeActionPack(
-            node.state,
-            pack,
-            runtime.config,
-            runtime.oracle,
-            { endTick },
-          );
-          legal += 1;
-          const key = lianyingResynthesisStateKey(nextState);
-          const current = candidates.get(key);
-          if (!current || nextState.totalDamage > current.state.totalDamage) {
-            candidates.set(key, { state: nextState, lineageId: "probe" });
+  let completedSegments = 0;
+  for (const sourcePacks of sourceSegments) {
+    for (let offset = 0; offset < sourcePacks.length; offset += 1) {
+      const candidates = new Map();
+      for (const node of nodes) {
+        for (const pack of legalMechanicalLianyingPacks(
+          node.state,
+          runtime.config,
+        )) {
+          if (!isLianyingThunderAnchorPackAllowed(pack, offset)) continue;
+          explored += 1;
+          try {
+            const nextState = executeActionPack(
+              node.state,
+              pack,
+              runtime.config,
+              runtime.oracle,
+              { endTick },
+            );
+            legal += 1;
+            const key = lianyingResynthesisStateKey(nextState);
+            const current = candidates.get(key);
+            if (!current || nextState.totalDamage > current.state.totalDamage) {
+              candidates.set(key, { state: nextState, lineageId: "probe" });
+            }
+          } catch {
+            // 探针与正式搜索使用同一完整状态机过滤非法动作。
           }
-        } catch {
-          // 探针与正式搜索使用同一完整状态机过滤非法动作。
         }
       }
+      nodes = selectLianyingResynthesisBeam(
+        candidates.values(),
+        Math.max(1, Math.floor(Number(beamWidth))),
+        null,
+        null,
+      );
+      if (nodes.length === 0) break;
     }
-    nodes = selectLianyingResynthesisBeam(
-      candidates.values(),
-      Math.max(1, Math.floor(Number(beamWidth))),
-      null,
-      null,
-    );
     if (nodes.length === 0) break;
+    completedSegments += 1;
   }
   return {
-    legal: nodes.length > 0,
+    legal: nodes.length > 0 && completedSegments === sourceSegments.length,
     bestBoundaryDamage: nodes.length > 0
       ? Math.max(...nodes.map((node) => node.state.totalDamage))
       : null,
     outcomeCount: nodes.length,
+    completedSegments,
     explored,
     legalTransitions: legal,
   };
@@ -769,6 +776,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
     valueProbeMaximumBaselineRank = 32,
     valueProbeRowStride = 4,
     valueProbeNextSegmentBeamWidth = 2,
+    valueProbeSegmentHorizon = 1,
     onProgress = null,
   } = {},
 ) {
@@ -1088,6 +1096,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
           nextSegmentBestBoundaryDamage: Number.NEGATIVE_INFINITY,
           nextSegmentReferenceDamage: null,
           nextSegmentOutcomeCount: 0,
+          probeSegmentCount: 0,
+          probeEndIndex: null,
           actualBestFinalDamage: Number.NEGATIVE_INFINITY,
           actualOutcomeCount: 0,
         };
@@ -1122,6 +1132,33 @@ export function optimizeLianyingMultiSegmentResynthesis(
         )
       : []
     ).map((node) => ({ ...node, valueShadow: true }));
+    const boundaryDamageRanking = [...nodes].sort(
+      (left, right) => right.state.totalDamage - left.state.totalDamage);
+    const boundaryRankByKey = new Map(boundaryDamageRanking.map(
+      (node, index) => [lianyingResynthesisStateKey(node.state), index + 1]));
+    const valueShadowDiagnostics = boundaryShadowNodes.map((node) => {
+      const features = lianyingStateValueFeatures(node.state, endTick);
+      const predictedValue = predictLianyingRidgeValue(
+        valueShadowPolicy.model,
+        features,
+      );
+      return {
+        lineageId: node.lineageId,
+        stateKey: lianyingResynthesisStateKey(node.state),
+        baselineRank: boundaryRankByKey.get(
+          lianyingResynthesisStateKey(node.state)) ?? null,
+        totalDamage: node.state.totalDamage,
+        predictedValue,
+        valueScore: node.state.totalDamage +
+          Number(valueShadowPolicy.valueWeight ?? 1) * predictedValue,
+        rage: features.rage,
+        dragonRideStacks: features.dragonRideStacks,
+        mounted: features.mounted,
+        thunderRemainingSeconds: features.thunderRemainingSeconds,
+        rideRemainingSeconds: features.rideRemainingSeconds,
+        orangeRemainingSeconds: features.orangeRemainingSeconds,
+      };
+    });
     valueShadowBoundarySelections += boundaryShadowNodes.length;
     nodes = [...baselineBoundary.nodes, ...boundaryShadowNodes];
     if (collectValueTrainingData) {
@@ -1151,18 +1188,25 @@ export function optimizeLianyingMultiSegmentResynthesis(
           },
         }));
       }
-      const nextSegment = identified.ranges[segmentIndex + 1];
-      if (nextSegment) {
-        const nextSource = corePacks.slice(
-          nextSegment.startIndex,
-          nextSegment.endIndex,
-        );
+      const probeSegments = identified.ranges.slice(
+        segmentIndex + 1,
+        segmentIndex + 1 + Math.max(
+          1,
+          Math.floor(Number(valueProbeSegmentHorizon)),
+        ),
+      );
+      if (probeSegments.length > 0) {
+        const probeSources = probeSegments.map((entry) => corePacks.slice(
+          entry.startIndex,
+          entry.endIndex,
+        ));
+        const probeEndIndex = probeSegments.at(-1).endIndex;
         for (const record of boundaryProbeEntries) {
           boundaryNextSegmentProbeAttempts += 1;
-          const probe = evaluateLianyingNextSegmentProbe(
+          const probe = evaluateLianyingSegmentHorizonProbe(
             runtime,
             record.node.state,
-            nextSource,
+            probeSources,
             {
               endTick,
               beamWidth: valueProbeNextSegmentBeamWidth,
@@ -1177,7 +1221,9 @@ export function optimizeLianyingMultiSegmentResynthesis(
           record.nextSegmentProbeExplored = probe.explored;
           record.nextSegmentProbeLegalTransitions = probe.legalTransitions;
           record.nextSegmentReferenceDamage =
-            warmStates[nextSegment.endIndex].totalDamage;
+            warmStates[probeEndIndex].totalDamage;
+          record.probeSegmentCount = probe.completedSegments;
+          record.probeEndIndex = probeEndIndex;
         }
       }
     }
@@ -1209,6 +1255,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
       bestSuffixScoreGain: Math.max(...nodes.map((node) =>
         Number(node.suffixValue?.score ?? node.state.totalDamage))) -
         coreBaseline.state.totalDamage,
+      valueShadowDiagnostics,
       candidateDiagnostics: diagnostics,
     };
     segmentReports.push(report);
@@ -1283,21 +1330,29 @@ export function optimizeLianyingMultiSegmentResynthesis(
         const projectedFinalDamage = probe.nextSegmentBestBoundaryDamage +
           (coreBaseline.state.totalDamage -
             Number(probe.nextSegmentReferenceDamage));
+        const isSingleSegmentProbe = probe.probeSegmentCount === 1;
         valueTrainingRows.push(makeValueRow(probe.node, {
-          traceId: "multi-boundary-next-segment",
+          traceId: isSingleSegmentProbe
+            ? "multi-boundary-next-segment"
+            : "multi-boundary-segment-horizon",
           segment: probe.segment,
           globalRow: probe.globalRow,
           baselineRank: probe.baselineRank,
           bestFinalDamage: projectedFinalDamage,
           referenceDamage: probe.referenceDamage,
           metadata: {
-            labelKind: "actual-next-segment",
+            labelKind: isSingleSegmentProbe
+              ? "actual-next-segment"
+              : "actual-segment-horizon",
             selectionStage: "boundary",
             selectedByBaselineBeam: probe.selectedByBaselineBeam,
             selectedByValueShadow: probe.selectedByValueShadow,
             lineageId: probe.node.lineageId,
             descendantOutcomeCount: probe.nextSegmentOutcomeCount,
             probeBeamWidth: Number(valueProbeNextSegmentBeamWidth),
+            probeSegmentHorizon: Number(valueProbeSegmentHorizon),
+            probeSegmentCount: probe.probeSegmentCount,
+            probeEndRow: Number(probe.probeEndIndex),
             probeExplored: probe.nextSegmentProbeExplored,
             probeLegalTransitions: probe.nextSegmentProbeLegalTransitions,
           },
@@ -1433,6 +1488,8 @@ export function optimizeLianyingMultiSegmentResynthesis(
               (row) => String(row.labelKind).startsWith("actual-")).length,
             boundaryNextSegmentRows: valueTrainingRows.filter(
               (row) => row.labelKind === "actual-next-segment").length,
+            boundarySegmentHorizonRows: valueTrainingRows.filter(
+              (row) => row.labelKind === "actual-segment-horizon").length,
             boundaryFullDescendantRows: valueTrainingRows.filter(
               (row) => row.labelKind === "actual-full-descendant").length,
           },
@@ -1475,6 +1532,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
       valueProbeMaximumBaselineRank,
       valueProbeRowStride,
       valueProbeNextSegmentBeamWidth,
+      valueProbeSegmentHorizon,
     },
   };
 }

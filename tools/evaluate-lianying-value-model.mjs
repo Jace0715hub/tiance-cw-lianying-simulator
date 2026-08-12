@@ -31,6 +31,14 @@ const profiles = {
     valueQuota: 1,
     maximumBaselineRanks: [12, 16, 24, 32],
     applicationStages: ["boundary"],
+    comparison: "observed-selector",
+  },
+  "boundary-shadow-sample": {
+    baselineQuota: 5,
+    valueQuota: 1,
+    maximumBaselineRanks: [6, 8, 12, 16],
+    applicationStages: ["boundary"],
+    comparison: "observed-selector",
   },
 };
 const policyOptions = profiles[profileName];
@@ -219,7 +227,7 @@ const crossValidationGate = report.crossValidation
     report.crossValidation.aggregate.equalBudgetRecallDelta >= -1e-12 &&
     report.crossValidation.aggregate.equalBudgetMeanRegretDelta <= 1e-6
   : false;
-const usesObservedSelector = profileName === "boundary-shadow";
+const usesObservedSelector = policyOptions.comparison === "observed-selector";
 const observedSelectorGate = report.observedSelectorCrossValidation
   ? report.observedSelectorCrossValidation.folds.every((fold) =>
     fold.strictNonDegradingValidation === true &&
