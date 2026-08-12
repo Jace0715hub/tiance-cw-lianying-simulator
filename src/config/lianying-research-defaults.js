@@ -1,7 +1,7 @@
 import path from "node:path";
 
 export const LIANYING_CURRENT_BEST_AXIS =
-  "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-fast-segments-fast.json";
+  "output/lianying-free-fixed-180s-anchor-rides-dismount-segments-deep.json";
 
 export const LIANYING_DEFAULT_RESEARCH_SEEDS = Object.freeze([
   LIANYING_CURRENT_BEST_AXIS,

@@ -654,6 +654,34 @@ test("定向伴随模板固定早段任驰骋并只向后开放末三次窗口",
   ]);
 });
 
+test("不同伴随动作可以使用独立的固定数量和双向窗口", () => {
+  const rideRows = [3, 20, 38, 59, 107, 125, 147];
+  const dismountRows = [20, 23, 25, 53, 102, 119, 147];
+  const packs = Array.from({ length: 150 }, (_, index) => ({
+    prefix: dismountRows.includes(index + 1) ? ["dismount"] : [],
+    primary: rideRows.includes(index + 1) ? "ride" : "dragonFang",
+    tail: [],
+  }));
+  const template = buildLianyingFocusedCompanionAnchorTemplate(packs, {
+    companionTypes: ["ride", "dismount"],
+    companionPolicies: {
+      ride: { fixedThroughOrdinal: 7, beforeRows: 0, afterRows: 0 },
+      dismount: { fixedThroughOrdinal: 4, beforeRows: 2, afterRows: 2 },
+    },
+  });
+  assert.deepEqual(template.rideWindows.map(
+    (window) => [window.earliestRow, window.latestRow]),
+  rideRows.map((row) => [row, row]));
+  assert.deepEqual(template.dismountWindows.slice(0, 4).map(
+    (window) => [window.earliestRow, window.latestRow]), [
+    [20, 20], [23, 23], [25, 25], [53, 53],
+  ]);
+  assert.deepEqual(template.dismountWindows.slice(4).map(
+    (window) => [window.earliestRow, window.latestRow]), [
+    [100, 104], [117, 121], [145, 149],
+  ]);
+});
+
 test("聚焦伴随协调可按上限重新居中并汇总每轮诊断", () => {
   const runtime = loadDefaultGearRuntime({ executePhase: true });
   const seed = searchWhitepaperLianying(runtime, {

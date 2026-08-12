@@ -440,6 +440,7 @@ export function buildLianyingFocusedCompanionAnchorTemplate(
     fixedThroughOrdinal = 4,
     beforeRows = 0,
     afterRows = 2,
+    companionPolicies = {},
   } = {},
 ) {
   const anchors = lianyingCompanionAnchorRows(stripLianyingDashPacks(packs));
@@ -453,11 +454,24 @@ export function buildLianyingFocusedCompanionAnchorTemplate(
     ["dismount", "dismountRows"],
   ].flatMap(([type, key]) => {
     if (!selectedTypes.has(type)) return [];
+    const policy = companionPolicies[type] ?? {};
+    const typeFixedCount = Math.max(
+      0,
+      Math.floor(Number(policy.fixedThroughOrdinal ?? fixedCount)),
+    );
+    const typeBefore = Math.max(
+      0,
+      Math.floor(Number(policy.beforeRows ?? before)),
+    );
+    const typeAfter = Math.max(
+      0,
+      Math.floor(Number(policy.afterRows ?? after)),
+    );
     return [[key.replace("Rows", "Windows"), anchors[key].map(
       (row, index) => ({
         targetRow: row,
-        earliestRow: index < fixedCount ? row : row - before,
-        latestRow: index < fixedCount ? row : row + after,
+        earliestRow: index < typeFixedCount ? row : row - typeBefore,
+        latestRow: index < typeFixedCount ? row : row + typeAfter,
       }))]];
   }));
 }
@@ -496,6 +510,7 @@ export function optimizeLianyingFocusedCompanionAnchorCoordination(
     options.fixedThroughOrdinal ?? 4;
   result.coordination.beforeRows = options.beforeRows ?? 0;
   result.coordination.afterRows = options.afterRows ?? 2;
+  result.coordination.companionPolicies = options.companionPolicies ?? {};
   result.coordination.companionAnchorTemplate = companionAnchorTemplate;
   return result;
 }

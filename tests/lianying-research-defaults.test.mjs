@@ -13,10 +13,10 @@ import {
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-test("current-best research default points to the promoted joint segment axis", () => {
+test("current-best research default points to the promoted coordinated anchor axis", () => {
   assert.equal(
     LIANYING_CURRENT_BEST_AXIS,
-    "output/lianying-free-fixed-180s-crossover-bridge-portfolio-joint-fast-segments-fast.json",
+    "output/lianying-free-fixed-180s-anchor-rides-dismount-segments-deep.json",
   );
   assert.equal(LIANYING_DEFAULT_RESEARCH_SEEDS[0], LIANYING_CURRENT_BEST_AXIS);
   assert.equal(
