@@ -27,6 +27,83 @@ function remainingTicks(readyTick, tick) {
   return Math.max(0, Number(readyTick ?? 0) - tick);
 }
 
+function stableStringHash(value) {
+  let hash = 2166136261;
+  for (const character of String(value)) {
+    hash ^= character.codePointAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+export function lianyingQualityDiversityCellKey(
+  state,
+  { bucketTicks = 16000 } = {},
+) {
+  const tick = lianyingDecisionTick(state);
+  const size = Math.max(1, Math.floor(Number(bucketTicks)));
+  const bucket = (readyTick) =>
+    Math.floor(remainingTicks(readyTick, tick) / size);
+  const chargeCell = (name) => [
+    state.chargeTicks[name].ready,
+    ...(state.chargeTicks[name].rechargeQueue ?? []).map(bucket),
+  ];
+  const buffCell = (name) => bucket(state.buffTicks[`${name}Until`]);
+  return JSON.stringify([
+    state.rage,
+    state.dragonRideStacks,
+    isMountedAtTick(state, tick),
+    state.executeDestroyToggle,
+    state.bleedStacks,
+    state.bleedQuality,
+    chargeCell("thunder"),
+    chargeCell("ride"),
+    bucket(state.cooldownReadyTick.destroy),
+    bucket(state.cooldownReadyTick.dragonRoar),
+    bucket(state.cooldownReadyTick.charge),
+    bucket(state.cooldownReadyTick.orange),
+    buffCell("thunder"),
+    buffCell("ride"),
+    buffCell("orange"),
+    buffCell("poLouLan"),
+  ]);
+}
+
+export function selectLianyingQualityDiversityArchive(
+  nodes,
+  {
+    quota = 0,
+    candidateMultiplier = 8,
+    seed = 0,
+    keyNode = (node) => lianyingQualityDiversityCellKey(node.state),
+    scoreNode = (node) => node.state.totalDamage,
+  } = {},
+) {
+  const maximum = Math.max(0, Math.floor(Number(quota)));
+  if (maximum === 0) return [];
+  const cellBest = new Map();
+  for (const node of nodes ?? []) {
+    const key = keyNode(node);
+    const current = cellBest.get(key);
+    if (!current || scoreNode(node) > scoreNode(current.node)) {
+      cellBest.set(key, { key, node });
+    }
+  }
+  const pool = [...cellBest.values()]
+    .sort((left, right) => scoreNode(right.node) - scoreNode(left.node))
+    .slice(0, Math.max(maximum, maximum * Math.max(
+      1,
+      Math.floor(Number(candidateMultiplier)),
+    )));
+  return pool
+    .sort((left, right) =>
+      stableStringHash(`${seed}|${left.key}`) -
+        stableStringHash(`${seed}|${right.key}`) ||
+      scoreNode(right.node) - scoreNode(left.node))
+    .slice(0, maximum)
+    .map((entry) => entry.node);
+}
+
 function clonePacks(packs) {
   return packs.map(cloneLianyingPack);
 }
@@ -558,6 +635,10 @@ function selectAnchorDriftRowBeam(
   {
     structureKeyNode = null,
     minimumStructureQuota = 0,
+    qualityDiversityKeyNode = null,
+    minimumQualityDiversityQuota = 0,
+    qualityDiversityCandidateMultiplier = 8,
+    qualityDiversitySeed = 0,
   } = {},
 ) {
   const all = [...nodes];
@@ -656,6 +737,18 @@ function selectAnchorDriftRowBeam(
       }
     }
   }
+  for (const node of selectLianyingQualityDiversityArchive(all, {
+    quota: minimumQualityDiversityQuota,
+    candidateMultiplier: qualityDiversityCandidateMultiplier,
+    seed: qualityDiversitySeed,
+    keyNode: qualityDiversityKeyNode ?? undefined,
+    scoreNode: lianyingAnchorDriftLongTermScore,
+  })) {
+    if (selected.length >= beamWidth) break;
+    if (selectedNodes.has(node)) continue;
+    selected.push(node);
+    selectedNodes.add(node);
+  }
   const base = selectJointRowBeam(
     all,
     beamWidth,
@@ -732,6 +825,10 @@ function selectAnchorDriftBoundaryNodes(
     minimumScheduleQuota = 0,
     structureKeyNode = null,
     minimumStructureQuota = 0,
+    qualityDiversityKeyNode = null,
+    minimumQualityDiversityQuota = 0,
+    qualityDiversityCandidateMultiplier = 8,
+    qualityDiversitySeed = 0,
     additionalPinned = [],
   } = {},
 ) {
@@ -809,6 +906,13 @@ function selectAnchorDriftBoundaryNodes(
       }
     }
   }
+  for (const node of selectLianyingQualityDiversityArchive(all, {
+    quota: minimumQualityDiversityQuota,
+    candidateMultiplier: qualityDiversityCandidateMultiplier,
+    seed: qualityDiversitySeed,
+    keyNode: qualityDiversityKeyNode ?? undefined,
+    scoreNode: score,
+  })) add(node);
   const base = selectLianyingJointBoundaryNodes(
     all,
     beamWidth,
@@ -825,6 +929,12 @@ function selectAnchorDriftBoundaryNodes(
     structureBuckets: structureBest.size,
     selectedStructureBuckets: structureKey
       ? new Set(selected.map(structureKey)).size
+      : 0,
+    qualityDiversityBuckets: qualityDiversityKeyNode
+      ? new Set(all.map(qualityDiversityKeyNode)).size
+      : 0,
+    selectedQualityDiversityBuckets: qualityDiversityKeyNode
+      ? new Set(selected.map(qualityDiversityKeyNode)).size
       : 0,
   };
 }
@@ -2041,6 +2151,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     includeCoreCandidatePacks = false,
     coreCandidatePackLimit = 0,
     primaryStructureDiversity = null,
+    qualityDiversityRestart = null,
     onProgress = null,
   } = {},
 ) {
@@ -2141,6 +2252,34 @@ export function optimizeLianyingAnchorDriftResynthesis(
         corePacks,
         normalizedPrimaryStructureDiversity,
       )
+    : null;
+  const normalizedQualityDiversityRestart = qualityDiversityRestart
+    ? {
+        bucketTicks: Math.max(
+          1,
+          Math.floor(Number(qualityDiversityRestart.bucketTicks ?? 16000)),
+        ),
+        candidateMultiplier: Math.max(
+          1,
+          Math.floor(Number(
+            qualityDiversityRestart.candidateMultiplier ?? 8,
+          )),
+        ),
+        rowQuota: Math.max(
+          0,
+          Math.floor(Number(qualityDiversityRestart.rowQuota ?? 0)),
+        ),
+        boundaryQuota: Math.max(
+          0,
+          Math.floor(Number(qualityDiversityRestart.boundaryQuota ?? 0)),
+        ),
+        seed: Math.floor(Number(qualityDiversityRestart.seed ?? 0)),
+      }
+    : null;
+  const qualityDiversityKeyNode = normalizedQualityDiversityRestart
+    ? (node) => lianyingQualityDiversityCellKey(node.state, {
+        bucketTicks: normalizedQualityDiversityRestart.bucketTicks,
+      })
     : null;
   const companionLineageTypes = [...new Set(
     (preserveCompanionLineageTypes ?? []).filter((type) =>
@@ -2430,6 +2569,13 @@ export function optimizeLianyingAnchorDriftResynthesis(
         structureKeyNode: primaryStructureKeyNode,
         minimumStructureQuota:
           normalizedPrimaryStructureDiversity?.rowQuota ?? 0,
+        qualityDiversityKeyNode,
+        minimumQualityDiversityQuota:
+          normalizedQualityDiversityRestart?.rowQuota ?? 0,
+        qualityDiversityCandidateMultiplier:
+          normalizedQualityDiversityRestart?.candidateMultiplier ?? 8,
+        qualityDiversitySeed:
+          (normalizedQualityDiversityRestart?.seed ?? 0) + rowIndex + 1,
       },
     );
     peakRowStates = Math.max(peakRowStates, nodes.length);
@@ -2481,6 +2627,13 @@ export function optimizeLianyingAnchorDriftResynthesis(
         structureKeyNode: primaryStructureKeyNode,
         minimumStructureQuota:
           normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
+        qualityDiversityKeyNode,
+        minimumQualityDiversityQuota:
+          normalizedQualityDiversityRestart?.boundaryQuota ?? 0,
+        qualityDiversityCandidateMultiplier:
+          normalizedQualityDiversityRestart?.candidateMultiplier ?? 8,
+        qualityDiversitySeed:
+          (normalizedQualityDiversityRestart?.seed ?? 0) + 10000 + anchorIndex,
         additionalPinned: additionalWarmSources
           .filter((candidate) =>
             candidate.active && candidate.thunderCount >= anchorIndex + 1)
@@ -2526,6 +2679,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
       availableSchedules: boundary.scheduleBuckets,
       availablePrimaryStructures: boundary.structureBuckets,
       survivingPrimaryStructures: boundary.selectedStructureBuckets,
+      availableQualityDiversityCells: boundary.qualityDiversityBuckets,
+      survivingQualityDiversityCells:
+        boundary.selectedQualityDiversityBuckets,
       actualRowHistogram,
       survivingAnchorSchedules: [...new Set(nodes.map(
         (node) => JSON.stringify(node.anchorRows.map((row) => row + 1)),
@@ -2587,6 +2743,13 @@ export function optimizeLianyingAnchorDriftResynthesis(
       structureKeyNode: primaryStructureKeyNode,
       minimumStructureQuota:
         normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
+      qualityDiversityKeyNode,
+      minimumQualityDiversityQuota:
+        normalizedQualityDiversityRestart?.boundaryQuota ?? 0,
+      qualityDiversityCandidateMultiplier:
+        normalizedQualityDiversityRestart?.candidateMultiplier ?? 8,
+      qualityDiversitySeed:
+        (normalizedQualityDiversityRestart?.seed ?? 0) + 20000,
       additionalPinned: additionalWarmSources
         .filter((candidate) =>
           candidate.active && candidate.thunderCount === anchors.length)
@@ -2852,6 +3015,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       includeCoreCandidatePacks,
       coreCandidatePackLimit: normalizedCoreCandidatePackLimit,
       primaryStructureDiversity: normalizedPrimaryStructureDiversity,
+      qualityDiversityRestart: normalizedQualityDiversityRestart,
     },
   };
 }

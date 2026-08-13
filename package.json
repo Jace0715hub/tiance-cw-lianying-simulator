@@ -50,6 +50,7 @@
     "optimize:early-structure-dismount": "node tools/optimize-lianying-anchor-coordinator.mjs - early-orange-mid-thunder-structure-dismount-screen",
     "optimize:mid-orange-thunder": "node tools/optimize-lianying-anchor-coordinator.mjs - mid-orange-thunder-screen",
     "optimize:late-terminal-structure": "node tools/optimize-lianying-anchor-coordinator.mjs - late-terminal-structure-screen",
+    "optimize:quality-diversity-restart": "node tools/optimize-lianying-anchor-coordinator.mjs - quality-diversity-restart-screen",
     "optimize:block-recombination": "node tools/optimize-lianying-block-recombination.mjs",
     "optimize:compound-neighborhood": "node tools/optimize-lianying-compound-neighborhood.mjs",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",

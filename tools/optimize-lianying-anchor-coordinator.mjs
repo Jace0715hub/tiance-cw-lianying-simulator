@@ -32,6 +32,16 @@ const targetedProfile = profileName.startsWith("target-anchor-");
 const earlyProfile = profileName.startsWith("early-orange-");
 const midProfile = profileName.startsWith("mid-orange-");
 const lateProfile = profileName.startsWith("late-terminal-");
+const qualityDiversityProfile = profileName.startsWith("quality-diversity-");
+const qualityDiversitySeedOverride = qualityDiversityProfile && process.argv[5]
+  ? Number(process.argv[5])
+  : null;
+if (
+  qualityDiversitySeedOverride !== null &&
+  !Number.isInteger(qualityDiversitySeedOverride)
+) {
+  throw new Error("质量多样性重启种子必须是整数");
+}
 const singleResultPath = pairProfile && process.argv[5]
   ? path.resolve(process.argv[5])
   : null;
@@ -492,6 +502,29 @@ const profiles = {
       boundaryQuota: 8,
     },
   },
+  "quality-diversity-restart-screen": {
+    ...common,
+    evaluationMode: "shared",
+    movableAnchorNumbers: [],
+    maximumShiftedAnchors: 0,
+    maximumTemplates: 1,
+    rowBeamWidth: 48,
+    boundaryBeamWidth: 48,
+    coreFinalistCount: 48,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 48,
+    qualityDiversityRestart: {
+      bucketTicks: 16000,
+      candidateMultiplier: 8,
+      rowQuota: 8,
+      boundaryQuota: 8,
+      seed: 20260813,
+    },
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(
@@ -759,6 +792,14 @@ const optimizeOptions = {
       : {}),
     ...(lateProfile
       ? { companionAnchorTemplate: lateCompanionAnchorTemplate }
+      : {}),
+    ...(qualityDiversitySeedOverride !== null
+      ? {
+          qualityDiversityRestart: {
+            ...profiles[profileName].qualityDiversityRestart,
+            seed: qualityDiversitySeedOverride,
+          },
+        }
       : {}),
     includeScheduleCandidatePacks:
       pairProfile || focusedProfile || targetedProfile || earlyProfile ||

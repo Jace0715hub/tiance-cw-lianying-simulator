@@ -12,9 +12,11 @@ import {
   lianyingAnchorDriftWindow,
   lianyingMultiSegmentAnchorDiagnosticsToCsv,
   lianyingPrimaryHistoryStructureKey,
+  lianyingQualityDiversityCellKey,
   optimizeLianyingAnchorDriftResynthesis,
   optimizeLianyingMultiSegmentResynthesis,
   selectLianyingJointBoundaryNodes,
+  selectLianyingQualityDiversityArchive,
 } from "../src/policies/lianying-multisegment-resynthesis.js";
 import {
   buildLianyingBoundedThunderTemplates,
@@ -110,6 +112,50 @@ test("雷坐标谱系长期评分累加锚点后的新增实际伤害", () => {
     lianyingAnchorDriftLongTermScore({ state: { totalDamage: 150 } }),
     150,
   );
+});
+
+test("质量多样性单元区分资源、充能队列与关键冷却", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const base = createInitialState(runtime.config, {
+    rage: 3,
+    dragonRideStacks: 7,
+    executePhase: true,
+  });
+  const differentRage = structuredClone(base);
+  differentRage.rage = 4;
+  const differentRecharge = structuredClone(base);
+  differentRecharge.chargeTicks.ride.rechargeQueue = [32000];
+  assert.notEqual(
+    lianyingQualityDiversityCellKey(base),
+    lianyingQualityDiversityCellKey(differentRage),
+  );
+  assert.notEqual(
+    lianyingQualityDiversityCellKey(base),
+    lianyingQualityDiversityCellKey(differentRecharge),
+  );
+});
+
+test("质量多样性档案固定总配额且每个单元只保留最高分", () => {
+  const nodes = [
+    { id: "a-best", cell: "a", score: 100 },
+    { id: "a-lower", cell: "a", score: 90 },
+    { id: "b", cell: "b", score: 99 },
+    { id: "c", cell: "c", score: 98 },
+    { id: "d", cell: "d", score: 97 },
+  ];
+  const options = {
+    quota: 3,
+    candidateMultiplier: 2,
+    seed: 42,
+    keyNode: (node) => node.cell,
+    scoreNode: (node) => node.score,
+  };
+  const first = selectLianyingQualityDiversityArchive(nodes, options);
+  const second = selectLianyingQualityDiversityArchive(nodes, options);
+  assert.equal(first.length, 3);
+  assert.deepEqual(first, second);
+  assert.equal(new Set(first.map((node) => node.cell)).size, 3);
+  assert.equal(first.some((node) => node.id === "a-lower"), false);
 });
 
 test("雷坐标谱系作为锚点搜索去重键的一部分", () => {
