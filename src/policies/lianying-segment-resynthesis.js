@@ -381,11 +381,18 @@ function selectSegmentBeam(
     if (selected.length >= beamWidth) break;
     add(node);
   }
-  const pinnedKeys = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
-    .filter(Boolean);
-  for (const key of pinnedKeys) {
-    if (selected.some((node) => segmentStateKey(node.state) === key)) continue;
-    const pinned = sorted.find((node) => segmentStateKey(node.state) === key);
+  const pinnedEntries = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
+    .filter(Boolean)
+    .map((entry) => typeof entry === "string"
+      ? { stateKey: entry, lineageKey: null }
+      : entry);
+  const matchesPinned = (node, entry) =>
+    segmentStateKey(node.state) === entry.stateKey &&
+    (entry.lineageKey === null ||
+      (typeof lineageKey === "function" && lineageKey(node) === entry.lineageKey));
+  for (const entry of pinnedEntries) {
+    if (selected.some((node) => matchesPinned(node, entry))) continue;
+    const pinned = sorted.find((node) => matchesPinned(node, entry));
     if (!pinned) continue;
     if (selected.length < beamWidth) {
       selected.push(pinned);
@@ -400,7 +407,9 @@ function selectSegmentBeam(
       }, new Map())
       : null;
     const replacementIndex = selected.findLastIndex((node) => {
-      if (pinnedKeys.includes(segmentStateKey(node.state))) return false;
+      if (pinnedEntries.some((candidate) => matchesPinned(node, candidate))) {
+        return false;
+      }
       if (!lineageCounts) return true;
       return Number(lineageCounts.get(lineageKey(node)) ?? 0) > 1;
     });
@@ -411,6 +420,12 @@ function selectSegmentBeam(
     }
   }
   return selected;
+}
+
+export function lianyingSegmentNodeKey(state, packs, lineageKey = null) {
+  const stateKey = segmentStateKey(state);
+  if (typeof lineageKey !== "function") return stateKey;
+  return `${lineageKey({ packs })}|${stateKey}`;
 }
 
 export function selectLianyingValueShadowCandidates(
@@ -1043,7 +1058,11 @@ export function synthesizeLianyingSegment(
             traceNode,
             valueShadow: node.valueShadow === true,
           };
-          const key = segmentStateKey(state);
+          const key = lianyingSegmentNodeKey(
+            state,
+            packs,
+            thunderLineageKey,
+          );
           addDeduplicated(deduplicated, key, candidate);
           if (node.valueShadow !== true) {
             addDeduplicated(baselineDeduplicated, key, {
@@ -1082,7 +1101,11 @@ export function synthesizeLianyingSegment(
           traceNode,
           thunderLineageKey ? JSON.parse(thunderLineageKey({ packs })) : [],
         );
-        const key = segmentStateKey(state);
+        const key = lianyingSegmentNodeKey(
+          state,
+          packs,
+          thunderLineageKey,
+        );
         const candidate = {
           state,
           packs,
@@ -1112,7 +1135,12 @@ export function synthesizeLianyingSegment(
       beamWidth,
       warmNodes
         .filter((warmNode) => warmNode.active)
-        .map((warmNode) => segmentStateKey(warmNode.state)),
+        .map((warmNode) => ({
+          stateKey: segmentStateKey(warmNode.state),
+          lineageKey: thunderLineageKey
+            ? thunderLineageKey(warmNode)
+            : null,
+        })),
       baseWarm.state,
       thunderLineageKey,
     );
@@ -1209,8 +1237,17 @@ export function synthesizeLianyingSegment(
     .slice(0, Math.max(0, Math.floor(Number(valueShadowPolicy?.valueQuota ?? 0))));
   const finalists = [...baselineFinalists, ...shadowFinalists];
   for (const warmNode of warmNodes.filter((candidate) => candidate.active)) {
+    const warmKey = lianyingSegmentNodeKey(
+      warmNode.state,
+      warmNode.packs,
+      thunderLineageKey,
+    );
     if (!finalists.some(
-      (node) => segmentStateKey(node.state) === segmentStateKey(warmNode.state),
+      (node) => lianyingSegmentNodeKey(
+        node.state,
+        node.packs,
+        thunderLineageKey,
+      ) === warmKey,
     )) {
       finalists.push({
         state: warmNode.state,

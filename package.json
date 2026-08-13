@@ -39,6 +39,7 @@
     "optimize:anchor-focused-dismount-fast": "node tools/optimize-lianying-anchor-coordinator.mjs - focused-rides-dismount-fast",
     "optimize:anchor-focused-dismount-wide": "node tools/optimize-lianying-anchor-coordinator.mjs - focused-rides-dismount-wide-screen",
     "optimize:anchor-focused-rides-dismount-wide": "node tools/optimize-lianying-anchor-coordinator.mjs - focused-rides-dismount-joint-wide-screen",
+    "optimize:target-anchor": "node tools/optimize-lianying-anchor-coordinator.mjs",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",
     "optimize:crossover": "node tools/optimize-lianying-seed-crossover.mjs",
     "optimize:crossover-bridge": "node tools/optimize-lianying-crossover-bridge.mjs",

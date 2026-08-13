@@ -516,6 +516,11 @@ function selectAnchorDriftRowBeam(
   boundaryTarget,
 ) {
   const all = [...nodes];
+  const pinnedEntries = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
+    .filter(Boolean)
+    .map((entry) => typeof entry === "string"
+      ? { stateKey: entry, scheduleKey: null }
+      : entry);
   const countBest = new Map();
   const scheduleBest = new Map();
   for (const node of all) {
@@ -567,7 +572,7 @@ function selectAnchorDriftRowBeam(
   const base = selectJointRowBeam(
     all,
     beamWidth,
-    pinnedKey,
+    pinnedEntries[0]?.stateKey ?? null,
     boundaryTarget,
   );
   for (const node of base) {
@@ -575,6 +580,33 @@ function selectAnchorDriftRowBeam(
     if (selectedNodes.has(node)) continue;
     selected.push(node);
     selectedNodes.add(node);
+  }
+  const matchesPinned = (node, entry) =>
+    lianyingResynthesisStateKey(node.state) === entry.stateKey &&
+    (entry.scheduleKey === null ||
+      JSON.stringify(node.anchorRows) === entry.scheduleKey);
+  for (const entry of pinnedEntries) {
+    if (selected.some((node) => matchesPinned(node, entry))) continue;
+    const pinned = all.find((node) => matchesPinned(node, entry));
+    if (!pinned) continue;
+    if (selected.length < beamWidth) {
+      selected.push(pinned);
+      selectedNodes.add(pinned);
+      continue;
+    }
+    const scheduleCounts = selected.reduce((counts, node) => {
+      const schedule = JSON.stringify(node.anchorRows);
+      counts.set(schedule, Number(counts.get(schedule) ?? 0) + 1);
+      return counts;
+    }, new Map());
+    const replacementIndex = selected.findLastIndex((node) =>
+      !pinnedEntries.some((candidate) => matchesPinned(node, candidate)) &&
+      Number(scheduleCounts.get(JSON.stringify(node.anchorRows)) ?? 0) > 1);
+    if (replacementIndex >= 0) {
+      selectedNodes.delete(selected[replacementIndex]);
+      selected[replacementIndex] = pinned;
+      selectedNodes.add(pinned);
+    }
   }
   return selected.slice(0, beamWidth);
 }
@@ -589,12 +621,26 @@ export function lianyingAnchorDriftLongTermScore(node) {
   return currentDamage;
 }
 
+export function lianyingAnchorDriftNodeKey(
+  thunderCount,
+  anchorRows,
+  state,
+) {
+  return `${thunderCount}|${JSON.stringify(anchorRows)}|${
+    lianyingResynthesisStateKey(state)
+  }`;
+}
+
 function selectAnchorDriftBoundaryNodes(
   nodes,
   beamWidth,
   pinnedKey,
   pinnedScheduleKey,
-  { scoreNode = null, minimumScheduleQuota = 0 } = {},
+  {
+    scoreNode = null,
+    minimumScheduleQuota = 0,
+    additionalPinned = [],
+  } = {},
 ) {
   const all = [...nodes];
   const score = typeof scoreNode === "function"
@@ -622,6 +668,11 @@ function selectAnchorDriftBoundaryNodes(
     JSON.stringify(node.anchorRows) === pinnedScheduleKey &&
     lianyingResynthesisStateKey(node.state) === pinnedKey);
   add(pinned);
+  for (const entry of additionalPinned) {
+    add(all.find((node) =>
+      JSON.stringify(node.anchorRows) === entry.scheduleKey &&
+      lianyingResynthesisStateKey(node.state) === entry.stateKey));
+  }
   const scheduleQuota = Math.min(
     scheduleNodes.length,
     Math.max(
@@ -1761,6 +1812,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     boundaryDiagnosticCount = 3,
     allowedAnchorSchedules = null,
     companionAnchorTemplate = null,
+    additionalWarmAxes = [],
     includeScheduleCandidatePacks = false,
     onProgress = null,
   } = {},
@@ -1829,6 +1881,30 @@ export function optimizeLianyingAnchorDriftResynthesis(
       throw new Error(`第${rowIndex + 1}行固定前缀不满足伴随锚点模板`);
     }
   }
+  const additionalWarmSources = (additionalWarmAxes ?? []).map(
+    (axis, index) => {
+      const source = stripLianyingDashPacks(axis);
+      if (source.length !== corePacks.length) {
+        throw new Error(`附加热启动${index + 1}与原轴行数不同`);
+      }
+      if (
+        JSON.stringify(source.slice(0, firstAnchor)) !==
+        JSON.stringify(prefixPacks)
+      ) {
+        throw new Error(`附加热启动${index + 1}在首雷前与固定前缀不同`);
+      }
+      const states = buildWarmStates(runtime, source, endTick);
+      return {
+        source,
+        state: states[firstAnchor],
+        packs: [],
+        thunderCount: 0,
+        anchorRows: [],
+        lineageId: `additional-warm-${index + 1}`,
+        active: true,
+      };
+    },
+  );
   const warmStates = buildWarmStates(runtime, corePacks, endTick);
   let warmState = warmStates[firstAnchor];
   let warmGeneratedPacks = [];
@@ -1892,18 +1968,23 @@ export function optimizeLianyingAnchorDriftResynthesis(
           legal += 1;
           const hasThunder = lianyingPackHasAction(pack, "thunder");
           const thunderCount = node.thunderCount + Number(hasThunder);
+          const anchorRows = hasThunder
+            ? [...node.anchorRows, rowIndex]
+            : node.anchorRows;
           const candidate = {
             state,
             packs: [...node.packs, cloneLianyingPack(pack)],
             thunderCount,
-            anchorRows: hasThunder
-              ? [...node.anchorRows, rowIndex]
-              : node.anchorRows,
+            anchorRows,
             lineageId: node.lineageId,
             lineageBaseDamage: node.lineageBaseDamage,
             lineageProjectedFinal: node.lineageProjectedFinal,
           };
-          const key = `${thunderCount}|${lianyingResynthesisStateKey(state)}`;
+          const key = lianyingAnchorDriftNodeKey(
+            thunderCount,
+            anchorRows,
+            state,
+          );
           const current = candidates.get(key);
           if (!current || state.totalDamage > current.state.totalDamage) {
             candidates.set(key, candidate);
@@ -1911,6 +1992,60 @@ export function optimizeLianyingAnchorDriftResynthesis(
         } catch {
           // 完整状态机淘汰资源、冷却、充能和马上状态非法动作。
         }
+      }
+    }
+
+    for (const warmNode of additionalWarmSources) {
+      if (!warmNode.active) continue;
+      const warmPack = warmNode.source[rowIndex];
+      if (
+        !isLianyingAnchorDriftPackAllowed(
+          warmPack,
+          rowIndex,
+          warmNode.thunderCount,
+          anchors,
+          driftOptions,
+          warmNode.anchorRows,
+        ) ||
+        !isLianyingCompanionAnchorPackAllowed(
+          warmPack,
+          rowIndex,
+          companionAnchorTemplate,
+          [...prefixPacks, ...warmNode.packs],
+        )
+      ) {
+        warmNode.active = false;
+        continue;
+      }
+      try {
+        warmNode.state = executeActionPack(
+          warmNode.state,
+          warmPack,
+          runtime.config,
+          runtime.oracle,
+          { endTick },
+        );
+        warmNode.packs = [...warmNode.packs, cloneLianyingPack(warmPack)];
+        const hasThunder = lianyingPackHasAction(warmPack, "thunder");
+        warmNode.thunderCount += Number(hasThunder);
+        if (hasThunder) warmNode.anchorRows = [...warmNode.anchorRows, rowIndex];
+        const key = lianyingAnchorDriftNodeKey(
+          warmNode.thunderCount,
+          warmNode.anchorRows,
+          warmNode.state,
+        );
+        const current = candidates.get(key);
+        if (!current || warmNode.state.totalDamage > current.state.totalDamage) {
+          candidates.set(key, {
+            state: warmNode.state,
+            packs: warmNode.packs,
+            thunderCount: warmNode.thunderCount,
+            anchorRows: warmNode.anchorRows,
+            lineageId: warmNode.lineageId,
+          });
+        }
+      } catch {
+        warmNode.active = false;
       }
     }
 
@@ -1948,7 +2083,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
     warmThunderCount += Number(warmHasThunder);
     const warmAnchorRows = anchors.slice(0, warmThunderCount);
     const warmKey = lianyingResynthesisStateKey(warmState);
-    const warmCompositeKey = `${warmThunderCount}|${warmKey}`;
+    const warmCompositeKey = lianyingAnchorDriftNodeKey(
+      warmThunderCount,
+      warmAnchorRows,
+      warmState,
+    );
     const currentWarm = candidates.get(warmCompositeKey);
     if (!currentWarm || warmState.totalDamage > currentWarm.state.totalDamage) {
       candidates.set(warmCompositeKey, {
@@ -1964,7 +2103,15 @@ export function optimizeLianyingAnchorDriftResynthesis(
     nodes = selectAnchorDriftRowBeam(
       candidates.values(),
       rowBeamWidth,
-      warmKey,
+      [
+        warmKey,
+        ...additionalWarmSources
+          .filter((candidate) => candidate.active)
+          .map((candidate) => ({
+            stateKey: lianyingResynthesisStateKey(candidate.state),
+            scheduleKey: JSON.stringify(candidate.anchorRows),
+          })),
+      ],
       warmState,
     );
     peakRowStates = Math.max(peakRowStates, nodes.length);
@@ -2010,6 +2157,13 @@ export function optimizeLianyingAnchorDriftResynthesis(
           ? (node) => node.suffixValue.score
           : null,
         minimumScheduleQuota: normalizedAllowedAnchorSchedules.length,
+        additionalPinned: additionalWarmSources
+          .filter((candidate) =>
+            candidate.active && candidate.thunderCount >= anchorIndex + 1)
+          .map((candidate) => ({
+            stateKey: lianyingResynthesisStateKey(candidate.state),
+            scheduleKey: JSON.stringify(candidate.anchorRows),
+          })),
       },
     );
     nodes = boundary.nodes;
@@ -2100,7 +2254,16 @@ export function optimizeLianyingAnchorDriftResynthesis(
     boundaryBeamWidth,
     warmFinalKey,
     JSON.stringify(anchors),
-    { minimumScheduleQuota: normalizedAllowedAnchorSchedules.length },
+    {
+      minimumScheduleQuota: normalizedAllowedAnchorSchedules.length,
+      additionalPinned: additionalWarmSources
+        .filter((candidate) =>
+          candidate.active && candidate.thunderCount === anchors.length)
+        .map((candidate) => ({
+          stateKey: lianyingResynthesisStateKey(candidate.state),
+          scheduleKey: JSON.stringify(candidate.anchorRows),
+        })),
+    },
   ).nodes;
   const coreCandidatesByPath = new Map();
   const addCoreCandidate = (candidate) => {
@@ -2230,6 +2393,23 @@ export function optimizeLianyingAnchorDriftResynthesis(
   const best = finalCandidates[0];
   const accepted = Boolean(best && best.totalDamage > incumbent.state.totalDamage);
   const selectedAnchorRows = accepted ? best.anchorRows : anchors;
+  const additionalWarmDiagnostics = additionalWarmSources.map(
+    (candidate, index) => {
+      const sourceKey = JSON.stringify(candidate.source);
+      const finalStateKey = lianyingResynthesisStateKey(candidate.state);
+      return {
+        warmAxis: index + 1,
+        active: candidate.active,
+        anchorRows: candidate.anchorRows.map((row) => row + 1),
+        finalStateDamage: candidate.state.totalDamage,
+        survivedFinalBoundary: nodes.some((node) =>
+          JSON.stringify(node.anchorRows) === JSON.stringify(candidate.anchorRows) &&
+          lianyingResynthesisStateKey(node.state) === finalStateKey),
+        reachedCoreReplay: coreCandidatesByPath.has(sourceKey),
+        coreDamage: coreCandidatesByPath.get(sourceKey)?.coreDamage ?? null,
+      };
+    },
+  );
   return {
     packs: accepted ? best.packs : incumbentPacks,
     state: accepted ? best.state : incumbent.state,
@@ -2252,6 +2432,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     coreCandidates: coreCandidatesByPath.size,
     coreScheduleDiagnostics,
     coreScheduleCandidates,
+    additionalWarmDiagnostics,
     coarseCandidates: coarseCandidates.map((candidate) => ({
       isIncumbent: candidate.isIncumbent,
       anchorRows: candidate.anchorRows.map((row) => row + 1),
@@ -2280,6 +2461,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
         (schedule) => schedule.map((row) => row + 1),
       ),
       companionAnchorTemplate,
+      additionalWarmAxisCount: additionalWarmSources.length,
       includeScheduleCandidatePacks,
     },
   };

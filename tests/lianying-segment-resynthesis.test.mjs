@@ -7,6 +7,7 @@ import {
   lianyingAdaptiveSuffixEndIndex,
   lianyingBoundaryStateDistance,
   lianyingCorePackDistance,
+  lianyingSegmentNodeKey,
   lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
   selectLianyingDiverseAxisCandidates,
@@ -29,6 +30,33 @@ test("按雷锚点识别两个任雷之间及最后雷后的整段", () => {
   assert.deepEqual(
     identified.ranges.map((segment) => [segment.startIndex, segment.endIndex]),
     [[1, 5], [5, 9], [9, 12]],
+  );
+});
+
+test("区段去重键在雷漂移时保留不同坐标谱系", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const state = replayWhitepaperLianying(runtime, [], {
+    durationSeconds: 1,
+  }).state;
+  const lineageKey = (node) => JSON.stringify(
+    node.packs.map((pack) => pack.primary),
+  );
+
+  assert.notEqual(
+    lianyingSegmentNodeKey(
+      state,
+      [{ primary: "dragonFang" }],
+      lineageKey,
+    ),
+    lianyingSegmentNodeKey(
+      state,
+      [{ primary: "dragonRoar" }],
+      lineageKey,
+    ),
+  );
+  assert.equal(
+    lianyingSegmentNodeKey(state, [{ primary: "dragonFang" }]),
+    lianyingSegmentNodeKey(state, [{ primary: "dragonRoar" }]),
   );
 });
 

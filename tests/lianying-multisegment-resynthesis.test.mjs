@@ -5,6 +5,7 @@ import { createInitialState } from "../src/engine/state.js";
 import {
   isLianyingCompanionAnchorPackAllowed,
   isLianyingThunderAnchorPackAllowed,
+  lianyingAnchorDriftNodeKey,
   lianyingAnchorDriftLongTermScore,
   isLianyingAnchorDriftPackAllowed,
   lianyingAnchorDriftScheduleToCsv,
@@ -105,6 +106,23 @@ test("雷坐标谱系长期评分累加锚点后的新增实际伤害", () => {
   assert.equal(
     lianyingAnchorDriftLongTermScore({ state: { totalDamage: 150 } }),
     150,
+  );
+});
+
+test("雷坐标谱系作为锚点搜索去重键的一部分", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const state = createInitialState(runtime.config, {
+    rage: 5,
+    executePhase: true,
+  });
+
+  assert.notEqual(
+    lianyingAnchorDriftNodeKey(2, [3, 20], state),
+    lianyingAnchorDriftNodeKey(2, [3, 21], state),
+  );
+  assert.equal(
+    lianyingAnchorDriftNodeKey(2, [3, 20], state),
+    lianyingAnchorDriftNodeKey(2, [3, 20], structuredClone(state)),
   );
 });
 

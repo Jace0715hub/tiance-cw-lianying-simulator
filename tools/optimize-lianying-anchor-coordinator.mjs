@@ -4,12 +4,17 @@ import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import { resolveLianyingResearchPath } from "../src/config/lianying-research-defaults.js";
 import {
+  buildLianyingFocusedCompanionAnchorTemplate,
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingFocusedCompanionAnchorCoordination,
   optimizeLianyingHierarchicalAnchorCoordination,
   optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
   optimizeLianyingRankedPairAnchorCoordination,
 } from "../src/policies/lianying-anchor-coordinator.js";
+import {
+  identifyLianyingThunderSegments,
+  stripLianyingDashPacks,
+} from "../src/policies/lianying-segment-resynthesis.js";
 import { replayWhitepaperLianying } from "../src/policies/whitepaper-lianying.js";
 import {
   buildWhitepaperAxisArtifact,
@@ -23,6 +28,7 @@ const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "screen";
 const pairProfile = profileName.startsWith("pair-");
 const focusedProfile = profileName.startsWith("focused-");
+const targetedProfile = profileName.startsWith("target-anchor-");
 const singleResultPath = pairProfile && process.argv[5]
   ? path.resolve(process.argv[5])
   : null;
@@ -64,6 +70,28 @@ for (const [label, value] of [
   ["前向窗口", focusedBeforeRows],
   ["后向窗口", focusedAfterRows],
   ["聚焦重心轮次", focusedMaximumPasses],
+]) {
+  if (value !== null && (!Number.isInteger(value) || value < 0)) {
+    throw new Error(`${label}必须是非负整数`);
+  }
+}
+const targetedAnchorNumber = targetedProfile
+  ? Number(process.argv[5] ?? 6)
+  : null;
+const targetedAnchorSlackRows = targetedProfile
+  ? Number(process.argv[6] ?? 2)
+  : null;
+const targetedRideSlackRows = targetedProfile
+  ? Number(process.argv[7] ?? 2)
+  : null;
+const targetedDismountSlackRows = targetedProfile
+  ? Number(process.argv[8] ?? 6)
+  : null;
+for (const [label, value] of [
+  ["指定雷序号", targetedAnchorNumber],
+  ["指定雷窗口", targetedAnchorSlackRows],
+  ["任驰骋窗口", targetedRideSlackRows],
+  ["下马窗口", targetedDismountSlackRows],
 ]) {
   if (value !== null && (!Number.isInteger(value) || value < 0)) {
     throw new Error(`${label}必须是非负整数`);
@@ -266,6 +294,26 @@ const profiles = {
     finalDashCandidateCount: 2,
     fullDashStates: 128,
   },
+  "target-anchor-rides-dismount-screen": {
+    ...common,
+    rowBeamWidth: 24,
+    boundaryBeamWidth: 12,
+    coreFinalistCount: 12,
+    coarseCandidateLimit: 4,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "target-anchor-rides-dismount-fast": {
+    ...common,
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 16,
+    coreFinalistCount: 16,
+    coarseCandidateLimit: 5,
+    coarseDashStates: 12,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(
@@ -290,6 +338,99 @@ if (pairProfile) {
 
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
 const seedReplay = replayWhitepaperLianying(runtime, seedPacks, { durationSeconds });
+const targetedAnchors = targetedProfile
+  ? identifyLianyingThunderSegments(stripLianyingDashPacks(seedPacks)).anchors
+  : null;
+if (
+  targetedProfile &&
+  (targetedAnchorNumber < 2 || targetedAnchorNumber >= targetedAnchors.length)
+) {
+  throw new Error("指定雷序号必须是非首尾雷");
+}
+const targetedAnchorTemplates = targetedProfile
+  ? [
+      {
+        templateId: "incumbent",
+        anchorRows: targetedAnchors,
+        shiftedAnchors: [],
+      },
+      ...Array.from(
+        { length: targetedAnchorSlackRows * 2 },
+        (_, index) => index < targetedAnchorSlackRows
+          ? index - targetedAnchorSlackRows
+          : index - targetedAnchorSlackRows + 1,
+      ).flatMap((delta) => {
+        const anchorIndex = targetedAnchorNumber - 1;
+        const anchorRows = [...targetedAnchors];
+        anchorRows[anchorIndex] += delta;
+        if (
+          anchorRows[anchorIndex] <= anchorRows[anchorIndex - 1] ||
+          anchorRows[anchorIndex] >= anchorRows[anchorIndex + 1]
+        ) return [];
+        return [{
+          templateId: `target-${targetedAnchorNumber}:${delta > 0 ? "+" : ""}${delta}`,
+          anchorRows,
+          shiftedAnchors: [{
+            anchorNumber: targetedAnchorNumber,
+            fromRow: targetedAnchors[anchorIndex] + 1,
+            toRow: anchorRows[anchorIndex] + 1,
+            deltaRows: delta,
+          }],
+        }];
+      }),
+    ]
+  : null;
+const targetedCompanionAnchorTemplate = targetedProfile
+  ? buildLianyingFocusedCompanionAnchorTemplate(seedPacks, {
+      companionTypes: ["ride", "dismount"],
+      companionPolicies: {
+        ride: {
+          fixedThroughOrdinal: 4,
+          beforeRows: targetedRideSlackRows,
+          afterRows: targetedRideSlackRows,
+        },
+        dismount: {
+          fixedThroughOrdinal: 4,
+          beforeRows: targetedDismountSlackRows,
+          afterRows: targetedDismountSlackRows,
+        },
+      },
+    })
+  : null;
+const targetedWarmAxes = targetedProfile
+  ? targetedAnchorTemplates.slice(1).flatMap((template) => {
+      const source = stripLianyingDashPacks(seedPacks);
+      const anchorIndex = targetedAnchorNumber - 1;
+      const sourceRow = targetedAnchors[anchorIndex];
+      const targetRow = template.anchorRows[anchorIndex];
+      const candidate = structuredClone(source);
+      for (const location of ["prefix", "tail"]) {
+        candidate[sourceRow][location] = (candidate[sourceRow][location] ?? [])
+          .filter((action) =>
+            (typeof action === "string" ? action : action?.id) !== "thunder");
+      }
+      const primary = typeof candidate[targetRow].primary === "string"
+        ? candidate[targetRow].primary
+        : candidate[targetRow].primary?.id;
+      if (primary === "ride") {
+        candidate[targetRow].tail = [
+          { id: "thunder", leadFrames: 1 },
+          ...(candidate[targetRow].tail ?? []),
+        ];
+      } else {
+        candidate[targetRow].prefix = [
+          "thunder",
+          ...(candidate[targetRow].prefix ?? []),
+        ];
+      }
+      try {
+        replayWhitepaperLianying(runtime, candidate, { durationSeconds });
+        return [candidate];
+      } catch {
+        return [];
+      }
+    })
+  : [];
 const optimizeOptions = {
     durationSeconds,
     ...profiles[profileName],
@@ -310,7 +451,14 @@ const optimizeOptions = {
     ...(focusedMaximumPasses !== null
       ? { maximumFocusedPasses: focusedMaximumPasses }
       : {}),
-    includeScheduleCandidatePacks: pairProfile || focusedProfile,
+    ...(targetedProfile
+      ? {
+          anchorTemplates: targetedAnchorTemplates,
+          companionAnchorTemplate: targetedCompanionAnchorTemplate,
+          additionalWarmAxes: targetedWarmAxes,
+        }
+      : {}),
+    includeScheduleCandidatePacks: pairProfile || focusedProfile || targetedProfile,
     onProgress: (event) => {
       console.log(JSON.stringify({ phase: "anchor-coordination", ...event }));
     },
@@ -330,6 +478,12 @@ const optimized = pairProfile
           optimizeOptions,
         )
       : optimizeLianyingFocusedCompanionAnchorCoordination(
+        runtime,
+        seedPacks,
+        optimizeOptions,
+      )
+  : targetedProfile
+    ? optimizeLianyingHierarchicalAnchorCoordination(
         runtime,
         seedPacks,
         optimizeOptions,
@@ -375,6 +529,7 @@ const searchResult = {
     coreCandidates: optimized.coreCandidates,
     coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
     coreScheduleCandidates: optimized.coreScheduleCandidates,
+    additionalWarmDiagnostics: optimized.additionalWarmDiagnostics,
     coarseCandidates: optimized.coarseCandidates,
     iteration: optimized.iteration ?? null,
   },
@@ -418,6 +573,7 @@ console.log(JSON.stringify({
   finalSchedules: optimized.finalSchedules,
   coreCandidates: optimized.coreCandidates,
   coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
+  additionalWarmDiagnostics: optimized.additionalWarmDiagnostics,
   coarseCandidates: optimized.coarseCandidates,
   iteration: optimized.iteration ?? null,
 }, null, 2));
