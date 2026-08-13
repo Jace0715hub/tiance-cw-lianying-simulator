@@ -388,6 +388,31 @@ const profiles = {
     includeCoreCandidatePacks: true,
     coreCandidatePackLimit: 48,
   },
+  "early-orange-mid-thunder-structure-screen": {
+    ...common,
+    evaluationMode: "shared",
+    movableAnchorNumbers: [2, 3, 4],
+    maximumShiftedAnchors: 1,
+    maximumTemplates: 7,
+    preserveCompanionLineageTypes: ["orange"],
+    rowBeamWidth: 48,
+    boundaryBeamWidth: 48,
+    coreFinalistCount: 48,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 48,
+    primaryStructureDiversity: {
+      startRow: 1,
+      endRow: 79,
+      rowBucketSize: 8,
+      maximumDifferences: 2,
+      rowQuota: 8,
+      boundaryQuota: 8,
+    },
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(

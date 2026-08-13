@@ -555,8 +555,15 @@ function selectAnchorDriftRowBeam(
   pinnedKey,
   boundaryTarget,
   minimumScheduleQuota = 0,
+  {
+    structureKeyNode = null,
+    minimumStructureQuota = 0,
+  } = {},
 ) {
   const all = [...nodes];
+  const structureKey = typeof structureKeyNode === "function"
+    ? structureKeyNode
+    : null;
   const pinnedEntries = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
     .filter(Boolean)
     .map((entry) => typeof entry === "string"
@@ -594,12 +601,33 @@ function selectAnchorDriftRowBeam(
       lianyingAnchorDriftLongTermScore(right) -
       lianyingAnchorDriftLongTermScore(left),
   );
+  const structureBest = new Map();
+  if (structureKey) {
+    for (const node of all) {
+      const key = structureKey(node);
+      const current = structureBest.get(key);
+      if (
+        !current ||
+        lianyingAnchorDriftLongTermScore(node) >
+          lianyingAnchorDriftLongTermScore(current)
+      ) structureBest.set(key, node);
+    }
+  }
+  const structureNodes = [...structureBest.values()].sort(
+    (left, right) =>
+      lianyingAnchorDriftLongTermScore(right) -
+      lianyingAnchorDriftLongTermScore(left),
+  );
+  const structureQuota = Math.min(
+    structureNodes.length,
+    Math.max(0, Math.floor(Number(minimumStructureQuota ?? 0))),
+  );
   const scheduleQuota = Math.min(
     scheduleNodes.length,
     Math.max(
       1,
       Math.ceil(beamWidth / 2),
-      Math.floor(Number(minimumScheduleQuota ?? 0)),
+      Math.floor(Number(minimumScheduleQuota ?? 0)) - structureQuota,
     ),
   );
   let selectedSchedules = new Set(
@@ -613,6 +641,20 @@ function selectAnchorDriftRowBeam(
     selectedNodes.add(node);
     selectedSchedules.add(scheduleKey);
     if (selectedSchedules.size >= scheduleQuota) break;
+  }
+  if (structureKey) {
+    const selectedStructureKeys = new Set(selected.map(structureKey));
+    if (selectedStructureKeys.size < structureQuota) {
+      for (const node of structureNodes) {
+        if (selected.length >= beamWidth) break;
+        const key = structureKey(node);
+        if (selectedStructureKeys.has(key)) continue;
+        selected.push(node);
+        selectedNodes.add(node);
+        selectedStructureKeys.add(key);
+        if (selectedStructureKeys.size >= structureQuota) break;
+      }
+    }
   }
   const base = selectJointRowBeam(
     all,
@@ -688,6 +730,8 @@ function selectAnchorDriftBoundaryNodes(
   {
     scoreNode = null,
     minimumScheduleQuota = 0,
+    structureKeyNode = null,
+    minimumStructureQuota = 0,
     additionalPinned = [],
   } = {},
 ) {
@@ -695,6 +739,9 @@ function selectAnchorDriftBoundaryNodes(
   const score = typeof scoreNode === "function"
     ? scoreNode
     : (node) => node.state.totalDamage;
+  const structureKey = typeof structureKeyNode === "function"
+    ? structureKeyNode
+    : null;
   const scheduleBest = new Map();
   for (const node of all) {
     const key = anchorDriftNodeScheduleKey(node);
@@ -703,6 +750,21 @@ function selectAnchorDriftBoundaryNodes(
   }
   const scheduleNodes = [...scheduleBest.values()].sort(
     (left, right) => score(right) - score(left),
+  );
+  const structureBest = new Map();
+  if (structureKey) {
+    for (const node of all) {
+      const key = structureKey(node);
+      const current = structureBest.get(key);
+      if (!current || score(node) > score(current)) structureBest.set(key, node);
+    }
+  }
+  const structureNodes = [...structureBest.values()].sort(
+    (left, right) => score(right) - score(left),
+  );
+  const structureQuota = Math.min(
+    structureNodes.length,
+    Math.max(0, Math.floor(Number(minimumStructureQuota ?? 0))),
   );
   const selected = [];
   const selectedNodes = new Set();
@@ -727,12 +789,25 @@ function selectAnchorDriftBoundaryNodes(
     Math.max(
       1,
       Math.ceil(beamWidth / 2),
-      Math.floor(Number(minimumScheduleQuota ?? 0)),
+      Math.floor(Number(minimumScheduleQuota ?? 0)) - structureQuota,
     ),
   );
   for (const node of scheduleNodes) {
     add(node);
     if (selectedScheduleKeys.size >= scheduleQuota) break;
+  }
+  if (structureKey) {
+    const selectedStructureKeys = new Set(selected.map(structureKey));
+    if (selectedStructureKeys.size < structureQuota) {
+      for (const node of structureNodes) {
+        if (selected.length >= beamWidth) break;
+        const key = structureKey(node);
+        if (selectedStructureKeys.has(key)) continue;
+        add(node);
+        selectedStructureKeys.add(key);
+        if (selectedStructureKeys.size >= structureQuota) break;
+      }
+    }
   }
   const base = selectLianyingJointBoundaryNodes(
     all,
@@ -747,7 +822,60 @@ function selectAnchorDriftBoundaryNodes(
     paretoCount: base.paretoCount,
     diversityBuckets: base.diversityBuckets,
     scheduleBuckets: scheduleBest.size,
+    structureBuckets: structureBest.size,
+    selectedStructureBuckets: structureKey
+      ? new Set(selected.map(structureKey)).size
+      : 0,
   };
+}
+
+export function lianyingPrimaryHistoryStructureKey(
+  packs,
+  referencePacks,
+  {
+    startRow = 1,
+    endRow = 79,
+    rowBucketSize = 8,
+    maximumDifferences = 2,
+  } = {},
+) {
+  const startIndex = Math.max(0, Math.floor(Number(startRow)) - 1);
+  const endIndex = Math.min(
+    packs.length,
+    referencePacks.length,
+    Math.max(startIndex, Math.floor(Number(endRow))),
+  );
+  const bucketSize = Math.max(1, Math.floor(Number(rowBucketSize)));
+  const differenceLimit = Math.max(
+    1,
+    Math.floor(Number(maximumDifferences)),
+  );
+  const differences = [];
+  const countDelta = new Map();
+  for (let index = startIndex; index < endIndex; index += 1) {
+    const candidateId = actionId(packs[index]?.primary);
+    const referenceId = actionId(referencePacks[index]?.primary);
+    if (candidateId === referenceId) continue;
+    if (differences.length < differenceLimit) {
+      differences.push([
+        Math.floor((index - startIndex) / bucketSize),
+        referenceId,
+        candidateId,
+      ]);
+    }
+    countDelta.set(
+      referenceId,
+      Number(countDelta.get(referenceId) ?? 0) - 1,
+    );
+    countDelta.set(
+      candidateId,
+      Number(countDelta.get(candidateId) ?? 0) + 1,
+    );
+  }
+  const deltas = [...countDelta.entries()]
+    .filter(([, count]) => count !== 0)
+    .sort(([left], [right]) => String(left).localeCompare(String(right)));
+  return JSON.stringify([differences, deltas]);
 }
 
 function stateRemainingSnapshot(state) {
@@ -1866,6 +1994,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     includeScheduleCandidatePacks = false,
     includeCoreCandidatePacks = false,
     coreCandidatePackLimit = 0,
+    primaryStructureDiversity = null,
     onProgress = null,
   } = {},
 ) {
@@ -1923,6 +2052,41 @@ export function optimizeLianyingAnchorDriftResynthesis(
   };
   const firstAnchor = anchors[0];
   const prefixPacks = clonePacks(corePacks.slice(0, firstAnchor));
+  const normalizedPrimaryStructureDiversity = primaryStructureDiversity
+    ? {
+        startRow: Math.max(
+          1,
+          Math.floor(Number(primaryStructureDiversity.startRow ?? 1)),
+        ),
+        endRow: Math.max(
+          1,
+          Math.floor(Number(primaryStructureDiversity.endRow ?? 79)),
+        ),
+        rowBucketSize: Math.max(
+          1,
+          Math.floor(Number(primaryStructureDiversity.rowBucketSize ?? 8)),
+        ),
+        maximumDifferences: Math.max(
+          1,
+          Math.floor(Number(primaryStructureDiversity.maximumDifferences ?? 2)),
+        ),
+        rowQuota: Math.max(
+          0,
+          Math.floor(Number(primaryStructureDiversity.rowQuota ?? 0)),
+        ),
+        boundaryQuota: Math.max(
+          0,
+          Math.floor(Number(primaryStructureDiversity.boundaryQuota ?? 0)),
+        ),
+      }
+    : null;
+  const primaryStructureKeyNode = normalizedPrimaryStructureDiversity
+    ? (node) => lianyingPrimaryHistoryStructureKey(
+        [...prefixPacks, ...node.packs],
+        corePacks,
+        normalizedPrimaryStructureDiversity,
+      )
+    : null;
   const companionLineageTypes = [...new Set(
     (preserveCompanionLineageTypes ?? []).filter((type) =>
       LIANYING_COMPANION_LINEAGE_TYPES.includes(type)),
@@ -2207,6 +2371,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
       ],
       warmState,
       companionLineageTypes.length > 0 ? rowBeamWidth : 0,
+      {
+        structureKeyNode: primaryStructureKeyNode,
+        minimumStructureQuota:
+          normalizedPrimaryStructureDiversity?.rowQuota ?? 0,
+      },
     );
     peakRowStates = Math.max(peakRowStates, nodes.length);
     if (nodes.length === 0) {
@@ -2254,6 +2423,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
         minimumScheduleQuota: companionLineageTypes.length > 0
           ? boundaryBeamWidth
           : normalizedAllowedAnchorSchedules.length,
+        structureKeyNode: primaryStructureKeyNode,
+        minimumStructureQuota:
+          normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
         additionalPinned: additionalWarmSources
           .filter((candidate) =>
             candidate.active && candidate.thunderCount >= anchorIndex + 1)
@@ -2297,6 +2469,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
         nodes.map((node) => JSON.stringify(node.anchorRows)),
       ).size,
       availableSchedules: boundary.scheduleBuckets,
+      availablePrimaryStructures: boundary.structureBuckets,
+      survivingPrimaryStructures: boundary.selectedStructureBuckets,
       actualRowHistogram,
       survivingAnchorSchedules: [...new Set(nodes.map(
         (node) => JSON.stringify(node.anchorRows.map((row) => row + 1)),
@@ -2355,6 +2529,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
       minimumScheduleQuota: companionLineageTypes.length > 0
         ? boundaryBeamWidth
         : normalizedAllowedAnchorSchedules.length,
+      structureKeyNode: primaryStructureKeyNode,
+      minimumStructureQuota:
+        normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
       additionalPinned: additionalWarmSources
         .filter((candidate) =>
           candidate.active && candidate.thunderCount === anchors.length)
@@ -2619,6 +2796,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       includeScheduleCandidatePacks,
       includeCoreCandidatePacks,
       coreCandidatePackLimit: normalizedCoreCandidatePackLimit,
+      primaryStructureDiversity: normalizedPrimaryStructureDiversity,
     },
   };
 }

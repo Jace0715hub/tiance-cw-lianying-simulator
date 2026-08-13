@@ -40,6 +40,10 @@ const maximumCoreDamageLossRatio = Math.max(
 );
 const endRow = Math.max(1, Math.floor(Number(process.argv[6] ?? 79)));
 const dashStates = Math.max(1, Math.floor(Number(process.argv[7] ?? 128)));
+const latestFirstDifferenceRow = Math.max(
+  1,
+  Math.floor(Number(process.argv[8] ?? endRow)),
+);
 const durationSeconds = Number(source.durationSeconds ?? 180);
 const mode = source.mode ?? "fixed";
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
@@ -53,6 +57,7 @@ const selected = selectLianyingEarlyStructuralSeedCandidates(
     limit,
     maximumCoreDamageLossRatio,
     endRow,
+    latestFirstDifferenceRow,
   },
 );
 
@@ -88,6 +93,7 @@ for (let index = 0; index < selected.length; index += 1) {
       coreDamageLoss: candidate.coreDamageLoss,
       coreDamageLossRatio: candidate.coreDamageLossRatio,
       earlyEndRow: endRow,
+      latestFirstDifferenceRow,
       earlyDifferingRows: candidate.earlyDifferingRows,
       firstEarlyDifferenceRow: candidate.firstEarlyDifferenceRow,
       dashStates,
@@ -130,6 +136,7 @@ const manifest = {
     limit,
     maximumCoreDamageLossRatio,
     endRow,
+    latestFirstDifferenceRow,
     dashStates,
     ignoredActionIds: ["thunder", "dash"],
   },

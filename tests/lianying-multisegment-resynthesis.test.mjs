@@ -11,6 +11,7 @@ import {
   lianyingAnchorDriftScheduleToCsv,
   lianyingAnchorDriftWindow,
   lianyingMultiSegmentAnchorDiagnosticsToCsv,
+  lianyingPrimaryHistoryStructureKey,
   optimizeLianyingAnchorDriftResynthesis,
   optimizeLianyingMultiSegmentResynthesis,
   selectLianyingJointBoundaryNodes,
@@ -770,6 +771,35 @@ test("雷锚点模板可以只开放指定的中段雷", () => {
     template.anchorRows[5] === anchors[5]));
 });
 
+test("主要技能历史结构按早段分歧位置与技能数量变化分桶", () => {
+  const reference = Array.from({ length: 12 }, () => ({
+    prefix: [], primary: "dragonFang", tail: [],
+  }));
+  const same = structuredClone(reference);
+  same[2].prefix.push("thunder");
+  const earlySwap = structuredClone(reference);
+  earlySwap[3].primary = "destroy";
+  earlySwap[4].primary = "dragonRoar";
+  const lateSwap = structuredClone(reference);
+  lateSwap[9].primary = "destroy";
+  lateSwap[10].primary = "dragonRoar";
+  const options = {
+    startRow: 1,
+    endRow: 12,
+    rowBucketSize: 4,
+    maximumDifferences: 2,
+  };
+
+  assert.equal(
+    lianyingPrimaryHistoryStructureKey(reference, reference, options),
+    lianyingPrimaryHistoryStructureKey(same, reference, options),
+  );
+  assert.notEqual(
+    lianyingPrimaryHistoryStructureKey(earlySwap, reference, options),
+    lianyingPrimaryHistoryStructureKey(lateSwap, reference, options),
+  );
+});
+
 test("早段结构键忽略雷与突位置但保留主要技能和橙武", () => {
   const baseline = [{
     prefix: [],
@@ -849,6 +879,26 @@ test("早段结构种子排除纯雷相位并保留近优主要技能差异", ()
     },
   );
   assert.equal(orangePhase.length, 0);
+
+  const mustDifferImmediately = selectLianyingEarlyStructuralSeedCandidates(
+    [
+      { isIncumbent: true, coreDamage: 1000, packs: incumbent },
+      {
+        coreDamage: 990,
+        packs: [incumbent[0], {
+          prefix: [], primary: "destroy", tail: [],
+        }],
+      },
+    ],
+    incumbent,
+    {
+      limit: 3,
+      maximumCoreDamageLossRatio: 0.05,
+      endRow: 2,
+      latestFirstDifferenceRow: 1,
+    },
+  );
+  assert.equal(mustDifferImmediately.length, 0);
 });
 
 test("结构种子按移动雷分组保留高伤候选并过滤过度损失", () => {

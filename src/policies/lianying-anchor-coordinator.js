@@ -61,6 +61,7 @@ export function selectLianyingEarlyStructuralSeedCandidates(
     maximumCoreDamageLossRatio = 0.01,
     startRow = 1,
     endRow = 79,
+    latestFirstDifferenceRow = endRow,
     ignoredActionIds = ["thunder", "dash"],
   } = {},
 ) {
@@ -122,6 +123,11 @@ export function selectLianyingEarlyStructuralSeedCandidates(
       earlyDifferingRows: differingRows,
       firstEarlyDifferenceRow: differingRows[0] ?? null,
     };
+    if (
+      prepared.firstEarlyDifferenceRow === null ||
+      prepared.firstEarlyDifferenceRow >
+        Math.floor(Number(latestFirstDifferenceRow))
+    ) continue;
     const current = byStructure.get(structureKey);
     if (!current || prepared.coreDamage > current.coreDamage) {
       byStructure.set(structureKey, prepared);
