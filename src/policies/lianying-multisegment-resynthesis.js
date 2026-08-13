@@ -35,6 +35,46 @@ function actionId(action) {
   return typeof action === "string" ? action : action?.id;
 }
 
+const LIANYING_COMPANION_LINEAGE_TYPES = ["ride", "orange", "dismount"];
+
+function companionPackHasAction(pack, type) {
+  return type === "ride"
+    ? actionId(pack.primary) === "ride"
+    : lianyingPackHasAction(pack, type);
+}
+
+function selectCompanionLineageRows(packs, types) {
+  return Object.fromEntries(types.map((type) => [
+    type,
+    packs.flatMap((pack, index) =>
+      companionPackHasAction(pack, type) ? [index + 1] : []),
+  ]));
+}
+
+function appendCompanionLineageRows(rows, pack, rowNumber, types) {
+  let next = rows;
+  for (const type of types) {
+    if (!companionPackHasAction(pack, type)) continue;
+    if (next === rows) next = structuredClone(rows);
+    next[type] = [...(next[type] ?? []), rowNumber];
+  }
+  return next;
+}
+
+export function lianyingAnchorDriftScheduleKey(
+  anchorRows,
+  companionLineageRows = {},
+) {
+  return JSON.stringify({ anchorRows, companionLineageRows });
+}
+
+function anchorDriftNodeScheduleKey(node) {
+  return lianyingAnchorDriftScheduleKey(
+    node.anchorRows,
+    node.companionLineageRows,
+  );
+}
+
 export function lianyingCompanionAnchorRows(packs) {
   const rowsFor = (predicate) => packs.flatMap((pack, index) =>
     predicate(pack) ? [index + 1] : []);
@@ -514,6 +554,7 @@ function selectAnchorDriftRowBeam(
   beamWidth,
   pinnedKey,
   boundaryTarget,
+  minimumScheduleQuota = 0,
 ) {
   const all = [...nodes];
   const pinnedEntries = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
@@ -532,7 +573,7 @@ function selectAnchorDriftRowBeam(
     ) {
       countBest.set(node.thunderCount, node);
     }
-    const scheduleKey = JSON.stringify(node.anchorRows);
+    const scheduleKey = anchorDriftNodeScheduleKey(node);
     const currentSchedule = scheduleBest.get(scheduleKey);
     if (
       !currentSchedule ||
@@ -555,14 +596,18 @@ function selectAnchorDriftRowBeam(
   );
   const scheduleQuota = Math.min(
     scheduleNodes.length,
-    Math.max(1, Math.ceil(beamWidth / 2)),
+    Math.max(
+      1,
+      Math.ceil(beamWidth / 2),
+      Math.floor(Number(minimumScheduleQuota ?? 0)),
+    ),
   );
   let selectedSchedules = new Set(
-    selected.map((node) => JSON.stringify(node.anchorRows)),
+    selected.map(anchorDriftNodeScheduleKey),
   );
   for (const node of scheduleNodes) {
     if (selected.length >= beamWidth) break;
-    const scheduleKey = JSON.stringify(node.anchorRows);
+    const scheduleKey = anchorDriftNodeScheduleKey(node);
     if (selectedSchedules.has(scheduleKey)) continue;
     selected.push(node);
     selectedNodes.add(node);
@@ -584,7 +629,7 @@ function selectAnchorDriftRowBeam(
   const matchesPinned = (node, entry) =>
     lianyingResynthesisStateKey(node.state) === entry.stateKey &&
     (entry.scheduleKey === null ||
-      JSON.stringify(node.anchorRows) === entry.scheduleKey);
+      anchorDriftNodeScheduleKey(node) === entry.scheduleKey);
   for (const entry of pinnedEntries) {
     if (selected.some((node) => matchesPinned(node, entry))) continue;
     const pinned = all.find((node) => matchesPinned(node, entry));
@@ -595,13 +640,13 @@ function selectAnchorDriftRowBeam(
       continue;
     }
     const scheduleCounts = selected.reduce((counts, node) => {
-      const schedule = JSON.stringify(node.anchorRows);
+      const schedule = anchorDriftNodeScheduleKey(node);
       counts.set(schedule, Number(counts.get(schedule) ?? 0) + 1);
       return counts;
     }, new Map());
     const replacementIndex = selected.findLastIndex((node) =>
       !pinnedEntries.some((candidate) => matchesPinned(node, candidate)) &&
-      Number(scheduleCounts.get(JSON.stringify(node.anchorRows)) ?? 0) > 1);
+      Number(scheduleCounts.get(anchorDriftNodeScheduleKey(node)) ?? 0) > 1);
     if (replacementIndex >= 0) {
       selectedNodes.delete(selected[replacementIndex]);
       selected[replacementIndex] = pinned;
@@ -625,8 +670,12 @@ export function lianyingAnchorDriftNodeKey(
   thunderCount,
   anchorRows,
   state,
+  companionLineageRows = {},
 ) {
-  return `${thunderCount}|${JSON.stringify(anchorRows)}|${
+  return `${thunderCount}|${lianyingAnchorDriftScheduleKey(
+    anchorRows,
+    companionLineageRows,
+  )}|${
     lianyingResynthesisStateKey(state)
   }`;
 }
@@ -648,7 +697,7 @@ function selectAnchorDriftBoundaryNodes(
     : (node) => node.state.totalDamage;
   const scheduleBest = new Map();
   for (const node of all) {
-    const key = JSON.stringify(node.anchorRows);
+    const key = anchorDriftNodeScheduleKey(node);
     const current = scheduleBest.get(key);
     if (!current || score(node) > score(current)) scheduleBest.set(key, node);
   }
@@ -662,15 +711,15 @@ function selectAnchorDriftBoundaryNodes(
     if (!node || selected.length >= beamWidth || selectedNodes.has(node)) return;
     selected.push(node);
     selectedNodes.add(node);
-    selectedScheduleKeys.add(JSON.stringify(node.anchorRows));
+    selectedScheduleKeys.add(anchorDriftNodeScheduleKey(node));
   };
   const pinned = all.find((node) =>
-    JSON.stringify(node.anchorRows) === pinnedScheduleKey &&
+    anchorDriftNodeScheduleKey(node) === pinnedScheduleKey &&
     lianyingResynthesisStateKey(node.state) === pinnedKey);
   add(pinned);
   for (const entry of additionalPinned) {
     add(all.find((node) =>
-      JSON.stringify(node.anchorRows) === entry.scheduleKey &&
+      anchorDriftNodeScheduleKey(node) === entry.scheduleKey &&
       lianyingResynthesisStateKey(node.state) === entry.stateKey));
   }
   const scheduleQuota = Math.min(
@@ -1812,6 +1861,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     boundaryDiagnosticCount = 3,
     allowedAnchorSchedules = null,
     companionAnchorTemplate = null,
+    preserveCompanionLineageTypes = [],
     additionalWarmAxes = [],
     includeScheduleCandidatePacks = false,
     onProgress = null,
@@ -1871,6 +1921,14 @@ export function optimizeLianyingAnchorDriftResynthesis(
   };
   const firstAnchor = anchors[0];
   const prefixPacks = clonePacks(corePacks.slice(0, firstAnchor));
+  const companionLineageTypes = [...new Set(
+    (preserveCompanionLineageTypes ?? []).filter((type) =>
+      LIANYING_COMPANION_LINEAGE_TYPES.includes(type)),
+  )];
+  const initialCompanionLineageRows = selectCompanionLineageRows(
+    prefixPacks,
+    companionLineageTypes,
+  );
   for (let rowIndex = 0; rowIndex < prefixPacks.length; rowIndex += 1) {
     if (!isLianyingCompanionAnchorPackAllowed(
       prefixPacks[rowIndex],
@@ -1900,6 +1958,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
         packs: [],
         thunderCount: 0,
         anchorRows: [],
+        companionLineageRows: structuredClone(initialCompanionLineageRows),
         lineageId: `additional-warm-${index + 1}`,
         active: true,
       };
@@ -1909,6 +1968,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
   let warmState = warmStates[firstAnchor];
   let warmGeneratedPacks = [];
   let warmThunderCount = 0;
+  let warmCompanionLineageRows = structuredClone(initialCompanionLineageRows);
   let warmLineageId = "warm";
   let warmLineageBaseDamage = null;
   let warmLineageProjectedFinal = null;
@@ -1917,6 +1977,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     packs: [],
     thunderCount: 0,
     anchorRows: [],
+    companionLineageRows: structuredClone(initialCompanionLineageRows),
     lineageId: warmLineageId,
   }];
   let explored = 0;
@@ -1971,11 +2032,18 @@ export function optimizeLianyingAnchorDriftResynthesis(
           const anchorRows = hasThunder
             ? [...node.anchorRows, rowIndex]
             : node.anchorRows;
+          const companionLineageRows = appendCompanionLineageRows(
+            node.companionLineageRows,
+            pack,
+            rowIndex + 1,
+            companionLineageTypes,
+          );
           const candidate = {
             state,
             packs: [...node.packs, cloneLianyingPack(pack)],
             thunderCount,
             anchorRows,
+            companionLineageRows,
             lineageId: node.lineageId,
             lineageBaseDamage: node.lineageBaseDamage,
             lineageProjectedFinal: node.lineageProjectedFinal,
@@ -1984,6 +2052,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
             thunderCount,
             anchorRows,
             state,
+            companionLineageRows,
           );
           const current = candidates.get(key);
           if (!current || state.totalDamage > current.state.totalDamage) {
@@ -2029,10 +2098,17 @@ export function optimizeLianyingAnchorDriftResynthesis(
         const hasThunder = lianyingPackHasAction(warmPack, "thunder");
         warmNode.thunderCount += Number(hasThunder);
         if (hasThunder) warmNode.anchorRows = [...warmNode.anchorRows, rowIndex];
+        warmNode.companionLineageRows = appendCompanionLineageRows(
+          warmNode.companionLineageRows,
+          warmPack,
+          rowIndex + 1,
+          companionLineageTypes,
+        );
         const key = lianyingAnchorDriftNodeKey(
           warmNode.thunderCount,
           warmNode.anchorRows,
           warmNode.state,
+          warmNode.companionLineageRows,
         );
         const current = candidates.get(key);
         if (!current || warmNode.state.totalDamage > current.state.totalDamage) {
@@ -2041,6 +2117,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
             packs: warmNode.packs,
             thunderCount: warmNode.thunderCount,
             anchorRows: warmNode.anchorRows,
+            companionLineageRows: warmNode.companionLineageRows,
             lineageId: warmNode.lineageId,
           });
         }
@@ -2082,11 +2159,18 @@ export function optimizeLianyingAnchorDriftResynthesis(
     const warmHasThunder = lianyingPackHasAction(warmPack, "thunder");
     warmThunderCount += Number(warmHasThunder);
     const warmAnchorRows = anchors.slice(0, warmThunderCount);
+    warmCompanionLineageRows = appendCompanionLineageRows(
+      warmCompanionLineageRows,
+      warmPack,
+      rowIndex + 1,
+      companionLineageTypes,
+    );
     const warmKey = lianyingResynthesisStateKey(warmState);
     const warmCompositeKey = lianyingAnchorDriftNodeKey(
       warmThunderCount,
       warmAnchorRows,
       warmState,
+      warmCompanionLineageRows,
     );
     const currentWarm = candidates.get(warmCompositeKey);
     if (!currentWarm || warmState.totalDamage > currentWarm.state.totalDamage) {
@@ -2095,6 +2179,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
         packs: warmGeneratedPacks,
         thunderCount: warmThunderCount,
         anchorRows: warmAnchorRows,
+        companionLineageRows: warmCompanionLineageRows,
         lineageId: warmLineageId,
         lineageBaseDamage: warmLineageBaseDamage,
         lineageProjectedFinal: warmLineageProjectedFinal,
@@ -2104,15 +2189,22 @@ export function optimizeLianyingAnchorDriftResynthesis(
       candidates.values(),
       rowBeamWidth,
       [
-        warmKey,
+        {
+          stateKey: warmKey,
+          scheduleKey: lianyingAnchorDriftScheduleKey(
+            warmAnchorRows,
+            warmCompanionLineageRows,
+          ),
+        },
         ...additionalWarmSources
           .filter((candidate) => candidate.active)
           .map((candidate) => ({
             stateKey: lianyingResynthesisStateKey(candidate.state),
-            scheduleKey: JSON.stringify(candidate.anchorRows),
+            scheduleKey: anchorDriftNodeScheduleKey(candidate),
           })),
       ],
       warmState,
+      companionLineageTypes.length > 0 ? rowBeamWidth : 0,
     );
     peakRowStates = Math.max(peakRowStates, nodes.length);
     if (nodes.length === 0) {
@@ -2144,8 +2236,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
     const schedulesBeforeBoundary = new Set(
       nodes.map((node) => JSON.stringify(node.anchorRows)),
     ).size;
-    const pinnedScheduleKey = JSON.stringify(
+    const pinnedScheduleKey = lianyingAnchorDriftScheduleKey(
       anchors.slice(0, anchorIndex + 1),
+      warmCompanionLineageRows,
     );
     const boundary = selectAnchorDriftBoundaryNodes(
       nodes,
@@ -2156,13 +2249,15 @@ export function optimizeLianyingAnchorDriftResynthesis(
         scoreNode: useSuffixValue
           ? (node) => node.suffixValue.score
           : null,
-        minimumScheduleQuota: normalizedAllowedAnchorSchedules.length,
+        minimumScheduleQuota: companionLineageTypes.length > 0
+          ? boundaryBeamWidth
+          : normalizedAllowedAnchorSchedules.length,
         additionalPinned: additionalWarmSources
           .filter((candidate) =>
             candidate.active && candidate.thunderCount >= anchorIndex + 1)
           .map((candidate) => ({
             stateKey: lianyingResynthesisStateKey(candidate.state),
-            scheduleKey: JSON.stringify(candidate.anchorRows),
+            scheduleKey: anchorDriftNodeScheduleKey(candidate),
           })),
       },
     );
@@ -2253,15 +2348,17 @@ export function optimizeLianyingAnchorDriftResynthesis(
     nodes,
     boundaryBeamWidth,
     warmFinalKey,
-    JSON.stringify(anchors),
+    lianyingAnchorDriftScheduleKey(anchors, warmCompanionLineageRows),
     {
-      minimumScheduleQuota: normalizedAllowedAnchorSchedules.length,
+      minimumScheduleQuota: companionLineageTypes.length > 0
+        ? boundaryBeamWidth
+        : normalizedAllowedAnchorSchedules.length,
       additionalPinned: additionalWarmSources
         .filter((candidate) =>
           candidate.active && candidate.thunderCount === anchors.length)
         .map((candidate) => ({
           stateKey: lianyingResynthesisStateKey(candidate.state),
-          scheduleKey: JSON.stringify(candidate.anchorRows),
+          scheduleKey: anchorDriftNodeScheduleKey(candidate),
         })),
     },
   ).nodes;
@@ -2321,6 +2418,32 @@ export function optimizeLianyingAnchorDriftResynthesis(
   ).sort(
     (left, right) => right.bestCoreDamage - left.bestCoreDamage,
   );
+  const coreBestByCompanionLineage = new Map();
+  for (const candidate of coreCandidatesByPath.values()) {
+    const companionAnchors = lianyingCompanionAnchorRows(candidate.packs);
+    const lineage = Object.fromEntries(companionLineageTypes.map((type) => [
+      `${type}Rows`,
+      companionAnchors[`${type}Rows`],
+    ]));
+    const key = JSON.stringify(lineage);
+    const current = coreBestByCompanionLineage.get(key);
+    if (!current || candidate.coreDamage > current.coreDamage) {
+      coreBestByCompanionLineage.set(key, {
+        ...candidate,
+        companionAnchors,
+      });
+    }
+  }
+  const coreCompanionLineageDiagnostics = companionLineageTypes.length > 0
+    ? [...coreBestByCompanionLineage.values()].map((candidate) => ({
+        anchorRows: candidate.anchorRows.map((row) => row + 1),
+        companionAnchors: candidate.companionAnchors,
+        bestCoreDamage: candidate.coreDamage,
+        bestCoreDamageGain:
+          candidate.coreDamage - coreBaseline.state.totalDamage,
+      })).sort((left, right) =>
+        right.bestCoreDamage - left.bestCoreDamage)
+    : [];
   const coreScheduleCandidates = includeScheduleCandidatePacks
     ? [...coreBestBySchedule.values()].map((candidate) => ({
         anchorRows: candidate.anchorRows.map((row) => row + 1),
@@ -2403,7 +2526,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
         anchorRows: candidate.anchorRows.map((row) => row + 1),
         finalStateDamage: candidate.state.totalDamage,
         survivedFinalBoundary: nodes.some((node) =>
-          JSON.stringify(node.anchorRows) === JSON.stringify(candidate.anchorRows) &&
+          anchorDriftNodeScheduleKey(node) ===
+            anchorDriftNodeScheduleKey(candidate) &&
           lianyingResynthesisStateKey(node.state) === finalStateKey),
         reachedCoreReplay: coreCandidatesByPath.has(sourceKey),
         coreDamage: coreCandidatesByPath.get(sourceKey)?.coreDamage ?? null,
@@ -2426,11 +2550,15 @@ export function optimizeLianyingAnchorDriftResynthesis(
     finalSchedules: new Set(
       nodes.map((node) => JSON.stringify(node.anchorRows)),
     ).size,
+    finalCompanionLineages: new Set(
+      nodes.map((node) => JSON.stringify(node.companionLineageRows ?? {})),
+    ).size,
     finalScheduleRows: [...new Set(nodes.map(
       (node) => JSON.stringify(node.anchorRows.map((row) => row + 1)),
     ))].map((schedule) => JSON.parse(schedule)),
     coreCandidates: coreCandidatesByPath.size,
     coreScheduleDiagnostics,
+    coreCompanionLineageDiagnostics,
     coreScheduleCandidates,
     additionalWarmDiagnostics,
     coarseCandidates: coarseCandidates.map((candidate) => ({
@@ -2439,6 +2567,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       coreDamage: candidate.coreDamage,
       totalDamage: candidate.totalDamage,
       dashCount: candidate.dashCount,
+      companionAnchors: lianyingCompanionAnchorRows(candidate.packs),
     })),
     options: {
       durationSeconds,
@@ -2461,6 +2590,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
         (schedule) => schedule.map((row) => row + 1),
       ),
       companionAnchorTemplate,
+      preserveCompanionLineageTypes: companionLineageTypes,
       additionalWarmAxisCount: additionalWarmSources.length,
       includeScheduleCandidatePacks,
     },

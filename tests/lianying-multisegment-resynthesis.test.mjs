@@ -124,6 +124,10 @@ test("雷坐标谱系作为锚点搜索去重键的一部分", () => {
     lianyingAnchorDriftNodeKey(2, [3, 20], state),
     lianyingAnchorDriftNodeKey(2, [3, 20], structuredClone(state)),
   );
+  assert.notEqual(
+    lianyingAnchorDriftNodeKey(2, [3, 20], state, { orange: [3, 47] }),
+    lianyingAnchorDriftNodeKey(2, [3, 20], state, { orange: [3, 48] }),
+  );
 });
 
 test("锚点候选压缩同时保留高伤状态和钉住的热启动状态", () => {
@@ -698,6 +702,26 @@ test("不同伴随动作可以使用独立的固定数量和双向窗口", () =>
   assert.deepEqual(template.dismountWindows.slice(4).map(
     (window) => [window.earliestRow, window.latestRow]), [
     [100, 104], [117, 121], [145, 149],
+  ]);
+});
+
+test("后两次橙武可以独立开放双向小窗口", () => {
+  const orangeRows = [3, 47, 89, 131];
+  const packs = Array.from({ length: 148 }, (_, index) => ({
+    prefix: [],
+    primary: "dragonFang",
+    tail: orangeRows.includes(index + 1) ? ["orange"] : [],
+  }));
+  const template = buildLianyingFocusedCompanionAnchorTemplate(packs, {
+    companionTypes: ["orange"],
+    companionPolicies: {
+      orange: { fixedThroughOrdinal: 2, beforeRows: 2, afterRows: 2 },
+    },
+  });
+
+  assert.deepEqual(template.orangeWindows.map(
+    (window) => [window.earliestRow, window.latestRow]), [
+    [3, 3], [47, 47], [87, 91], [129, 133],
   ]);
 });
 

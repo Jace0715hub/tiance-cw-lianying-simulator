@@ -502,6 +502,39 @@ function mechanicalRidePacks(state, tick) {
   return packs;
 }
 
+function mechanicalTailOffGcdVariants(packs, state, config, tick) {
+  const tailTick = tick + gcdLockTicks(config.gcdFrames, config.latencyMs) -
+    frameToTicks(1);
+  const thunderReady = poolAvailableAt(state.chargeTicks.thunder, tailTick) > 0;
+  const orangeReady = cooldownReady(state, "orange", tailTick);
+  if (!thunderReady && !orangeReady) return packs;
+
+  const variants = [];
+  for (const pack of packs) {
+    variants.push(pack);
+    if (primaryId(pack) === "ride") continue;
+    const existing = new Set([
+      ...(pack.prefix ?? []),
+      ...(pack.tail ?? []),
+    ].map(actionId));
+    const plans = [];
+    if (thunderReady && !existing.has("thunder")) plans.push(["thunder"]);
+    if (orangeReady && !existing.has("orange")) plans.push(["orange"]);
+    if (
+      thunderReady &&
+      orangeReady &&
+      !existing.has("thunder") &&
+      !existing.has("orange")
+    ) plans.push(["thunder", "orange"]);
+    for (const plan of plans) {
+      const variant = clonePack(pack);
+      variant.tail.push(...plan.map((id) => ({ id, leadFrames: 1 })));
+      variants.push(variant);
+    }
+  }
+  return uniquePacks(variants);
+}
+
 export function legalMechanicalLianyingPacks(state, config) {
   const tick = decisionTick(state);
   const packs = [];
@@ -512,7 +545,7 @@ export function legalMechanicalLianyingPacks(state, config) {
     }
   }
   packs.push(...mechanicalRidePacks(state, tick));
-  return uniquePacks(packs);
+  return mechanicalTailOffGcdVariants(uniquePacks(packs), state, config, tick);
 }
 
 export function legalLianyingPacks(

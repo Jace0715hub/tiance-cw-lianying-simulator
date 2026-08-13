@@ -68,6 +68,8 @@ npm run optimize:anchor-drift
 npm run generate:structural-seeds
 npm run optimize:anchor-coordinator
 npm run optimize:target-anchor
+npm run optimize:anchor-focused-orange
+npm run optimize:target-anchor-orange
 npm run optimize:anchor-pairs
 npm run optimize:anchor-pairs-rides
 npm run optimize:portfolio
@@ -166,6 +168,8 @@ npm run refresh:profiles
 `generate:structural-seeds`是雷锚点漂移的结构种子档：第2至第6雷各自开放±4行，任驰骋/下马分别使用±6/±12行伴随窗口。它除了保留全局不降级轴，还会将未胜出但完整合法的雷表按“发生移动的雷序号”分组，导出最多4条核心伤害损失不超过5%的后续种子。这些种子只获得整段重合成/跨坐标桥接的计算预算；最终晋级仍要经过含突的完整180秒重放。
 
 `optimize:target-anchor`用于给一条已知近优雷表的某一次中间雷分配独立搜索预算。参数依次为输入JSON、`target-anchor-rides-dismount-screen/fast`档、输出前缀、雷序号、雷前后行数、任驰骋窗口和下马窗口；例如`npm run optimize:target-anchor -- input.json target-anchor-rides-dismount-screen /tmp/result 6 1 2 6`。工具会将每个目标雷位与原雷表独立二选一评估，并将能直接迁移的完整合法轴作为强热启动钘住。去重键包含完整雷坐标谱系，因此不同雷位即使后续机制状态收敛，也不会在完整复演前相互覆盖。
+
+`optimize:anchor-focused-orange`固定雷表和前两次橙武，将第3/4次橙武开放±2行，同时给后三次任驰骋/下马开放±2/±6行。橙武谱系使用“橙武行表+雷表+机制状态”复合键保留，不会在CD和增益结束后被其他时序覆盖。`optimize:target-anchor-orange`再将指定中间雷±1行与上述橙武窗口联合，用于检验单项均不优但组合可能互相补偿的高层候选。自由机械动作空间现同时生成GCD开始和GCD末端刚转好的雷/橙武时序，两者都需通过完整状态机复演。
 
 `optimize:cross-schedule-bridge`消费当前最优轴和一条雷表不同的结构种子，参数依次为当前轴JSON、结构种子JSON、`screen/fast`档和输出前缀。它自动定位“首个不同雷—下一次重新会合的雷”，只在这段连续窗口内开放主要技能、任驰骋、橙武、下马和差异雷坐标；窗口外始终保留当前最优轴的前后缀，结构种子只作为第二条热启动。每个差异雷仅能落在两条输入雷位之间，`fast`再额外开放±1行，并在固定后缀接回失败时最多向后扩展12行做有界资源修复。输出采用双回退线：正式轴不得低于当前最优，`*-candidate.json`中的差异结构也不得低于输入结构热启动；这避免把回到已知轴误记为新结构收益，也避免结构束复算后反而丢掉已经找到的近优轴。
 连续窗口的状态去重、束配额和热启动钘住均使用“差异雷坐标谱系+机制状态”复合身份；两个雷表分支后即使状态收敛，也会分别存活到完整后缀复演。

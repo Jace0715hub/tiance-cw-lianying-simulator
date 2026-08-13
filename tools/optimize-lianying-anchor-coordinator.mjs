@@ -294,6 +294,40 @@ const profiles = {
     finalDashCandidateCount: 2,
     fullDashStates: 128,
   },
+  "focused-orange-rides-dismount-screen": {
+    ...common,
+    preserveCompanionLineageTypes: ["orange"],
+    companionTypes: ["orange", "ride", "dismount"],
+    companionPolicies: {
+      orange: { fixedThroughOrdinal: 2, beforeRows: 2, afterRows: 2 },
+      ride: { fixedThroughOrdinal: 4, beforeRows: 2, afterRows: 2 },
+      dismount: { fixedThroughOrdinal: 4, beforeRows: 6, afterRows: 6 },
+    },
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 32,
+    coreFinalistCount: 32,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "focused-orange-rides-dismount-fast": {
+    ...common,
+    preserveCompanionLineageTypes: ["orange"],
+    companionTypes: ["orange", "ride", "dismount"],
+    companionPolicies: {
+      orange: { fixedThroughOrdinal: 2, beforeRows: 2, afterRows: 2 },
+      ride: { fixedThroughOrdinal: 4, beforeRows: 2, afterRows: 2 },
+      dismount: { fixedThroughOrdinal: 4, beforeRows: 6, afterRows: 6 },
+    },
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 32,
+    coreFinalistCount: 32,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 12,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
   "target-anchor-rides-dismount-screen": {
     ...common,
     rowBeamWidth: 24,
@@ -311,6 +345,17 @@ const profiles = {
     coreFinalistCount: 16,
     coarseCandidateLimit: 5,
     coarseDashStates: 12,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "target-anchor-orange-rides-dismount-screen": {
+    ...common,
+    preserveCompanionLineageTypes: ["orange"],
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 32,
+    coreFinalistCount: 32,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 8,
     finalDashCandidateCount: 2,
     fullDashStates: 128,
   },
@@ -382,8 +427,19 @@ const targetedAnchorTemplates = targetedProfile
   : null;
 const targetedCompanionAnchorTemplate = targetedProfile
   ? buildLianyingFocusedCompanionAnchorTemplate(seedPacks, {
-      companionTypes: ["ride", "dismount"],
+      companionTypes: profileName.includes("-orange-")
+        ? ["orange", "ride", "dismount"]
+        : ["ride", "dismount"],
       companionPolicies: {
+        ...(profileName.includes("-orange-")
+          ? {
+              orange: {
+                fixedThroughOrdinal: 2,
+                beforeRows: 2,
+                afterRows: 2,
+              },
+            }
+          : {}),
         ride: {
           fixedThroughOrdinal: 4,
           beforeRows: targetedRideSlackRows,
@@ -526,8 +582,10 @@ const searchResult = {
     peakRowStates: optimized.peakRowStates,
     finalBoundaryStates: optimized.finalBoundaryStates,
     finalSchedules: optimized.finalSchedules,
+    finalCompanionLineages: optimized.finalCompanionLineages,
     coreCandidates: optimized.coreCandidates,
     coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
+    coreCompanionLineageDiagnostics: optimized.coreCompanionLineageDiagnostics,
     coreScheduleCandidates: optimized.coreScheduleCandidates,
     additionalWarmDiagnostics: optimized.additionalWarmDiagnostics,
     coarseCandidates: optimized.coarseCandidates,
@@ -571,8 +629,10 @@ console.log(JSON.stringify({
   explored: optimized.explored,
   legal: optimized.legal,
   finalSchedules: optimized.finalSchedules,
+  finalCompanionLineages: optimized.finalCompanionLineages,
   coreCandidates: optimized.coreCandidates,
   coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
+  coreCompanionLineageDiagnostics: optimized.coreCompanionLineageDiagnostics,
   additionalWarmDiagnostics: optimized.additionalWarmDiagnostics,
   coarseCandidates: optimized.coarseCandidates,
   iteration: optimized.iteration ?? null,

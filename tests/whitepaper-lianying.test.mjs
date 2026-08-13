@@ -21,7 +21,7 @@ import {
 } from "../src/policies/whitepaper-lianying.js";
 import { createInitialState } from "../src/engine/state.js";
 import { executeActionPack } from "../src/engine/simulator.js";
-import { frameToTicks } from "../src/engine/clock.js";
+import { frameToTicks, gcdLockTicks } from "../src/engine/clock.js";
 import { auditWhitepaperAxis } from "../src/reports/whitepaper-audit.js";
 import {
   buildWhitepaperAxisArtifact,
@@ -203,6 +203,28 @@ test("自由动作空间允许游戏合法的高豆雷外断魂刺", () => {
     !(candidate.prefix ?? []).some((action) =>
       (typeof action === "string" ? action : action.id) === "thunder"));
   assert.ok(pack);
+});
+
+test("自由动作空间生成GCD末端刚转好的橙武候选", () => {
+  const state = createInitialState(runtime.config, {
+    rage: 5,
+    executePhase: true,
+  });
+  const tailTick = gcdLockTicks(
+    runtime.config.gcdFrames,
+    runtime.config.latencyMs,
+  ) - frameToTicks(1);
+  state.cooldownReadyTick.orange = tailTick;
+  const packs = legalMechanicalLianyingPacks(state, runtime.config);
+  const tailOrange = packs.find((candidate) =>
+    (candidate.tail ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "orange"));
+  const prefixOrange = packs.find((candidate) =>
+    (candidate.prefix ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "orange"));
+
+  assert.ok(tailOrange);
+  assert.equal(prefixOrange, undefined);
 });
 
 test("资源浪费和白皮书偏离不再被判为游戏机制非法", () => {
