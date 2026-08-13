@@ -1930,6 +1930,7 @@ export function optimizeLianyingNeighborhoodAxis(
       "resourceBalanceCompound",
     ],
     requiredThunderRows = null,
+    mutableRowRanges = null,
     minimumDamageGain = 1e-6,
     onPass = null,
   } = {},
@@ -1947,6 +1948,23 @@ export function optimizeLianyingNeighborhoodAxis(
   if (!preservesRequiredThunderSchedule(packs)) {
     throw new Error("邻域搜索的输入轴不符合指定雷表");
   }
+  const normalizedMutableRowRanges = Array.isArray(mutableRowRanges)
+    ? mutableRowRanges.map((range) => ({
+        startIndex: Math.max(0, Math.floor(Number(range.startRow)) - 1),
+        endIndex: Math.min(
+          packs.length,
+          Math.max(0, Math.floor(Number(range.endRow))),
+        ),
+      })).filter((range) => range.endIndex > range.startIndex)
+    : null;
+  if (Array.isArray(mutableRowRanges) && normalizedMutableRowRanges.length === 0) {
+    throw new Error("邻域可变行区间至少需要一个有效的闭区间");
+  }
+  const mutationIsWithinMutableRows = (mutation) =>
+    normalizedMutableRowRanges === null ||
+    [...mutation.changes.keys()].every((index) =>
+      normalizedMutableRowRanges.some((range) =>
+        index >= range.startIndex && index < range.endIndex));
   let incumbentPacks = packs.map(clonePack);
   let incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,
@@ -1991,9 +2009,10 @@ export function optimizeLianyingNeighborhoodAxis(
       maxRotationLength,
       mutationKinds,
       resourceSignals,
-    }).filter((mutation) => preservesRequiredThunderSchedule(
-      applyMutation(incumbentPacks, mutation),
-    ));
+    }).filter(mutationIsWithinMutableRows)
+      .filter((mutation) => preservesRequiredThunderSchedule(
+        applyMutation(incumbentPacks, mutation),
+      ));
     const resourceDiagnostics = new Map();
     const diagnosticFor = (mutation) => {
       if (!mutation.kind.startsWith("resourceBalance")) return null;
@@ -2224,6 +2243,10 @@ export function optimizeLianyingNeighborhoodAxis(
     fullEvaluationLimit,
     mutationKinds,
     requiredThunderRows: requiredThunderSchedule,
+    mutableRowRanges: normalizedMutableRowRanges?.map((range) => ({
+      startRow: range.startIndex + 1,
+      endRow: range.endIndex,
+    })) ?? null,
     candidateKinds,
     resourceSignalKinds,
     resourceCandidateDiagnostics,

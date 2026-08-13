@@ -437,6 +437,21 @@ test("通用邻域可锁定输入雷表并拒绝把结构候选换回其他雷�
   );
 });
 
+test("通用邻域可将所有变更限制在指定闭区间", () => {
+  const optimized = optimizeLianyingNeighborhoodAxis(runtime, free65Axis, {
+    durationSeconds: 65,
+    maxPasses: 1,
+    localLookaheadRows: 8,
+    fullEvaluationLimit: 24,
+    mutableRowRanges: [{ startRow: 8, endRow: 18 }],
+  });
+  assert.deepEqual(optimized.mutableRowRanges, [{ startRow: 8, endRow: 18 }]);
+  assert.deepEqual(optimized.packs.slice(0, 7), free65Axis.slice(0, 7));
+  assert.deepEqual(optimized.packs.slice(18), free65Axis.slice(18));
+  assert.ok(optimized.improvements.every((item) =>
+    item.startRow >= 8 && item.endRow <= 18));
+});
+
 test("资源平衡邻域从失衡事件生成断魂刺、补豆和任驰骋修复候选", () => {
   const replay = {
     trace: [
