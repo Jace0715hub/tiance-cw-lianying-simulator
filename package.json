@@ -43,6 +43,8 @@
     "optimize:anchor-focused-orange-fast": "node tools/optimize-lianying-anchor-coordinator.mjs - focused-orange-rides-dismount-fast",
     "optimize:target-anchor": "node tools/optimize-lianying-anchor-coordinator.mjs",
     "optimize:target-anchor-orange": "node tools/optimize-lianying-anchor-coordinator.mjs - target-anchor-orange-rides-dismount-screen",
+    "optimize:target-anchor-early-orange": "node tools/optimize-lianying-anchor-coordinator.mjs - target-anchor-early-orange-rides-dismount-screen",
+    "optimize:early-orange-mid-thunder": "node tools/optimize-lianying-anchor-coordinator.mjs - early-orange-mid-thunder-screen",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",
     "optimize:crossover": "node tools/optimize-lianying-seed-crossover.mjs",
     "optimize:crossover-bridge": "node tools/optimize-lianying-crossover-bridge.mjs",

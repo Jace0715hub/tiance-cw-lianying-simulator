@@ -725,6 +725,49 @@ test("后两次橙武可以独立开放双向小窗口", () => {
   ]);
 });
 
+test("伴随锚点可以只开放指定序号并为各序号设置非对称窗口", () => {
+  const orangeRows = [3, 47, 89, 131];
+  const packs = Array.from({ length: 148 }, (_, index) => ({
+    prefix: [],
+    primary: "dragonFang",
+    tail: orangeRows.includes(index + 1) ? ["orange"] : [],
+  }));
+  const template = buildLianyingFocusedCompanionAnchorTemplate(packs, {
+    companionTypes: ["orange"],
+    companionPolicies: {
+      orange: {
+        ordinalWindows: {
+          1: { beforeRows: 0, afterRows: 2 },
+          2: { beforeRows: 2, afterRows: 2 },
+        },
+      },
+    },
+  });
+
+  assert.deepEqual(template.orangeWindows.map(
+    (window) => [window.earliestRow, window.latestRow]), [
+    [3, 5], [45, 49], [89, 89], [131, 131],
+  ]);
+});
+
+test("雷锚点模板可以只开放指定的中段雷", () => {
+  const anchors = [2, 19, 37, 58, 78, 106, 127];
+  const templates = buildLianyingBoundedThunderTemplates(anchors, {
+    slackRows: 1,
+    movableAnchorNumbers: [2, 3, 4],
+    maximumShiftedAnchors: 1,
+    maximumTemplates: 16,
+  });
+
+  assert.equal(templates.length, 7);
+  assert.deepEqual(new Set(templates.slice(1).map(
+    (template) => template.shiftedAnchors[0].anchorNumber)),
+  new Set([2, 3, 4]));
+  assert.ok(templates.every((template) =>
+    template.anchorRows[4] === anchors[4] &&
+    template.anchorRows[5] === anchors[5]));
+});
+
 test("结构种子按移动雷分组保留高伤候选并过滤过度损失", () => {
   const incumbentRows = [3, 20, 38, 59, 79, 107, 128];
   const candidates = [

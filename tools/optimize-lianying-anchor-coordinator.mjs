@@ -29,6 +29,7 @@ const profileName = process.argv[3] ?? "screen";
 const pairProfile = profileName.startsWith("pair-");
 const focusedProfile = profileName.startsWith("focused-");
 const targetedProfile = profileName.startsWith("target-anchor-");
+const earlyProfile = profileName.startsWith("early-orange-");
 const singleResultPath = pairProfile && process.argv[5]
   ? path.resolve(process.argv[5])
   : null;
@@ -359,6 +360,32 @@ const profiles = {
     finalDashCandidateCount: 2,
     fullDashStates: 128,
   },
+  "target-anchor-early-orange-rides-dismount-screen": {
+    ...common,
+    preserveCompanionLineageTypes: ["orange"],
+    rowBeamWidth: 32,
+    boundaryBeamWidth: 32,
+    coreFinalistCount: 32,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
+  "early-orange-mid-thunder-screen": {
+    ...common,
+    evaluationMode: "shared",
+    movableAnchorNumbers: [2, 3, 4],
+    maximumShiftedAnchors: 1,
+    maximumTemplates: 7,
+    preserveCompanionLineageTypes: ["orange"],
+    rowBeamWidth: 48,
+    boundaryBeamWidth: 48,
+    coreFinalistCount: 48,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(
@@ -433,22 +460,77 @@ const targetedCompanionAnchorTemplate = targetedProfile
       companionPolicies: {
         ...(profileName.includes("-orange-")
           ? {
-              orange: {
-                fixedThroughOrdinal: 2,
-                beforeRows: 2,
-                afterRows: 2,
-              },
+              orange: profileName.includes("-early-orange-")
+                ? {
+                    ordinalWindows: {
+                      1: { beforeRows: 0, afterRows: 2 },
+                      2: { beforeRows: 2, afterRows: 2 },
+                    },
+                  }
+                : {
+                    fixedThroughOrdinal: 2,
+                    beforeRows: 2,
+                    afterRows: 2,
+                  },
             }
           : {}),
+        ride: profileName.includes("-early-orange-")
+          ? {
+              ordinalWindows: Object.fromEntries([2, 3, 4].map((ordinal) => [
+                ordinal,
+                {
+                  beforeRows: targetedRideSlackRows,
+                  afterRows: targetedRideSlackRows,
+                },
+              ])),
+            }
+          : {
+              fixedThroughOrdinal: 4,
+              beforeRows: targetedRideSlackRows,
+              afterRows: targetedRideSlackRows,
+            },
+        dismount: profileName.includes("-early-orange-")
+          ? {
+              ordinalWindows: Object.fromEntries([1, 2, 3, 4].map((ordinal) => [
+                ordinal,
+                {
+                  beforeRows: targetedDismountSlackRows,
+                  afterRows: targetedDismountSlackRows,
+                },
+              ])),
+            }
+          : {
+              fixedThroughOrdinal: 4,
+              beforeRows: targetedDismountSlackRows,
+              afterRows: targetedDismountSlackRows,
+            },
+      },
+    })
+  : null;
+const earlyCompanionAnchorTemplate = earlyProfile
+  ? buildLianyingFocusedCompanionAnchorTemplate(seedPacks, {
+      companionTypes: ["orange", "ride", "dismount"],
+      companionPolicies: {
+        orange: {
+          ordinalWindows: {
+            1: { beforeRows: 0, afterRows: 2 },
+            2: { beforeRows: 2, afterRows: 2 },
+          },
+        },
         ride: {
-          fixedThroughOrdinal: 4,
-          beforeRows: targetedRideSlackRows,
-          afterRows: targetedRideSlackRows,
+          ordinalWindows: {
+            2: { beforeRows: 2, afterRows: 2 },
+            3: { beforeRows: 2, afterRows: 2 },
+            4: { beforeRows: 2, afterRows: 2 },
+          },
         },
         dismount: {
-          fixedThroughOrdinal: 4,
-          beforeRows: targetedDismountSlackRows,
-          afterRows: targetedDismountSlackRows,
+          ordinalWindows: {
+            1: { beforeRows: 6, afterRows: 6 },
+            2: { beforeRows: 6, afterRows: 6 },
+            3: { beforeRows: 6, afterRows: 6 },
+            4: { beforeRows: 6, afterRows: 6 },
+          },
         },
       },
     })
@@ -514,7 +596,11 @@ const optimizeOptions = {
           additionalWarmAxes: targetedWarmAxes,
         }
       : {}),
-    includeScheduleCandidatePacks: pairProfile || focusedProfile || targetedProfile,
+    ...(earlyProfile
+      ? { companionAnchorTemplate: earlyCompanionAnchorTemplate }
+      : {}),
+    includeScheduleCandidatePacks:
+      pairProfile || focusedProfile || targetedProfile || earlyProfile,
     onProgress: (event) => {
       console.log(JSON.stringify({ phase: "anchor-coordination", ...event }));
     },

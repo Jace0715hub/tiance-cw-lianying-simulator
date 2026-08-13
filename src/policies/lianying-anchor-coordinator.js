@@ -100,6 +100,7 @@ export function buildLianyingBoundedThunderTemplates(
     slackRows = 1,
     fixFirstAnchor = true,
     fixLastAnchor = true,
+    movableAnchorNumbers = null,
     maximumShiftedAnchors = 1,
     maximumTemplates = 16,
   } = {},
@@ -111,10 +112,16 @@ export function buildLianyingBoundedThunderTemplates(
   ) {
     throw new Error("雷锚点必须是严格递增的整数行索引");
   }
+  const movableAnchorNumberSet = Array.isArray(movableAnchorNumbers)
+    ? new Set(movableAnchorNumbers.map(Number).filter((number) =>
+        Number.isInteger(number) && number >= 1 && number <= incumbent.length))
+    : null;
   const movable = incumbent
     .map((_, index) => index)
     .filter((index) => !(fixFirstAnchor && index === 0))
-    .filter((index) => !(fixLastAnchor && index === incumbent.length - 1));
+    .filter((index) => !(fixLastAnchor && index === incumbent.length - 1))
+    .filter((index) =>
+      movableAnchorNumberSet === null || movableAnchorNumberSet.has(index + 1));
   const deltas = [];
   for (let delta = 1; delta <= Math.max(0, Math.floor(slackRows)); delta += 1) {
     deltas.push(-delta, delta);
@@ -299,6 +306,9 @@ function attachCoordination(optimized, templates, templateDiagnostics, options) 
       evaluationMode: options.evaluationMode ?? "shared",
       maximumShiftedAnchors: options.maximumShiftedAnchors ?? 1,
       maximumTemplates: options.maximumTemplates ?? 16,
+      movableAnchorNumbers: Array.isArray(options.movableAnchorNumbers)
+        ? [...options.movableAnchorNumbers]
+        : null,
       proposedTemplates: templates.map((template) => ({
         ...template,
         anchorRows: template.anchorRows.map((row) => row + 1),
@@ -329,6 +339,7 @@ export function optimizeLianyingHierarchicalAnchorCoordination(
         slackRows: options.anchorSlackRows ?? 1,
         fixFirstAnchor: options.fixFirstAnchor ?? true,
         fixLastAnchor: options.fixLastAnchor ?? true,
+        movableAnchorNumbers: options.movableAnchorNumbers ?? null,
         maximumShiftedAnchors: options.maximumShiftedAnchors ?? 1,
         maximumTemplates: options.maximumTemplates ?? 16,
       });
@@ -542,12 +553,34 @@ export function buildLianyingFocusedCompanionAnchorTemplate(
       0,
       Math.floor(Number(policy.afterRows ?? after)),
     );
+    const ordinalWindows = policy.ordinalWindows &&
+      typeof policy.ordinalWindows === "object"
+      ? policy.ordinalWindows
+      : null;
     return [[key.replace("Rows", "Windows"), anchors[key].map(
-      (row, index) => ({
-        targetRow: row,
-        earliestRow: index < typeFixedCount ? row : row - typeBefore,
-        latestRow: index < typeFixedCount ? row : row + typeAfter,
-      }))]];
+      (row, index) => {
+        const ordinalPolicy = ordinalWindows?.[index + 1] ?? null;
+        const isFixed = ordinalWindows !== null
+          ? ordinalPolicy === null
+          : index < typeFixedCount;
+        const rowBefore = isFixed
+          ? 0
+          : Math.max(
+              0,
+              Math.floor(Number(ordinalPolicy?.beforeRows ?? typeBefore)),
+            );
+        const rowAfter = isFixed
+          ? 0
+          : Math.max(
+              0,
+              Math.floor(Number(ordinalPolicy?.afterRows ?? typeAfter)),
+            );
+        return {
+          targetRow: row,
+          earliestRow: row - rowBefore,
+          latestRow: row + rowAfter,
+        };
+      })]];
   }));
 }
 
