@@ -12,6 +12,7 @@ import {
   optimizeLianyingAxis,
   optimizeLianyingDashOverlay,
   optimizeLianyingNeighborhoodAxis,
+  lianyingGenericCompoundMutations,
   lianyingResourceBalanceCompoundMutations,
   lianyingResourceBalanceMutations,
   optimizeLianyingReferenceAxis,
@@ -444,12 +445,50 @@ test("通用邻域可将所有变更限制在指定闭区间", () => {
     localLookaheadRows: 8,
     fullEvaluationLimit: 24,
     mutableRowRanges: [{ startRow: 8, endRow: 18 }],
+    genericCompoundCandidateLimit: 8,
+    genericCompoundSourceLimit: 8,
   });
   assert.deepEqual(optimized.mutableRowRanges, [{ startRow: 8, endRow: 18 }]);
   assert.deepEqual(optimized.packs.slice(0, 7), free65Axis.slice(0, 7));
   assert.deepEqual(optimized.packs.slice(18), free65Axis.slice(18));
   assert.ok(optimized.improvements.every((item) =>
     item.startRow >= 8 && item.endRow <= 18));
+  assert.ok(optimized.candidateKinds.genericCompound > 0);
+});
+
+test("通用双变换复合邻域只组合互不冲突且相邻的候选", () => {
+  const candidate = (kind, rows, score) => ({
+    mutation: {
+      kind,
+      changes: new Map(rows.map((row) => [row, {
+        primary: {
+          id: kind === "primaryReplace" ? "dragonRoar" : "dragonFang",
+          frames: score,
+        },
+      }])),
+      startIndex: Math.min(...rows),
+      endIndex: Math.max(...rows),
+      description: `${kind}:${rows.join(",")}`,
+    },
+    localScores: [score],
+  });
+  const compounds = lianyingGenericCompoundMutations([
+    candidate("swap", [2], 10),
+    candidate("rotate", [4], 8),
+    candidate("primaryReplace", [2], 7),
+    candidate("offGcdMove", [20], 6),
+  ], {
+    sourceLimit: 4,
+    maxGapRows: 3,
+    maxCandidates: 8,
+  });
+  assert.equal(compounds.length, 2);
+  assert.ok(compounds.every((compound) => compound.kind === "genericCompound"));
+  assert.ok(compounds.some((compound) =>
+    compound.componentKinds.includes("swap") &&
+    compound.componentKinds.includes("rotate")));
+  assert.ok(compounds.every((compound) =>
+    new Set(compound.changes.keys()).size === compound.changes.size));
 });
 
 test("资源平衡邻域从失衡事件生成断魂刺、补豆和任驰骋修复候选", () => {

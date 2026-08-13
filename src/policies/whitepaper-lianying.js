@@ -1708,6 +1708,99 @@ export function lianyingResourceBalanceCompoundMutations(
     .slice(0, Math.max(0, Math.floor(Number(maxCandidates))));
 }
 
+export function lianyingGenericCompoundMutations(
+  localCandidates,
+  {
+    sourceLimit = 24,
+    maxGapRows = 12,
+    maxCandidates = 192,
+  } = {},
+) {
+  const maximumSources = Math.max(2, Math.floor(Number(sourceLimit)));
+  const maximumGap = Math.max(0, Math.floor(Number(maxGapRows)));
+  const maximumCandidates = Math.max(0, Math.floor(Number(maxCandidates)));
+  if (maximumCandidates === 0) return [];
+  const eligible = (localCandidates ?? [])
+    .filter((candidate) =>
+      candidate?.mutation?.changes instanceof Map &&
+      candidate.mutation.kind !== "genericCompound" &&
+      candidate.mutation.kind !== "resourceBalanceCompound")
+    .map((candidate) => ({
+      ...candidate,
+      bestLocalScore: Math.max(...candidate.localScores.map(Number)),
+    }))
+    .sort((left, right) => right.bestLocalScore - left.bestLocalScore);
+  const sources = [];
+  const sourceKeys = new Set();
+  const addSource = (candidate) => {
+    if (!candidate || sources.length >= maximumSources) return;
+    const key = mutationKey(candidate.mutation);
+    if (sourceKeys.has(key)) return;
+    sourceKeys.add(key);
+    sources.push(candidate);
+  };
+  for (const candidate of eligible.slice(0, Math.ceil(maximumSources / 2))) {
+    addSource(candidate);
+  }
+  for (const kind of [...new Set(eligible.map(
+    (candidate) => candidate.mutation.kind,
+  ))]) {
+    for (const candidate of eligible.filter(
+      (entry) => entry.mutation.kind === kind,
+    ).slice(0, 4)) addSource(candidate);
+  }
+  for (const candidate of eligible) addSource(candidate);
+
+  const compounds = [];
+  const seen = new Set();
+  for (let leftIndex = 0; leftIndex < sources.length; leftIndex += 1) {
+    const left = sources[leftIndex];
+    const leftRows = [...left.mutation.changes.keys()];
+    for (let rightIndex = leftIndex + 1; rightIndex < sources.length; rightIndex += 1) {
+      const right = sources[rightIndex];
+      const rightRows = [...right.mutation.changes.keys()];
+      if (leftRows.some((row) => right.mutation.changes.has(row))) continue;
+      const gapRows = Math.max(
+        0,
+        Math.min(...rightRows) - Math.max(...leftRows) - 1,
+        Math.min(...leftRows) - Math.max(...rightRows) - 1,
+      );
+      if (gapRows > maximumGap) continue;
+      const rows = [...leftRows, ...rightRows];
+      const mutation = createMutation(
+        "genericCompound",
+        new Map([
+          ...left.mutation.changes,
+          ...right.mutation.changes,
+        ]),
+        {
+          componentKinds: [left.mutation.kind, right.mutation.kind],
+          componentDescriptions: [
+            left.mutation.description,
+            right.mutation.description,
+          ],
+          estimatedLocalScore:
+            left.bestLocalScore + right.bestLocalScore,
+          gapRows,
+          spanRows: Math.max(...rows) - Math.min(...rows) + 1,
+          description:
+            `${left.mutation.description}；${right.mutation.description}`,
+        },
+      );
+      const key = mutationKey(mutation);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      compounds.push(mutation);
+    }
+  }
+  return compounds
+    .sort((left, right) =>
+      right.estimatedLocalScore - left.estimatedLocalScore ||
+      left.gapRows - right.gapRows ||
+      left.spanRows - right.spanRows)
+    .slice(0, maximumCandidates);
+}
+
 function neighborhoodMutations(
   packs,
   {
@@ -1931,6 +2024,9 @@ export function optimizeLianyingNeighborhoodAxis(
     ],
     requiredThunderRows = null,
     mutableRowRanges = null,
+    genericCompoundCandidateLimit = 0,
+    genericCompoundSourceLimit = 24,
+    genericCompoundMaxGapRows = 12,
     minimumDamageGain = 1e-6,
     onPass = null,
   } = {},
@@ -2037,9 +2133,8 @@ export function optimizeLianyingNeighborhoodAxis(
       const diagnostic = diagnosticFor(mutation);
       if (diagnostic) diagnostic.generated += 1;
     }
-    for (const mutation of mutations) incrementCounter(candidateKinds, mutation.kind);
-    for (const mutation of mutations) {
-      if (decisionTick(prefixStates[mutation.startIndex]) >= endTick) continue;
+    const evaluateLocalMutation = (mutation) => {
+      if (decisionTick(prefixStates[mutation.startIndex]) >= endTick) return;
       candidatesEvaluated += 1;
       try {
         const localScores = [];
@@ -2074,6 +2169,25 @@ export function optimizeLianyingNeighborhoodAxis(
         const diagnostic = diagnosticFor(mutation);
         if (diagnostic) diagnostic.illegalLocal += 1;
       }
+    };
+    for (const mutation of mutations) incrementCounter(candidateKinds, mutation.kind);
+    for (const mutation of mutations) {
+      evaluateLocalMutation(mutation);
+    }
+    const genericCompounds = lianyingGenericCompoundMutations(
+      localCandidates,
+      {
+        sourceLimit: genericCompoundSourceLimit,
+        maxGapRows: genericCompoundMaxGapRows,
+        maxCandidates: genericCompoundCandidateLimit,
+      },
+    ).filter(mutationIsWithinMutableRows)
+      .filter((mutation) => preservesRequiredThunderSchedule(
+        applyMutation(incumbentPacks, mutation),
+      ));
+    for (const mutation of genericCompounds) {
+      incrementCounter(candidateKinds, mutation.kind);
+      evaluateLocalMutation(mutation);
     }
     const shortlist = [];
     const shortlistedKeys = new Set();
@@ -2092,7 +2206,10 @@ export function optimizeLianyingNeighborhoodAxis(
     for (let rank = 0; rank < shortlistPerHorizon; rank += 1) {
       for (const sorted of sortedByHorizon) addShortlist(sorted[rank]);
     }
-    for (const kind of mutationKinds) {
+    const shortlistKinds = genericCompounds.length > 0
+      ? [...mutationKinds, "genericCompound"]
+      : mutationKinds;
+    for (const kind of shortlistKinds) {
       const sameKind = localCandidates
         .filter((candidate) => candidate.mutation.kind === kind)
         .sort((left, right) =>
@@ -2139,7 +2256,8 @@ export function optimizeLianyingNeighborhoodAxis(
       onPass({
         stage: "shortlist",
         pass: pass + 1,
-        generatedCandidates: mutations.length,
+        generatedCandidates: mutations.length + genericCompounds.length,
+        genericCompoundCandidates: genericCompounds.length,
         legalLocalCandidates: localCandidates.length,
         shortlistedCandidates: shortlist.length,
         resourceSignals: resourceSignals.length,
@@ -2242,6 +2360,9 @@ export function optimizeLianyingNeighborhoodAxis(
     shortlistPerResourceSignal,
     fullEvaluationLimit,
     mutationKinds,
+    genericCompoundCandidateLimit,
+    genericCompoundSourceLimit,
+    genericCompoundMaxGapRows,
     requiredThunderRows: requiredThunderSchedule,
     mutableRowRanges: normalizedMutableRowRanges?.map((range) => ({
       startRow: range.startIndex + 1,

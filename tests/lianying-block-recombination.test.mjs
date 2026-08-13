@@ -6,6 +6,8 @@ import {
   optimizeLianyingTwoSegmentBlockRecombination,
   selectLianyingTwoSegmentBlockCandidates,
 } from "../src/policies/lianying-block-recombination.js";
+import { optimizeLianyingCompoundNeighborhoodBlocks } from
+  "../src/policies/lianying-compound-neighborhood.js";
 import { replayWhitepaperLianying } from "../src/policies/whitepaper-lianying.js";
 
 const runtime = loadDefaultGearRuntime({ executePhase: true });
@@ -83,5 +85,31 @@ test("两雷块邻域只在块内修复并报告是否回归正式结构", () =>
   );
   assert.ok(optimized.optimizedBlocks[0].improvements.every((item) =>
     item.startRow >= 3 && item.endRow <= 38));
+  assert.ok(optimized.state.totalDamage >= optimized.baselineDamage);
+});
+
+test("正式轴双变换搜索按两雷块独立运行并保持不降级", () => {
+  const optimized = optimizeLianyingCompoundNeighborhoodBlocks(
+    runtime,
+    fixture,
+    {
+      durationSeconds: 65,
+      blockNumbers: [1],
+      neighborhood: {
+        localLookaheadRows: 8,
+        shortlistPerHorizon: 16,
+        shortlistPerKind: 4,
+        fullEvaluationLimit: 48,
+        genericCompoundCandidateLimit: 12,
+        genericCompoundSourceLimit: 8,
+      },
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+    },
+  );
+  assert.equal(optimized.blockResults.length, 1);
+  assert.equal(optimized.blockResults[0].blockNumber, 1);
+  assert.ok(optimized.blockResults[0].candidateKinds.genericCompound > 0);
   assert.ok(optimized.state.totalDamage >= optimized.baselineDamage);
 });
