@@ -390,6 +390,31 @@ test("通用关键行邻域无需行号规则即可自动换位且不降级", ()
   assert.equal(replay.state.totalDamage, optimized.state.totalDamage);
 });
 
+test("通用邻域可锁定输入雷表并拒绝把结构候选换回其他雷位", () => {
+  const thunderRows = (packs) => packs.flatMap((pack, index) =>
+    [...(pack.prefix ?? []), ...(pack.tail ?? [])].some(
+      (action) => (typeof action === "string" ? action : action?.id) === "thunder",
+    ) ? [index + 1] : []);
+  const expected = thunderRows(free65Axis);
+  const optimized = optimizeLianyingNeighborhoodAxis(runtime, free65Axis, {
+    durationSeconds: 65,
+    maxPasses: 1,
+    localLookaheadRows: 8,
+    fullEvaluationLimit: 16,
+    requiredThunderRows: expected,
+  });
+  assert.deepEqual(thunderRows(optimized.packs), expected);
+  assert.deepEqual(optimized.requiredThunderRows, expected);
+  assert.throws(
+    () => optimizeLianyingNeighborhoodAxis(runtime, free65Axis, {
+      durationSeconds: 65,
+      requiredThunderRows: expected.map((row, index) =>
+        index === 0 ? row + 1 : row),
+    }),
+    /输入轴不符合指定雷表/,
+  );
+});
+
 test("资源平衡邻域从失衡事件生成断魂刺、补豆和任驰骋修复候选", () => {
   const replay = {
     trace: [

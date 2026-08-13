@@ -27,6 +27,9 @@ if (!LIANYING_OPTIMIZATION_PROFILES.includes(profileName)) {
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const durationSeconds = Number(source.durationSeconds ?? 180);
 const mode = source.mode ?? source.horizonMode ?? "fixed";
+const preserveThunderSchedule = process.argv.slice(5).some(
+  (value) => ["preserve-thunder", "--preserve-thunder"].includes(value),
+);
 const packs = source.actionPacks ??
   (source.rows ? lianyingRowsToActionPacks(source.rows) : null);
 if (!packs) throw new Error("输入文件既没有actionPacks，也没有可恢复的rows");
@@ -39,6 +42,12 @@ const profile = createLianyingOptimizationProfile(profileName, {
     console.log(JSON.stringify({ phase: "seed-neighborhood", ...event }));
   },
 });
+if (preserveThunderSchedule) {
+  profile.neighborhood.requiredThunderRows = packs.flatMap((pack, index) =>
+    [...(pack.prefix ?? []), ...(pack.tail ?? [])].some(
+      (action) => (typeof action === "string" ? action : action?.id) === "thunder",
+    ) ? [index + 1] : []);
+}
 const optimized = optimizeLianyingAxis(runtime, packs, {
   durationSeconds,
   ...profile,
@@ -63,6 +72,7 @@ const searchResult = {
   axisOptimization: {
     kind: "seed-continuation",
     profile: profileName,
+    preserveThunderSchedule,
     accepted,
     seedPath: path.relative(projectRoot, inputPath),
     damageGain: finalState.totalDamage - seedReplay.state.totalDamage,

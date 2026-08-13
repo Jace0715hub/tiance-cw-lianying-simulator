@@ -332,7 +332,7 @@ export function optimizeLianyingCrossScheduleBridge(
       };
     })
     .sort((left, right) => right.totalDamage - left.totalDamage);
-  const bestStructuralAlternative = structuralFinalists[0] ?? {
+  const alternateStructuralCandidate = {
     packs: alternatePacks.map(clonePack),
     state: alternate.state,
     totalDamage: alternate.state.totalDamage,
@@ -340,7 +340,20 @@ export function optimizeLianyingCrossScheduleBridge(
     dashCount: alternate.state.timeline.filter(
       (event) => event.type === "offGcd" && event.action === "dash",
     ).length,
+    coreDamageLoss: null,
+    structuralDistanceFromReference: null,
   };
+  const structuralCandidateBySchedule = new Map();
+  for (const candidate of [alternateStructuralCandidate, ...structuralFinalists]) {
+    const key = JSON.stringify(candidate.anchorRows);
+    const current = structuralCandidateBySchedule.get(key);
+    if (!current || candidate.totalDamage > current.totalDamage) {
+      structuralCandidateBySchedule.set(key, candidate);
+    }
+  }
+  const retainedStructuralCandidates = [...structuralCandidateBySchedule.values()]
+    .sort((left, right) => right.totalDamage - left.totalDamage);
+  const bestStructuralAlternative = retainedStructuralCandidates[0];
   const accepted = optimized.state.totalDamage > incumbent.state.totalDamage;
   return {
     packs: accepted ? optimized.packs : incumbentPacks.map(clonePack),
@@ -359,7 +372,7 @@ export function optimizeLianyingCrossScheduleBridge(
     structuralGlobalDamageGain:
       bestStructuralAlternative.totalDamage - incumbent.state.totalDamage,
     structuralAnchorRows: bestStructuralAlternative.anchorRows,
-    structuralFinalists: structuralFinalists.map((candidate) => ({
+    structuralFinalists: retainedStructuralCandidates.map((candidate) => ({
       anchorRows: candidate.anchorRows,
       totalDamage: candidate.totalDamage,
       dashCount: candidate.dashCount,

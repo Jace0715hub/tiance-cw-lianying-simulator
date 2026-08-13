@@ -15,8 +15,12 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "balanced";
-const valueShadowPolicyPath = process.argv[5]
-  ? resolveLianyingResearchPath(projectRoot, process.argv[5])
+const preserveThunderSchedule = process.argv.includes("--preserve-thunder");
+const valueShadowPolicyArgument = process.argv[5]?.startsWith("--")
+  ? null
+  : process.argv[5];
+const valueShadowPolicyPath = valueShadowPolicyArgument
+  ? resolveLianyingResearchPath(projectRoot, valueShadowPolicyArgument)
   : null;
 const valueShadowPolicy = valueShadowPolicyPath
   ? JSON.parse(fs.readFileSync(valueShadowPolicyPath, "utf8"))
@@ -70,6 +74,7 @@ const seedReplay = replayWhitepaperLianying(runtime, seedPacks, { durationSecond
 const optimized = optimizeLianyingSegmentResynthesis(runtime, seedPacks, {
   durationSeconds,
   ...profiles[profileName],
+  preserveThunderPositions: preserveThunderSchedule,
   valueShadowPolicy,
   onProgress: (event) => {
     console.log(JSON.stringify({ phase: "segment-resynthesis", ...event }));
@@ -104,6 +109,7 @@ const searchResult = {
       : "segment-resynthesis",
     profile: profileName,
     accepted,
+    preserveThunderSchedule,
     seedPath: path.relative(projectRoot, inputPath),
     valueShadowPolicyPath: valueShadowPolicyPath
       ? path.relative(projectRoot, valueShadowPolicyPath)

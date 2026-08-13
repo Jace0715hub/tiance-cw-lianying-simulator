@@ -1896,10 +1896,24 @@ export function optimizeLianyingNeighborhoodAxis(
       "resourceBalancePair",
       "resourceBalanceCompound",
     ],
+    requiredThunderRows = null,
     minimumDamageGain = 1e-6,
     onPass = null,
   } = {},
 ) {
+  const requiredThunderSchedule = Array.isArray(requiredThunderRows)
+    ? requiredThunderRows.map(Number)
+    : null;
+  const thunderSchedule = (candidatePacks) => candidatePacks.flatMap(
+    (pack, index) => packHasOffGcd(pack, "thunder") ? [index + 1] : [],
+  );
+  const preservesRequiredThunderSchedule = (candidatePacks) =>
+    requiredThunderSchedule === null ||
+    JSON.stringify(thunderSchedule(candidatePacks)) ===
+      JSON.stringify(requiredThunderSchedule);
+  if (!preservesRequiredThunderSchedule(packs)) {
+    throw new Error("邻域搜索的输入轴不符合指定雷表");
+  }
   let incumbentPacks = packs.map(clonePack);
   let incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,
@@ -1944,7 +1958,9 @@ export function optimizeLianyingNeighborhoodAxis(
       maxRotationLength,
       mutationKinds,
       resourceSignals,
-    });
+    }).filter((mutation) => preservesRequiredThunderSchedule(
+      applyMutation(incumbentPacks, mutation),
+    ));
     const resourceDiagnostics = new Map();
     const diagnosticFor = (mutation) => {
       if (!mutation.kind.startsWith("resourceBalance")) return null;
@@ -2174,6 +2190,7 @@ export function optimizeLianyingNeighborhoodAxis(
     shortlistPerResourceSignal,
     fullEvaluationLimit,
     mutationKinds,
+    requiredThunderRows: requiredThunderSchedule,
     candidateKinds,
     resourceSignalKinds,
     resourceCandidateDiagnostics,
