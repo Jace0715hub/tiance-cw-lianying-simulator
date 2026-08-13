@@ -30,6 +30,8 @@ const pairProfile = profileName.startsWith("pair-");
 const focusedProfile = profileName.startsWith("focused-");
 const targetedProfile = profileName.startsWith("target-anchor-");
 const earlyProfile = profileName.startsWith("early-orange-");
+const midProfile = profileName.startsWith("mid-orange-");
+const lateProfile = profileName.startsWith("late-terminal-");
 const singleResultPath = pairProfile && process.argv[5]
   ? path.resolve(process.argv[5])
   : null;
@@ -413,6 +415,83 @@ const profiles = {
       boundaryQuota: 8,
     },
   },
+  "early-orange-mid-thunder-structure-dismount-screen": {
+    ...common,
+    evaluationMode: "shared",
+    movableAnchorNumbers: [2, 3, 4],
+    maximumShiftedAnchors: 1,
+    maximumTemplates: 7,
+    preserveCompanionLineageTypes: ["orange"],
+    rowBeamWidth: 48,
+    boundaryBeamWidth: 48,
+    coreFinalistCount: 48,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 48,
+    primaryStructureDiversity: {
+      startRow: 1,
+      endRow: 79,
+      rowBucketSize: 8,
+      maximumDifferences: 2,
+      companionActionIds: ["dismount"],
+      maximumCompanionDifferences: 2,
+      rowQuota: 8,
+      boundaryQuota: 8,
+    },
+  },
+  "mid-orange-thunder-screen": {
+    ...common,
+    evaluationMode: "shared",
+    movableAnchorNumbers: [4, 5],
+    maximumShiftedAnchors: 1,
+    maximumTemplates: 5,
+    preserveCompanionLineageTypes: ["orange"],
+    rowBeamWidth: 48,
+    boundaryBeamWidth: 48,
+    coreFinalistCount: 48,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 48,
+    primaryStructureDiversity: {
+      startRow: 38,
+      endRow: 107,
+      rowBucketSize: 8,
+      maximumDifferences: 2,
+      rowQuota: 8,
+      boundaryQuota: 8,
+    },
+  },
+  "late-terminal-structure-screen": {
+    ...common,
+    evaluationMode: "shared",
+    movableAnchorNumbers: [],
+    maximumShiftedAnchors: 0,
+    maximumTemplates: 1,
+    preserveCompanionLineageTypes: ["orange"],
+    rowBeamWidth: 48,
+    boundaryBeamWidth: 48,
+    coreFinalistCount: 48,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 48,
+    primaryStructureDiversity: {
+      startRow: 107,
+      endRow: 148,
+      rowBucketSize: 6,
+      maximumDifferences: 2,
+      rowQuota: 8,
+      boundaryQuota: 8,
+    },
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(
@@ -562,6 +641,55 @@ const earlyCompanionAnchorTemplate = earlyProfile
       },
     })
   : null;
+const midCompanionAnchorTemplate = midProfile
+  ? buildLianyingFocusedCompanionAnchorTemplate(seedPacks, {
+      companionTypes: ["orange", "ride", "dismount"],
+      companionPolicies: {
+        orange: {
+          ordinalWindows: {
+            2: { beforeRows: 2, afterRows: 2 },
+            3: { beforeRows: 2, afterRows: 2 },
+          },
+        },
+        ride: {
+          ordinalWindows: {
+            4: { beforeRows: 2, afterRows: 2 },
+            5: { beforeRows: 2, afterRows: 2 },
+          },
+        },
+        dismount: {
+          ordinalWindows: {
+            4: { beforeRows: 6, afterRows: 6 },
+            5: { beforeRows: 6, afterRows: 6 },
+          },
+        },
+      },
+    })
+  : null;
+const lateCompanionAnchorTemplate = lateProfile
+  ? buildLianyingFocusedCompanionAnchorTemplate(seedPacks, {
+      companionTypes: ["orange", "ride", "dismount"],
+      companionPolicies: {
+        orange: {
+          ordinalWindows: {
+            4: { beforeRows: 2, afterRows: 2 },
+          },
+        },
+        ride: {
+          ordinalWindows: {
+            6: { beforeRows: 2, afterRows: 2 },
+            7: { beforeRows: 2, afterRows: 2 },
+          },
+        },
+        dismount: {
+          ordinalWindows: {
+            6: { beforeRows: 6, afterRows: 6 },
+            7: { beforeRows: 6, afterRows: 6 },
+          },
+        },
+      },
+    })
+  : null;
 const targetedWarmAxes = targetedProfile
   ? targetedAnchorTemplates.slice(1).flatMap((template) => {
       const source = stripLianyingDashPacks(seedPacks);
@@ -626,8 +754,15 @@ const optimizeOptions = {
     ...(earlyProfile
       ? { companionAnchorTemplate: earlyCompanionAnchorTemplate }
       : {}),
+    ...(midProfile
+      ? { companionAnchorTemplate: midCompanionAnchorTemplate }
+      : {}),
+    ...(lateProfile
+      ? { companionAnchorTemplate: lateCompanionAnchorTemplate }
+      : {}),
     includeScheduleCandidatePacks:
-      pairProfile || focusedProfile || targetedProfile || earlyProfile,
+      pairProfile || focusedProfile || targetedProfile || earlyProfile ||
+      midProfile || lateProfile,
     onProgress: (event) => {
       console.log(JSON.stringify({ phase: "anchor-coordination", ...event }));
     },

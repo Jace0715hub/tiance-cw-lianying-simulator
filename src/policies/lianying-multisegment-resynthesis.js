@@ -837,6 +837,8 @@ export function lianyingPrimaryHistoryStructureKey(
     endRow = 79,
     rowBucketSize = 8,
     maximumDifferences = 2,
+    companionActionIds = [],
+    maximumCompanionDifferences = 2,
   } = {},
 ) {
   const startIndex = Math.max(0, Math.floor(Number(startRow)) - 1);
@@ -850,32 +852,76 @@ export function lianyingPrimaryHistoryStructureKey(
     1,
     Math.floor(Number(maximumDifferences)),
   );
+  const trackedCompanionActions = new Set(companionActionIds);
+  const companionDifferenceLimit = Math.max(
+    1,
+    Math.floor(Number(maximumCompanionDifferences)),
+  );
   const differences = [];
   const countDelta = new Map();
+  const companionDifferences = [];
+  const companionCountDelta = new Map();
+  const rowCompanionActions = (pack) => [
+    ...(pack?.prefix ?? []),
+    ...(pack?.tail ?? []),
+  ].map(actionId).filter((id) => trackedCompanionActions.has(id)).sort();
   for (let index = startIndex; index < endIndex; index += 1) {
     const candidateId = actionId(packs[index]?.primary);
     const referenceId = actionId(referencePacks[index]?.primary);
-    if (candidateId === referenceId) continue;
-    if (differences.length < differenceLimit) {
-      differences.push([
-        Math.floor((index - startIndex) / bucketSize),
+    if (candidateId !== referenceId) {
+      if (differences.length < differenceLimit) {
+        differences.push([
+          Math.floor((index - startIndex) / bucketSize),
+          referenceId,
+          candidateId,
+        ]);
+      }
+      countDelta.set(
         referenceId,
+        Number(countDelta.get(referenceId) ?? 0) - 1,
+      );
+      countDelta.set(
         candidateId,
+        Number(countDelta.get(candidateId) ?? 0) + 1,
+      );
+    }
+    if (trackedCompanionActions.size === 0) continue;
+    const candidateCompanions = rowCompanionActions(packs[index]);
+    const referenceCompanions = rowCompanionActions(referencePacks[index]);
+    if (JSON.stringify(candidateCompanions) ===
+      JSON.stringify(referenceCompanions)) continue;
+    if (companionDifferences.length < companionDifferenceLimit) {
+      companionDifferences.push([
+        Math.floor((index - startIndex) / bucketSize),
+        referenceCompanions,
+        candidateCompanions,
       ]);
     }
-    countDelta.set(
-      referenceId,
-      Number(countDelta.get(referenceId) ?? 0) - 1,
-    );
-    countDelta.set(
-      candidateId,
-      Number(countDelta.get(candidateId) ?? 0) + 1,
-    );
+    for (const id of referenceCompanions) {
+      companionCountDelta.set(
+        id,
+        Number(companionCountDelta.get(id) ?? 0) - 1,
+      );
+    }
+    for (const id of candidateCompanions) {
+      companionCountDelta.set(
+        id,
+        Number(companionCountDelta.get(id) ?? 0) + 1,
+      );
+    }
   }
   const deltas = [...countDelta.entries()]
     .filter(([, count]) => count !== 0)
     .sort(([left], [right]) => String(left).localeCompare(String(right)));
-  return JSON.stringify([differences, deltas]);
+  const companionDeltas = [...companionCountDelta.entries()]
+    .filter(([, count]) => count !== 0)
+    .sort(([left], [right]) => String(left).localeCompare(String(right)));
+  return JSON.stringify([
+    differences,
+    deltas,
+    companionDifferences,
+    companionDeltas,
+  ]);
 }
 
 function stateRemainingSnapshot(state) {
@@ -2069,6 +2115,15 @@ export function optimizeLianyingAnchorDriftResynthesis(
         maximumDifferences: Math.max(
           1,
           Math.floor(Number(primaryStructureDiversity.maximumDifferences ?? 2)),
+        ),
+        companionActionIds: [...new Set(
+          primaryStructureDiversity.companionActionIds ?? [],
+        )],
+        maximumCompanionDifferences: Math.max(
+          1,
+          Math.floor(Number(
+            primaryStructureDiversity.maximumCompanionDifferences ?? 2,
+          )),
         ),
         rowQuota: Math.max(
           0,

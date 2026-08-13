@@ -798,6 +798,32 @@ test("主要技能历史结构按早段分歧位置与技能数量变化分桶",
     lianyingPrimaryHistoryStructureKey(earlySwap, reference, options),
     lianyingPrimaryHistoryStructureKey(lateSwap, reference, options),
   );
+
+  const earlyDismount = structuredClone(reference);
+  earlyDismount[3].prefix.push("dismount");
+  const lateDismount = structuredClone(reference);
+  lateDismount[9].tail.push({ id: "dismount", leadFrames: 1 });
+  assert.equal(
+    lianyingPrimaryHistoryStructureKey(earlyDismount, reference, options),
+    lianyingPrimaryHistoryStructureKey(lateDismount, reference, options),
+  );
+  const dismountOptions = {
+    ...options,
+    companionActionIds: ["dismount"],
+    maximumCompanionDifferences: 2,
+  };
+  assert.notEqual(
+    lianyingPrimaryHistoryStructureKey(
+      earlyDismount,
+      reference,
+      dismountOptions,
+    ),
+    lianyingPrimaryHistoryStructureKey(
+      lateDismount,
+      reference,
+      dismountOptions,
+    ),
+  );
 });
 
 test("早段结构键忽略雷与突位置但保留主要技能和橙武", () => {
