@@ -385,6 +385,8 @@ const profiles = {
     coarseDashStates: 8,
     finalDashCandidateCount: 2,
     fullDashStates: 128,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 48,
   },
 };
 if (!profiles[profileName]) {
@@ -673,6 +675,7 @@ const searchResult = {
     coreScheduleDiagnostics: optimized.coreScheduleDiagnostics,
     coreCompanionLineageDiagnostics: optimized.coreCompanionLineageDiagnostics,
     coreScheduleCandidates: optimized.coreScheduleCandidates,
+    coreCandidatePacks: optimized.coreCandidatePacks,
     additionalWarmDiagnostics: optimized.additionalWarmDiagnostics,
     coarseCandidates: optimized.coarseCandidates,
     iteration: optimized.iteration ?? null,

@@ -1864,6 +1864,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
     preserveCompanionLineageTypes = [],
     additionalWarmAxes = [],
     includeScheduleCandidatePacks = false,
+    includeCoreCandidatePacks = false,
+    coreCandidatePackLimit = 0,
     onProgress = null,
   } = {},
 ) {
@@ -2451,6 +2453,27 @@ export function optimizeLianyingAnchorDriftResynthesis(
         packs: clonePacks(candidate.packs),
       }))
     : [];
+  const normalizedCoreCandidatePackLimit = Math.max(
+    0,
+    Math.floor(Number(coreCandidatePackLimit)),
+  );
+  const coreCandidatePacks = includeCoreCandidatePacks
+    ? [...coreCandidatesByPath.values()]
+        .sort((left, right) => right.coreDamage - left.coreDamage)
+        .slice(
+          0,
+          normalizedCoreCandidatePackLimit > 0
+            ? normalizedCoreCandidatePackLimit
+            : undefined,
+        )
+        .map((candidate) => ({
+          anchorRows: candidate.anchorRows.map((row) => row + 1),
+          coreDamage: candidate.coreDamage,
+          isIncumbent: candidate.isIncumbent,
+          companionAnchors: lianyingCompanionAnchorRows(candidate.packs),
+          packs: clonePacks(candidate.packs),
+        }))
+    : [];
   const coarseCandidates = selectedCore.map((candidate, index) => {
     if (typeof onProgress === "function") {
       onProgress({
@@ -2560,6 +2583,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     coreScheduleDiagnostics,
     coreCompanionLineageDiagnostics,
     coreScheduleCandidates,
+    coreCandidatePacks,
     additionalWarmDiagnostics,
     coarseCandidates: coarseCandidates.map((candidate) => ({
       isIncumbent: candidate.isIncumbent,
@@ -2593,6 +2617,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
       preserveCompanionLineageTypes: companionLineageTypes,
       additionalWarmAxisCount: additionalWarmSources.length,
       includeScheduleCandidatePacks,
+      includeCoreCandidatePacks,
+      coreCandidatePackLimit: normalizedCoreCandidatePackLimit,
     },
   };
 }

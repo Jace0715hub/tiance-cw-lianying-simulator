@@ -72,6 +72,7 @@ npm run optimize:anchor-focused-orange
 npm run optimize:target-anchor-orange
 npm run optimize:early-orange-mid-thunder
 npm run optimize:target-anchor-early-orange
+npm run generate:early-structural-seeds -- /path/to/coordinator.json /path/to/seeds 4 0.03
 npm run optimize:anchor-pairs
 npm run optimize:anchor-pairs-rides
 npm run optimize:portfolio
@@ -80,6 +81,7 @@ npm run optimize:crossover-bridge
 npm run optimize:cross-schedule-bridge
 npm run optimize:crossover-bridge-portfolio
 npm run optimize:crossover-joint-bridge-portfolio
+npm run optimize:crossover-joint-bridge-best
 npm run optimize:joint-drift
 npm run optimize:adaptive-suffix
 npm run collect:value-data -- portfolio screen
@@ -175,6 +177,8 @@ npm run refresh:profiles
 
 `optimize:early-orange-mid-thunder`只开放第2至第4次雷各±1行，并为前两次橙武、对应早段任驰骋和主动下马设置按序号窗口；后两次橙武和后半轴锚点固定。伴随窗口支持逐序号、非对称设置，因此可以表达“第一橙武只允许延后、第二橙武双向移动、其余固定”。共享档用于低成本筛选，`optimize:target-anchor-early-orange`再让指定雷位与基线独立二选一复核。
 
+`generate:early-structural-seeds`从上述共享搜索保存的核心候选中提取早段主要技能结构真正不同的近优轴。输入须为带有`coreCandidatePacks`的协调器结果；结构键默认忽略雷和突的纯相位差异，但保留主要技能、任驰骋、橙武和下马。候选先按早段结构去重，再逐条完整重排突并导出JSON、CSV和清单；默认核心损失上限为3%，该阈值只用于分配后续搜索预算，不能让低伤候选直接晋级。
+
 `optimize:cross-schedule-bridge`消费当前最优轴和一条雷表不同的结构种子，参数依次为当前轴JSON、结构种子JSON、`screen/fast`档和输出前缀。它自动定位“首个不同雷—下一次重新会合的雷”，只在这段连续窗口内开放主要技能、任驰骋、橙武、下马和差异雷坐标；窗口外始终保留当前最优轴的前后缀，结构种子只作为第二条热启动。每个差异雷仅能落在两条输入雷位之间，`fast`再额外开放±1行，并在固定后缀接回失败时最多向后扩展12行做有界资源修复。输出采用双回退线：正式轴不得低于当前最优，`*-candidate.json`中的差异结构也不得低于输入结构热启动；这避免把回到已知轴误记为新结构收益，也避免结构束复算后反而丢掉已经找到的近优轴。
 连续窗口的状态去重、束配额和热启动钘住均使用“差异雷坐标谱系+机制状态”复合身份；两个雷表分支后即使状态收敛，也会分别存活到完整后缀复演。
 
@@ -199,6 +203,8 @@ npm run refresh:profiles
 首轮180秒`screen`从12条交叉核心中选择4条，分别位于第5、4、2、3次雷边界（第80、59、20、38行），覆盖正向与反向种子组合。完整突重排后依次低当前最优106,774.87、719,036.15、1,437,764.76和1,587,242.16伤害；四条轴的单雷区段桥接局部收益均为0，因此没有触发6候选`fast`升级。当前DPS不变。该结果说明继续增加同类入口的边际价值较低，下一步更适合把交叉点前后两段作为一个连续联合窗口搜索，允许跨雷边界的成组修复，而不是继续逐段替换并立即接回固定后缀。
 
 `optimize:crossover-joint-bridge-portfolio`使用同一分层入口，但把交叉雷前后的两个雷区段合并为一个连续窗口，只在联合窗口末端接回固定后缀。窗口内每一行是否施放雷都与原轴一致，因此本阶段开放主要技能、任驰骋、橙武、断魂刺和下马的协同重排，但不混入雷坐标漂移。`joint-screen`用3条候选、束宽16筛查；出现正局部收益后，`joint-fast`自动扩大到4条候选、束宽32、8个决赛状态和128状态突复算。
+
+`optimize:crossover-joint-bridge-best`只复核交叉组合中伤害最高的一条异构候选，并用更高预算搜索跨两个雷区段的连续窗口。该档的结构新颖性门槛忽略雷、突和橙武的纯施展相位；搜索结果必须至少改变一项主要技能、任驰骋或下马结构，才会被视为新的桥接轴。完整180秒重放和当前全局最优不降级回退仍保持不变。
 
 180秒联合结果没有反超当前最优，但发现两条此前逐段桥接无法产生的稳定修复。第20行反向交叉在第3→43行窗口增加1,130,416.25伤害，把相对全局差从1,437,764.76缩小到307,348.51（约1,707.49 DPS）；第38行正向交叉增加1,099,845.12伤害，剩余差487,397.05。第80和59行近邻交叉仍为零局部收益。定向`joint-target`档已把第20行修复轴导出为可继续搜索的完整JSON/CSV。
 

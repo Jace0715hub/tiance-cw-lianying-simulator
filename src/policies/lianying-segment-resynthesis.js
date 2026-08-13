@@ -42,6 +42,25 @@ function stripDashPacks(packs) {
   return packs.map(stripDash);
 }
 
+export function lianyingCoreStructureKey(
+  packs,
+  { ignoredActionIds = [] } = {},
+) {
+  const ignored = new Set(ignoredActionIds);
+  const keep = (action) => !ignored.has(actionId(action));
+  const normalize = (action) => typeof action === "string"
+    ? action
+    : {
+        id: action?.id,
+        ...(action?.frames === undefined ? {} : { frames: action.frames }),
+      };
+  return JSON.stringify(packs.map((pack) => ({
+    prefix: (pack?.prefix ?? []).filter(keep).map(normalize),
+    primary: normalize(pack?.primary),
+    tail: (pack?.tail ?? []).filter(keep).map(normalize),
+  })));
+}
+
 function packHasAction(pack, id) {
   return [...(pack.prefix ?? []), ...(pack.tail ?? [])].some(
     (action) => actionId(action) === id,
@@ -1434,6 +1453,8 @@ export function optimizeLianyingSegmentResynthesis(
     thunderPositionWindows = [],
     additionalWarmAxes = [],
     excludedCorePackKeys = [],
+    excludedCoreStructureKeys = [],
+    coreStructureIgnoredActionIds = [],
     adaptiveSuffixRepair = false,
     adaptiveSuffixMaxExpansions = 2,
     adaptiveSuffixLookaheadRows = 4,
@@ -1456,6 +1477,7 @@ export function optimizeLianyingSegmentResynthesis(
   } = {},
 ) {
   const excludedCorePackKeySet = new Set(excludedCorePackKeys);
+  const excludedCoreStructureKeySet = new Set(excludedCoreStructureKeys);
   let incumbentPacks = packs.map(clonePack);
   let incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,
@@ -1627,7 +1649,13 @@ export function optimizeLianyingSegmentResynthesis(
             }
             suffixLegal += 1;
             suffixLegalThunderSchedules.push(schedule);
-            if (excludedCorePackKeySet.has(JSON.stringify(candidatePacks))) {
+            if (
+              excludedCorePackKeySet.has(JSON.stringify(candidatePacks)) ||
+              excludedCoreStructureKeySet.has(lianyingCoreStructureKey(
+                candidatePacks,
+                { ignoredActionIds: coreStructureIgnoredActionIds },
+              ))
+            ) {
               excludedCoreCandidates += 1;
               const attempt = {
                 adaptiveAttempt,
@@ -2004,6 +2032,8 @@ export function optimizeLianyingSegmentResynthesis(
       thunderPositionWindows,
       additionalWarmAxisCount: additionalWarmAxes.length,
       excludedCorePackKeys: [...excludedCorePackKeySet],
+      excludedCoreStructureKeys: [...excludedCoreStructureKeySet],
+      coreStructureIgnoredActionIds: [...coreStructureIgnoredActionIds],
       adaptiveSuffixRepair,
       adaptiveSuffixMaxExpansions,
       adaptiveSuffixLookaheadRows,

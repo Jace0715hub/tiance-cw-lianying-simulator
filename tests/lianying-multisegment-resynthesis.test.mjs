@@ -22,6 +22,8 @@ import {
   lianyingAnchorCoordinationTemplatesToCsv,
   optimizeLianyingHierarchicalAnchorCoordination,
   optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
+  lianyingEarlyStructureKey,
+  selectLianyingEarlyStructuralSeedCandidates,
   selectLianyingStructuralSeedCandidates,
 } from "../src/policies/lianying-anchor-coordinator.js";
 import { lianyingResynthesisStateKey } from "../src/policies/lianying-segment-resynthesis.js";
@@ -766,6 +768,87 @@ test("雷锚点模板可以只开放指定的中段雷", () => {
   assert.ok(templates.every((template) =>
     template.anchorRows[4] === anchors[4] &&
     template.anchorRows[5] === anchors[5]));
+});
+
+test("早段结构键忽略雷与突位置但保留主要技能和橙武", () => {
+  const baseline = [{
+    prefix: [],
+    primary: "ride",
+    tail: [{ id: "thunder", leadFrames: 1 }, "orange"],
+  }];
+  const phaseOnly = [{
+    prefix: ["thunder"],
+    primary: "ride",
+    tail: ["orange", "dash"],
+  }];
+  const differentOrange = [{
+    prefix: ["thunder"],
+    primary: "ride",
+    tail: ["dash"],
+  }];
+  assert.equal(
+    lianyingEarlyStructureKey(baseline),
+    lianyingEarlyStructureKey(phaseOnly),
+  );
+  assert.notEqual(
+    lianyingEarlyStructureKey(baseline),
+    lianyingEarlyStructureKey(differentOrange),
+  );
+});
+
+test("早段结构种子排除纯雷相位并保留近优主要技能差异", () => {
+  const incumbent = [
+    { prefix: [], primary: "destroy", tail: ["thunder"] },
+    { prefix: [], primary: "dragonFang", tail: [] },
+  ];
+  const candidates = [
+    { isIncumbent: true, coreDamage: 1000, packs: incumbent },
+    {
+      coreDamage: 999,
+      packs: [
+        { prefix: ["thunder"], primary: "destroy", tail: [] },
+        incumbent[1],
+      ],
+    },
+    {
+      coreDamage: 995,
+      packs: [incumbent[1], incumbent[0]],
+    },
+    {
+      coreDamage: 970,
+      packs: [
+        { prefix: [], primary: "piercingCloud", tail: [] },
+        incumbent[1],
+      ],
+    },
+  ];
+  const selected = selectLianyingEarlyStructuralSeedCandidates(
+    candidates,
+    incumbent,
+    { limit: 3, maximumCoreDamageLossRatio: 0.01, endRow: 2 },
+  );
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].coreDamage, 995);
+  assert.deepEqual(selected[0].earlyDifferingRows, [1, 2]);
+
+  const orangePhase = selectLianyingEarlyStructuralSeedCandidates(
+    [
+      { isIncumbent: true, coreDamage: 1000, packs: [{
+        prefix: [], primary: "destroy", tail: ["orange"],
+      }] },
+      { coreDamage: 999, packs: [{
+        prefix: ["orange"], primary: "destroy", tail: [],
+      }] },
+    ],
+    [{ prefix: [], primary: "destroy", tail: ["orange"] }],
+    {
+      limit: 1,
+      maximumCoreDamageLossRatio: 0.01,
+      endRow: 1,
+      ignoredActionIds: ["thunder", "dash", "orange"],
+    },
+  );
+  assert.equal(orangePhase.length, 0);
 });
 
 test("结构种子按移动雷分组保留高伤候选并过滤过度损失", () => {

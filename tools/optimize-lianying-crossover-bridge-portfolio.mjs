@@ -88,6 +88,7 @@ const profiles = {
         fullDashStates: 64,
         boundaryPaddingRows: 4,
         preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
       },
     },
   },
@@ -113,6 +114,7 @@ const profiles = {
         fullDashStates: 128,
         boundaryPaddingRows: 6,
         preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
       },
     },
   },
@@ -139,13 +141,41 @@ const profiles = {
         fullDashStates: 128,
         boundaryPaddingRows: 6,
         preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
+      },
+    },
+  },
+  "joint-best-fast": {
+    crossover: {
+      maxSeeds: 4,
+      coreCandidateLimit: 24,
+      coarseDashStates: 16,
+      finalDashCandidateCount: 3,
+      fullDashStates: 256,
+    },
+    portfolio: {
+      candidateLimit: 4,
+      selectedCandidateNumbers: [1],
+      initialDashStates: 128,
+      bridgeMode: "joint",
+      bridgeOptions: {
+        maxPasses: 1,
+        beamWidth: 32,
+        finalistCount: 8,
+        coarseCandidateLimit: 8,
+        coarseDashStates: 16,
+        finalDashCandidateCount: 2,
+        fullDashStates: 128,
+        boundaryPaddingRows: 6,
+        preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
       },
     },
   },
 };
 if (!profiles[profileName]) {
   throw new Error(
-    "组合桥接档位必须是screen、fast、joint-screen、joint-fast或joint-target",
+    "组合桥接档位必须是screen、fast、joint-screen、joint-fast、joint-target或joint-best-fast",
   );
 }
 if (inputPaths.length < 2) throw new Error("至少需要两条种子路径");

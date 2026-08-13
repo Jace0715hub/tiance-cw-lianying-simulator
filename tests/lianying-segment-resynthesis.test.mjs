@@ -7,6 +7,7 @@ import {
   lianyingAdaptiveSuffixEndIndex,
   lianyingBoundaryStateDistance,
   lianyingCorePackDistance,
+  lianyingCoreStructureKey,
   lianyingSegmentNodeKey,
   lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
@@ -57,6 +58,33 @@ test("区段去重键在雷漂移时保留不同坐标谱系", () => {
   assert.equal(
     lianyingSegmentNodeKey(state, [{ primary: "dragonFang" }]),
     lianyingSegmentNodeKey(state, [{ primary: "dragonRoar" }]),
+  );
+});
+
+test("核心结构键可以忽略雷突橙武相位但保留主要技能差异", () => {
+  const baseline = [{
+    prefix: [],
+    primary: "dragonFang",
+    tail: ["thunder", "orange"],
+  }];
+  const phaseOnly = [{
+    prefix: ["thunder", "orange"],
+    primary: "dragonFang",
+    tail: ["dash"],
+  }];
+  const differentPrimary = [{
+    prefix: ["thunder"],
+    primary: "destroy",
+    tail: [],
+  }];
+  const options = { ignoredActionIds: ["thunder", "dash", "orange"] };
+  assert.equal(
+    lianyingCoreStructureKey(baseline, options),
+    lianyingCoreStructureKey(phaseOnly, options),
+  );
+  assert.notEqual(
+    lianyingCoreStructureKey(baseline, options),
+    lianyingCoreStructureKey(differentPrimary, options),
   );
 });
 

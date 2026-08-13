@@ -11,6 +11,129 @@ function scheduleKey(rows) {
   return JSON.stringify(rows);
 }
 
+function actionId(action) {
+  return typeof action === "string" ? action : action?.id;
+}
+
+function structuralAction(action) {
+  if (typeof action === "string") return action;
+  return {
+    id: action?.id,
+    ...(action?.frames === undefined ? {} : { frames: action.frames }),
+  };
+}
+
+function earlyStructuralPack(pack, ignoredActionIds) {
+  const keep = (action) => !ignoredActionIds.has(actionId(action));
+  return {
+    prefix: (pack?.prefix ?? []).filter(keep).map(structuralAction),
+    primary: structuralAction(pack?.primary),
+    tail: (pack?.tail ?? []).filter(keep).map(structuralAction),
+  };
+}
+
+export function lianyingEarlyStructureKey(
+  packs,
+  {
+    startRow = 1,
+    endRow = packs.length,
+    ignoredActionIds = ["thunder", "dash"],
+  } = {},
+) {
+  const ignored = new Set(ignoredActionIds);
+  const startIndex = Math.max(0, Math.floor(Number(startRow)) - 1);
+  const endIndex = Math.min(
+    packs.length,
+    Math.max(startIndex, Math.floor(Number(endRow))),
+  );
+  return JSON.stringify(
+    packs.slice(startIndex, endIndex).map(
+      (pack) => earlyStructuralPack(pack, ignored),
+    ),
+  );
+}
+
+export function selectLianyingEarlyStructuralSeedCandidates(
+  candidates,
+  incumbentPacks,
+  {
+    limit = 4,
+    maximumCoreDamageLossRatio = 0.01,
+    startRow = 1,
+    endRow = 79,
+    ignoredActionIds = ["thunder", "dash"],
+  } = {},
+) {
+  const incumbentKey = lianyingEarlyStructureKey(incumbentPacks, {
+    startRow,
+    endRow,
+    ignoredActionIds,
+  });
+  const incumbentCandidate = (candidates ?? []).find(
+    (candidate) => candidate.isIncumbent === true,
+  );
+  const baselineCoreDamage = Number(
+    incumbentCandidate?.coreDamage ??
+      Math.max(...(candidates ?? []).map(
+        (candidate) => Number(candidate.coreDamage)),
+      ),
+  );
+  const maximumLossRatio = Math.max(
+    0,
+    Number(maximumCoreDamageLossRatio),
+  );
+  const byStructure = new Map();
+  for (const candidate of candidates ?? []) {
+    if (!Array.isArray(candidate?.packs)) continue;
+    const structureKey = lianyingEarlyStructureKey(candidate.packs, {
+      startRow,
+      endRow,
+      ignoredActionIds,
+    });
+    if (structureKey === incumbentKey) continue;
+    const coreDamage = Number(candidate.coreDamage);
+    if (!Number.isFinite(coreDamage)) continue;
+    const coreDamageLoss = baselineCoreDamage - coreDamage;
+    const coreDamageLossRatio = baselineCoreDamage > 0
+      ? coreDamageLoss / baselineCoreDamage
+      : 0;
+    if (coreDamageLossRatio > maximumLossRatio) continue;
+    const differingRows = [];
+    for (
+      let row = Math.max(1, Math.floor(Number(startRow)));
+      row <= Math.min(candidate.packs.length, Math.floor(Number(endRow)));
+      row += 1
+    ) {
+      if (
+        lianyingEarlyStructureKey([candidate.packs[row - 1]], {
+          ignoredActionIds,
+        }) !==
+        lianyingEarlyStructureKey([incumbentPacks[row - 1]], {
+          ignoredActionIds,
+        })
+      ) differingRows.push(row);
+    }
+    const prepared = {
+      ...candidate,
+      structureKey,
+      baselineCoreDamage,
+      coreDamageLoss,
+      coreDamageLossRatio,
+      earlyDifferingRows: differingRows,
+      firstEarlyDifferenceRow: differingRows[0] ?? null,
+    };
+    const current = byStructure.get(structureKey);
+    if (!current || prepared.coreDamage > current.coreDamage) {
+      byStructure.set(structureKey, prepared);
+    }
+  }
+  return [...byStructure.values()]
+    .sort((left, right) =>
+      right.coreDamage - left.coreDamage ||
+      right.earlyDifferingRows.length - left.earlyDifferingRows.length)
+    .slice(0, Math.max(0, Math.floor(Number(limit))));
+}
+
 function isStrictlyIncreasing(rows) {
   return rows.every((row, index) => index === 0 || row > rows[index - 1]);
 }

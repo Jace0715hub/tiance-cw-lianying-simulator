@@ -1,5 +1,6 @@
 import {
   identifyLianyingThunderSegments,
+  lianyingCoreStructureKey,
   optimizeLianyingSegmentResynthesis,
   stripLianyingDashPacks,
 } from "./lianying-segment-resynthesis.js";
@@ -45,6 +46,7 @@ export function optimizeLianyingCrossoverBridge(
     fullDashStates = 256,
     boundaryPaddingRows = 6,
     preserveNovelStructure = true,
+    preserveNovelStructureIgnoredActionIds = [],
     valueShadowPolicy = null,
     onProgress = null,
   } = {},
@@ -83,6 +85,13 @@ export function optimizeLianyingCrossoverBridge(
       excludedCorePackKeys: preserveNovelStructure
         ? [JSON.stringify(stripLianyingDashPacks(incumbentPacks))]
         : [],
+      excludedCoreStructureKeys: preserveNovelStructure &&
+        preserveNovelStructureIgnoredActionIds.length > 0
+        ? [lianyingCoreStructureKey(stripLianyingDashPacks(incumbentPacks), {
+            ignoredActionIds: preserveNovelStructureIgnoredActionIds,
+          })]
+        : [],
+      coreStructureIgnoredActionIds: preserveNovelStructureIgnoredActionIds,
       valueShadowPolicy,
       onProgress,
     },
@@ -105,6 +114,7 @@ export function optimizeLianyingCrossoverBridge(
     segmentIndices: selectedSegmentIndices,
     segmentIds: selectedSegmentIndices.map((index) => identified.ranges[index]?.id),
     preserveNovelStructure,
+    preserveNovelStructureIgnoredActionIds,
     resynthesis: optimized,
   };
 }
@@ -403,6 +413,7 @@ export function optimizeLianyingCrossoverJointBridge(
     fullDashStates = 128,
     boundaryPaddingRows = 4,
     preserveNovelStructure = true,
+    preserveNovelStructureIgnoredActionIds = [],
     preserveThunderPositions = true,
     middleThunderDriftRows = 0,
     useIncumbentWarmStart = false,
@@ -482,6 +493,13 @@ export function optimizeLianyingCrossoverJointBridge(
       excludedCorePackKeys: preserveNovelStructure
         ? [JSON.stringify(stripLianyingDashPacks(incumbentPacks))]
         : [],
+      excludedCoreStructureKeys: preserveNovelStructure &&
+        preserveNovelStructureIgnoredActionIds.length > 0
+        ? [lianyingCoreStructureKey(stripLianyingDashPacks(incumbentPacks), {
+            ignoredActionIds: preserveNovelStructureIgnoredActionIds,
+          })]
+        : [],
+      coreStructureIgnoredActionIds: preserveNovelStructureIgnoredActionIds,
       valueShadowPolicy,
       onProgress,
     },
@@ -504,6 +522,7 @@ export function optimizeLianyingCrossoverJointBridge(
     segmentIds: [jointSegment.id],
     jointSegment,
     preserveNovelStructure,
+    preserveNovelStructureIgnoredActionIds,
     preserveThunderPositions,
     middleThunderDriftRows: driftRows,
     thunderPositionWindows,
