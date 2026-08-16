@@ -525,6 +525,31 @@ const profiles = {
       seed: 20260813,
     },
   },
+  "quality-diversity-tenure-screen": {
+    ...common,
+    evaluationMode: "shared",
+    movableAnchorNumbers: [],
+    maximumShiftedAnchors: 0,
+    maximumTemplates: 1,
+    rowBeamWidth: 48,
+    boundaryBeamWidth: 48,
+    coreFinalistCount: 48,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 48,
+    qualityDiversityRestart: {
+      bucketTicks: 16000,
+      candidateMultiplier: 8,
+      rowQuota: 0,
+      boundaryQuota: 8,
+      lineageQuota: 8,
+      lineageTenureSegments: 2,
+      seed: 20260813,
+    },
+  },
 };
 if (!profiles[profileName]) {
   throw new Error(

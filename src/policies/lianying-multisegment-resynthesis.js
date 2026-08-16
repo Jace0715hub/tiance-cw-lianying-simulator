@@ -27,6 +27,22 @@ function remainingTicks(readyTick, tick) {
   return Math.max(0, Number(readyTick ?? 0) - tick);
 }
 
+export function isLianyingPrimaryActionPackAllowed(
+  pack,
+  rowIndex,
+  constraints = [],
+) {
+  const row = Number(rowIndex) + 1;
+  const primaryId = actionId(pack?.primary);
+  return (constraints ?? []).every((constraint) => {
+    if (Number(constraint.row) !== row) return true;
+    const allowed = constraint.allowedActionIds;
+    if (Array.isArray(allowed) && !allowed.includes(primaryId)) return false;
+    const forbidden = constraint.forbiddenActionIds;
+    return !Array.isArray(forbidden) || !forbidden.includes(primaryId);
+  });
+}
+
 function stableStringHash(value) {
   let hash = 2166136261;
   for (const character of String(value)) {
@@ -102,6 +118,83 @@ export function selectLianyingQualityDiversityArchive(
       scoreNode(right.node) - scoreNode(left.node))
     .slice(0, maximum)
     .map((entry) => entry.node);
+}
+
+function qualityDiversityLineageKey(node) {
+  return node?.qualityDiversityLineageId ?? null;
+}
+
+function selectBestLianyingNodesByKey(nodes, keyNode, scoreNode) {
+  if (typeof keyNode !== "function") return [];
+  const best = new Map();
+  for (const node of nodes ?? []) {
+    const key = keyNode(node);
+    if (key === null || key === undefined) continue;
+    const current = best.get(key);
+    if (!current || scoreNode(node) > scoreNode(current)) best.set(key, node);
+  }
+  return [...best.values()].sort(
+    (left, right) => scoreNode(right) - scoreNode(left),
+  );
+}
+
+export function refreshLianyingQualityDiversityLineages(
+  nodes,
+  {
+    anchorIndex,
+    quota = 0,
+    tenureSegments = 1,
+    candidateMultiplier = 8,
+    seed = 0,
+    keyNode = (node) => lianyingQualityDiversityCellKey(node.state),
+    scoreNode = (node) => node.state.totalDamage,
+  },
+) {
+  const maximum = Math.max(0, Math.floor(Number(quota)));
+  const currentAnchor = Math.max(0, Math.floor(Number(anchorIndex)));
+  const tenure = Math.max(1, Math.floor(Number(tenureSegments)));
+  const refreshed = [...(nodes ?? [])].map((node) => {
+    if (
+      node.qualityDiversityLineageId == null ||
+      Number(node.qualityDiversityLineageExpiresAtAnchor) > currentAnchor
+    ) return node;
+    const next = { ...node };
+    delete next.qualityDiversityLineageId;
+    delete next.qualityDiversityLineageExpiresAtAnchor;
+    return next;
+  });
+  const activeIds = new Set(
+    refreshed.map(qualityDiversityLineageKey).filter(Boolean),
+  );
+  const additions = selectLianyingQualityDiversityArchive(
+    refreshed.filter((node) => qualityDiversityLineageKey(node) === null),
+    {
+      quota: Math.max(0, maximum - activeIds.size),
+      candidateMultiplier,
+      seed: Number(seed) + currentAnchor,
+      keyNode,
+      scoreNode,
+    },
+  );
+  const additionIds = new Map(additions.map((node, index) => [
+    node,
+    `qd:${seed}:${currentAnchor}:${stableStringHash(keyNode(node))}:${index}`,
+  ]));
+  const assigned = refreshed.map((node) => additionIds.has(node)
+    ? {
+        ...node,
+        qualityDiversityLineageId: additionIds.get(node),
+        qualityDiversityLineageExpiresAtAnchor: currentAnchor + tenure,
+      }
+    : node);
+  return {
+    nodes: assigned,
+    activeLineages: new Set(
+      assigned.map(qualityDiversityLineageKey).filter(Boolean),
+    ).size,
+    retainedLineages: activeIds.size,
+    newLineages: additions.length,
+  };
 }
 
 function clonePacks(packs) {
@@ -639,6 +732,8 @@ function selectAnchorDriftRowBeam(
     minimumQualityDiversityQuota = 0,
     qualityDiversityCandidateMultiplier = 8,
     qualityDiversitySeed = 0,
+    qualityDiversityLineageKeyNode = null,
+    minimumQualityDiversityLineageQuota = 0,
   } = {},
 ) {
   const all = [...nodes];
@@ -737,8 +832,33 @@ function selectAnchorDriftRowBeam(
       }
     }
   }
+  const lineageNodes = selectBestLianyingNodesByKey(
+    all,
+    qualityDiversityLineageKeyNode,
+    lianyingAnchorDriftLongTermScore,
+  );
+  const lineageQuota = Math.min(
+    lineageNodes.length,
+    Math.max(0, Math.floor(Number(minimumQualityDiversityLineageQuota))),
+  );
+  const selectedLineageKeys = new Set(selected
+    .map((node) => qualityDiversityLineageKeyNode?.(node))
+    .filter((key) => key !== null && key !== undefined));
+  for (const node of lineageNodes) {
+    if (selected.length >= beamWidth || selectedLineageKeys.size >= lineageQuota) {
+      break;
+    }
+    const key = qualityDiversityLineageKeyNode(node);
+    if (selectedLineageKeys.has(key)) continue;
+    selected.push(node);
+    selectedNodes.add(node);
+    selectedLineageKeys.add(key);
+  }
   for (const node of selectLianyingQualityDiversityArchive(all, {
-    quota: minimumQualityDiversityQuota,
+    quota: Math.max(
+      0,
+      Number(minimumQualityDiversityQuota) - selectedLineageKeys.size,
+    ),
     candidateMultiplier: qualityDiversityCandidateMultiplier,
     seed: qualityDiversitySeed,
     keyNode: qualityDiversityKeyNode ?? undefined,
@@ -829,6 +949,8 @@ function selectAnchorDriftBoundaryNodes(
     minimumQualityDiversityQuota = 0,
     qualityDiversityCandidateMultiplier = 8,
     qualityDiversitySeed = 0,
+    qualityDiversityLineageKeyNode = null,
+    minimumQualityDiversityLineageQuota = 0,
     additionalPinned = [],
   } = {},
 ) {
@@ -906,8 +1028,32 @@ function selectAnchorDriftBoundaryNodes(
       }
     }
   }
+  const lineageNodes = selectBestLianyingNodesByKey(
+    all,
+    qualityDiversityLineageKeyNode,
+    score,
+  );
+  const lineageQuota = Math.min(
+    lineageNodes.length,
+    Math.max(0, Math.floor(Number(minimumQualityDiversityLineageQuota))),
+  );
+  const selectedLineageKeys = new Set(selected
+    .map((node) => qualityDiversityLineageKeyNode?.(node))
+    .filter((key) => key !== null && key !== undefined));
+  for (const node of lineageNodes) {
+    if (selected.length >= beamWidth || selectedLineageKeys.size >= lineageQuota) {
+      break;
+    }
+    const key = qualityDiversityLineageKeyNode(node);
+    if (selectedLineageKeys.has(key)) continue;
+    add(node);
+    selectedLineageKeys.add(key);
+  }
   for (const node of selectLianyingQualityDiversityArchive(all, {
-    quota: minimumQualityDiversityQuota,
+    quota: Math.max(
+      0,
+      Number(minimumQualityDiversityQuota) - selectedLineageKeys.size,
+    ),
     candidateMultiplier: qualityDiversityCandidateMultiplier,
     seed: qualityDiversitySeed,
     keyNode: qualityDiversityKeyNode ?? undefined,
@@ -935,6 +1081,12 @@ function selectAnchorDriftBoundaryNodes(
       : 0,
     selectedQualityDiversityBuckets: qualityDiversityKeyNode
       ? new Set(selected.map(qualityDiversityKeyNode)).size
+      : 0,
+    qualityDiversityLineageBuckets: qualityDiversityLineageKeyNode
+      ? new Set(all.map(qualityDiversityLineageKeyNode).filter(Boolean)).size
+      : 0,
+    selectedQualityDiversityLineages: qualityDiversityLineageKeyNode
+      ? new Set(selected.map(qualityDiversityLineageKeyNode).filter(Boolean)).size
       : 0,
   };
 }
@@ -2152,6 +2304,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     coreCandidatePackLimit = 0,
     primaryStructureDiversity = null,
     qualityDiversityRestart = null,
+    primaryActionConstraints = [],
     onProgress = null,
   } = {},
 ) {
@@ -2209,6 +2362,41 @@ export function optimizeLianyingAnchorDriftResynthesis(
   };
   const firstAnchor = anchors[0];
   const prefixPacks = clonePacks(corePacks.slice(0, firstAnchor));
+  const normalizedPrimaryActionConstraints = (primaryActionConstraints ?? [])
+    .map((constraint) => ({
+      row: Math.floor(Number(constraint.row)),
+      allowedActionIds: Array.isArray(constraint.allowedActionIds)
+        ? [...new Set(constraint.allowedActionIds.map(String))]
+        : null,
+      forbiddenActionIds: Array.isArray(constraint.forbiddenActionIds)
+        ? [...new Set(constraint.forbiddenActionIds.map(String))]
+        : null,
+    }));
+  for (const constraint of normalizedPrimaryActionConstraints) {
+    if (
+      !Number.isInteger(constraint.row) ||
+      constraint.row < 1 ||
+      constraint.row > corePacks.length
+    ) {
+      throw new Error("反事实主技能约束行必须位于技能轴范围内");
+    }
+    if (
+      constraint.allowedActionIds === null &&
+      constraint.forbiddenActionIds === null
+    ) {
+      throw new Error("反事实主技能约束必须声明允许或禁止的技能");
+    }
+    if (
+      constraint.row <= firstAnchor &&
+      !isLianyingPrimaryActionPackAllowed(
+        corePacks[constraint.row - 1],
+        constraint.row - 1,
+        normalizedPrimaryActionConstraints,
+      )
+    ) {
+      throw new Error(`第${constraint.row}行位于固定前缀，无法施加反事实主技能约束`);
+    }
+  }
   const normalizedPrimaryStructureDiversity = primaryStructureDiversity
     ? {
         startRow: Math.max(
@@ -2273,6 +2461,16 @@ export function optimizeLianyingAnchorDriftResynthesis(
           0,
           Math.floor(Number(qualityDiversityRestart.boundaryQuota ?? 0)),
         ),
+        lineageQuota: Math.max(
+          0,
+          Math.floor(Number(qualityDiversityRestart.lineageQuota ?? 0)),
+        ),
+        lineageTenureSegments: Math.max(
+          1,
+          Math.floor(Number(
+            qualityDiversityRestart.lineageTenureSegments ?? 1,
+          )),
+        ),
         seed: Math.floor(Number(qualityDiversityRestart.seed ?? 0)),
       }
     : null;
@@ -2332,6 +2530,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
   let warmLineageId = "warm";
   let warmLineageBaseDamage = null;
   let warmLineageProjectedFinal = null;
+  let warmConstraintActive = true;
   let nodes = [{
     state: warmState,
     packs: [],
@@ -2363,6 +2562,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
         node.state,
         runtime.config,
       )) {
+        if (!isLianyingPrimaryActionPackAllowed(
+          pack,
+          rowIndex,
+          normalizedPrimaryActionConstraints,
+        )) continue;
         if (!isLianyingAnchorDriftPackAllowed(
           pack,
           rowIndex,
@@ -2407,6 +2611,10 @@ export function optimizeLianyingAnchorDriftResynthesis(
             lineageId: node.lineageId,
             lineageBaseDamage: node.lineageBaseDamage,
             lineageProjectedFinal: node.lineageProjectedFinal,
+            qualityDiversityLineageId:
+              node.qualityDiversityLineageId,
+            qualityDiversityLineageExpiresAtAnchor:
+              node.qualityDiversityLineageExpiresAtAnchor,
           };
           const key = lianyingAnchorDriftNodeKey(
             thunderCount,
@@ -2428,6 +2636,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
       if (!warmNode.active) continue;
       const warmPack = warmNode.source[rowIndex];
       if (
+        !isLianyingPrimaryActionPackAllowed(
+          warmPack,
+          rowIndex,
+          normalizedPrimaryActionConstraints,
+        ) ||
         !isLianyingAnchorDriftPackAllowed(
           warmPack,
           rowIndex,
@@ -2516,6 +2729,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
       ...warmGeneratedPacks,
       cloneLianyingPack(warmPack),
     ];
+    warmConstraintActive = warmConstraintActive &&
+      isLianyingPrimaryActionPackAllowed(
+        warmPack,
+        rowIndex,
+        normalizedPrimaryActionConstraints,
+      );
     const warmHasThunder = lianyingPackHasAction(warmPack, "thunder");
     warmThunderCount += Number(warmHasThunder);
     const warmAnchorRows = anchors.slice(0, warmThunderCount);
@@ -2533,7 +2752,10 @@ export function optimizeLianyingAnchorDriftResynthesis(
       warmCompanionLineageRows,
     );
     const currentWarm = candidates.get(warmCompositeKey);
-    if (!currentWarm || warmState.totalDamage > currentWarm.state.totalDamage) {
+    if (
+      warmConstraintActive &&
+      (!currentWarm || warmState.totalDamage > currentWarm.state.totalDamage)
+    ) {
       candidates.set(warmCompositeKey, {
         state: warmState,
         packs: warmGeneratedPacks,
@@ -2549,13 +2771,15 @@ export function optimizeLianyingAnchorDriftResynthesis(
       candidates.values(),
       rowBeamWidth,
       [
-        {
-          stateKey: warmKey,
-          scheduleKey: lianyingAnchorDriftScheduleKey(
-            warmAnchorRows,
-            warmCompanionLineageRows,
-          ),
-        },
+        ...(warmConstraintActive
+          ? [{
+              stateKey: warmKey,
+              scheduleKey: lianyingAnchorDriftScheduleKey(
+                warmAnchorRows,
+                warmCompanionLineageRows,
+              ),
+            }]
+          : []),
         ...additionalWarmSources
           .filter((candidate) => candidate.active)
           .map((candidate) => ({
@@ -2576,6 +2800,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
           normalizedQualityDiversityRestart?.candidateMultiplier ?? 8,
         qualityDiversitySeed:
           (normalizedQualityDiversityRestart?.seed ?? 0) + rowIndex + 1,
+        qualityDiversityLineageKeyNode: qualityDiversityLineageKey,
+        minimumQualityDiversityLineageQuota:
+          normalizedQualityDiversityRestart?.lineageQuota ?? 0,
       },
     );
     peakRowStates = Math.max(peakRowStates, nodes.length);
@@ -2634,6 +2861,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
           normalizedQualityDiversityRestart?.candidateMultiplier ?? 8,
         qualityDiversitySeed:
           (normalizedQualityDiversityRestart?.seed ?? 0) + 10000 + anchorIndex,
+        qualityDiversityLineageKeyNode: qualityDiversityLineageKey,
+        minimumQualityDiversityLineageQuota:
+          normalizedQualityDiversityRestart?.lineageQuota ?? 0,
         additionalPinned: additionalWarmSources
           .filter((candidate) =>
             candidate.active && candidate.thunderCount >= anchorIndex + 1)
@@ -2643,7 +2873,27 @@ export function optimizeLianyingAnchorDriftResynthesis(
           })),
       },
     );
-    nodes = boundary.nodes;
+    const lineageRefresh = normalizedQualityDiversityRestart?.lineageQuota > 0
+      ? refreshLianyingQualityDiversityLineages(boundary.nodes, {
+          anchorIndex,
+          quota: normalizedQualityDiversityRestart.lineageQuota,
+          tenureSegments:
+            normalizedQualityDiversityRestart.lineageTenureSegments,
+          candidateMultiplier:
+            normalizedQualityDiversityRestart.candidateMultiplier,
+          seed: normalizedQualityDiversityRestart.seed + 10000,
+          keyNode: qualityDiversityKeyNode,
+          scoreNode: useSuffixValue
+            ? (node) => node.suffixValue.score
+            : lianyingAnchorDriftLongTermScore,
+        })
+      : {
+          nodes: boundary.nodes,
+          activeLineages: 0,
+          retainedLineages: 0,
+          newLineages: 0,
+        };
+    nodes = lineageRefresh.nodes;
     const window = lianyingAnchorDriftWindow(
       anchors,
       anchorIndex,
@@ -2682,6 +2932,13 @@ export function optimizeLianyingAnchorDriftResynthesis(
       availableQualityDiversityCells: boundary.qualityDiversityBuckets,
       survivingQualityDiversityCells:
         boundary.selectedQualityDiversityBuckets,
+      availableQualityDiversityLineages:
+        boundary.qualityDiversityLineageBuckets,
+      survivingQualityDiversityLineages:
+        boundary.selectedQualityDiversityLineages,
+      activeQualityDiversityLineages: lineageRefresh.activeLineages,
+      retainedQualityDiversityLineages: lineageRefresh.retainedLineages,
+      newQualityDiversityLineages: lineageRefresh.newLineages,
       actualRowHistogram,
       survivingAnchorSchedules: [...new Set(nodes.map(
         (node) => JSON.stringify(node.anchorRows.map((row) => row + 1)),
@@ -2750,6 +3007,9 @@ export function optimizeLianyingAnchorDriftResynthesis(
         normalizedQualityDiversityRestart?.candidateMultiplier ?? 8,
       qualityDiversitySeed:
         (normalizedQualityDiversityRestart?.seed ?? 0) + 20000,
+      qualityDiversityLineageKeyNode: qualityDiversityLineageKey,
+      minimumQualityDiversityLineageQuota:
+        normalizedQualityDiversityRestart?.lineageQuota ?? 0,
       additionalPinned: additionalWarmSources
         .filter((candidate) =>
           candidate.active && candidate.thunderCount === anchors.length)
@@ -3016,6 +3276,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       coreCandidatePackLimit: normalizedCoreCandidatePackLimit,
       primaryStructureDiversity: normalizedPrimaryStructureDiversity,
       qualityDiversityRestart: normalizedQualityDiversityRestart,
+      primaryActionConstraints: normalizedPrimaryActionConstraints,
     },
   };
 }

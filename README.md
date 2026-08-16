@@ -16,6 +16,8 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
+当前处于 M5.5：近优轴排序敏感性、有限祖先存活和单行反事实锚点实验均已完成。下一步把反事实从“固定某一行换招”放宽为短窗口内的资源技能顺序/数量模板；搜索重心仍是提高180秒最高DPS。
+
 ## 核心能力
 
 - 原生 JavaScript 状态机，运行模拟与搜索时不启动 Excel。
@@ -54,6 +56,10 @@ npm run optimize:block-recombination -- \
 # 从正式轴搜索两个互相补偿的局部变换
 npm run optimize:compound-neighborhood -- \
   - screen /tmp/compound-search
+
+# 独立强制关键行产生不同主技能，再重合成完整后缀
+npm run optimize:counterfactual-anchors -- \
+  - /tmp/counterfactual.json probe
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。
@@ -83,5 +89,6 @@ npm run optimize:compound-neighborhood -- \
 - [`docs/development-roadmap.md`](docs/development-roadmap.md)：开发阶段、实验结论和下一步。
 - [`docs/180s-search-coverage.md`](docs/180s-search-coverage.md)：180 秒搜索覆盖范围与未证明空间。
 - [`docs/value-training-data.md`](docs/value-training-data.md)：状态价值数据、训练和在线对照实验。
+- [`output/lianying-ranking-sensitivity.json`](output/lianying-ranking-sensitivity.json)：正式轴与最近近优轴的分项权重排序核查。
 
 公开仓库不包含原工作簿、原配装器仓库或个人绝对路径。重新提取装备与 Excel 金标准时，通过对应 `refresh:*` 工具显式传入来源目录和配装方案。

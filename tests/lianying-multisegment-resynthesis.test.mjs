@@ -4,6 +4,7 @@ import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import { createInitialState } from "../src/engine/state.js";
 import {
   isLianyingCompanionAnchorPackAllowed,
+  isLianyingPrimaryActionPackAllowed,
   isLianyingThunderAnchorPackAllowed,
   lianyingAnchorDriftNodeKey,
   lianyingAnchorDriftLongTermScore,
@@ -15,6 +16,7 @@ import {
   lianyingQualityDiversityCellKey,
   optimizeLianyingAnchorDriftResynthesis,
   optimizeLianyingMultiSegmentResynthesis,
+  refreshLianyingQualityDiversityLineages,
   selectLianyingJointBoundaryNodes,
   selectLianyingQualityDiversityArchive,
 } from "../src/policies/lianying-multisegment-resynthesis.js";
@@ -56,6 +58,53 @@ test("联合搜索固定每个区段首行开雷且区段内部不重复开雷",
       1,
     ),
     false,
+  );
+});
+
+test("反事实主技能锚点只约束指定行并支持允许与禁止清单", () => {
+  const constraints = [
+    { row: 12, forbiddenActionIds: ["destroy"] },
+    { row: 24, allowedActionIds: ["dragonRoar", "cloudStrike"] },
+  ];
+  assert.equal(
+    isLianyingPrimaryActionPackAllowed(
+      { primary: "destroy" },
+      11,
+      constraints,
+    ),
+    false,
+  );
+  assert.equal(
+    isLianyingPrimaryActionPackAllowed(
+      { primary: "dragonFang" },
+      11,
+      constraints,
+    ),
+    true,
+  );
+  assert.equal(
+    isLianyingPrimaryActionPackAllowed(
+      { primary: { id: "cloudStrike" } },
+      23,
+      constraints,
+    ),
+    true,
+  );
+  assert.equal(
+    isLianyingPrimaryActionPackAllowed(
+      { primary: "dragonFang" },
+      23,
+      constraints,
+    ),
+    false,
+  );
+  assert.equal(
+    isLianyingPrimaryActionPackAllowed(
+      { primary: "destroy" },
+      10,
+      constraints,
+    ),
+    true,
   );
 });
 
@@ -156,6 +205,50 @@ test("质量多样性档案固定总配额且每个单元只保留最高分", ()
   assert.deepEqual(first, second);
   assert.equal(new Set(first.map((node) => node.cell)).size, 3);
   assert.equal(first.some((node) => node.id === "a-lower"), false);
+});
+
+test("质量多样性祖先按雷区段保留并在有限期限后轮换", () => {
+  const nodes = [
+    { cell: "a", score: 100 },
+    { cell: "b", score: 99 },
+    { cell: "c", score: 98 },
+  ];
+  const options = {
+    quota: 2,
+    tenureSegments: 2,
+    candidateMultiplier: 2,
+    seed: 7,
+    keyNode: (node) => node.cell,
+    scoreNode: (node) => node.score,
+  };
+  const first = refreshLianyingQualityDiversityLineages(nodes, {
+    ...options,
+    anchorIndex: 0,
+  });
+  assert.equal(first.activeLineages, 2);
+  assert.equal(first.newLineages, 2);
+  const firstIds = first.nodes.map((node) => node.qualityDiversityLineageId)
+    .filter(Boolean);
+  const second = refreshLianyingQualityDiversityLineages(first.nodes, {
+    ...options,
+    anchorIndex: 1,
+  });
+  assert.equal(second.retainedLineages, 2);
+  assert.equal(second.newLineages, 0);
+  assert.deepEqual(
+    second.nodes.map((node) => node.qualityDiversityLineageId).filter(Boolean),
+    firstIds,
+  );
+  const third = refreshLianyingQualityDiversityLineages(second.nodes, {
+    ...options,
+    anchorIndex: 2,
+  });
+  assert.equal(third.retainedLineages, 0);
+  assert.equal(third.newLineages, 2);
+  assert.notDeepEqual(
+    third.nodes.map((node) => node.qualityDiversityLineageId).filter(Boolean),
+    firstIds,
+  );
 });
 
 test("雷坐标谱系作为锚点搜索去重键的一部分", () => {
@@ -587,6 +680,48 @@ test("三雷样例只漂移中间锚点并完成不降级复演", () => {
   assert.match(scheduleCsv, /雷序号/u);
   assert.ok(optimized.state.totalDamage >= baseline.state.totalDamage);
   assert.equal(replay.state.totalDamage, optimized.state.totalDamage);
+});
+
+test("反事实主技能约束会从完整候选中排除正式行技能", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const optimized = optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      anchorSlackRows: 0,
+      rowBeamWidth: 8,
+      boundaryBeamWidth: 8,
+      coreFinalistCount: 8,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+      includeCoreCandidatePacks: true,
+      coreCandidatePackLimit: 8,
+      primaryActionConstraints: [{
+        row: 15,
+        forbiddenActionIds: ["destroy"],
+      }],
+    },
+  );
+  const alternatives = optimized.coreCandidatePacks.filter(
+    (candidate) => !candidate.isIncumbent,
+  );
+
+  assert.ok(alternatives.length > 0);
+  assert.ok(alternatives.every((candidate) =>
+    candidate.packs[14].primary !== "destroy"));
+  assert.deepEqual(optimized.options.primaryActionConstraints, [{
+    row: 15,
+    allowedActionIds: null,
+    forbiddenActionIds: ["destroy"],
+  }]);
 });
 
 test("层次协调器只提出单个中间雷相邻移动并由低层完整复演", () => {

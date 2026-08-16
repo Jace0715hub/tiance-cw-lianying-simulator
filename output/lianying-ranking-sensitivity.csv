@@ -1,0 +1,5 @@
+﻿候选,来源,首个动作差异行,开场前5伤害事件相同,事件模型伤害,事件模型相对正式轴,Excel分项校准伤害,校准后相对正式轴,校准修正量
+formal,lianying-free-fixed-180s-anchor-rides-dismount-segments-deep.json,,true,2645312350.684956,0,2642551916.0014997,0,-2760434.683456505
+heterogeneous,lianying-ranking-sensitivity.json#candidate:heterogeneous,75,true,2644383600.2553844,-928750.4295716286,2641623165.571928,-928750.4295716286,-2760434.6834565056
+thunder106,lianying-ranking-sensitivity.json#candidate:thunder106,106,true,2644613129.06197,-699221.6229858398,2641852694.378514,-699221.6229858398,-2760434.683456505
+qualityTerminal,lianying-ranking-sensitivity.json#candidate:qualityTerminal,20,true,2643325943.2108607,-1986407.4740953445,2640563789.106376,-1988126.8951234818,-2762154.104484447
