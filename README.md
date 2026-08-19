@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.5 已完成：短窗口资源模板曾产生仅低正式轴 `48,804.41` 的异构中间轴，但固定锚点修复最终回归正式轴，伴随锚点联合消融反而显著变差。下一阶段转向整雷区段的技能计数骨架；搜索重心仍是提高180秒最高DPS。
+M5.6 已完成首轮区段技能计数骨架：30个有限模板中有10个进入1%核心损失门槛，最佳是第4雷区段以穿云替换龙吟，含突后低正式轴`928,750.43`；解除骨架约束后一招回归正式轴。下一阶段只组合已证明可达的少量计数变化，继续寻找180秒更高DPS。
 
 ## 核心能力
 
@@ -64,6 +64,10 @@ npm run optimize:counterfactual-anchors -- \
 # 固定前缀后搜索4–6行资源顺序/数量模板
 npm run optimize:counterfactual-windows -- \
   - /tmp/window.json probe
+
+# 按雷区段搜索有限的主要技能计数骨架
+npm run optimize:segment-skeletons -- \
+  - /tmp/segment-skeletons.json probe
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

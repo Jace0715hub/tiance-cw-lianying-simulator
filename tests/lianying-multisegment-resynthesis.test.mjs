@@ -5,6 +5,7 @@ import { createInitialState } from "../src/engine/state.js";
 import {
   isLianyingCompanionAnchorPackAllowed,
   isLianyingPrimaryActionPackAllowed,
+  isLianyingPrimaryCountPathAllowed,
   isLianyingPrimaryWindowPathAllowed,
   isLianyingThunderAnchorPackAllowed,
   lianyingAnchorDriftNodeKey,
@@ -159,6 +160,52 @@ test("反事实短窗口可区分技能顺序变化与资源技能数量变化",
       trackedActionIds: ["destroy", "dragonRoar", "cloudStrike", "charge"],
     }],
   ), true);
+});
+
+test("区段技能计数骨架会提前剪除超额路径并在边界精确验收", () => {
+  const constraint = {
+    startRow: 2,
+    endRow: 5,
+    counts: { destroy: 1, dragonRoar: 1, dragonFang: 2 },
+  };
+  const validPrefix = [
+    { primary: "ride" },
+    { primary: "destroy" },
+    { primary: "dragonFang" },
+  ];
+  assert.equal(isLianyingPrimaryCountPathAllowed(
+    validPrefix,
+    3,
+    [constraint],
+  ), true);
+  assert.equal(isLianyingPrimaryCountPathAllowed(
+    [...validPrefix, { primary: "destroy" }],
+    4,
+    [constraint],
+  ), false);
+  assert.equal(isLianyingPrimaryCountPathAllowed(
+    [...validPrefix, { primary: "dragonRoar" }],
+    4,
+    [constraint],
+  ), true);
+  assert.equal(isLianyingPrimaryCountPathAllowed(
+    [
+      ...validPrefix,
+      { primary: "dragonRoar" },
+      { primary: "dragonFang" },
+    ],
+    5,
+    [constraint],
+  ), true);
+  assert.equal(isLianyingPrimaryCountPathAllowed(
+    [
+      ...validPrefix,
+      { primary: "dragonFang" },
+      { primary: "dragonFang" },
+    ],
+    5,
+    [constraint],
+  ), false);
 });
 
 test("雷锚点漂移窗口在最晚行强制开雷并固定首尾锚点", () => {
@@ -838,6 +885,58 @@ test("反事实短窗口固定正式前缀后仍能导出完整合法替代轴",
     endRow: 22,
     signatureMode: "sequence",
     trackedActionIds: null,
+  }]);
+});
+
+test("区段技能计数骨架接入完整搜索并导出规范化约束", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const actionId = (action) => typeof action === "string" ? action : action?.id;
+  const counts = {};
+  for (const pack of seed.packs.slice(19, 22)) {
+    const id = actionId(pack.primary);
+    counts[id] = Number(counts[id] ?? 0) + 1;
+  }
+  const optimized = optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      anchorSlackRows: 0,
+      rowBeamWidth: 8,
+      boundaryBeamWidth: 8,
+      coreFinalistCount: 8,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+      includeCoreCandidatePacks: true,
+      coreCandidatePackLimit: 8,
+      primaryActionConstraints: seed.packs.slice(0, 19).map(
+        (pack, rowIndex) => ({
+          row: rowIndex + 1,
+          allowedActionIds: [actionId(pack.primary)],
+        }),
+      ),
+      primaryCountConstraints: [{ startRow: 20, endRow: 22, counts }],
+    },
+  );
+
+  assert.ok(optimized.coreCandidatePacks.length > 0);
+  assert.ok(optimized.coreCandidatePacks.every((candidate) =>
+    isLianyingPrimaryCountPathAllowed(
+      candidate.packs,
+      candidate.packs.length,
+      optimized.options.primaryCountConstraints,
+    )));
+  assert.deepEqual(optimized.options.primaryCountConstraints, [{
+    startRow: 20,
+    endRow: 22,
+    counts,
   }]);
 });
 
