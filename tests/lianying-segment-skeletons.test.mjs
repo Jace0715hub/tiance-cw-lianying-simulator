@@ -1,8 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  buildLianyingAnchorCountSkeletons,
   buildLianyingDoubleCountSkeletons,
+  lianyingCountSkeletonSegments,
   lianyingSegmentSkeletonDelta,
+  moveLianyingThunderAnchor,
 } from "../src/policies/lianying-segment-skeletons.js";
 
 const segments = [
@@ -108,4 +111,72 @@ test("双计数骨架排除退化为已有单骨架的组合并覆盖中间区�
     constraint.startRow,
     constraint.endRow,
   ]), [[38, 58], [59, 78]]);
+});
+
+test("雷锚点移动到任驰骋末端后按新边界重新统计区段", () => {
+  const packs = [
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+    { prefix: [], primary: "ride", tail: [] },
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+    { prefix: [], primary: "destroy", tail: [] },
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+  ];
+  const moved = moveLianyingThunderAnchor(packs, 2, 2);
+  const thunderRows = moved.flatMap((pack, index) =>
+    [...pack.prefix, ...pack.tail].some((action) =>
+      (typeof action === "string" ? action : action.id) === "thunder")
+      ? [index + 1]
+      : []);
+  const movedSegments = lianyingCountSkeletonSegments(moved, {
+    firstAnchorOrdinal: 1,
+    lastAnchorOrdinal: 2,
+    trackedActionIds: ["dragonFang", "destroy"],
+  });
+
+  assert.deepEqual(thunderRows, [1, 2, 5]);
+  assert.deepEqual(moved[1].tail, [{ id: "thunder", leadFrames: 1 }]);
+  assert.deepEqual(movedSegments, [
+    {
+      ordinal: 1,
+      startRow: 1,
+      endRow: 1,
+      counts: { dragonFang: 1, destroy: 0 },
+    },
+    {
+      ordinal: 2,
+      startRow: 2,
+      endRow: 4,
+      counts: { dragonFang: 1, destroy: 1 },
+    },
+  ]);
+});
+
+test("雷表联合骨架把正式区段增量映射到目标雷表真实边界", () => {
+  const targetSegments = [
+    segments[0],
+    {
+      ordinal: 4,
+      startRow: 59,
+      endRow: 77,
+      counts: { dragonFang: 1, destroy: 1, dragonRoar: 1, cloudStrike: 0 },
+    },
+  ];
+  const templates = buildLianyingAnchorCountSkeletons(
+    segments,
+    targetSegments,
+    [experiment("s4-roar-to-cloud", 59, 78, {
+      dragonFang: 2,
+      destroy: 1,
+      dragonRoar: 0,
+      cloudStrike: 1,
+    })],
+  );
+
+  assert.equal(templates.length, 1);
+  assert.deepEqual(templates[0].affectedSegmentOrdinals, [4]);
+  assert.deepEqual(templates[0].constraints, [{
+    startRow: 59,
+    endRow: 77,
+    counts: { dragonFang: 1, destroy: 1, dragonRoar: 0, cloudStrike: 1 },
+  }]);
 });

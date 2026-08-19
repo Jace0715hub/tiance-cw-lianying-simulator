@@ -2,6 +2,100 @@ function skeletonSegmentKey(segment) {
   return `${Number(segment.startRow)}-${Number(segment.endRow)}`;
 }
 
+function actionId(action) {
+  return typeof action === "string" ? action : action?.id;
+}
+
+function packHasAction(pack, id) {
+  return [
+    ...(pack?.prefix ?? []),
+    pack?.primary,
+    ...(pack?.tail ?? []),
+  ].some((action) => actionId(action) === id);
+}
+
+export function moveLianyingThunderAnchor(
+  packs,
+  anchorOrdinal,
+  targetRow,
+) {
+  const next = structuredClone(packs ?? []);
+  const thunderRows = next.flatMap((pack, index) =>
+    packHasAction(pack, "thunder") ? [index + 1] : []);
+  const ordinal = Math.floor(Number(anchorOrdinal));
+  const row = Math.floor(Number(targetRow));
+  if (ordinal < 1 || ordinal > thunderRows.length) {
+    throw new Error("待移动雷序号超出技能轴锚点范围");
+  }
+  if (row < 1 || row > next.length) {
+    throw new Error("目标雷行超出技能轴范围");
+  }
+  const sourceRow = thunderRows[ordinal - 1];
+  const sourcePack = next[sourceRow - 1];
+  sourcePack.prefix = (sourcePack.prefix ?? []).filter(
+    (action) => actionId(action) !== "thunder",
+  );
+  sourcePack.tail = (sourcePack.tail ?? []).filter(
+    (action) => actionId(action) !== "thunder",
+  );
+  if (actionId(sourcePack.primary) === "thunder") {
+    throw new Error("不支持移动作为主要技能施展的雷");
+  }
+  const targetPack = next[row - 1];
+  if (packHasAction(targetPack, "thunder")) return next;
+  if (actionId(targetPack.primary) === "ride") {
+    targetPack.tail = [
+      ...(targetPack.tail ?? []),
+      { id: "thunder", leadFrames: 1 },
+    ];
+  } else {
+    targetPack.prefix = ["thunder", ...(targetPack.prefix ?? [])];
+  }
+  return next;
+}
+
+export function lianyingCountSkeletonSegments(
+  packs,
+  {
+    firstAnchorOrdinal = 3,
+    lastAnchorOrdinal = 6,
+    trackedActionIds = [
+      "dragonFang",
+      "destroy",
+      "dragonRoar",
+      "cloudStrike",
+      "charge",
+    ],
+  } = {},
+) {
+  const anchors = (packs ?? []).flatMap((pack, index) =>
+    packHasAction(pack, "thunder") ? [index] : []);
+  const first = Math.max(1, Math.floor(Number(firstAnchorOrdinal)));
+  const last = Math.min(
+    anchors.length - 1,
+    Math.floor(Number(lastAnchorOrdinal)),
+  );
+  const segments = [];
+  for (let ordinal = first; ordinal <= last; ordinal += 1) {
+    const startIndex = anchors[ordinal - 1];
+    const endIndex = anchors[ordinal] - 1;
+    const counts = Object.fromEntries(
+      trackedActionIds.map((id) => [id, 0]),
+    );
+    for (const pack of packs.slice(startIndex, endIndex + 1)) {
+      const id = actionId(pack.primary);
+      if (Object.hasOwn(counts, id)) counts[id] += 1;
+    }
+    segments.push({
+      ordinal,
+      startRow: startIndex + 1,
+      endRow: endIndex + 1,
+      counts,
+    });
+  }
+  return segments;
+}
+
 function countIds(segments) {
   return [...new Set((segments ?? []).flatMap((segment) =>
     Object.keys(segment.counts ?? {})))].sort();
@@ -189,4 +283,81 @@ export function buildLianyingDoubleCountSkeletons(
       Math.max(0, Math.floor(Number(limit))),
     ),
   };
+}
+
+export function buildLianyingAnchorCountSkeletons(
+  sourceSegments,
+  targetSegments,
+  experiments,
+  {
+    maximumSingleCoreDamageLossRatio = 0.01,
+    limit = 6,
+  } = {},
+) {
+  const sourceByOrdinal = new Map(sourceSegments.map((segment) => [
+    Number(segment.ordinal),
+    segment,
+  ]));
+  const targetByOrdinal = new Map(targetSegments.map((segment) => [
+    Number(segment.ordinal),
+    segment,
+  ]));
+  const candidates = [];
+  for (const experiment of experiments ?? []) {
+    if (
+      !experiment?.bestPacks ||
+      !Number.isFinite(Number(experiment.coreDamageLossRatio)) ||
+      Number(experiment.coreDamageLossRatio) > maximumSingleCoreDamageLossRatio
+    ) continue;
+    const delta = lianyingSegmentSkeletonDelta(sourceSegments, experiment);
+    const affectedOrdinals = sourceSegments.flatMap((segment) => {
+      const key = skeletonSegmentKey(segment);
+      return Object.values(delta[key] ?? {}).some((value) => value !== 0)
+        ? [Number(segment.ordinal)]
+        : [];
+    });
+    if (
+      affectedOrdinals.length === 0 ||
+      affectedOrdinals.some((ordinal) => !targetByOrdinal.has(ordinal))
+    ) continue;
+    const first = Math.min(...affectedOrdinals);
+    const last = Math.max(...affectedOrdinals);
+    const constraints = targetSegments.filter((segment) =>
+      Number(segment.ordinal) >= first && Number(segment.ordinal) <= last)
+      .map((segment) => {
+        const source = sourceByOrdinal.get(Number(segment.ordinal));
+        const sourceKey = skeletonSegmentKey(source);
+        const counts = Object.fromEntries(Object.keys(segment.counts).map(
+          (id) => [
+            id,
+            Number(segment.counts[id] ?? 0) +
+              Number(delta[sourceKey]?.[id] ?? 0),
+          ],
+        ));
+        return {
+          startRow: Number(segment.startRow),
+          endRow: Number(segment.endRow),
+          counts,
+        };
+      });
+    if (constraints.some((constraint) =>
+      Object.values(constraint.counts).some((count) => count < 0))) continue;
+    candidates.push({
+      id: `anchor-count--${experiment.id}`,
+      kind: "anchor-segment-count-skeleton",
+      sourceExperimentId: experiment.id,
+      sourceCoreDamageLossRatio: Number(experiment.coreDamageLossRatio),
+      sourceBestPacks: experiment.bestPacks,
+      affectedSegmentOrdinals: affectedOrdinals,
+      startRow: constraints[0].startRow,
+      endRow: constraints.at(-1).endRow,
+      constraints,
+    });
+  }
+  return candidates.sort((left, right) =>
+    Number(right.affectedSegmentOrdinals.includes(5)) -
+      Number(left.affectedSegmentOrdinals.includes(5)) ||
+    left.sourceCoreDamageLossRatio - right.sourceCoreDamageLossRatio ||
+    left.id.localeCompare(right.id))
+    .slice(0, Math.max(0, Math.floor(Number(limit))));
 }
