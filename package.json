@@ -56,6 +56,7 @@
     "optimize:counterfactual-anchors": "node tools/optimize-lianying-counterfactual-anchors.mjs",
     "optimize:counterfactual-windows": "node tools/optimize-lianying-counterfactual-windows.mjs",
     "optimize:segment-skeletons": "node tools/optimize-lianying-segment-skeletons.mjs",
+    "optimize:double-segment-skeletons": "node tools/optimize-lianying-double-segment-skeletons.mjs",
     "optimize:block-recombination": "node tools/optimize-lianying-block-recombination.mjs",
     "optimize:compound-neighborhood": "node tools/optimize-lianying-compound-neighborhood.mjs",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",

@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.6 已完成首轮区段技能计数骨架：30个有限模板中有10个进入1%核心损失门槛，最佳是第4雷区段以穿云替换龙吟，含突后低正式轴`928,750.43`；解除骨架约束后一招回归正式轴。下一阶段只组合已证明可达的少量计数变化，继续寻找180秒更高DPS。
+M5.7 已完成有界双计数骨架：24个优先组合中19个进入1%核心损失门槛，最佳含突后低正式轴`1,850,111.77`；解除约束后由三步已知修复精确回归正式轴。下一阶段转向雷锚点与区段计数的有限联合模板，继续寻找180秒更高DPS。
 
 ## 核心能力
 
@@ -68,6 +68,10 @@ npm run optimize:counterfactual-windows -- \
 # 按雷区段搜索有限的主要技能计数骨架
 npm run optimize:segment-skeletons -- \
   - /tmp/segment-skeletons.json probe
+
+# 组合两条已验证单骨架计数增量
+npm run optimize:double-segment-skeletons -- \
+  - /tmp/double-skeletons.json probe /tmp/single-a.json,/tmp/single-b.json
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。
