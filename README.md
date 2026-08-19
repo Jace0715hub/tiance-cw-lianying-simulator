@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-当前处于 M5.5：近优轴排序敏感性、有限祖先存活和单行反事实锚点实验均已完成。下一步把反事实从“固定某一行换招”放宽为短窗口内的资源技能顺序/数量模板；搜索重心仍是提高180秒最高DPS。
+M5.5 已完成：短窗口资源模板曾产生仅低正式轴 `48,804.41` 的异构中间轴，但固定锚点修复最终回归正式轴，伴随锚点联合消融反而显著变差。下一阶段转向整雷区段的技能计数骨架；搜索重心仍是提高180秒最高DPS。
 
 ## 核心能力
 
@@ -60,6 +60,10 @@ npm run optimize:compound-neighborhood -- \
 # 独立强制关键行产生不同主技能，再重合成完整后缀
 npm run optimize:counterfactual-anchors -- \
   - /tmp/counterfactual.json probe
+
+# 固定前缀后搜索4–6行资源顺序/数量模板
+npm run optimize:counterfactual-windows -- \
+  - /tmp/window.json probe
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

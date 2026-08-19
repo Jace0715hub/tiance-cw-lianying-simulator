@@ -5,6 +5,7 @@ import { createInitialState } from "../src/engine/state.js";
 import {
   isLianyingCompanionAnchorPackAllowed,
   isLianyingPrimaryActionPackAllowed,
+  isLianyingPrimaryWindowPathAllowed,
   isLianyingThunderAnchorPackAllowed,
   lianyingAnchorDriftNodeKey,
   lianyingAnchorDriftLongTermScore,
@@ -106,6 +107,58 @@ test("反事实主技能锚点只约束指定行并支持允许与禁止清单",
     ),
     true,
   );
+});
+
+test("反事实短窗口可区分技能顺序变化与资源技能数量变化", () => {
+  const reference = [
+    { primary: "dragonFang" },
+    { primary: "destroy" },
+    { primary: "dragonFang" },
+  ];
+  const reordered = [
+    { primary: "destroy" },
+    { primary: "dragonFang" },
+    { primary: "dragonFang" },
+  ];
+  const replaced = [
+    { primary: "dragonRoar" },
+    { primary: "dragonFang" },
+    { primary: "dragonFang" },
+  ];
+  assert.equal(isLianyingPrimaryWindowPathAllowed(
+    reordered,
+    2,
+    reference,
+    [{ startRow: 1, endRow: 3, signatureMode: "sequence" }],
+  ), true);
+  assert.equal(isLianyingPrimaryWindowPathAllowed(
+    reordered,
+    3,
+    reference,
+    [{ startRow: 1, endRow: 3, signatureMode: "sequence" }],
+  ), true);
+  assert.equal(isLianyingPrimaryWindowPathAllowed(
+    reordered,
+    3,
+    reference,
+    [{
+      startRow: 1,
+      endRow: 3,
+      signatureMode: "counts",
+      trackedActionIds: ["destroy", "dragonRoar", "cloudStrike", "charge"],
+    }],
+  ), false);
+  assert.equal(isLianyingPrimaryWindowPathAllowed(
+    replaced,
+    3,
+    reference,
+    [{
+      startRow: 1,
+      endRow: 3,
+      signatureMode: "counts",
+      trackedActionIds: ["destroy", "dragonRoar", "cloudStrike", "charge"],
+    }],
+  ), true);
 });
 
 test("雷锚点漂移窗口在最晚行强制开雷并固定首尾锚点", () => {
@@ -721,6 +774,70 @@ test("反事实主技能约束会从完整候选中排除正式行技能", () =>
     row: 15,
     allowedActionIds: null,
     forbiddenActionIds: ["destroy"],
+  }]);
+});
+
+test("反事实短窗口固定正式前缀后仍能导出完整合法替代轴", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const actionId = (action) => typeof action === "string" ? action : action?.id;
+  const optimized = optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      anchorSlackRows: 0,
+      rowBeamWidth: 8,
+      boundaryBeamWidth: 8,
+      coreFinalistCount: 8,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+      includeCoreCandidatePacks: true,
+      coreCandidatePackLimit: 8,
+      primaryActionConstraints: seed.packs.slice(0, 19).map(
+        (pack, rowIndex) => ({
+          row: rowIndex + 1,
+          allowedActionIds: [actionId(pack.primary)],
+        }),
+      ),
+      primaryWindowConstraints: [{
+        startRow: 20,
+        endRow: 22,
+        signatureMode: "sequence",
+      }],
+      primaryStructureDiversity: {
+        startRow: 20,
+        endRow: 22,
+        rowBucketSize: 1,
+        maximumDifferences: 3,
+        rowQuota: 4,
+        boundaryQuota: 4,
+      },
+    },
+  );
+  const alternatives = optimized.coreCandidatePacks.filter(
+    (candidate) => !candidate.isIncumbent,
+  );
+
+  assert.ok(alternatives.length > 0);
+  assert.ok(alternatives.every((candidate) =>
+    isLianyingPrimaryWindowPathAllowed(
+      candidate.packs,
+      candidate.packs.length,
+      seed.packs,
+      optimized.options.primaryWindowConstraints,
+    )));
+  assert.deepEqual(optimized.options.primaryWindowConstraints, [{
+    startRow: 20,
+    endRow: 22,
+    signatureMode: "sequence",
+    trackedActionIds: null,
   }]);
 });
 
