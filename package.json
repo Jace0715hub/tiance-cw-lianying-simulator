@@ -58,6 +58,8 @@
     "optimize:segment-skeletons": "node tools/optimize-lianying-segment-skeletons.mjs",
     "optimize:double-segment-skeletons": "node tools/optimize-lianying-double-segment-skeletons.mjs",
     "optimize:anchor-count-skeletons": "node tools/optimize-lianying-anchor-count-skeletons.mjs",
+    "optimize:charge-count-skeletons": "node tools/optimize-lianying-charge-count-skeletons.mjs",
+    "optimize:anchor-charge-count-skeletons": "node tools/optimize-lianying-anchor-charge-count-skeletons.mjs",
     "optimize:block-recombination": "node tools/optimize-lianying-block-recombination.mjs",
     "optimize:compound-neighborhood": "node tools/optimize-lianying-compound-neighborhood.mjs",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",

@@ -109,6 +109,50 @@ export function isLianyingPrimaryCountPathAllowed(
   });
 }
 
+function lianyingActionCountSignature(packs, constraint, currentRow) {
+  const endRow = Math.min(Number(constraint.endRow), Number(currentRow));
+  const counts = Object.fromEntries(
+    Object.keys(constraint.counts ?? {}).map((id) => [id, 0]),
+  );
+  for (const pack of (packs ?? []).slice(
+    Number(constraint.startRow) - 1,
+    endRow,
+  )) {
+    for (const action of [
+      ...(pack?.prefix ?? []),
+      pack?.primary,
+      ...(pack?.tail ?? []),
+    ]) {
+      const id = actionId(action);
+      if (Object.hasOwn(counts, id)) counts[id] += 1;
+    }
+  }
+  return counts;
+}
+
+export function isLianyingActionCountPathAllowed(
+  packs,
+  currentRow,
+  constraints = [],
+) {
+  return (constraints ?? []).every((constraint) => {
+    if (Number(currentRow) < Number(constraint.startRow)) return true;
+    const actual = lianyingActionCountSignature(
+      packs,
+      constraint,
+      currentRow,
+    );
+    for (const [id, target] of Object.entries(constraint.counts ?? {})) {
+      if (actual[id] > Number(target)) return false;
+      if (
+        Number(currentRow) >= Number(constraint.endRow) &&
+        actual[id] !== Number(target)
+      ) return false;
+    }
+    return true;
+  });
+}
+
 function stableStringHash(value) {
   let hash = 2166136261;
   for (const character of String(value)) {
@@ -2373,6 +2417,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     primaryActionConstraints = [],
     primaryWindowConstraints = [],
     primaryCountConstraints = [],
+    actionCountConstraints = [],
     onProgress = null,
   } = {},
 ) {
@@ -2533,6 +2578,44 @@ export function optimizeLianyingAnchorDriftResynthesis(
     ) {
       throw new Error(
         `第${constraint.startRow}至${constraint.endRow}行位于固定前缀，无法施加主技能计数骨架`,
+      );
+    }
+  }
+  const normalizedActionCountConstraints = (actionCountConstraints ?? [])
+    .map((constraint) => ({
+      startRow: Math.floor(Number(constraint.startRow)),
+      endRow: Math.floor(Number(constraint.endRow)),
+      counts: Object.fromEntries(Object.entries(constraint.counts ?? {})
+        .map(([id, count]) => [String(id), Math.floor(Number(count))])),
+    }));
+  for (const constraint of normalizedActionCountConstraints) {
+    if (
+      !Number.isInteger(constraint.startRow) ||
+      !Number.isInteger(constraint.endRow) ||
+      constraint.startRow < 1 ||
+      constraint.startRow > constraint.endRow ||
+      constraint.endRow > corePacks.length
+    ) {
+      throw new Error("动作包计数骨架必须位于技能轴范围内且起点不晚于终点");
+    }
+    if (
+      Object.keys(constraint.counts).length === 0 ||
+      Object.values(constraint.counts).some(
+        (count) => !Number.isInteger(count) || count < 0,
+      )
+    ) {
+      throw new Error("动作包计数骨架必须包含非负整数目标");
+    }
+    if (
+      constraint.endRow <= firstAnchor &&
+      !isLianyingActionCountPathAllowed(
+        corePacks,
+        constraint.endRow,
+        [constraint],
+      )
+    ) {
+      throw new Error(
+        `第${constraint.startRow}至${constraint.endRow}行位于固定前缀，无法施加动作包计数骨架`,
       );
     }
   }
@@ -2722,6 +2805,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
           rowIndex + 1,
           normalizedPrimaryCountConstraints,
         )) continue;
+        if (!isLianyingActionCountPathAllowed(
+          candidatePath,
+          rowIndex + 1,
+          normalizedActionCountConstraints,
+        )) continue;
         if (!isLianyingAnchorDriftPackAllowed(
           pack,
           rowIndex,
@@ -2806,6 +2894,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
           warmNode.source.slice(0, rowIndex + 1),
           rowIndex + 1,
           normalizedPrimaryCountConstraints,
+        ) ||
+        !isLianyingActionCountPathAllowed(
+          warmNode.source.slice(0, rowIndex + 1),
+          rowIndex + 1,
+          normalizedActionCountConstraints,
         ) ||
         !isLianyingAnchorDriftPackAllowed(
           warmPack,
@@ -2911,6 +3004,11 @@ export function optimizeLianyingAnchorDriftResynthesis(
         [...prefixPacks, ...warmGeneratedPacks],
         rowIndex + 1,
         normalizedPrimaryCountConstraints,
+      ) &&
+      isLianyingActionCountPathAllowed(
+        [...prefixPacks, ...warmGeneratedPacks],
+        rowIndex + 1,
+        normalizedActionCountConstraints,
       );
     const warmHasThunder = lianyingPackHasAction(warmPack, "thunder");
     warmThunderCount += Number(warmHasThunder);
@@ -3456,6 +3554,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       primaryActionConstraints: normalizedPrimaryActionConstraints,
       primaryWindowConstraints: normalizedPrimaryWindowConstraints,
       primaryCountConstraints: normalizedPrimaryCountConstraints,
+      actionCountConstraints: normalizedActionCountConstraints,
     },
   };
 }

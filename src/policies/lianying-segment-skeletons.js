@@ -96,6 +96,183 @@ export function lianyingCountSkeletonSegments(
   return segments;
 }
 
+export function lianyingActionCountSkeletonSegments(
+  packs,
+  {
+    firstAnchorOrdinal = 1,
+    lastAnchorOrdinal = 6,
+    trackedActionIds = ["charge"],
+  } = {},
+) {
+  const anchors = (packs ?? []).flatMap((pack, index) =>
+    packHasAction(pack, "thunder") ? [index] : []);
+  const first = Math.max(1, Math.floor(Number(firstAnchorOrdinal)));
+  const last = Math.min(
+    anchors.length - 1,
+    Math.floor(Number(lastAnchorOrdinal)),
+  );
+  const segments = [];
+  for (let ordinal = first; ordinal <= last; ordinal += 1) {
+    const startIndex = anchors[ordinal - 1];
+    const endIndex = anchors[ordinal] - 1;
+    const counts = Object.fromEntries(
+      trackedActionIds.map((id) => [id, 0]),
+    );
+    for (const pack of packs.slice(startIndex, endIndex + 1)) {
+      for (const action of [
+        ...(pack?.prefix ?? []),
+        pack?.primary,
+        ...(pack?.tail ?? []),
+      ]) {
+        const id = actionId(action);
+        if (Object.hasOwn(counts, id)) counts[id] += 1;
+      }
+    }
+    segments.push({
+      ordinal,
+      startRow: startIndex + 1,
+      endRow: endIndex + 1,
+      counts,
+    });
+  }
+  return segments;
+}
+
+export function buildLianyingActionCountSkeletons(
+  segments,
+  {
+    action = "charge",
+    firstSegmentOrdinal = 3,
+    lastSegmentOrdinal = 6,
+  } = {},
+) {
+  const selected = segments.filter((segment) =>
+    Number(segment.ordinal) >= Number(firstSegmentOrdinal) &&
+    Number(segment.ordinal) <= Number(lastSegmentOrdinal));
+  const templates = [];
+  const constraintFor = (segment, count) => ({
+    startRow: Number(segment.startRow),
+    endRow: Number(segment.endRow),
+    counts: { [action]: count },
+  });
+  for (let index = 0; index < selected.length - 1; index += 1) {
+    const pair = [selected[index], selected[index + 1]];
+    for (const [source, destination] of [pair, [...pair].reverse()]) {
+      const sourceCount = Number(source.counts?.[action] ?? 0);
+      const destinationCount = Number(destination.counts?.[action] ?? 0);
+      if (sourceCount < 1) continue;
+      templates.push({
+        id: `transfer-${action}-s${source.ordinal}-to-s${destination.ordinal}`,
+        kind: "adjacent-action-count-transfer",
+        action,
+        affectedSegmentOrdinals: [
+          Number(source.ordinal),
+          Number(destination.ordinal),
+        ].sort((left, right) => left - right),
+        startRow: Math.min(source.startRow, destination.startRow),
+        endRow: Math.max(source.endRow, destination.endRow),
+        constraints: [
+          constraintFor(source, sourceCount - 1),
+          constraintFor(destination, destinationCount + 1),
+        ].sort((left, right) => left.startRow - right.startRow),
+      });
+    }
+  }
+  for (const segment of selected) {
+    const baseline = Number(segment.counts?.[action] ?? 0);
+    for (const delta of [-1, 1]) {
+      if (baseline + delta < 0) continue;
+      templates.push({
+        id: `${action}-s${segment.ordinal}-${delta > 0 ? "plus" : "minus"}1`,
+        kind: "single-segment-action-count-delta",
+        action,
+        affectedSegmentOrdinals: [Number(segment.ordinal)],
+        startRow: Number(segment.startRow),
+        endRow: Number(segment.endRow),
+        constraints: [constraintFor(segment, baseline + delta)],
+      });
+    }
+  }
+  return templates;
+}
+
+export function buildLianyingAnchorActionCountSkeletons(
+  sourceSegments,
+  targetSegments,
+  experiments,
+  {
+    action = "charge",
+    maximumLossRatio = 0.01,
+    limit = 6,
+  } = {},
+) {
+  const sourceByOrdinal = new Map((sourceSegments ?? []).map((segment) => [
+    Number(segment.ordinal),
+    segment,
+  ]));
+  const targetByOrdinal = new Map((targetSegments ?? []).map((segment) => [
+    Number(segment.ordinal),
+    segment,
+  ]));
+  const templates = [];
+  const signatures = new Set();
+  const ranked = (experiments ?? []).filter((experiment) =>
+    experiment?.bestPacks &&
+    Number.isFinite(Number(experiment.coreDamageLossRatio)) &&
+    Number(experiment.coreDamageLossRatio) <= Number(maximumLossRatio))
+    .sort((left, right) =>
+      Number(left.coreDamageLossRatio) - Number(right.coreDamageLossRatio));
+  for (const experiment of ranked) {
+    const constraints = [];
+    let valid = true;
+    for (const ordinal of experiment.affectedSegmentOrdinals ?? []) {
+      const source = sourceByOrdinal.get(Number(ordinal));
+      const target = targetByOrdinal.get(Number(ordinal));
+      const sourceConstraint = (experiment.constraints ?? []).find(
+        (constraint) => Number(constraint.startRow) === Number(source?.startRow) &&
+          Number(constraint.endRow) === Number(source?.endRow),
+      );
+      if (!source || !target || !sourceConstraint ||
+          !Object.hasOwn(sourceConstraint.counts ?? {}, action)) {
+        valid = false;
+        break;
+      }
+      const delta = Number(sourceConstraint.counts[action]) -
+        Number(source.counts?.[action] ?? 0);
+      const targetCount = Number(target.counts?.[action] ?? 0) + delta;
+      if (targetCount < 0) {
+        valid = false;
+        break;
+      }
+      constraints.push({
+        startRow: Number(target.startRow),
+        endRow: Number(target.endRow),
+        counts: { [action]: targetCount },
+      });
+    }
+    if (!valid || constraints.length === 0) continue;
+    constraints.sort((left, right) => left.startRow - right.startRow);
+    const signature = JSON.stringify(constraints);
+    if (signatures.has(signature)) continue;
+    signatures.add(signature);
+    templates.push({
+      id: `anchor-${experiment.id}`,
+      kind: "anchor-action-count-skeleton",
+      action,
+      sourceExperimentId: experiment.id,
+      sourceCoreDamageLossRatio: Number(experiment.coreDamageLossRatio),
+      affectedSegmentOrdinals: [...experiment.affectedSegmentOrdinals]
+        .map(Number).sort((left, right) => left - right),
+      startRow: Math.min(...constraints.map((constraint) => constraint.startRow)),
+      endRow: Math.max(...constraints.map((constraint) => constraint.endRow)),
+      constraints,
+      sourceBestPacks: experiment.bestPacks,
+    });
+    if (templates.length >= Number(limit)) break;
+  }
+  return templates;
+}
+
 function countIds(segments) {
   return [...new Set((segments ?? []).flatMap((segment) =>
     Object.keys(segment.counts ?? {})))].sort();

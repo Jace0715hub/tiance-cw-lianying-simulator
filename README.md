@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.8 已完成雷锚点—区段计数联合骨架：精确重建的79/106雷表只低正式轴`699,221.62`，但6个按新雷边界映射的计数模板均未改善它；最佳模板再低`921,361.34`并最终修复回79/106基线。下一阶段补上区段高层骨架尚未显式约束的断魂刺计数。
+M5.9–M5.10 已把前缀/主技能/尾动作统一纳入区段计数，并复核断魂刺数量与79/106雷表的交互。两轮均未刷新最优；最近的新资源轨迹仍低`1,159,303.995`，与79/106雷表联合后低正式轴`1,858,525.618`。下一阶段转向有界差异谱系，研究需要多次协同改动才能偿还中期损失的路径。
 
 ## 核心能力
 
@@ -76,6 +76,12 @@ npm run optimize:double-segment-skeletons -- \
 # 将单计数增量映射到不同雷表的真实区段边界
 npm run optimize:anchor-count-skeletons -- \
   - /tmp/anchor-count.json probe /tmp/single-a.json,/tmp/single-b.json
+
+# 断魂刺区段计数，以及与不同雷表的有界联合
+npm run optimize:charge-count-skeletons -- \
+  - /tmp/charge-count.json probe
+npm run optimize:anchor-charge-count-skeletons -- \
+  - /tmp/anchor-charge-count.json probe /tmp/charge-count.json
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

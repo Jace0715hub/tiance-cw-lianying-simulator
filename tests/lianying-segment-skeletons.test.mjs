@@ -1,8 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  buildLianyingActionCountSkeletons,
+  buildLianyingAnchorActionCountSkeletons,
   buildLianyingAnchorCountSkeletons,
   buildLianyingDoubleCountSkeletons,
+  lianyingActionCountSkeletonSegments,
   lianyingCountSkeletonSegments,
   lianyingSegmentSkeletonDelta,
   moveLianyingThunderAnchor,
@@ -179,4 +182,64 @@ test("雷表联合骨架把正式区段增量映射到目标雷表真实边界",
     endRow: 77,
     counts: { dragonFang: 1, destroy: 1, dragonRoar: 0, cloudStrike: 1 },
   }]);
+});
+
+test("动作区段统计识别前置与末端断魂刺并生成有限转移模板", () => {
+  const packs = [
+    { prefix: ["thunder", "charge"], primary: "dragonFang", tail: [] },
+    {
+      prefix: [],
+      primary: "ride",
+      tail: [{ id: "charge", leadFrames: 1 }],
+    },
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+    { prefix: ["charge"], primary: "destroy", tail: [] },
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+  ];
+  const actionSegments = lianyingActionCountSkeletonSegments(packs, {
+    firstAnchorOrdinal: 1,
+    lastAnchorOrdinal: 2,
+  });
+  const templates = buildLianyingActionCountSkeletons(actionSegments, {
+    firstSegmentOrdinal: 1,
+    lastSegmentOrdinal: 2,
+  });
+
+  assert.deepEqual(actionSegments.map((segment) => segment.counts.charge), [2, 1]);
+  assert.equal(templates.length, 6);
+  assert.deepEqual(
+    templates.find((template) => template.id === "transfer-charge-s1-to-s2")
+      .constraints.map((constraint) => constraint.counts.charge),
+    [1, 2],
+  );
+});
+
+test("断魂刺计数增量按新雷边界映射到目标区段", () => {
+  const sourceSegments = [
+    { ordinal: 5, startRow: 79, endRow: 106, counts: { charge: 1 } },
+    { ordinal: 6, startRow: 107, endRow: 127, counts: { charge: 2 } },
+  ];
+  const targetSegments = [
+    { ordinal: 5, startRow: 79, endRow: 105, counts: { charge: 1 } },
+    { ordinal: 6, startRow: 106, endRow: 127, counts: { charge: 2 } },
+  ];
+  const templates = buildLianyingAnchorActionCountSkeletons(
+    sourceSegments,
+    targetSegments,
+    [{
+      id: "charge-s6-minus1",
+      affectedSegmentOrdinals: [6],
+      constraints: [{ startRow: 107, endRow: 127, counts: { charge: 1 } }],
+      coreDamageLossRatio: 0.0005,
+      bestPacks: [{ primary: "dragonFang" }],
+    }],
+  );
+
+  assert.equal(templates.length, 1);
+  assert.deepEqual(templates[0].constraints, [{
+    startRow: 106,
+    endRow: 127,
+    counts: { charge: 1 },
+  }]);
+  assert.equal(templates[0].sourceExperimentId, "charge-s6-minus1");
 });

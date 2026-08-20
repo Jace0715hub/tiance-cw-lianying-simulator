@@ -4,6 +4,7 @@ import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import { createInitialState } from "../src/engine/state.js";
 import {
   isLianyingCompanionAnchorPackAllowed,
+  isLianyingActionCountPathAllowed,
   isLianyingPrimaryActionPackAllowed,
   isLianyingPrimaryCountPathAllowed,
   isLianyingPrimaryWindowPathAllowed,
@@ -206,6 +207,37 @@ test("区段技能计数骨架会提前剪除超额路径并在边界精确验�
     5,
     [constraint],
   ), false);
+});
+
+test("动作包计数骨架同时统计前置、主要技能和末端动作", () => {
+  const constraint = {
+    startRow: 1,
+    endRow: 3,
+    counts: { charge: 2, dragonFang: 2 },
+  };
+  const prefix = [
+    { prefix: ["charge"], primary: "dragonFang", tail: [] },
+    {
+      prefix: [],
+      primary: "ride",
+      tail: [{ id: "charge", leadFrames: 1 }],
+    },
+  ];
+  assert.equal(isLianyingActionCountPathAllowed(
+    prefix,
+    2,
+    [constraint],
+  ), true);
+  assert.equal(isLianyingActionCountPathAllowed(
+    [...prefix, { prefix: ["charge"], primary: "dragonFang", tail: [] }],
+    3,
+    [constraint],
+  ), false);
+  assert.equal(isLianyingActionCountPathAllowed(
+    [...prefix, { prefix: [], primary: "dragonFang", tail: [] }],
+    3,
+    [constraint],
+  ), true);
 });
 
 test("雷锚点漂移窗口在最晚行强制开雷并固定首尾锚点", () => {
@@ -934,6 +966,63 @@ test("区段技能计数骨架接入完整搜索并导出规范化约束", () =>
       optimized.options.primaryCountConstraints,
     )));
   assert.deepEqual(optimized.options.primaryCountConstraints, [{
+    startRow: 20,
+    endRow: 22,
+    counts,
+  }]);
+});
+
+test("完整动作计数骨架接入搜索并统一约束前缀主技能与尾动作", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const actionId = (action) => typeof action === "string" ? action : action?.id;
+  const counts = { charge: 0 };
+  for (const pack of seed.packs.slice(19, 22)) {
+    for (const action of [
+      ...(pack.prefix ?? []),
+      pack.primary,
+      ...(pack.tail ?? []),
+    ]) {
+      if (actionId(action) === "charge") counts.charge += 1;
+    }
+  }
+  const optimized = optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      anchorSlackRows: 0,
+      rowBeamWidth: 8,
+      boundaryBeamWidth: 8,
+      coreFinalistCount: 8,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+      includeCoreCandidatePacks: true,
+      coreCandidatePackLimit: 8,
+      primaryActionConstraints: seed.packs.slice(0, 19).map(
+        (pack, rowIndex) => ({
+          row: rowIndex + 1,
+          allowedActionIds: [actionId(pack.primary)],
+        }),
+      ),
+      actionCountConstraints: [{ startRow: 20, endRow: 22, counts }],
+    },
+  );
+
+  assert.ok(optimized.coreCandidatePacks.length > 0);
+  assert.ok(optimized.coreCandidatePacks.every((candidate) =>
+    isLianyingActionCountPathAllowed(
+      candidate.packs,
+      candidate.packs.length,
+      optimized.options.actionCountConstraints,
+    )));
+  assert.deepEqual(optimized.options.actionCountConstraints, [{
     startRow: 20,
     endRow: 22,
     counts,
