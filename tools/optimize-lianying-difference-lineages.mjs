@@ -7,6 +7,7 @@ import {
   lianyingCompanionAnchorRows,
   lianyingPrimaryDifferenceBucketKey,
   lianyingPrimaryDifferenceCount,
+  lianyingRelativeStateDeviationKey,
   optimizeLianyingAnchorDriftResynthesis,
 } from "../src/policies/lianying-multisegment-resynthesis.js";
 import {
@@ -26,6 +27,7 @@ const outputPath = path.resolve(
   process.argv[3] ?? "/tmp/lianying-difference-lineages.json",
 );
 const profileName = process.argv[4] ?? "probe";
+const lineageMode = process.argv[5] ?? "action";
 
 const profiles = {
   probe: {
@@ -44,6 +46,9 @@ const profiles = {
   },
 };
 if (!profiles[profileName]) throw new Error("未知差异谱系搜索档位");
+if (!["action", "state"].includes(lineageMode)) {
+  throw new Error("未知谱系模式，应为 action 或 state");
+}
 
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const durationSeconds = Number(source.durationSeconds ?? 180);
@@ -88,16 +93,31 @@ const differenceOptions = {
   lineageQuota: 4,
   lineageTenureSegments: 2,
 };
+const relativeStateOptions = {
+  bucketTicks: 8192,
+  rowQuota: 5,
+  boundaryQuota: 5,
+  lineageQuota: 4,
+  lineageTenureSegments: 2,
+};
+const lineageOptions = lineageMode === "action"
+  ? differenceOptions
+  : relativeStateOptions;
+const experimentKind = `${lineageMode}-lineage`;
+const experimentOptions = lineageMode === "action"
+  ? { primaryDifferenceLineage: differenceOptions }
+  : { relativeStateLineage: relativeStateOptions };
 
 const runs = [];
 for (const [kind, extraOptions] of [
   ["baseline", {}],
-  ["difference-lineage", { primaryDifferenceLineage: differenceOptions }],
+  [experimentKind, experimentOptions],
 ]) {
   process.stdout.write(`${JSON.stringify({
-    phase: "difference-lineage-ab",
+    phase: "lineage-ab",
     stage: "start",
     kind,
+    lineageMode,
     rowBeamWidth: profile.rowBeamWidth,
     boundaryBeamWidth: profile.boundaryBeamWidth,
   })}\n`);
@@ -108,7 +128,7 @@ for (const [kind, extraOptions] of [
   );
   runs.push({ kind, result });
   process.stdout.write(`${JSON.stringify({
-    phase: "difference-lineage-ab",
+    phase: "lineage-ab",
     stage: "complete-core",
     kind,
     explored: result.explored,
@@ -124,13 +144,30 @@ const pathKey = (packs) => JSON.stringify(packs);
 const actionId = (action) => typeof action === "string" ? action : action?.id;
 const baselinePaths = new Set(runs[0].result.coreCandidatePacks.map((candidate) =>
   pathKey(candidate.packs)));
+const coreSummaryCache = new Map();
+const zeroRelativeStateKey = lianyingRelativeStateDeviationKey(
+  formalCoreReplay.state,
+  formalCoreReplay.state,
+  relativeStateOptions,
+);
 const summarizeCoreCandidate = (candidate) => {
+  const key = pathKey(candidate.packs);
+  const cached = coreSummaryCache.get(key);
+  if (cached) return cached;
   const differenceCount = lianyingPrimaryDifferenceCount(
     candidate.packs,
     corePacks,
     differenceOptions,
   );
-  return {
+  const replay = replayWhitepaperLianying(runtime, candidate.packs, {
+    durationSeconds,
+  });
+  const finalRelativeStateKey = lianyingRelativeStateDeviationKey(
+    replay.state,
+    formalCoreReplay.state,
+    relativeStateOptions,
+  );
+  const summary = {
     coreDamage: candidate.coreDamage,
     coreDamageLoss: formalCoreReplay.state.totalDamage - candidate.coreDamage,
     isIncumbent: candidate.isIncumbent,
@@ -140,17 +177,22 @@ const summarizeCoreCandidate = (candidate) => {
       corePacks,
       differenceOptions,
     ),
+    finalRelativeStateKey,
+    finalRelativeStateMatchesFormal:
+      finalRelativeStateKey === zeroRelativeStateKey,
     differingRows: candidate.packs.flatMap((pack, index) =>
       actionId(pack.primary) === actionId(corePacks[index]?.primary)
         ? []
         : [index + 1]),
   };
+  coreSummaryCache.set(key, summary);
+  return summary;
 };
 const runReports = runs.map(({ kind, result }) => {
   const alternatives = result.coreCandidatePacks
     .filter((candidate) => !candidate.isIncumbent)
     .sort((left, right) => right.coreDamage - left.coreDamage);
-  const newCandidates = kind === "difference-lineage"
+  const newCandidates = kind !== "baseline"
     ? alternatives.filter((candidate) => !baselinePaths.has(pathKey(candidate.packs)))
     : [];
   return {
@@ -174,13 +216,23 @@ const runReports = runs.map(({ kind, result }) => {
         .map((bucket) => [bucket, alternatives.filter((candidate) =>
           summarizeCoreCandidate(candidate).differenceBucket === bucket).length]),
     ),
-    boundaryDifferenceDiagnostics: result.segments.map((segment) => ({
+    boundaryLineageDiagnostics: result.segments.map((segment) => ({
       anchorNumber: segment.anchorNumber,
-      availableBuckets: segment.availablePrimaryDifferenceBuckets ?? 0,
-      survivingBuckets: segment.survivingPrimaryDifferenceBuckets ?? 0,
-      activeLineages: segment.activePrimaryDifferenceLineages ?? 0,
-      retainedLineages: segment.retainedPrimaryDifferenceLineages ?? 0,
-      newLineages: segment.newPrimaryDifferenceLineages ?? 0,
+      availableBuckets: lineageMode === "action"
+        ? segment.availablePrimaryDifferenceBuckets ?? 0
+        : segment.availableRelativeStateDeviationBuckets ?? 0,
+      survivingBuckets: lineageMode === "action"
+        ? segment.survivingPrimaryDifferenceBuckets ?? 0
+        : segment.survivingRelativeStateDeviationBuckets ?? 0,
+      activeLineages: lineageMode === "action"
+        ? segment.activePrimaryDifferenceLineages ?? 0
+        : segment.activeRelativeStateLineages ?? 0,
+      retainedLineages: lineageMode === "action"
+        ? segment.retainedPrimaryDifferenceLineages ?? 0
+        : segment.retainedRelativeStateLineages ?? 0,
+      newLineages: lineageMode === "action"
+        ? segment.newPrimaryDifferenceLineages ?? 0
+        : segment.newRelativeStateLineages ?? 0,
     })),
     alternatives,
     newCandidates,
@@ -188,17 +240,17 @@ const runReports = runs.map(({ kind, result }) => {
 });
 
 for (const run of runReports) {
-  const candidate = run.kind === "difference-lineage"
+  const candidate = run.kind !== "baseline"
     ? run.newCandidates[0] ?? run.alternatives[0]
     : run.alternatives[0];
   if (!candidate) continue;
-  run.dashCandidateKind = run.kind === "difference-lineage" &&
+  run.dashCandidateKind = run.kind !== "baseline" &&
     run.newCandidates[0]
-    ? "best-new-difference-lineage"
+    ? `best-new-${lineageMode}-lineage`
     : "best-core-alternative";
   run.dashCandidateCore = summarizeCoreCandidate(candidate);
   process.stdout.write(`${JSON.stringify({
-    phase: "difference-lineage-ab",
+    phase: "lineage-ab",
     stage: "dash-start",
     kind: run.kind,
   })}\n`);
@@ -226,13 +278,15 @@ const serializableRun = (run) => Object.fromEntries(Object.entries(run)
 const experimental = runReports[1];
 const report = {
   schemaVersion: 1,
-  kind: "lianying-primary-difference-lineage-ab",
+  kind: `lianying-${lineageMode}-lineage-ab`,
   inputPath,
   durationSeconds,
   profileName,
   rowBeamWidth: profile.rowBeamWidth,
   boundaryBeamWidth: profile.boundaryBeamWidth,
   formalRotationDamage: formalReplay.state.totalDamage,
+  lineageMode,
+  lineageOptions,
   differenceOptions,
   runs: runReports.map(serializableRun),
   bestExperimentActionPacks: experimental.bestActionPacks ?? null,

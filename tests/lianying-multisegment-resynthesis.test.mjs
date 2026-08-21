@@ -19,6 +19,7 @@ import {
   lianyingPrimaryDifferenceCount,
   lianyingPrimaryHistoryStructureKey,
   lianyingQualityDiversityCellKey,
+  lianyingRelativeStateDeviationKey,
   optimizeLianyingAnchorDriftResynthesis,
   optimizeLianyingMultiSegmentResynthesis,
   refreshLianyingPrimaryDifferenceLineages,
@@ -407,6 +408,38 @@ test("主技能差异数按正式轴前缀计数并落入有界分桶", () => {
   assert.equal(lianyingPrimaryDifferenceBucketKey(candidate, reference, {
     bucketUpperBounds: [0, 2, 4, 8],
   }), "<=4");
+});
+
+test("相对状态偏差签名识别资源冷却与顺序充能相位", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const reference = createInitialState(runtime.config, {
+    rage: 3,
+    dragonRideStacks: 6,
+    executePhase: true,
+  });
+  const same = structuredClone(reference);
+  const resource = structuredClone(reference);
+  resource.rage = 4;
+  const cooldown = structuredClone(reference);
+  cooldown.cooldownReadyTick.destroy = 8192;
+  const recharge = structuredClone(reference);
+  recharge.chargeTicks.ride.ready -= 1;
+  recharge.chargeTicks.ride.rechargeQueue = [16384];
+  const zeroKey = lianyingRelativeStateDeviationKey(same, reference);
+
+  assert.equal(zeroKey, lianyingRelativeStateDeviationKey(reference, reference));
+  assert.notEqual(
+    zeroKey,
+    lianyingRelativeStateDeviationKey(resource, reference),
+  );
+  assert.notEqual(
+    zeroKey,
+    lianyingRelativeStateDeviationKey(cooldown, reference),
+  );
+  assert.notEqual(
+    zeroKey,
+    lianyingRelativeStateDeviationKey(recharge, reference),
+  );
 });
 
 test("主技能差异谱系在两个雷边界内保留并按分桶轮换", () => {
@@ -1140,6 +1173,63 @@ test("有界主技能差异谱系接入完整搜索且不扩大总束宽", () =>
     lineageQuota: 4,
     lineageTenureSegments: 2,
   });
+});
+
+test("相对状态偏差谱系接入同行热启动状态且与动作差异互斥", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const options = {
+    durationSeconds: 30,
+    anchorSlackRows: 0,
+    rowBeamWidth: 8,
+    boundaryBeamWidth: 8,
+    coreFinalistCount: 8,
+    coarseCandidateLimit: 2,
+    coarseDashStates: 4,
+    finalDashCandidateCount: 1,
+    fullDashStates: 4,
+    includeCoreCandidatePacks: true,
+    coreCandidatePackLimit: 8,
+    relativeStateLineage: {
+      bucketTicks: 8192,
+      rowQuota: 5,
+      boundaryQuota: 5,
+      lineageQuota: 4,
+      lineageTenureSegments: 2,
+    },
+  };
+  const optimized = optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    options,
+  );
+
+  assert.ok(optimized.peakRowStates <= 8);
+  assert.ok(optimized.segments.some((report) =>
+    report.activeRelativeStateLineages > 0));
+  assert.deepEqual(optimized.options.relativeStateLineage, {
+    bucketTicks: 8192,
+    rowQuota: 5,
+    boundaryQuota: 5,
+    lineageQuota: 4,
+    lineageTenureSegments: 2,
+  });
+  assert.throws(() => optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    {
+      ...options,
+      primaryDifferenceLineage: {
+        startRow: 3,
+        endRow: 22,
+        rowQuota: 1,
+      },
+    },
+  ), /不能同时开启/);
 });
 
 test("层次协调器只提出单个中间雷相邻移动并由低层完整复演", () => {

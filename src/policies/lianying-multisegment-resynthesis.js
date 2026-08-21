@@ -195,6 +195,63 @@ export function lianyingQualityDiversityCellKey(
   ]);
 }
 
+export function lianyingRelativeStateDeviationKey(
+  state,
+  referenceState,
+  { bucketTicks = 8192 } = {},
+) {
+  const size = Math.max(1, Math.floor(Number(bucketTicks)));
+  const stateTick = lianyingDecisionTick(state);
+  const referenceTick = lianyingDecisionTick(referenceState);
+  const bucketDelta = (left, right) => Math.round(
+    (Number(left ?? 0) - Number(right ?? 0)) / size,
+  );
+  const remaining = (readyTick, tick) =>
+    Math.max(0, Number(readyTick ?? 0) - Number(tick));
+  const cooldownDelta = (name) => bucketDelta(
+    remaining(state.cooldownReadyTick[name], stateTick),
+    remaining(referenceState.cooldownReadyTick[name], referenceTick),
+  );
+  const buffDelta = (name) => [
+    Number(isBuffActiveAtTick(state, name, stateTick)) -
+      Number(isBuffActiveAtTick(referenceState, name, referenceTick)),
+    bucketDelta(
+      remaining(state.buffTicks[`${name}Until`], stateTick),
+      remaining(referenceState.buffTicks[`${name}Until`], referenceTick),
+    ),
+  ];
+  const chargeDelta = (name) => {
+    const left = state.chargeTicks[name];
+    const right = referenceState.chargeTicks[name];
+    const leftQueue = left.rechargeQueue ?? [];
+    const rightQueue = right.rechargeQueue ?? [];
+    return [
+      Number(left.ready ?? 0) - Number(right.ready ?? 0),
+      leftQueue.length - rightQueue.length,
+      bucketDelta(
+        remaining(leftQueue[0], stateTick),
+        remaining(rightQueue[0], referenceTick),
+      ),
+      bucketDelta(
+        remaining(leftQueue[1], stateTick),
+        remaining(rightQueue[1], referenceTick),
+      ),
+    ];
+  };
+  return JSON.stringify([
+    Number(state.rage ?? 0) - Number(referenceState.rage ?? 0),
+    Number(state.dragonRideStacks ?? 0) -
+      Number(referenceState.dragonRideStacks ?? 0),
+    Number(isMountedAtTick(state, stateTick)) -
+      Number(isMountedAtTick(referenceState, referenceTick)),
+    bucketDelta(stateTick, referenceTick),
+    ["destroy", "dragonRoar", "charge", "orange"].map(cooldownDelta),
+    chargeDelta("thunder"),
+    chargeDelta("ride"),
+    ["thunder", "ride", "orange", "poLouLan", "breakArmy"].map(buffDelta),
+  ]);
+}
+
 export function selectLianyingQualityDiversityArchive(
   nodes,
   {
@@ -2641,6 +2698,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     coreCandidatePackLimit = 0,
     primaryStructureDiversity = null,
     primaryDifferenceLineage = null,
+    relativeStateLineage = null,
     qualityDiversityRestart = null,
     primaryActionConstraints = [],
     primaryWindowConstraints = [],
@@ -2946,6 +3004,38 @@ export function optimizeLianyingAnchorDriftResynthesis(
         normalizedPrimaryDifferenceLineage,
       )
     : null;
+  const normalizedRelativeStateLineage = relativeStateLineage
+    ? {
+        bucketTicks: Math.max(
+          1,
+          Math.floor(Number(relativeStateLineage.bucketTicks ?? 8192)),
+        ),
+        rowQuota: Math.max(
+          0,
+          Math.floor(Number(relativeStateLineage.rowQuota ?? 0)),
+        ),
+        boundaryQuota: Math.max(
+          0,
+          Math.floor(Number(relativeStateLineage.boundaryQuota ?? 0)),
+        ),
+        lineageQuota: Math.max(
+          0,
+          Math.floor(Number(relativeStateLineage.lineageQuota ?? 0)),
+        ),
+        lineageTenureSegments: Math.max(
+          1,
+          Math.floor(Number(
+            relativeStateLineage.lineageTenureSegments ?? 2,
+          )),
+        ),
+      }
+    : null;
+  if (
+    normalizedPrimaryDifferenceLineage &&
+    normalizedRelativeStateLineage
+  ) {
+    throw new Error("主技能差异谱系与相对状态谱系不能同时开启");
+  }
   const normalizedQualityDiversityRestart = qualityDiversityRestart
     ? {
         bucketTicks: Math.max(
@@ -3029,6 +3119,17 @@ export function optimizeLianyingAnchorDriftResynthesis(
   );
   const warmStates = buildWarmStates(runtime, corePacks, endTick);
   let warmState = warmStates[firstAnchor];
+  const relativeStateKeyNode = normalizedRelativeStateLineage
+    ? (node) => lianyingRelativeStateDeviationKey(
+        node.state,
+        warmState,
+        normalizedRelativeStateLineage,
+      )
+    : null;
+  const activeDifferenceKeyNode = relativeStateKeyNode ??
+    primaryDifferenceKeyNode;
+  const activeDifferenceLineageOptions = normalizedRelativeStateLineage ??
+    normalizedPrimaryDifferenceLineage;
   let warmGeneratedPacks = [];
   let warmThunderCount = 0;
   let warmCompanionLineageRows = structuredClone(initialCompanionLineageRows);
@@ -3355,12 +3456,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
         structureKeyNode: primaryStructureKeyNode,
         minimumStructureQuota:
           normalizedPrimaryStructureDiversity?.rowQuota ?? 0,
-        differenceKeyNode: primaryDifferenceKeyNode,
+        differenceKeyNode: activeDifferenceKeyNode,
         minimumDifferenceQuota:
-          normalizedPrimaryDifferenceLineage?.rowQuota ?? 0,
+          activeDifferenceLineageOptions?.rowQuota ?? 0,
         differenceLineageKeyNode: primaryDifferenceLineageKey,
         minimumDifferenceLineageQuota:
-          normalizedPrimaryDifferenceLineage?.lineageQuota ?? 0,
+          activeDifferenceLineageOptions?.lineageQuota ?? 0,
         qualityDiversityKeyNode,
         minimumQualityDiversityQuota:
           normalizedQualityDiversityRestart?.rowQuota ?? 0,
@@ -3422,12 +3523,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
         structureKeyNode: primaryStructureKeyNode,
         minimumStructureQuota:
           normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
-        differenceKeyNode: primaryDifferenceKeyNode,
+        differenceKeyNode: activeDifferenceKeyNode,
         minimumDifferenceQuota:
-          normalizedPrimaryDifferenceLineage?.boundaryQuota ?? 0,
+          activeDifferenceLineageOptions?.boundaryQuota ?? 0,
         differenceLineageKeyNode: primaryDifferenceLineageKey,
         minimumDifferenceLineageQuota:
-          normalizedPrimaryDifferenceLineage?.lineageQuota ?? 0,
+          activeDifferenceLineageOptions?.lineageQuota ?? 0,
         qualityDiversityKeyNode,
         minimumQualityDiversityQuota:
           normalizedQualityDiversityRestart?.boundaryQuota ?? 0,
@@ -3468,13 +3569,13 @@ export function optimizeLianyingAnchorDriftResynthesis(
           newLineages: 0,
         };
     const differenceLineageRefresh =
-      normalizedPrimaryDifferenceLineage?.lineageQuota > 0
+      activeDifferenceLineageOptions?.lineageQuota > 0
         ? refreshLianyingPrimaryDifferenceLineages(lineageRefresh.nodes, {
             anchorIndex,
-            quota: normalizedPrimaryDifferenceLineage.lineageQuota,
+            quota: activeDifferenceLineageOptions.lineageQuota,
             tenureSegments:
-              normalizedPrimaryDifferenceLineage.lineageTenureSegments,
-            keyNode: primaryDifferenceKeyNode,
+              activeDifferenceLineageOptions.lineageTenureSegments,
+            keyNode: activeDifferenceKeyNode,
             scoreNode: useSuffixValue
               ? (node) => node.suffixValue.score
               : lianyingAnchorDriftLongTermScore,
@@ -3522,20 +3623,55 @@ export function optimizeLianyingAnchorDriftResynthesis(
       availableSchedules: boundary.scheduleBuckets,
       availablePrimaryStructures: boundary.structureBuckets,
       survivingPrimaryStructures: boundary.selectedStructureBuckets,
-      availablePrimaryDifferenceBuckets: boundary.differenceBuckets,
-      survivingPrimaryDifferenceBuckets: boundary.selectedDifferenceBuckets,
+      availablePrimaryDifferenceBuckets: normalizedPrimaryDifferenceLineage
+        ? boundary.differenceBuckets
+        : 0,
+      survivingPrimaryDifferenceBuckets: normalizedPrimaryDifferenceLineage
+        ? boundary.selectedDifferenceBuckets
+        : 0,
+      availableRelativeStateDeviationBuckets:
+        normalizedRelativeStateLineage ? boundary.differenceBuckets : 0,
+      survivingRelativeStateDeviationBuckets:
+        normalizedRelativeStateLineage
+          ? boundary.selectedDifferenceBuckets
+          : 0,
       availablePrimaryDifferenceLineages:
-        boundary.differenceLineageBuckets,
+        normalizedPrimaryDifferenceLineage
+          ? boundary.differenceLineageBuckets
+          : 0,
       survivingPrimaryDifferenceLineages:
-        boundary.selectedDifferenceLineages,
+        normalizedPrimaryDifferenceLineage
+          ? boundary.selectedDifferenceLineages
+          : 0,
       activePrimaryDifferenceLineages:
-        differenceLineageRefresh.activeLineages,
+        normalizedPrimaryDifferenceLineage
+          ? differenceLineageRefresh.activeLineages
+          : 0,
       retainedPrimaryDifferenceLineages:
-        differenceLineageRefresh.retainedLineages,
+        normalizedPrimaryDifferenceLineage
+          ? differenceLineageRefresh.retainedLineages
+          : 0,
       newPrimaryDifferenceLineages:
-        differenceLineageRefresh.newLineages,
+        normalizedPrimaryDifferenceLineage
+          ? differenceLineageRefresh.newLineages
+          : 0,
       representedPrimaryDifferenceBuckets:
-        differenceLineageRefresh.representedBuckets,
+        normalizedPrimaryDifferenceLineage
+          ? differenceLineageRefresh.representedBuckets
+          : 0,
+      activeRelativeStateLineages: normalizedRelativeStateLineage
+        ? differenceLineageRefresh.activeLineages
+        : 0,
+      retainedRelativeStateLineages: normalizedRelativeStateLineage
+        ? differenceLineageRefresh.retainedLineages
+        : 0,
+      newRelativeStateLineages: normalizedRelativeStateLineage
+        ? differenceLineageRefresh.newLineages
+        : 0,
+      representedRelativeStateDeviationBuckets:
+        normalizedRelativeStateLineage
+          ? differenceLineageRefresh.representedBuckets
+          : 0,
       availableQualityDiversityCells: boundary.qualityDiversityBuckets,
       survivingQualityDiversityCells:
         boundary.selectedQualityDiversityBuckets,
@@ -3607,12 +3743,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
       structureKeyNode: primaryStructureKeyNode,
       minimumStructureQuota:
         normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
-      differenceKeyNode: primaryDifferenceKeyNode,
+      differenceKeyNode: activeDifferenceKeyNode,
       minimumDifferenceQuota:
-        normalizedPrimaryDifferenceLineage?.boundaryQuota ?? 0,
+        activeDifferenceLineageOptions?.boundaryQuota ?? 0,
       differenceLineageKeyNode: primaryDifferenceLineageKey,
       minimumDifferenceLineageQuota:
-        normalizedPrimaryDifferenceLineage?.lineageQuota ?? 0,
+        activeDifferenceLineageOptions?.lineageQuota ?? 0,
       qualityDiversityKeyNode,
       minimumQualityDiversityQuota:
         normalizedQualityDiversityRestart?.boundaryQuota ?? 0,
@@ -3889,6 +4025,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       coreCandidatePackLimit: normalizedCoreCandidatePackLimit,
       primaryStructureDiversity: normalizedPrimaryStructureDiversity,
       primaryDifferenceLineage: normalizedPrimaryDifferenceLineage,
+      relativeStateLineage: normalizedRelativeStateLineage,
       qualityDiversityRestart: normalizedQualityDiversityRestart,
       primaryActionConstraints: normalizedPrimaryActionConstraints,
       primaryWindowConstraints: normalizedPrimaryWindowConstraints,

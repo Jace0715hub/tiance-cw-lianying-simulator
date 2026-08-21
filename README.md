@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.11 已完成固定总束宽的主技能差异谱系 A/B。`probe`召回6条对照组缺失的轴，最佳经组合修复仅低`675,504.325`，但`balanced`最终精确恢复正式148行；48/24束的`screen`新候选反而低`26,813,023.122`。下一阶段改用相对正式状态的资源/冷却偏差分桶，避免等伤换位浪费谱系槽。
+M5.12 已完成固定总束宽的相对状态偏差谱系 A/B。`probe`召回6条新增合法轴，最近一条低`1,118,650.243`（`0.0437%`），但局部修复只会恢复正式轴；48/24束的`screen`最近新增轴反而低`35,745,607.265`。正式结果不变，下一阶段转向有界最佳优先的局部块搜索，不再继续扩宽多样性槽。
 
 ## 核心能力
 
@@ -83,9 +83,11 @@ npm run optimize:charge-count-skeletons -- \
 npm run optimize:anchor-charge-count-skeletons -- \
   - /tmp/anchor-charge-count.json probe /tmp/charge-count.json
 
-# 同预算对照累计主技能差异谱系
+# 同预算对照动作差异谱系，或相对状态偏差谱系
 npm run optimize:difference-lineages -- \
   - /tmp/difference-lineages.json probe
+npm run optimize:difference-lineages -- \
+  - /tmp/state-lineages.json probe state
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。
