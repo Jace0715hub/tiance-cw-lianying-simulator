@@ -234,6 +234,10 @@ function qualityDiversityLineageKey(node) {
   return node?.qualityDiversityLineageId ?? null;
 }
 
+function primaryDifferenceLineageKey(node) {
+  return node?.primaryDifferenceLineageId ?? null;
+}
+
 function selectBestLianyingNodesByKey(nodes, keyNode, scoreNode) {
   if (typeof keyNode !== "function") return [];
   const best = new Map();
@@ -304,6 +308,70 @@ export function refreshLianyingQualityDiversityLineages(
     ).size,
     retainedLineages: activeIds.size,
     newLineages: additions.length,
+  };
+}
+
+export function refreshLianyingPrimaryDifferenceLineages(
+  nodes,
+  {
+    anchorIndex,
+    quota = 0,
+    tenureSegments = 2,
+    keyNode,
+    scoreNode = (node) => node.state.totalDamage,
+  },
+) {
+  const maximum = Math.max(0, Math.floor(Number(quota)));
+  const currentAnchor = Math.max(0, Math.floor(Number(anchorIndex)));
+  const tenure = Math.max(1, Math.floor(Number(tenureSegments)));
+  const refreshed = [...(nodes ?? [])].map((node) => {
+    if (
+      node.primaryDifferenceLineageId == null ||
+      Number(node.primaryDifferenceLineageExpiresAtAnchor) > currentAnchor
+    ) return node;
+    const next = { ...node };
+    delete next.primaryDifferenceLineageId;
+    delete next.primaryDifferenceLineageExpiresAtAnchor;
+    return next;
+  });
+  const activeIds = new Set(
+    refreshed.map(primaryDifferenceLineageKey).filter(Boolean),
+  );
+  const activeBuckets = new Set(refreshed
+    .filter((node) => primaryDifferenceLineageKey(node) !== null)
+    .map(keyNode));
+  const bucketCandidates = selectBestLianyingNodesByKey(
+    refreshed.filter((node) =>
+      primaryDifferenceLineageKey(node) === null &&
+      !activeBuckets.has(keyNode(node))),
+    keyNode,
+    scoreNode,
+  );
+  const additions = bucketCandidates.slice(
+    0,
+    Math.max(0, maximum - activeIds.size),
+  );
+  const additionIds = new Map(additions.map((node, index) => [
+    node,
+    `difference:${currentAnchor}:${stableStringHash(keyNode(node))}:${index}`,
+  ]));
+  const assigned = refreshed.map((node) => additionIds.has(node)
+    ? {
+        ...node,
+        primaryDifferenceLineageId: additionIds.get(node),
+        primaryDifferenceLineageExpiresAtAnchor: currentAnchor + tenure,
+      }
+    : node);
+  return {
+    nodes: assigned,
+    activeLineages: new Set(
+      assigned.map(primaryDifferenceLineageKey).filter(Boolean),
+    ).size,
+    retainedLineages: activeIds.size,
+    newLineages: additions.length,
+    representedBuckets: new Set(assigned
+      .filter((node) => primaryDifferenceLineageKey(node) !== null)
+      .map(keyNode)).size,
   };
 }
 
@@ -838,6 +906,10 @@ function selectAnchorDriftRowBeam(
   {
     structureKeyNode = null,
     minimumStructureQuota = 0,
+    differenceKeyNode = null,
+    minimumDifferenceQuota = 0,
+    differenceLineageKeyNode = null,
+    minimumDifferenceLineageQuota = 0,
     qualityDiversityKeyNode = null,
     minimumQualityDiversityQuota = 0,
     qualityDiversityCandidateMultiplier = 8,
@@ -849,6 +921,9 @@ function selectAnchorDriftRowBeam(
   const all = [...nodes];
   const structureKey = typeof structureKeyNode === "function"
     ? structureKeyNode
+    : null;
+  const differenceKey = typeof differenceKeyNode === "function"
+    ? differenceKeyNode
     : null;
   const pinnedEntries = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
     .filter(Boolean)
@@ -908,6 +983,15 @@ function selectAnchorDriftRowBeam(
     structureNodes.length,
     Math.max(0, Math.floor(Number(minimumStructureQuota ?? 0))),
   );
+  const differenceNodes = selectBestLianyingNodesByKey(
+    all,
+    differenceKey,
+    lianyingAnchorDriftLongTermScore,
+  );
+  const differenceQuota = Math.min(
+    differenceNodes.length,
+    Math.max(0, Math.floor(Number(minimumDifferenceQuota ?? 0))),
+  );
   const scheduleQuota = Math.min(
     scheduleNodes.length,
     Math.max(
@@ -941,6 +1025,43 @@ function selectAnchorDriftRowBeam(
         if (selectedStructureKeys.size >= structureQuota) break;
       }
     }
+  }
+  if (differenceKey) {
+    const selectedDifferenceKeys = new Set(selected.map(differenceKey));
+    for (const node of differenceNodes) {
+      if (
+        selected.length >= beamWidth ||
+        selectedDifferenceKeys.size >= differenceQuota
+      ) break;
+      const key = differenceKey(node);
+      if (selectedDifferenceKeys.has(key)) continue;
+      selected.push(node);
+      selectedNodes.add(node);
+      selectedDifferenceKeys.add(key);
+    }
+  }
+  const differenceLineageNodes = selectBestLianyingNodesByKey(
+    all,
+    differenceLineageKeyNode,
+    lianyingAnchorDriftLongTermScore,
+  );
+  const differenceLineageQuota = Math.min(
+    differenceLineageNodes.length,
+    Math.max(0, Math.floor(Number(minimumDifferenceLineageQuota))),
+  );
+  const selectedDifferenceLineages = new Set(selected
+    .map((node) => differenceLineageKeyNode?.(node))
+    .filter((key) => key !== null && key !== undefined));
+  for (const node of differenceLineageNodes) {
+    if (
+      selected.length >= beamWidth ||
+      selectedDifferenceLineages.size >= differenceLineageQuota
+    ) break;
+    const key = differenceLineageKeyNode(node);
+    if (selectedDifferenceLineages.has(key)) continue;
+    selected.push(node);
+    selectedNodes.add(node);
+    selectedDifferenceLineages.add(key);
   }
   const lineageNodes = selectBestLianyingNodesByKey(
     all,
@@ -1055,6 +1176,10 @@ function selectAnchorDriftBoundaryNodes(
     minimumScheduleQuota = 0,
     structureKeyNode = null,
     minimumStructureQuota = 0,
+    differenceKeyNode = null,
+    minimumDifferenceQuota = 0,
+    differenceLineageKeyNode = null,
+    minimumDifferenceLineageQuota = 0,
     qualityDiversityKeyNode = null,
     minimumQualityDiversityQuota = 0,
     qualityDiversityCandidateMultiplier = 8,
@@ -1070,6 +1195,9 @@ function selectAnchorDriftBoundaryNodes(
     : (node) => node.state.totalDamage;
   const structureKey = typeof structureKeyNode === "function"
     ? structureKeyNode
+    : null;
+  const differenceKey = typeof differenceKeyNode === "function"
+    ? differenceKeyNode
     : null;
   const scheduleBest = new Map();
   for (const node of all) {
@@ -1094,6 +1222,15 @@ function selectAnchorDriftBoundaryNodes(
   const structureQuota = Math.min(
     structureNodes.length,
     Math.max(0, Math.floor(Number(minimumStructureQuota ?? 0))),
+  );
+  const differenceNodes = selectBestLianyingNodesByKey(
+    all,
+    differenceKey,
+    score,
+  );
+  const differenceQuota = Math.min(
+    differenceNodes.length,
+    Math.max(0, Math.floor(Number(minimumDifferenceQuota ?? 0))),
   );
   const selected = [];
   const selectedNodes = new Set();
@@ -1137,6 +1274,41 @@ function selectAnchorDriftBoundaryNodes(
         if (selectedStructureKeys.size >= structureQuota) break;
       }
     }
+  }
+  if (differenceKey) {
+    const selectedDifferenceKeys = new Set(selected.map(differenceKey));
+    for (const node of differenceNodes) {
+      if (
+        selected.length >= beamWidth ||
+        selectedDifferenceKeys.size >= differenceQuota
+      ) break;
+      const key = differenceKey(node);
+      if (selectedDifferenceKeys.has(key)) continue;
+      add(node);
+      selectedDifferenceKeys.add(key);
+    }
+  }
+  const differenceLineageNodes = selectBestLianyingNodesByKey(
+    all,
+    differenceLineageKeyNode,
+    score,
+  );
+  const differenceLineageQuota = Math.min(
+    differenceLineageNodes.length,
+    Math.max(0, Math.floor(Number(minimumDifferenceLineageQuota))),
+  );
+  const selectedDifferenceLineages = new Set(selected
+    .map((node) => differenceLineageKeyNode?.(node))
+    .filter((key) => key !== null && key !== undefined));
+  for (const node of differenceLineageNodes) {
+    if (
+      selected.length >= beamWidth ||
+      selectedDifferenceLineages.size >= differenceLineageQuota
+    ) break;
+    const key = differenceLineageKeyNode(node);
+    if (selectedDifferenceLineages.has(key)) continue;
+    add(node);
+    selectedDifferenceLineages.add(key);
   }
   const lineageNodes = selectBestLianyingNodesByKey(
     all,
@@ -1185,6 +1357,18 @@ function selectAnchorDriftBoundaryNodes(
     structureBuckets: structureBest.size,
     selectedStructureBuckets: structureKey
       ? new Set(selected.map(structureKey)).size
+      : 0,
+    differenceBuckets: differenceKey
+      ? new Set(all.map(differenceKey)).size
+      : 0,
+    selectedDifferenceBuckets: differenceKey
+      ? new Set(selected.map(differenceKey)).size
+      : 0,
+    differenceLineageBuckets: differenceLineageKeyNode
+      ? new Set(all.map(differenceLineageKeyNode).filter(Boolean)).size
+      : 0,
+    selectedDifferenceLineages: differenceLineageKeyNode
+      ? new Set(selected.map(differenceLineageKeyNode).filter(Boolean)).size
       : 0,
     qualityDiversityBuckets: qualityDiversityKeyNode
       ? new Set(all.map(qualityDiversityKeyNode)).size
@@ -1294,6 +1478,49 @@ export function lianyingPrimaryHistoryStructureKey(
     companionDifferences,
     companionDeltas,
   ]);
+}
+
+export function lianyingPrimaryDifferenceCount(
+  packs,
+  referencePacks,
+  { startRow = 1, endRow = Number.POSITIVE_INFINITY } = {},
+) {
+  const startIndex = Math.max(0, Math.floor(Number(startRow)) - 1);
+  const requestedEnd = Number.isFinite(Number(endRow))
+    ? Math.floor(Number(endRow))
+    : Math.max(packs?.length ?? 0, referencePacks?.length ?? 0);
+  const endIndex = Math.min(
+    packs?.length ?? 0,
+    referencePacks?.length ?? 0,
+    Math.max(startIndex, requestedEnd),
+  );
+  let differences = 0;
+  for (let index = startIndex; index < endIndex; index += 1) {
+    if (actionId(packs[index]?.primary) !==
+        actionId(referencePacks[index]?.primary)) differences += 1;
+  }
+  return differences;
+}
+
+export function lianyingPrimaryDifferenceBucketKey(
+  packs,
+  referencePacks,
+  {
+    startRow = 1,
+    endRow = Number.POSITIVE_INFINITY,
+    bucketUpperBounds = [0, 2, 4, 8],
+  } = {},
+) {
+  const count = lianyingPrimaryDifferenceCount(
+    packs,
+    referencePacks,
+    { startRow, endRow },
+  );
+  const bounds = [...new Set((bucketUpperBounds ?? [])
+    .map((value) => Math.max(0, Math.floor(Number(value)))))]
+    .sort((left, right) => left - right);
+  const upper = bounds.find((value) => count <= value);
+  return upper === undefined ? `>${bounds.at(-1) ?? 0}` : `<=${upper}`;
 }
 
 function stateRemainingSnapshot(state) {
@@ -2413,6 +2640,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     includeCoreCandidatePacks = false,
     coreCandidatePackLimit = 0,
     primaryStructureDiversity = null,
+    primaryDifferenceLineage = null,
     qualityDiversityRestart = null,
     primaryActionConstraints = [],
     primaryWindowConstraints = [],
@@ -2663,6 +2891,61 @@ export function optimizeLianyingAnchorDriftResynthesis(
         normalizedPrimaryStructureDiversity,
       )
     : null;
+  const normalizedPrimaryDifferenceLineage = primaryDifferenceLineage
+    ? {
+        startRow: Math.max(
+          1,
+          Math.floor(Number(primaryDifferenceLineage.startRow ?? 1)),
+        ),
+        endRow: Math.min(
+          corePacks.length,
+          Math.max(1, Math.floor(Number(
+            primaryDifferenceLineage.endRow ?? corePacks.length,
+          ))),
+        ),
+        bucketUpperBounds: [...new Set(
+          (primaryDifferenceLineage.bucketUpperBounds ?? [0, 2, 4, 8])
+            .map((value) => Math.floor(Number(value))),
+        )].sort((left, right) => left - right),
+        rowQuota: Math.max(
+          0,
+          Math.floor(Number(primaryDifferenceLineage.rowQuota ?? 0)),
+        ),
+        boundaryQuota: Math.max(
+          0,
+          Math.floor(Number(primaryDifferenceLineage.boundaryQuota ?? 0)),
+        ),
+        lineageQuota: Math.max(
+          0,
+          Math.floor(Number(primaryDifferenceLineage.lineageQuota ?? 0)),
+        ),
+        lineageTenureSegments: Math.max(
+          1,
+          Math.floor(Number(
+            primaryDifferenceLineage.lineageTenureSegments ?? 2,
+          )),
+        ),
+      }
+    : null;
+  if (
+    normalizedPrimaryDifferenceLineage && (
+      normalizedPrimaryDifferenceLineage.startRow >
+        normalizedPrimaryDifferenceLineage.endRow ||
+      normalizedPrimaryDifferenceLineage.bucketUpperBounds.length === 0 ||
+      normalizedPrimaryDifferenceLineage.bucketUpperBounds.some(
+        (value) => !Number.isInteger(value) || value < 0,
+      )
+    )
+  ) {
+    throw new Error("主技能差异谱系必须使用有效行区间和非负整数分桶上界");
+  }
+  const primaryDifferenceKeyNode = normalizedPrimaryDifferenceLineage
+    ? (node) => lianyingPrimaryDifferenceBucketKey(
+        [...prefixPacks, ...node.packs],
+        corePacks,
+        normalizedPrimaryDifferenceLineage,
+      )
+    : null;
   const normalizedQualityDiversityRestart = qualityDiversityRestart
     ? {
         bucketTicks: Math.max(
@@ -2858,6 +3141,10 @@ export function optimizeLianyingAnchorDriftResynthesis(
               node.qualityDiversityLineageId,
             qualityDiversityLineageExpiresAtAnchor:
               node.qualityDiversityLineageExpiresAtAnchor,
+            primaryDifferenceLineageId:
+              node.primaryDifferenceLineageId,
+            primaryDifferenceLineageExpiresAtAnchor:
+              node.primaryDifferenceLineageExpiresAtAnchor,
           };
           const key = lianyingAnchorDriftNodeKey(
             thunderCount,
@@ -3068,6 +3355,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
         structureKeyNode: primaryStructureKeyNode,
         minimumStructureQuota:
           normalizedPrimaryStructureDiversity?.rowQuota ?? 0,
+        differenceKeyNode: primaryDifferenceKeyNode,
+        minimumDifferenceQuota:
+          normalizedPrimaryDifferenceLineage?.rowQuota ?? 0,
+        differenceLineageKeyNode: primaryDifferenceLineageKey,
+        minimumDifferenceLineageQuota:
+          normalizedPrimaryDifferenceLineage?.lineageQuota ?? 0,
         qualityDiversityKeyNode,
         minimumQualityDiversityQuota:
           normalizedQualityDiversityRestart?.rowQuota ?? 0,
@@ -3129,6 +3422,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
         structureKeyNode: primaryStructureKeyNode,
         minimumStructureQuota:
           normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
+        differenceKeyNode: primaryDifferenceKeyNode,
+        minimumDifferenceQuota:
+          normalizedPrimaryDifferenceLineage?.boundaryQuota ?? 0,
+        differenceLineageKeyNode: primaryDifferenceLineageKey,
+        minimumDifferenceLineageQuota:
+          normalizedPrimaryDifferenceLineage?.lineageQuota ?? 0,
         qualityDiversityKeyNode,
         minimumQualityDiversityQuota:
           normalizedQualityDiversityRestart?.boundaryQuota ?? 0,
@@ -3168,7 +3467,26 @@ export function optimizeLianyingAnchorDriftResynthesis(
           retainedLineages: 0,
           newLineages: 0,
         };
-    nodes = lineageRefresh.nodes;
+    const differenceLineageRefresh =
+      normalizedPrimaryDifferenceLineage?.lineageQuota > 0
+        ? refreshLianyingPrimaryDifferenceLineages(lineageRefresh.nodes, {
+            anchorIndex,
+            quota: normalizedPrimaryDifferenceLineage.lineageQuota,
+            tenureSegments:
+              normalizedPrimaryDifferenceLineage.lineageTenureSegments,
+            keyNode: primaryDifferenceKeyNode,
+            scoreNode: useSuffixValue
+              ? (node) => node.suffixValue.score
+              : lianyingAnchorDriftLongTermScore,
+          })
+        : {
+            nodes: lineageRefresh.nodes,
+            activeLineages: 0,
+            retainedLineages: 0,
+            newLineages: 0,
+            representedBuckets: 0,
+          };
+    nodes = differenceLineageRefresh.nodes;
     const window = lianyingAnchorDriftWindow(
       anchors,
       anchorIndex,
@@ -3204,6 +3522,20 @@ export function optimizeLianyingAnchorDriftResynthesis(
       availableSchedules: boundary.scheduleBuckets,
       availablePrimaryStructures: boundary.structureBuckets,
       survivingPrimaryStructures: boundary.selectedStructureBuckets,
+      availablePrimaryDifferenceBuckets: boundary.differenceBuckets,
+      survivingPrimaryDifferenceBuckets: boundary.selectedDifferenceBuckets,
+      availablePrimaryDifferenceLineages:
+        boundary.differenceLineageBuckets,
+      survivingPrimaryDifferenceLineages:
+        boundary.selectedDifferenceLineages,
+      activePrimaryDifferenceLineages:
+        differenceLineageRefresh.activeLineages,
+      retainedPrimaryDifferenceLineages:
+        differenceLineageRefresh.retainedLineages,
+      newPrimaryDifferenceLineages:
+        differenceLineageRefresh.newLineages,
+      representedPrimaryDifferenceBuckets:
+        differenceLineageRefresh.representedBuckets,
       availableQualityDiversityCells: boundary.qualityDiversityBuckets,
       survivingQualityDiversityCells:
         boundary.selectedQualityDiversityBuckets,
@@ -3275,6 +3607,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
       structureKeyNode: primaryStructureKeyNode,
       minimumStructureQuota:
         normalizedPrimaryStructureDiversity?.boundaryQuota ?? 0,
+      differenceKeyNode: primaryDifferenceKeyNode,
+      minimumDifferenceQuota:
+        normalizedPrimaryDifferenceLineage?.boundaryQuota ?? 0,
+      differenceLineageKeyNode: primaryDifferenceLineageKey,
+      minimumDifferenceLineageQuota:
+        normalizedPrimaryDifferenceLineage?.lineageQuota ?? 0,
       qualityDiversityKeyNode,
       minimumQualityDiversityQuota:
         normalizedQualityDiversityRestart?.boundaryQuota ?? 0,
@@ -3550,6 +3888,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       includeCoreCandidatePacks,
       coreCandidatePackLimit: normalizedCoreCandidatePackLimit,
       primaryStructureDiversity: normalizedPrimaryStructureDiversity,
+      primaryDifferenceLineage: normalizedPrimaryDifferenceLineage,
       qualityDiversityRestart: normalizedQualityDiversityRestart,
       primaryActionConstraints: normalizedPrimaryActionConstraints,
       primaryWindowConstraints: normalizedPrimaryWindowConstraints,

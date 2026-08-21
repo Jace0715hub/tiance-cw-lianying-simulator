@@ -30,7 +30,7 @@ const mode = source.mode ?? source.horizonMode ?? "fixed";
 const preserveThunderSchedule = process.argv.slice(5).some(
   (value) => ["preserve-thunder", "--preserve-thunder"].includes(value),
 );
-const packs = source.actionPacks ??
+const packs = source.actionPacks ?? source.bestExperimentActionPacks ??
   (source.rows ? lianyingRowsToActionPacks(source.rows) : null);
 if (!packs) throw new Error("输入文件既没有actionPacks，也没有可恢复的rows");
 

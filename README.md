@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.9–M5.10 已把前缀/主技能/尾动作统一纳入区段计数，并复核断魂刺数量与79/106雷表的交互。两轮均未刷新最优；最近的新资源轨迹仍低`1,159,303.995`，与79/106雷表联合后低正式轴`1,858,525.618`。下一阶段转向有界差异谱系，研究需要多次协同改动才能偿还中期损失的路径。
+M5.11 已完成固定总束宽的主技能差异谱系 A/B。`probe`召回6条对照组缺失的轴，最佳经组合修复仅低`675,504.325`，但`balanced`最终精确恢复正式148行；48/24束的`screen`新候选反而低`26,813,023.122`。下一阶段改用相对正式状态的资源/冷却偏差分桶，避免等伤换位浪费谱系槽。
 
 ## 核心能力
 
@@ -82,6 +82,10 @@ npm run optimize:charge-count-skeletons -- \
   - /tmp/charge-count.json probe
 npm run optimize:anchor-charge-count-skeletons -- \
   - /tmp/anchor-charge-count.json probe /tmp/charge-count.json
+
+# 同预算对照累计主技能差异谱系
+npm run optimize:difference-lineages -- \
+  - /tmp/difference-lineages.json probe
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

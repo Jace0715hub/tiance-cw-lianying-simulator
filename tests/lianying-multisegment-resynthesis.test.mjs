@@ -15,10 +15,13 @@ import {
   lianyingAnchorDriftScheduleToCsv,
   lianyingAnchorDriftWindow,
   lianyingMultiSegmentAnchorDiagnosticsToCsv,
+  lianyingPrimaryDifferenceBucketKey,
+  lianyingPrimaryDifferenceCount,
   lianyingPrimaryHistoryStructureKey,
   lianyingQualityDiversityCellKey,
   optimizeLianyingAnchorDriftResynthesis,
   optimizeLianyingMultiSegmentResynthesis,
+  refreshLianyingPrimaryDifferenceLineages,
   refreshLianyingQualityDiversityLineages,
   selectLianyingJointBoundaryNodes,
   selectLianyingQualityDiversityArchive,
@@ -381,6 +384,67 @@ test("质量多样性祖先按雷区段保留并在有限期限后轮换", () =>
     third.nodes.map((node) => node.qualityDiversityLineageId).filter(Boolean),
     firstIds,
   );
+});
+
+test("主技能差异数按正式轴前缀计数并落入有界分桶", () => {
+  const reference = [
+    { primary: "dragonFang" },
+    { primary: "destroy" },
+    { primary: "dragonRoar" },
+    { primary: "cloudStrike" },
+    { primary: "dragonFang" },
+  ];
+  const candidate = structuredClone(reference);
+  candidate[1].primary = "dragonFang";
+  candidate[3].primary = "destroy";
+  candidate[4].primary = "dragonRoar";
+
+  assert.equal(lianyingPrimaryDifferenceCount(candidate, reference), 3);
+  assert.equal(lianyingPrimaryDifferenceCount(candidate, reference, {
+    startRow: 1,
+    endRow: 4,
+  }), 2);
+  assert.equal(lianyingPrimaryDifferenceBucketKey(candidate, reference, {
+    bucketUpperBounds: [0, 2, 4, 8],
+  }), "<=4");
+});
+
+test("主技能差异谱系在两个雷边界内保留并按分桶轮换", () => {
+  const nodes = [
+    { bucket: "0", score: 100 },
+    { bucket: "1-2", score: 90 },
+    { bucket: "3-4", score: 80 },
+    { bucket: "5-8", score: 70 },
+  ];
+  const options = {
+    quota: 3,
+    tenureSegments: 2,
+    keyNode: (node) => node.bucket,
+    scoreNode: (node) => node.score,
+  };
+  const first = refreshLianyingPrimaryDifferenceLineages(nodes, {
+    ...options,
+    anchorIndex: 0,
+  });
+  assert.equal(first.activeLineages, 3);
+  assert.equal(first.representedBuckets, 3);
+  const firstIds = first.nodes.map((node) => node.primaryDifferenceLineageId)
+    .filter(Boolean);
+  const second = refreshLianyingPrimaryDifferenceLineages(first.nodes, {
+    ...options,
+    anchorIndex: 1,
+  });
+  assert.equal(second.retainedLineages, 3);
+  assert.deepEqual(
+    second.nodes.map((node) => node.primaryDifferenceLineageId).filter(Boolean),
+    firstIds,
+  );
+  const third = refreshLianyingPrimaryDifferenceLineages(second.nodes, {
+    ...options,
+    anchorIndex: 2,
+  });
+  assert.equal(third.retainedLineages, 0);
+  assert.equal(third.newLineages, 3);
 });
 
 test("雷坐标谱系作为锚点搜索去重键的一部分", () => {
@@ -1027,6 +1091,55 @@ test("完整动作计数骨架接入搜索并统一约束前缀主技能与尾�
     endRow: 22,
     counts,
   }]);
+});
+
+test("有界主技能差异谱系接入完整搜索且不扩大总束宽", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const optimized = optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    {
+      durationSeconds: 30,
+      anchorSlackRows: 0,
+      rowBeamWidth: 8,
+      boundaryBeamWidth: 8,
+      coreFinalistCount: 8,
+      coarseCandidateLimit: 2,
+      coarseDashStates: 4,
+      finalDashCandidateCount: 1,
+      fullDashStates: 4,
+      includeCoreCandidatePacks: true,
+      coreCandidatePackLimit: 8,
+      primaryDifferenceLineage: {
+        startRow: 3,
+        endRow: 22,
+        bucketUpperBounds: [0, 2, 4, 8],
+        rowQuota: 5,
+        boundaryQuota: 5,
+        lineageQuota: 4,
+        lineageTenureSegments: 2,
+      },
+    },
+  );
+
+  assert.ok(optimized.coreCandidatePacks.length > 0);
+  assert.ok(optimized.peakRowStates <= 8);
+  assert.ok(optimized.segments.some((report) =>
+    report.activePrimaryDifferenceLineages > 0));
+  assert.deepEqual(optimized.options.primaryDifferenceLineage, {
+    startRow: 3,
+    endRow: 22,
+    bucketUpperBounds: [0, 2, 4, 8],
+    rowQuota: 5,
+    boundaryQuota: 5,
+    lineageQuota: 4,
+    lineageTenureSegments: 2,
+  });
 });
 
 test("层次协调器只提出单个中间雷相邻移动并由低层完整复演", () => {
