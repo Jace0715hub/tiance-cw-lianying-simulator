@@ -61,6 +61,7 @@
     "optimize:charge-count-skeletons": "node tools/optimize-lianying-charge-count-skeletons.mjs",
     "optimize:anchor-charge-count-skeletons": "node tools/optimize-lianying-anchor-charge-count-skeletons.mjs",
     "optimize:difference-lineages": "node tools/optimize-lianying-difference-lineages.mjs",
+    "optimize:best-first-block": "node tools/optimize-lianying-best-first-block.mjs",
     "optimize:block-recombination": "node tools/optimize-lianying-block-recombination.mjs",
     "optimize:compound-neighborhood": "node tools/optimize-lianying-compound-neighborhood.mjs",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",

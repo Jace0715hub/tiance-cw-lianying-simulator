@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.12 已完成固定总束宽的相对状态偏差谱系 A/B。`probe`召回6条新增合法轴，最近一条低`1,118,650.243`（`0.0437%`），但局部修复只会恢复正式轴；48/24束的`screen`最近新增轴反而低`35,745,607.265`。正式结果不变，下一阶段转向有界最佳优先的局部块搜索，不再继续扩宽多样性槽。
+M5.13 已完成首轮有界最佳优先局部块 A/B。107–128行在相同493/973次节点展开下，完整候选召回由138/286增至507/786；最近新增轴低`1,093,045.846`（`0.0427%`），但快速修复和宽束均无进一步收益。79–107行召回同样增加，但新增轴质量劣于束搜索。正式结果不变，下一步只把该算法作为剩余雷块的限量候选生成器。
 
 ## 核心能力
 
@@ -88,6 +88,10 @@ npm run optimize:difference-lineages -- \
   - /tmp/difference-lineages.json probe
 npm run optimize:difference-lineages -- \
   - /tmp/state-lineages.json probe state
+
+# 相同节点展开预算下比较逐层束与最佳优先局部块
+npm run optimize:best-first-block -- \
+  - /tmp/best-first-block.json probe 107 128
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

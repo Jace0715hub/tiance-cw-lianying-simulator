@@ -30,7 +30,11 @@ const mode = source.mode ?? source.horizonMode ?? "fixed";
 const preserveThunderSchedule = process.argv.slice(5).some(
   (value) => ["preserve-thunder", "--preserve-thunder"].includes(value),
 );
-const packs = source.actionPacks ?? source.bestExperimentActionPacks ??
+const preferExperimentSeed = process.argv.slice(5).some(
+  (value) => ["experiment-seed", "--experiment-seed"].includes(value),
+);
+const packs = (preferExperimentSeed ? source.bestExperimentActionPacks : null) ??
+  source.actionPacks ?? source.bestExperimentActionPacks ??
   (source.rows ? lianyingRowsToActionPacks(source.rows) : null);
 if (!packs) throw new Error("输入文件既没有actionPacks，也没有可恢复的rows");
 
@@ -73,6 +77,7 @@ const searchResult = {
     kind: "seed-continuation",
     profile: profileName,
     preserveThunderSchedule,
+    preferExperimentSeed,
     accepted,
     seedPath: path.relative(projectRoot, inputPath),
     damageGain: finalState.totalDamage - seedReplay.state.totalDamage,
