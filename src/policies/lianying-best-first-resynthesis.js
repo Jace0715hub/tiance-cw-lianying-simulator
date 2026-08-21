@@ -209,6 +209,7 @@ export function searchLianyingBoundedLocalBlock(
   let legalTransitions = 0;
   let staleNodes = 0;
   let trimmedNodes = 0;
+  let warmRestarts = 0;
   let peakFrontier = 1;
   let stoppedByWallClock = false;
   const completeByPath = new Map();
@@ -339,10 +340,28 @@ export function searchLianyingBoundedLocalBlock(
     const queue = new MaxPriorityQueue();
     const bestDamageByState = new Map([[nodeKey(root), root.state.totalDamage]]);
     queue.push(root);
-    while (queue.size > 0 && expandedNodes < maximumExpansions) {
+    let nextWarmRestartDepth = 1;
+    while (
+      (queue.size > 0 || nextWarmRestartDepth < rowCount) &&
+      expandedNodes < maximumExpansions
+    ) {
       if (Date.now() - startedAt >= maximumWallClockMs) {
         stoppedByWallClock = true;
         break;
+      }
+      if (queue.size === 0) {
+        const warmNode = makeNode(
+          referenceStates[startIndex + nextWarmRestartDepth],
+          referenceWindow.slice(0, nextWarmRestartDepth)
+            .map(cloneLianyingPack),
+          nextWarmRestartDepth,
+        );
+        nextWarmRestartDepth += 1;
+        warmRestarts += 1;
+        bestDamageByState.set(nodeKey(warmNode), warmNode.state.totalDamage);
+        queue.push(warmNode);
+        peakFrontier = Math.max(peakFrontier, queue.size);
+        continue;
       }
       const node = queue.pop();
       const key = nodeKey(node);
@@ -350,6 +369,10 @@ export function searchLianyingBoundedLocalBlock(
         staleNodes += 1;
         continue;
       }
+      nextWarmRestartDepth = Math.max(
+        nextWarmRestartDepth,
+        node.depth + 1,
+      );
       expandedNodes += 1;
       expandNode(node, (candidate) => {
         const candidateKey = nodeKey(candidate);
@@ -404,6 +427,7 @@ export function searchLianyingBoundedLocalBlock(
     legalTransitions,
     staleNodes,
     trimmedNodes,
+    warmRestarts,
     peakFrontier,
     stoppedByWallClock,
     completeCandidateCount: completeByPath.size,

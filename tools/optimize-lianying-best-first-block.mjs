@@ -102,6 +102,7 @@ process.stdout.write(`${JSON.stringify({
   completeCandidateCount: bestFirst.completeCandidateCount,
   peakFrontier: bestFirst.peakFrontier,
   trimmedNodes: bestFirst.trimmedNodes,
+  warmRestarts: bestFirst.warmRestarts,
 })}\n`);
 
 const pathKey = (packs) => JSON.stringify(packs);
@@ -132,6 +133,7 @@ const buildRun = (kind, result) => {
     legalTransitions: result.legalTransitions,
     staleNodes: result.staleNodes,
     trimmedNodes: result.trimmedNodes,
+    warmRestarts: result.warmRestarts,
     peakFrontier: result.peakFrontier,
     stoppedByWallClock: result.stoppedByWallClock,
     completeCandidateCount: result.completeCandidateCount,

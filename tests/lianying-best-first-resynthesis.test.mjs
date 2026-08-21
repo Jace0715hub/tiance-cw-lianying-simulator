@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
   isLianyingFixedAnchorPackAllowed,
@@ -76,4 +77,29 @@ test("最佳优先局部块与束搜索使用相同节点展开预算并完整�
       ), true);
     }
   }
+});
+
+test("最佳优先队列耗尽时按需从下一层正式热启动继续", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const source = JSON.parse(fs.readFileSync(new URL(
+    "../output/lianying-free-fixed-180s-anchor-rides-dismount-segments-deep.json",
+    import.meta.url,
+  )));
+  const result = searchLianyingBoundedLocalBlock(
+    runtime,
+    source.actionPacks,
+    {
+      startRow: 20,
+      endRow: 22,
+      strategy: "best-first",
+      expansionBudget: 8,
+      queueLimit: 64,
+      candidateLimit: 4,
+    },
+  );
+
+  assert.equal(result.warmRestarts, 1);
+  assert.equal(result.expandedNodes, 8);
+  assert.ok(result.completeCandidateCount > 1);
+  assert.ok(result.candidates.some((candidate) => candidate.isIncumbent));
 });
