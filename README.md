@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.17 已用离散行表直接改变“哪一次雷没有任驰骋”的宏观配对历史。固定正式雷与橙武时，只有第3/4雷单雷模板能完整复演，但分别低正式轴`6.361%/4.803%`；其余模板未进入核心，0条达到1%升级门槛。正式结果不变，该模板族停止扩宽；下一步针对仍未覆盖的三个雷区段协同补偿，而非继续挪动任驰骋或增加队列预算。
+M5.18 已分别以第75行异构轴和79/106雷表轴为热启动，联合重合成三个完整雷区段。前者自适应扩展至第119行后只回到已知的100/101行穿云—龙吟换位轴，仍低`141,778.87`；后者同时保留106/107两种雷谱系，仍低`699,221.62`。正式结果不变；下一步只验证两类差异的多来源联合，不继续加宽任一单来源。
 
 ## 核心能力
 
@@ -100,6 +100,10 @@ npm run optimize:best-first-block -- \
 # 离散比较不同的单雷归属和任驰骋充能使用行表
 npm run optimize:ride-thunder-templates -- \
   - /tmp/ride-thunder-templates.json probe
+
+# 以近优完整轴为热启动，联合重合成三个连续雷区段
+npm run optimize:triple-segment-recombination -- \
+  - /tmp/triple-segment.json probe output/lianying-ranking-sensitivity.json heterogeneous
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

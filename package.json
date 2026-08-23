@@ -63,6 +63,7 @@
     "optimize:difference-lineages": "node tools/optimize-lianying-difference-lineages.mjs",
     "optimize:best-first-block": "node tools/optimize-lianying-best-first-block.mjs",
     "optimize:ride-thunder-templates": "node tools/optimize-lianying-ride-thunder-templates.mjs",
+    "optimize:triple-segment-recombination": "node tools/optimize-lianying-triple-segment-recombination.mjs",
     "optimize:block-recombination": "node tools/optimize-lianying-block-recombination.mjs",
     "optimize:compound-neighborhood": "node tools/optimize-lianying-compound-neighborhood.mjs",
     "optimize:portfolio": "node tools/optimize-lianying-seed-portfolio.mjs",
