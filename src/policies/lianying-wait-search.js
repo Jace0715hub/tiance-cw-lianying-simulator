@@ -112,3 +112,137 @@ export function searchLianyingWaitAnchors(
     best: candidates[0] ?? null,
   };
 }
+
+export function selectLianyingPairWaitSeeds(
+  candidates,
+  {
+    limit = 3,
+    minimumDamageGain = 1e-6,
+    damageTolerance = 1e-6,
+  } = {},
+) {
+  const distinct = [];
+  for (const candidate of candidates ?? []) {
+    if (candidate.damageGain <= minimumDamageGain) continue;
+    const equivalent = distinct.find(
+      (seed) =>
+        seed.rowNumber === candidate.rowNumber &&
+        Math.abs(seed.state.totalDamage - candidate.state.totalDamage) <=
+          damageTolerance,
+    );
+    if (!equivalent) {
+      distinct.push(candidate);
+    } else if (candidate.waitFrames < equivalent.waitFrames) {
+      Object.assign(equivalent, candidate);
+    }
+  }
+  distinct.sort((left, right) =>
+    right.state.totalDamage - left.state.totalDamage ||
+    left.waitFrames - right.waitFrames ||
+    right.rowNumber - left.rowNumber,
+  );
+  return distinct.slice(0, Math.max(0, Math.floor(Number(limit))));
+}
+
+export function selectLianyingNonPositivePairWaitSeeds(
+  candidates,
+  { damageTolerance = 1e-6 } = {},
+) {
+  const bestByRow = new Map();
+  for (const candidate of candidates ?? []) {
+    if (candidate.damageGain > damageTolerance) continue;
+    const current = bestByRow.get(candidate.rowNumber);
+    if (
+      !current ||
+      candidate.damageGain > current.damageGain ||
+      (
+        Math.abs(candidate.damageGain - current.damageGain) <= damageTolerance &&
+        candidate.waitFrames < current.waitFrames
+      )
+    ) bestByRow.set(candidate.rowNumber, candidate);
+  }
+  return [...bestByRow.values()].sort((left, right) =>
+    right.damageGain - left.damageGain ||
+    left.waitFrames - right.waitFrames ||
+    left.rowNumber - right.rowNumber,
+  );
+}
+
+export function searchLianyingPairWaitAnchors(
+  runtime,
+  packs,
+  {
+    durationSeconds = 180,
+    totalWaitFrames = 16,
+    singleSeedLimit = 3,
+    singleSeedMode = "positive",
+    preserveCastCount = true,
+  } = {},
+) {
+  const single = searchLianyingWaitAnchors(runtime, packs, {
+    durationSeconds,
+    maxWaitFrames: totalWaitFrames,
+    preserveCastCount,
+  });
+  if (!["positive", "non-positive"].includes(singleSeedMode)) {
+    throw new Error("双等待单点种子模式必须是positive或non-positive");
+  }
+  const seeds = singleSeedMode === "non-positive"
+    ? selectLianyingNonPositivePairWaitSeeds(single.candidates)
+    : selectLianyingPairWaitSeeds(single.candidates, {
+        limit: singleSeedLimit,
+      });
+  const candidates = [];
+  let explored = single.explored;
+  let legal = single.legal;
+  let preservedCastCount = single.preservedCastCount;
+  for (const seed of seeds) {
+    const remainingFrames = totalWaitFrames - seed.waitFrames;
+    if (remainingFrames <= 0) continue;
+    const second = searchLianyingWaitAnchors(runtime, seed.packs, {
+      durationSeconds,
+      maxWaitFrames: remainingFrames,
+      preserveCastCount,
+    });
+    explored += second.explored;
+    legal += second.legal;
+    preservedCastCount += second.preservedCastCount;
+    for (const candidate of second.candidates) {
+      candidates.push({
+        ...candidate,
+        firstRowNumber: seed.rowNumber,
+        firstWaitFrames: seed.waitFrames,
+        secondRowNumber: candidate.rowNumber,
+        secondWaitFrames: candidate.waitFrames,
+        totalWaitFrames: seed.waitFrames + candidate.waitFrames,
+        damageGain:
+          candidate.state.totalDamage - single.baseline.state.totalDamage,
+      });
+    }
+  }
+  candidates.sort((left, right) =>
+    right.state.totalDamage - left.state.totalDamage ||
+    left.totalWaitFrames - right.totalWaitFrames ||
+    left.firstWaitFrames - right.firstWaitFrames,
+  );
+  return {
+    baseline: single.baseline,
+    baselineCastCount: single.baselineCastCount,
+    totalWaitFrames,
+    singleSeedLimit,
+    singleSeedMode,
+    preserveCastCount,
+    single,
+    seeds,
+    explored,
+    legal,
+    preservedCastCount,
+    candidates,
+    bestSingle: single.best,
+    bestPair: candidates[0] ?? null,
+    best:
+      candidates[0]?.state.totalDamage > (single.best?.state.totalDamage ?? -Infinity)
+        ? candidates[0]
+        : single.best,
+  };
+}

@@ -35,6 +35,7 @@ import {
 } from "../src/reports/lianying-convergence.js";
 
 const runtime = loadDefaultGearRuntime({ executePhase: true });
+const actionId = (action) => typeof action === "string" ? action : action?.id;
 const free65Axis = JSON.parse(
   fs.readFileSync(
     new URL("./fixtures/lianying-free-65s-axis.json", import.meta.url),
@@ -400,6 +401,28 @@ test("自由搜索可同时钉住多条热启动轴", () => {
     free.state.totalDamage >= Math.max(...free.warmStartDamages),
   );
   assert.ok(free.telemetry.peakBeamSize >= 2);
+});
+
+test("自由搜索可固定等待深度并归档资源相位互异的裁剪祖先", () => {
+  const result = searchLianyingAxis(runtime, {
+    durationSeconds: 4,
+    beamWidth: 1,
+    policyMode: "free",
+    fixedPacksByDepth: {
+      2: { primary: { id: "wait", frames: 1 } },
+    },
+    prunedArchiveRows: [1, 3],
+    prunedArchivePerRow: 2,
+  });
+  assert.equal(actionId(result.packs[1].primary), "wait");
+  assert.deepEqual(
+    result.telemetry.prunedArchive.map(({ depth, count }) => [depth, count]),
+    [[1, 2], [3, 2]],
+  );
+  assert.deepEqual(
+    result.prunedArchive.map(({ depth }) => depth),
+    [1, 1, 3, 3],
+  );
 });
 
 test("突覆盖搜索在固定主要技能轴上自动选择马下破军窗口", () => {

@@ -37,6 +37,9 @@ function actionId(action) {
 
 export function labelWhitepaperPack(pack) {
   if (pack.label) return pack.label;
+  if (actionId(pack.primary) === "wait") {
+    return `等待${Math.floor(Number(pack.primary?.frames ?? 0))}帧`;
+  }
   const prefix = (pack.prefix ?? []).map(actionId).map((id) => ACTION_LABELS[id]);
   const primary = ACTION_LABELS[actionId(pack.primary)] ?? actionId(pack.primary);
   const tail = (pack.tail ?? []).map(actionId).map((id) => ACTION_LABELS[id]);
@@ -718,9 +721,9 @@ function selectBeam(
   policyMode,
   config,
   pinnedSignatures = new Set(),
+  ranker = (left, right) => rankNodes(left, right, policyMode),
 ) {
-  const sorted = [...candidates].sort((left, right) =>
-    rankNodes(left, right, policyMode));
+  const sorted = [...candidates].sort(ranker);
   const effectiveBeamWidth = Math.max(beamWidth, pinnedSignatures.size);
   if (policyMode === "strict" || sorted.length <= beamWidth) {
     const selected = sorted.slice(0, effectiveBeamWidth);
@@ -779,6 +782,32 @@ function selectBeam(
   return selected;
 }
 
+function selectPrunedArchive(
+  candidates,
+  selectedNodes,
+  limit,
+  policyMode,
+  config,
+  ranker = (left, right) => rankNodes(left, right, policyMode),
+) {
+  const selectedSignatures = new Set(
+    selectedNodes.map((node) => stateSignature(node.state)),
+  );
+  const ranked = [...candidates]
+    .filter((node) => !selectedSignatures.has(stateSignature(node.state)))
+    .sort(ranker);
+  const archived = [];
+  const resourcePhases = new Set();
+  for (const node of ranked) {
+    const phase = diversityBucket(node, config);
+    if (resourcePhases.has(phase)) continue;
+    resourcePhases.add(phase);
+    archived.push(node);
+    if (archived.length >= limit) break;
+  }
+  return archived;
+}
+
 function executePacks(initialState, packs, config, oracle, endTick) {
   let state = initialState;
   for (const pack of packs) {
@@ -798,6 +827,10 @@ export function searchLianyingAxis(
     initialPacks,
     warmStartPacks = [],
     warmStartAxes = [],
+    fixedPacksByDepth = new Map(),
+    prunedArchiveRows = [],
+    prunedArchivePerRow = 0,
+    nodeScore = null,
   } = {},
 ) {
   if (!['fixed', 'stable'].includes(mode)) throw new Error(`未知搜索模式: ${mode}`);
@@ -808,6 +841,16 @@ export function searchLianyingAxis(
     throw new Error("束宽度必须为正整数");
   }
   const endTick = millisecondsToTicks(Number(durationSeconds) * 1000);
+  const fixedPackEntries = fixedPacksByDepth instanceof Map
+    ? [...fixedPacksByDepth.entries()]
+    : Object.entries(fixedPacksByDepth ?? {});
+  const normalizedFixedPacksByDepth = new Map(fixedPackEntries.map(
+    ([depth, pack]) => [Math.floor(Number(depth)), clonePack(pack)],
+  ));
+  const archiveRows = new Set(
+    (prunedArchiveRows ?? []).map((row) => Math.floor(Number(row))),
+  );
+  const archiveLimit = Math.max(0, Math.floor(Number(prunedArchivePerRow)));
   const initialState = createInitialState(runtime.config, {
     rage: 5,
     bleedStacks: 0,
@@ -823,7 +866,21 @@ export function searchLianyingAxis(
     runtime.oracle,
     endTick,
   );
-  let beam = [{ state: openedState, packs: seedPacks.map(clonePack) }];
+  const makeNode = (state, packs) => {
+    const node = { state, packs };
+    if (typeof nodeScore === "function") {
+      const score = Number(nodeScore(node));
+      if (Number.isFinite(score)) node.searchScore = score;
+    }
+    return node;
+  };
+  const searchRanker = typeof nodeScore === "function"
+    ? (left, right) =>
+        Number(right.searchScore ?? Number.NEGATIVE_INFINITY) -
+          Number(left.searchScore ?? Number.NEGATIVE_INFINITY) ||
+        rankNodes(left, right, policyMode)
+    : (left, right) => rankNodes(left, right, policyMode);
+  let beam = [makeNode(openedState, seedPacks.map(clonePack))];
   const warmStartByLength = new Map();
   const warmStartDamages = [];
   if (seedPacks.length === 0) {
@@ -851,10 +908,7 @@ export function searchLianyingAxis(
         const signature = stateSignature(warmState);
         const nodes = warmStartByLength.get(warmPacks.length) ?? new Map();
         const previous = nodes.get(signature);
-        const node = {
-          state: warmState,
-          packs: warmPacks.map(clonePack),
-        };
+        const node = makeNode(warmState, warmPacks.map(clonePack));
         if (!previous || rankNodes(node, previous, "free") < 0) {
           nodes.set(signature, node);
         }
@@ -874,7 +928,9 @@ export function searchLianyingAxis(
     beamPruned: 0,
     peakUniqueCandidates: 0,
     peakBeamSize: beam.length,
+    prunedArchive: [],
   };
+  const prunedArchive = [];
 
   while (beam.some((node) => decisionTick(node.state) < endTick)) {
     const candidates = new Map();
@@ -912,11 +968,14 @@ export function searchLianyingAxis(
         }
         continue;
       }
-      const packs = legalLianyingPacks(node.state, runtime.config, {
-        policyMode,
-        horizonMode: mode,
-        endTick,
-      });
+      const fixedPack = normalizedFixedPacksByDepth.get(nextPathLength);
+      const packs = fixedPack
+        ? [fixedPack]
+        : legalLianyingPacks(node.state, runtime.config, {
+            policyMode,
+            horizonMode: mode,
+            endTick,
+          });
       for (const pack of packs) {
         explored += 1;
         layer.exploredTransitions += 1;
@@ -930,7 +989,10 @@ export function searchLianyingAxis(
           );
           legal += 1;
           layer.legalTransitions += 1;
-          const candidate = { state, packs: [...node.packs, clonePack(pack)] };
+          const candidate = makeNode(
+            state,
+            [...node.packs, clonePack(pack)],
+          );
           const signature = stateSignature(state);
           const previous = candidates.get(signature);
           if (!previous || rankNodes(candidate, previous, "free") < 0) {
@@ -974,7 +1036,29 @@ export function searchLianyingAxis(
       policyMode,
       runtime.config,
       pinnedSignatures,
+      searchRanker,
     );
+    if (archiveLimit > 0 && archiveRows.has(nextPathLength)) {
+      const archived = selectPrunedArchive(
+        candidates.values(),
+        beam,
+        archiveLimit,
+        policyMode,
+        runtime.config,
+        searchRanker,
+      );
+      prunedArchive.push(...archived.map((node) => ({
+        depth: nextPathLength,
+        state: node.state,
+        packs: node.packs,
+      })));
+      telemetry.prunedArchive.push({
+        depth: nextPathLength,
+        count: archived.length,
+        resourcePhases: archived.map((node) =>
+          diversityBucket(node, runtime.config)),
+      });
+    }
     if (beam.length === 0) throw new Error("白皮书约束下没有可继续执行的技能轴");
     layer.selectedNodes = beam.length;
     layer.beamPruned = Math.max(0, layer.uniqueCandidates - layer.selectedNodes);
@@ -1010,6 +1094,7 @@ export function searchLianyingAxis(
       ? Math.max(...warmStartDamages)
       : null,
     telemetry,
+    prunedArchive,
     packs: best.packs,
     state: best.state,
   };

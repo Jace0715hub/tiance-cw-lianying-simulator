@@ -30,7 +30,7 @@ function packActionIds(pack) {
 export function isLianyingFixedAnchorPackAllowed(
   pack,
   referencePack,
-  fixedActionIds = ["thunder", "ride", "orange", "dismount"],
+  fixedActionIds = ["thunder", "ride", "orange", "dismount", "wait"],
 ) {
   const actual = packActionIds(pack);
   const reference = packActionIds(referencePack);
@@ -171,7 +171,7 @@ export function searchLianyingBoundedLocalBlock(
     queueLimit = 4096,
     candidateLimit = 32,
     wallClockMs = Number.POSITIVE_INFINITY,
-    fixedActionIds = ["thunder", "ride", "orange", "dismount"],
+    fixedActionIds = ["thunder", "ride", "orange", "dismount", "wait"],
     suffixRepairPenaltyRows = 1,
   } = {},
 ) {
@@ -261,10 +261,11 @@ export function searchLianyingBoundedLocalBlock(
   };
   const expandNode = (node, addCandidate) => {
     const referencePack = referenceWindow[node.depth];
-    for (const pack of legalMechanicalLianyingPacks(
-      node.state,
-      runtime.config,
-    )) {
+    const legalPacks =
+      fixedActionIds.includes("wait") && actionId(referencePack?.primary) === "wait"
+        ? [referencePack]
+        : legalMechanicalLianyingPacks(node.state, runtime.config);
+    for (const pack of legalPacks) {
       if (!isLianyingFixedAnchorPackAllowed(
         pack,
         referencePack,
