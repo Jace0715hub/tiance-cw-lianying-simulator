@@ -208,6 +208,9 @@ export {
   rideRowIndices,
   thunderRowIndices,
 } from "./policies/ride-thunder-binding.js";
+export {
+  buildLianyingRideThunderUsageTemplates,
+} from "./policies/lianying-ride-thunder-templates.js";
 export { summarize, timelineRows } from "./reports/summary.js";
 export {
   BASELINE_COMPONENT_TO_SKILL,

@@ -499,6 +499,31 @@ export function isLianyingCompanionAnchorPackAllowed(
   if (!template) return true;
   const rowNumber = Number(rowIndex) + 1;
   const expected = (rows) => new Set((rows ?? []).map(Number)).has(rowNumber);
+  const scheduleAllows = (schedules, id) => {
+    if (!Array.isArray(schedules)) return true;
+    const priorRows = priorPacks.flatMap((prior, index) => {
+      const hasAction = id === "ride"
+        ? actionId(prior.primary) === "ride"
+        : lianyingPackHasAction(prior, id);
+      return hasAction ? [index + 1] : [];
+    });
+    const matching = schedules
+      .map((schedule) => schedule.map(Number))
+      .filter((schedule) => priorRows.every(
+        (row, index) => schedule[index] === row,
+      ));
+    if (matching.length === 0) return false;
+    const hasAction = id === "ride"
+      ? actionId(pack.primary) === "ride"
+      : lianyingPackHasAction(pack, id);
+    if (hasAction) {
+      return matching.some((schedule) =>
+        schedule[priorRows.length] === rowNumber);
+    }
+    return matching.some((schedule) =>
+      schedule.length === priorRows.length ||
+      schedule[priorRows.length] > rowNumber);
+  };
   const windowAllows = (windows, id) => {
     if (!Array.isArray(windows)) return true;
     const priorCount = priorPacks.filter((prior) =>
@@ -520,6 +545,11 @@ export function isLianyingCompanionAnchorPackAllowed(
   if (!windowAllows(template.rideWindows, "ride")) return false;
   if (!windowAllows(template.orangeWindows, "orange")) return false;
   if (!windowAllows(template.dismountWindows, "dismount")) return false;
+  if (!scheduleAllows(template.allowedRideSchedules, "ride")) return false;
+  if (!scheduleAllows(template.allowedOrangeSchedules, "orange")) return false;
+  if (!scheduleAllows(template.allowedDismountSchedules, "dismount")) {
+    return false;
+  }
   if (
     Array.isArray(template.rideRows) &&
     (actionId(pack.primary) === "ride") !== expected(template.rideRows)
@@ -2694,6 +2724,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     preserveCompanionLineageTypes = [],
     additionalWarmAxes = [],
     includeScheduleCandidatePacks = false,
+    includeCompanionLineageCandidatePacks = false,
     includeCoreCandidatePacks = false,
     coreCandidatePackLimit = 0,
     primaryStructureDiversity = null,
@@ -3850,6 +3881,15 @@ export function optimizeLianyingAnchorDriftResynthesis(
       })).sort((left, right) =>
         right.bestCoreDamage - left.bestCoreDamage)
     : [];
+  const coreCompanionLineageCandidates =
+    includeCompanionLineageCandidatePacks && companionLineageTypes.length > 0
+      ? [...coreBestByCompanionLineage.values()].map((candidate) => ({
+          anchorRows: candidate.anchorRows.map((row) => row + 1),
+          companionAnchors: candidate.companionAnchors,
+          bestCoreDamage: candidate.coreDamage,
+          packs: clonePacks(candidate.packs),
+        }))
+      : [];
   const coreScheduleCandidates = includeScheduleCandidatePacks
     ? [...coreBestBySchedule.values()].map((candidate) => ({
         anchorRows: candidate.anchorRows.map((row) => row + 1),
@@ -3986,6 +4026,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
     coreCandidates: coreCandidatesByPath.size,
     coreScheduleDiagnostics,
     coreCompanionLineageDiagnostics,
+    coreCompanionLineageCandidates,
     coreScheduleCandidates,
     coreCandidatePacks,
     additionalWarmDiagnostics,
@@ -4021,6 +4062,7 @@ export function optimizeLianyingAnchorDriftResynthesis(
       preserveCompanionLineageTypes: companionLineageTypes,
       additionalWarmAxisCount: additionalWarmSources.length,
       includeScheduleCandidatePacks,
+      includeCompanionLineageCandidatePacks,
       includeCoreCandidatePacks,
       coreCandidatePackLimit: normalizedCoreCandidatePackLimit,
       primaryStructureDiversity: normalizedPrimaryStructureDiversity,
