@@ -266,15 +266,83 @@ export function searchLianyingCompoundEventTimings(
     minimumSingleGain = 1e-6,
   } = {},
 ) {
+  const seeds = (singleCandidates ?? [])
+    .filter((candidate) => candidate.damageGain > minimumSingleGain)
+    .slice(0, Math.max(0, Math.floor(Number(seedLimit))));
+  return searchLianyingEventTimingSeedPairs(runtime, baselinePacks, seeds, {
+    durationSeconds,
+  });
+}
+
+function timingOrder(candidate) {
+  if (candidate.targetLocation === "prefix") return 1_000_000;
+  return Number(candidate.targetLeadFrames ?? 0);
+}
+
+export function compressLianyingEventTimingPlatforms(
+  singleCandidates,
+  {
+    maximumSingleLoss = 500_000,
+    representativesPerPlatform = 2,
+    seedLimit = 32,
+  } = {},
+) {
+  const maximumLoss = Math.max(0, Number(maximumSingleLoss));
+  const representativeLimit = Math.min(2, Math.max(
+    1,
+    Math.floor(Number(representativesPerPlatform)),
+  ));
+  const groups = new Map();
+  for (const candidate of singleCandidates ?? []) {
+    if (candidate.damageGain > 1e-6) continue;
+    if (candidate.damageGain < -maximumLoss) continue;
+    const damagePlateau = Math.round(Number(candidate.damageGain));
+    const key = [
+      candidate.rowNumber,
+      candidate.action,
+      candidate.sourceLocation,
+      candidate.sourceLeadFrames ?? "start",
+      damagePlateau,
+    ].join(":");
+    const group = groups.get(key) ?? [];
+    group.push(candidate);
+    groups.set(key, group);
+  }
+  const representatives = [];
+  for (const group of groups.values()) {
+    group.sort((left, right) =>
+      timingOrder(right) - timingOrder(left) ||
+      String(left.targetLocation).localeCompare(String(right.targetLocation)) ||
+      Number(left.targetLeadFrames ?? 0) - Number(right.targetLeadFrames ?? 0));
+    const indices = representativeLimit === 1 || group.length === 1
+      ? [0]
+      : [0, group.length - 1];
+    for (const index of indices.slice(0, representativeLimit)) {
+      if (!representatives.includes(group[index])) {
+        representatives.push(group[index]);
+      }
+    }
+  }
+  representatives.sort((left, right) =>
+    right.damageGain - left.damageGain ||
+    left.rowNumber - right.rowNumber ||
+    String(left.action).localeCompare(String(right.action)) ||
+    timingOrder(right) - timingOrder(left));
+  return representatives.slice(0, Math.max(0, Math.floor(Number(seedLimit))));
+}
+
+function searchLianyingEventTimingSeedPairs(
+  runtime,
+  baselinePacks,
+  seeds,
+  { durationSeconds = 180 } = {},
+) {
   const corePacks = stripLianyingDashPacks(baselinePacks);
   const baseline = replayWhitepaperLianying(runtime, corePacks, {
     durationSeconds,
   });
   const baselineCastCount = eventCount(baseline.state, "cast");
   const baselineOffGcdCount = eventCount(baseline.state, "offGcd");
-  const seeds = (singleCandidates ?? [])
-    .filter((candidate) => candidate.damageGain > minimumSingleGain)
-    .slice(0, Math.max(0, Math.floor(Number(seedLimit))));
   const candidates = [];
   let explored = 0;
   let legal = 0;
@@ -282,14 +350,14 @@ export function searchLianyingCompoundEventTimings(
     for (let rightIndex = leftIndex + 1; rightIndex < seeds.length; rightIndex += 1) {
       const left = seeds[leftIndex];
       const right = seeds[rightIndex];
-      if (left.rowNumber === right.rowNumber) continue;
+      if (
+        left.rowNumber === right.rowNumber &&
+        left.action === right.action
+      ) continue;
       explored += 1;
-      const packs = corePacks.map(cloneLianyingPack);
-      packs[left.rowNumber - 1] = cloneLianyingPack(
-        left.packs[left.rowNumber - 1],
-      );
-      packs[right.rowNumber - 1] = cloneLianyingPack(
-        right.packs[right.rowNumber - 1],
+      const packs = combineLianyingEventTimingMutations(
+        corePacks,
+        [left, right],
       );
       try {
         const replay = replayWhitepaperLianying(runtime, packs, {
@@ -307,6 +375,8 @@ export function searchLianyingCompoundEventTimings(
           packs,
           state: replay.state,
           damageGain: replay.state.totalDamage - baseline.state.totalDamage,
+          synergyGain: replay.state.totalDamage - baseline.state.totalDamage -
+            left.damageGain - right.damageGain,
         });
       } catch {
         // 两处单点均合法不保证组合后的冷却、资源和骑乘状态仍合法。
@@ -323,4 +393,68 @@ export function searchLianyingCompoundEventTimings(
     candidates,
     best: candidates[0] ?? null,
   };
+}
+
+export function combineLianyingEventTimingMutations(
+  baselinePacks,
+  mutations,
+) {
+  const packs = stripLianyingDashPacks(baselinePacks).map(cloneLianyingPack);
+  const seen = new Set();
+  for (const mutation of mutations ?? []) {
+    const rowIndex = Number(mutation.rowNumber) - 1;
+    const key = `${rowIndex}:${mutation.action}`;
+    if (seen.has(key)) {
+      throw new Error("同一行同一动作不能同时采用两个事件时点");
+    }
+    seen.add(key);
+    const sourcePack = mutation.packs?.[rowIndex];
+    if (!sourcePack || !packs[rowIndex]) {
+      throw new Error("事件时点变换缺少对应动作包");
+    }
+    let target = null;
+    let targetLocation = null;
+    for (const location of ["prefix", "tail"]) {
+      const occurrence = (sourcePack[location] ?? []).find(
+        (action) => actionId(action) === mutation.action,
+      );
+      if (occurrence !== undefined) {
+        target = structuredClone(occurrence);
+        targetLocation = location;
+        break;
+      }
+    }
+    if (!targetLocation) throw new Error("事件时点变换未找到目标动作");
+    const pack = packs[rowIndex];
+    pack.prefix = (pack.prefix ?? []).filter(
+      (action) => actionId(action) !== mutation.action,
+    );
+    pack.tail = (pack.tail ?? []).filter(
+      (action) => actionId(action) !== mutation.action,
+    );
+    pack[targetLocation].push(target);
+    delete pack.label;
+  }
+  return packs;
+}
+
+export function searchLianyingNeutralCompoundEventTimings(
+  runtime,
+  baselinePacks,
+  singleCandidates,
+  {
+    durationSeconds = 180,
+    maximumSingleLoss = 500_000,
+    representativesPerPlatform = 2,
+    seedLimit = 32,
+  } = {},
+) {
+  const seeds = compressLianyingEventTimingPlatforms(singleCandidates, {
+    maximumSingleLoss,
+    representativesPerPlatform,
+    seedLimit,
+  });
+  return searchLianyingEventTimingSeedPairs(runtime, baselinePacks, seeds, {
+    durationSeconds,
+  });
 }

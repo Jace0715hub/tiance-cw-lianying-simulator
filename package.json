@@ -70,6 +70,7 @@
     "search:pruned-revival": "node tools/search-lianying-pruned-revival.mjs",
     "search:neutral-pair-waits": "node tools/search-lianying-neutral-pair-waits.mjs",
     "optimize:event-breakpoints": "node tools/optimize-lianying-event-breakpoints.mjs",
+    "search:neutral-event-timings": "node tools/search-lianying-neutral-event-timings.mjs",
     "search:duration": "node tools/search-lianying-duration.mjs",
     "optimize:block-recombination": "node tools/optimize-lianying-block-recombination.mjs",
     "optimize:compound-neighborhood": "node tools/optimize-lianying-compound-neighborhood.mjs",
