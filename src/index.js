@@ -6,10 +6,12 @@ export {
 } from "./config/gear-template.js";
 export {
   LIANYING_CURRENT_BEST_AXIS,
+  LIANYING_FIXED_DURATION_BASELINES,
   LIANYING_DEFAULT_RESEARCH_SEEDS,
   LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
   resolveLianyingResearchPath,
   resolveLianyingResearchPaths,
+  resolveLianyingDurationBaseline,
 } from "./config/lianying-research-defaults.js";
 export {
   CLOCK_TICKS_PER_FRAME,

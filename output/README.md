@@ -2,8 +2,8 @@
 
 该目录只保留三类可复现产物：
 
-1. `src/config/lianying-research-defaults.js`直接声明的当前最优轴、默认研究种子和价值训练种子；
-2. 上述JSON的`seedPath`递归来源，以及同名的CSV、装备CSV和结构审计文件；
+1. `src/config/lianying-research-defaults.js`直接声明的当前最优轴、固定时长基线、默认研究种子和价值训练种子；
+2. 上述JSON的`seedPath`或`durationSearch.inputPath`递归来源，以及同名的CSV、装备CSV和结构审计文件；
 3. 白皮书固定/稳态基准、对比摘要和当前最优轴的锚点模板。
 
 `lianying-ranking-sensitivity.json/.csv`是当前正式轴接受依据的一部分，作为小型离线核查报告例外保留；中间搜索轴仍不常驻该目录。

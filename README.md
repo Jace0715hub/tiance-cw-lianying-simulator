@@ -14,9 +14,17 @@
 - 计入装备与附魔后的总 DPS：`14,696,179.73`
 - 机制违规：`0`
 
+240秒首版固定时长基线：
+
+- 技能轴：[`output/lianying-free-fixed-240s-screen.json`](output/lianying-free-fixed-240s-screen.json)
+- 循环伤害：`3,286,656,916.88`
+- 循环 DPS：`13,694,403.82`
+- 计入装备与附魔后的总 DPS：`14,174,149.53`
+- 机制违规：`0`
+
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.19 已把第75行主技能差异与第106/107行雷差异合并为合法联合供体，并搜索第59–127行三个雷区段；失败链扩展至第132行后，最佳仍是钉住的100/101行换位轴，低正式轴`141,778.87`，没有新结构进入更高前沿。正式结果不变；下一步处理差异分处首尾、连续窗口无法覆盖的近优来源。
+180秒阶段现存0.1%内不同结构来源均已完成单独或联合消费；`qualityTerminal`所谓首尾差异也被反事实证明只有第147行单技能降级。240秒自由搜索已开始：48宽screen相对24宽probe提高`3,082,259.29`伤害，并确认长期最优会主动牺牲前180秒约`8,603,730.79`伤害来调整后续资源相位。
 
 ## 核心能力
 
@@ -108,6 +116,10 @@ npm run optimize:triple-segment-recombination -- \
 # 合并两个已验证来源，并逐档继承完整精英轴
 npm run optimize:multi-source-recombination -- \
   - /tmp/multi-source.json adaptive-probe
+
+# 以现有固定时长轴为热启动，搜索更长战斗时间
+npm run search:duration -- \
+  output/lianying-free-fixed-240s-probe.json /tmp/240s-screen.json 240 screen
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

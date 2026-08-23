@@ -5,10 +5,12 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   LIANYING_CURRENT_BEST_AXIS,
+  LIANYING_FIXED_DURATION_BASELINES,
   LIANYING_DEFAULT_RESEARCH_SEEDS,
   LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
   resolveLianyingResearchPath,
   resolveLianyingResearchPaths,
+  resolveLianyingDurationBaseline,
 } from "../src/config/lianying-research-defaults.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -26,6 +28,25 @@ test("current-best research default points to the promoted coordinated anchor ax
   assert.equal(
     resolveLianyingResearchPath(projectRoot, "-"),
     path.join(projectRoot, LIANYING_CURRENT_BEST_AXIS),
+  );
+});
+
+test("固定时长基线分别解析180秒正式轴与240秒screen轴", () => {
+  assert.equal(
+    LIANYING_FIXED_DURATION_BASELINES[180],
+    LIANYING_CURRENT_BEST_AXIS,
+  );
+  assert.equal(
+    resolveLianyingDurationBaseline(projectRoot, 240),
+    path.join(projectRoot, "output/lianying-free-fixed-240s-screen.json"),
+  );
+  assert.equal(
+    fs.existsSync(resolveLianyingDurationBaseline(projectRoot, 240)),
+    true,
+  );
+  assert.throws(
+    () => resolveLianyingDurationBaseline(projectRoot, 300),
+    /尚无300秒固定时长基线/,
   );
 });
 
