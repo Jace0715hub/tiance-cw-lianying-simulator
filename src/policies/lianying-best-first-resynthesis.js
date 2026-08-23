@@ -62,6 +62,28 @@ function buildReferenceStates(runtime, packs, endTick) {
   return states;
 }
 
+export function alignLianyingFixedActionTimings(
+  pack,
+  referencePack,
+  fixedActionIds = ["thunder", "orange", "dismount"],
+) {
+  const fixed = new Set(fixedActionIds);
+  const next = structuredClone(pack);
+  next.prefix = (next.prefix ?? []).filter(
+    (action) => !fixed.has(actionId(action)),
+  );
+  next.tail = (next.tail ?? []).filter(
+    (action) => !fixed.has(actionId(action)),
+  );
+  next.prefix.push(...(referencePack?.prefix ?? [])
+    .filter((action) => fixed.has(actionId(action)))
+    .map((action) => structuredClone(action)));
+  next.tail.push(...(referencePack?.tail ?? [])
+    .filter((action) => fixed.has(actionId(action)))
+    .map((action) => structuredClone(action)));
+  return next;
+}
+
 function compareNodes(left, right) {
   return Number(right.score) - Number(left.score) ||
     Number(right.state.totalDamage) - Number(left.state.totalDamage) ||
@@ -172,6 +194,7 @@ export function searchLianyingBoundedLocalBlock(
     candidateLimit = 32,
     wallClockMs = Number.POSITIVE_INFINITY,
     fixedActionIds = ["thunder", "ride", "orange", "dismount", "wait"],
+    fixAnchorTimings = false,
     suffixRepairPenaltyRows = 1,
   } = {},
 ) {
@@ -265,12 +288,19 @@ export function searchLianyingBoundedLocalBlock(
       fixedActionIds.includes("wait") && actionId(referencePack?.primary) === "wait"
         ? [referencePack]
         : legalMechanicalLianyingPacks(node.state, runtime.config);
-    for (const pack of legalPacks) {
+    for (const generatedPack of legalPacks) {
       if (!isLianyingFixedAnchorPackAllowed(
-        pack,
+        generatedPack,
         referencePack,
         fixedActionIds,
       )) continue;
+      const pack = fixAnchorTimings
+        ? alignLianyingFixedActionTimings(
+            generatedPack,
+            referencePack,
+            fixedActionIds,
+          )
+        : generatedPack;
       exploredTransitions += 1;
       try {
         const state = executeActionPack(
@@ -448,6 +478,7 @@ export function searchLianyingBoundedLocalBlock(
       candidateLimit: maximumCandidates,
       wallClockMs: maximumWallClockMs,
       fixedActionIds: [...fixedActionIds],
+      fixAnchorTimings,
       suffixRepairPenaltyRows,
     },
   };

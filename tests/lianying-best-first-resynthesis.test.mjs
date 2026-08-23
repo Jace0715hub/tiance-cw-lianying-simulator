@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
+  alignLianyingFixedActionTimings,
   isLianyingFixedAnchorPackAllowed,
   searchLianyingBoundedLocalBlock,
 } from "../src/policies/lianying-best-first-resynthesis.js";
@@ -30,6 +31,29 @@ test("固定锚点比较同时覆盖前置、主要技能和末端动作", () =>
     primary: "dragonRoar",
     tail: ["thunder", "orange"],
   }, reference), false);
+});
+
+test("固定锚点时点会把机械候选对齐到参考雷的GCD内提前量", () => {
+  const aligned = alignLianyingFixedActionTimings(
+    {
+      prefix: ["thunder", "charge"],
+      primary: "dragonFang",
+      tail: [{ id: "orange", leadFrames: 1 }],
+    },
+    {
+      prefix: [],
+      primary: "dragonFang",
+      tail: [
+        { id: "thunder", leadFrames: 7 },
+        { id: "orange", leadFrames: 1 },
+      ],
+    },
+  );
+  assert.deepEqual(aligned.prefix, ["charge"]);
+  assert.deepEqual(aligned.tail, [
+    { id: "thunder", leadFrames: 7 },
+    { id: "orange", leadFrames: 1 },
+  ]);
 });
 
 test("最佳优先局部块与束搜索使用相同节点展开预算并完整复演", () => {

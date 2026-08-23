@@ -1,7 +1,7 @@
 import path from "node:path";
 
 export const LIANYING_CURRENT_BEST_AXIS =
-  "output/lianying-free-fixed-180s-pair-anchor-wait.json";
+  "output/lianying-free-fixed-180s-event-breakpoint.json";
 
 export const LIANYING_FIXED_DURATION_BASELINES = Object.freeze({
   180: LIANYING_CURRENT_BEST_AXIS,

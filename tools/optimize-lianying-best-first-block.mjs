@@ -15,19 +15,22 @@ import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensiti
 import { auditWhitepaperAxis } from "../src/reports/whitepaper-audit.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
+const fixAnchorTimings = process.argv.includes("--fixed-timings");
+const args = process.argv.slice(2).filter((argument) =>
+  argument !== "--fixed-timings");
+const inputPath = resolveLianyingResearchPath(projectRoot, args[0]);
 const outputPath = path.resolve(
-  process.argv[3] ?? "/tmp/lianying-best-first-block.json",
+  args[1] ?? "/tmp/lianying-best-first-block.json",
 );
-const profileName = process.argv[4] ?? "probe";
-const startRow = Number(process.argv[5] ?? 107);
-const endRow = Number(process.argv[6] ?? 128);
-const targetAnchorOrdinal = process.argv[7] === undefined
+const profileName = args[2] ?? "probe";
+const startRow = Number(args[3] ?? 107);
+const endRow = Number(args[4] ?? 128);
+const targetAnchorOrdinal = args[5] === undefined
   ? null
-  : Number(process.argv[7]);
-const targetAnchorRow = process.argv[8] === undefined
+  : Number(args[5]);
+const targetAnchorRow = args[6] === undefined
   ? null
-  : Number(process.argv[8]);
+  : Number(args[6]);
 if ((targetAnchorOrdinal === null) !== (targetAnchorRow === null)) {
   throw new Error("雷锚点变换必须同时提供序号与目标行");
 }
@@ -84,6 +87,7 @@ const common = {
   queueLimit: profile.queueLimit,
   candidateLimit: profile.candidateLimit,
   wallClockMs: profile.wallClockMs,
+  fixAnchorTimings,
 };
 
 process.stdout.write(`${JSON.stringify({
@@ -269,6 +273,7 @@ const report = {
   sourceRotationDamage: sourceReplay.state.totalDamage,
   sourceDamageLossFromFormal:
     formalReplay.state.totalDamage - sourceReplay.state.totalDamage,
+  fixAnchorTimings,
   equalExpansionBudget: beam.expandedNodes,
   runs: runs.map(serializableRun),
   acceptedExperiment,

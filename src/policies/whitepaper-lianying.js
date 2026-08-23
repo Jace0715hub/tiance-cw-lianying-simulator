@@ -42,7 +42,17 @@ export function labelWhitepaperPack(pack) {
   }
   const prefix = (pack.prefix ?? []).map(actionId).map((id) => ACTION_LABELS[id]);
   const primary = ACTION_LABELS[actionId(pack.primary)] ?? actionId(pack.primary);
-  const tail = (pack.tail ?? []).map(actionId).map((id) => ACTION_LABELS[id]);
+  const tail = [...(pack.tail ?? [])]
+    .map((action, order) => ({
+      action,
+      order,
+      leadFrames: Number(
+        typeof action === "string" ? 1 : action?.leadFrames ?? 1,
+      ),
+    }))
+    .sort((left, right) =>
+      right.leadFrames - left.leadFrames || left.order - right.order)
+    .map(({ action }) => ACTION_LABELS[actionId(action)]);
   return `${prefix.join("+")}${prefix.length ? "→" : ""}${primary}${
     tail.length ? `→${tail.join("+")}` : ""
   }`;
