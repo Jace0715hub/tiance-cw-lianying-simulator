@@ -180,6 +180,7 @@ export function optimizeLianyingTripleSegmentRecombination(
     preserveThunderPositions: true,
     thunderPositionWindows: span.thunderPositionWindows,
     additionalWarmAxes: [incumbentPacks, ...additionalWarmAxes],
+    pinAdditionalWarmAxes: true,
     excludedCorePackKeys: [JSON.stringify(incumbentCore)],
     excludedCoreStructureKeys: [lianyingCoreStructureKey(incumbentCore, {
       ignoredActionIds: ignoredStructureActionIds,

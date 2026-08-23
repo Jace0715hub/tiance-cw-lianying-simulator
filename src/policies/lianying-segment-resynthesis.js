@@ -1452,6 +1452,7 @@ export function optimizeLianyingSegmentResynthesis(
     preserveThunderPositions = false,
     thunderPositionWindows = [],
     additionalWarmAxes = [],
+    pinAdditionalWarmAxes = false,
     excludedCorePackKeys = [],
     excludedCoreStructureKeys = [],
     coreStructureIgnoredActionIds = [],
@@ -1911,10 +1912,58 @@ export function optimizeLianyingSegmentResynthesis(
       })));
     }
 
-    const selectedCoarseCandidates = selectCoarseCandidates(
-      coreCandidates,
-      coarseCandidateLimit,
-    );
+    const pinnedWarmCandidates = [];
+    const pinnedWarmKeys = new Set();
+    if (pinAdditionalWarmAxes) {
+      for (const [warmIndex, warmAxis] of additionalWarmAxes.entries()) {
+        if (!Array.isArray(warmAxis) || warmAxis.length !== corePacks.length) continue;
+        const warmPacks = warmAxis.map(clonePack);
+        const warmCore = stripDashPacks(warmPacks);
+        if (
+          excludedCorePackKeySet.has(JSON.stringify(warmCore)) ||
+          excludedCoreStructureKeySet.has(lianyingCoreStructureKey(
+            warmCore,
+            { ignoredActionIds: coreStructureIgnoredActionIds },
+          ))
+        ) continue;
+        const key = JSON.stringify(warmPacks);
+        if (pinnedWarmKeys.has(key)) continue;
+        try {
+          const replay = replayWhitepaperLianying(runtime, warmPacks, {
+            durationSeconds,
+          });
+          const coreReplay = replayWhitepaperLianying(runtime, warmCore, {
+            durationSeconds,
+          });
+          pinnedWarmKeys.add(key);
+          pinnedWarmCandidates.push({
+            segmentId: `warm-axis-${warmIndex + 1}`,
+            segment: null,
+            packs: warmPacks,
+            state: replay.state,
+            totalDamage: replay.state.totalDamage,
+            coreDamage: coreReplay.state.totalDamage,
+            coreDamageGain:
+              coreReplay.state.totalDamage - coreBaseline.state.totalDamage,
+            behaviorKey: lianyingCoreBehaviorKey(coreReplay.state),
+            thunderRows: thunderRows(warmCore),
+            dashCount: replay.state.timeline.filter(
+              (event) => event.type === "offGcd" && event.action === "dash",
+            ).length,
+            pinnedWarmAxis: true,
+          });
+        } catch {
+          // 非法完整热启动不进入钉住候选；逐层热启动仍保留原有诊断。
+        }
+      }
+    }
+    const selectedCoarseCandidates = [
+      ...selectCoarseCandidates(
+        coreCandidates,
+        coarseCandidateLimit,
+      ),
+      ...pinnedWarmCandidates,
+    ];
     const coarseCandidates = selectedCoarseCandidates.map((candidate, index) => {
       if (typeof onProgress === "function") {
         onProgress({
@@ -1925,14 +1974,19 @@ export function optimizeLianyingSegmentResynthesis(
           segmentId: candidate.segmentId,
         });
       }
-      if (candidate.segmentId === "incumbent") {
+      if (candidate.segmentId === "incumbent" || candidate.pinnedWarmAxis) {
         return {
           ...candidate,
-          packs: incumbentPacks,
-          totalDamage: incumbent.state.totalDamage,
-          dashCount: incumbent.state.timeline.filter(
-            (event) => event.type === "offGcd" && event.action === "dash",
-          ).length,
+          packs: candidate.pinnedWarmAxis ? candidate.packs : incumbentPacks,
+          state: candidate.pinnedWarmAxis ? candidate.state : incumbent.state,
+          totalDamage: candidate.pinnedWarmAxis
+            ? candidate.totalDamage
+            : incumbent.state.totalDamage,
+          dashCount: candidate.pinnedWarmAxis
+            ? candidate.dashCount
+            : incumbent.state.timeline.filter(
+              (event) => event.type === "offGcd" && event.action === "dash",
+            ).length,
           coarseBaseline: true,
         };
       }
@@ -1962,8 +2016,11 @@ export function optimizeLianyingSegmentResynthesis(
             segmentId: candidate.segmentId,
           });
         }
-        if (candidate.segmentId === "incumbent") {
-          return { ...candidate, state: incumbent.state };
+        if (candidate.segmentId === "incumbent" || candidate.pinnedWarmAxis) {
+          return {
+            ...candidate,
+            state: candidate.pinnedWarmAxis ? candidate.state : incumbent.state,
+          };
         }
         const dash = optimizeLianyingDashOverlay(runtime, candidate.packs, {
           durationSeconds,
@@ -1997,9 +2054,11 @@ export function optimizeLianyingSegmentResynthesis(
         totalDamage: candidate.totalDamage,
         dashCount: candidate.dashCount,
         valueShadow: candidate.valueShadow === true,
+        pinnedWarmAxis: candidate.pinnedWarmAxis === true,
         thunderRows: candidate.thunderRows ?? thunderRows(candidate.packs),
       })),
       bestSegmentId: best?.segmentId ?? null,
+      pinnedWarmAxisCount: pinnedWarmCandidates.length,
       damageGain: best ? best.totalDamage - incumbent.state.totalDamage : 0,
     };
     passes.push(passReport);
@@ -2031,6 +2090,7 @@ export function optimizeLianyingSegmentResynthesis(
       preserveThunderPositions,
       thunderPositionWindows,
       additionalWarmAxisCount: additionalWarmAxes.length,
+      pinAdditionalWarmAxes,
       excludedCorePackKeys: [...excludedCorePackKeySet],
       excludedCoreStructureKeys: [...excludedCoreStructureKeySet],
       coreStructureIgnoredActionIds: [...coreStructureIgnoredActionIds],

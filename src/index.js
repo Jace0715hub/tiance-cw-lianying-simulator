@@ -216,6 +216,12 @@ export {
   lianyingDifferingThunderSegmentIndices,
   optimizeLianyingTripleSegmentRecombination,
 } from "./policies/lianying-triple-segment-recombination.js";
+export {
+  buildLianyingMultiSourceRecombination,
+  mergeLianyingSourceDifferences,
+  optimizeLianyingMultiSourceRecombination,
+  swapLianyingPrimaryActions,
+} from "./policies/lianying-multi-source-recombination.js";
 export { summarize, timelineRows } from "./reports/summary.js";
 export {
   BASELINE_COMPONENT_TO_SKILL,

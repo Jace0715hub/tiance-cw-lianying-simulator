@@ -16,7 +16,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-M5.18 已分别以第75行异构轴和79/106雷表轴为热启动，联合重合成三个完整雷区段。前者自适应扩展至第119行后只回到已知的100/101行穿云—龙吟换位轴，仍低`141,778.87`；后者同时保留106/107两种雷谱系，仍低`699,221.62`。正式结果不变；下一步只验证两类差异的多来源联合，不继续加宽任一单来源。
+M5.19 已把第75行主技能差异与第106/107行雷差异合并为合法联合供体，并搜索第59–127行三个雷区段；失败链扩展至第132行后，最佳仍是钉住的100/101行换位轴，低正式轴`141,778.87`，没有新结构进入更高前沿。正式结果不变；下一步处理差异分处首尾、连续窗口无法覆盖的近优来源。
 
 ## 核心能力
 
@@ -104,6 +104,10 @@ npm run optimize:ride-thunder-templates -- \
 # 以近优完整轴为热启动，联合重合成三个连续雷区段
 npm run optimize:triple-segment-recombination -- \
   - /tmp/triple-segment.json probe output/lianying-ranking-sensitivity.json heterogeneous
+
+# 合并两个已验证来源，并逐档继承完整精英轴
+npm run optimize:multi-source-recombination -- \
+  - /tmp/multi-source.json adaptive-probe
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。
