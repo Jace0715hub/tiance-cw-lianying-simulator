@@ -507,29 +507,50 @@ function mechanicalTailOffGcdVariants(packs, state, config, tick) {
     frameToTicks(1);
   const thunderReady = poolAvailableAt(state.chargeTicks.thunder, tailTick) > 0;
   const orangeReady = cooldownReady(state, "orange", tailTick);
-  if (!thunderReady && !orangeReady) return packs;
-
   const variants = [];
   for (const pack of packs) {
-    variants.push(pack);
-    if (primaryId(pack) === "ride") continue;
-    const existing = new Set([
-      ...(pack.prefix ?? []),
-      ...(pack.tail ?? []),
-    ].map(actionId));
-    const plans = [];
-    if (thunderReady && !existing.has("thunder")) plans.push(["thunder"]);
-    if (orangeReady && !existing.has("orange")) plans.push(["orange"]);
-    if (
-      thunderReady &&
-      orangeReady &&
-      !existing.has("thunder") &&
-      !existing.has("orange")
-    ) plans.push(["thunder", "orange"]);
-    for (const plan of plans) {
-      const variant = clonePack(pack);
-      variant.tail.push(...plan.map((id) => ({ id, leadFrames: 1 })));
+    const timingVariants = [pack];
+    if (primaryId(pack) !== "ride") {
+      const existing = new Set([
+        ...(pack.prefix ?? []),
+        ...(pack.tail ?? []),
+      ].map(actionId));
+      const plans = [];
+      if (thunderReady && !existing.has("thunder")) plans.push(["thunder"]);
+      if (orangeReady && !existing.has("orange")) plans.push(["orange"]);
+      if (
+        thunderReady &&
+        orangeReady &&
+        !existing.has("thunder") &&
+        !existing.has("orange")
+      ) plans.push(["thunder", "orange"]);
+      for (const plan of plans) {
+        const variant = clonePack(pack);
+        variant.tail.push(...plan.map((id) => ({ id, leadFrames: 1 })));
+        timingVariants.push(variant);
+      }
+    }
+
+    for (const variant of timingVariants) {
       variants.push(variant);
+      const prefixDismount = (variant.prefix ?? []).some(
+        (action) => actionId(action) === "dismount",
+      );
+      const tailDismount = (variant.tail ?? []).some(
+        (action) => actionId(action) === "dismount",
+      );
+      const mountedAtTail = primaryId(variant) === "ride" ||
+        (isMountedAtTick(state, tick) && !prefixDismount);
+      if (!mountedAtTail || tailDismount) continue;
+      const dismountVariant = clonePack(variant);
+      dismountVariant.tail.push({
+        id: "dismount",
+        reason: primaryId(variant) === "ride"
+          ? "ride-tail-free-search"
+          : "gcd-tail-free-search",
+        leadFrames: 1,
+      });
+      variants.push(dismountVariant);
     }
   }
   return uniquePacks(variants);

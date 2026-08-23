@@ -8,13 +8,13 @@
 
 默认研究环境为五段加速、30ms 总延迟、斩杀木桩和固定 180 秒战斗：
 
-- 正式技能轴：[`output/lianying-free-fixed-180s-anchor-rides-dismount-segments-deep.json`](output/lianying-free-fixed-180s-anchor-rides-dismount-segments-deep.json)
-- 循环伤害：`2,558,958,123.33`
-- 循环 DPS：`14,216,434.02`
-- 计入装备与附魔后的总 DPS：`14,696,179.73`
+- 正式技能轴：[`output/lianying-free-fixed-180s-anchor-wait.json`](output/lianying-free-fixed-180s-anchor-wait.json)
+- 循环伤害：`2,559,657,344.95`
+- 循环 DPS：`14,220,318.58`
+- 计入装备与附魔后的总 DPS：`14,700,064.29`
 - 机制违规：`0`
 
-240秒首版固定时长基线：
+240秒旁支成果（当前暂停继续扩展）：
 
 - 技能轴：[`output/lianying-free-fixed-240s-screen.json`](output/lianying-free-fixed-240s-screen.json)
 - 循环伤害：`3,286,656,916.88`
@@ -24,7 +24,7 @@
 
 这是当前已覆盖搜索空间内的最高结果，不代表对完整动作空间作出数学全局最优证明。
 
-180秒阶段现存0.1%内不同结构来源均已完成单独或联合消费；`qualityTerminal`所谓首尾差异也被反事实证明只有第147行单技能降级。240秒自由搜索已开始：48宽screen相对24宽probe提高`3,082,259.29`伤害，并确认长期最优会主动牺牲前180秒约`8,603,730.79`伤害来调整后续资源相位。
+240秒结果保留用于证明长时规划会主动让利短时前缀；当前主线已回到180秒。最新正式轴在末次雷前等待6帧，不减少主要技能并多结算1跳流血，相对旧轴提高`699,221.62`循环伤害。早期裁剪状态的终局续跑和多等待协同仍未完成，因此不视为已经封盘。
 
 ## 核心能力
 
@@ -120,6 +120,9 @@ npm run optimize:multi-source-recombination -- \
 # 以现有固定时长轴为热启动，搜索更长战斗时间
 npm run search:duration -- \
   output/lianying-free-fixed-240s-probe.json /tmp/240s-screen.json 240 screen
+
+# 在雷/橙武/任驰骋锚点前搜索不减少主要技能的短等待
+npm run optimize:wait-anchors
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。

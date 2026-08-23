@@ -65,6 +65,7 @@
     "optimize:ride-thunder-templates": "node tools/optimize-lianying-ride-thunder-templates.mjs",
     "optimize:triple-segment-recombination": "node tools/optimize-lianying-triple-segment-recombination.mjs",
     "optimize:multi-source-recombination": "node tools/optimize-lianying-multi-source-recombination.mjs",
+    "optimize:wait-anchors": "node tools/optimize-lianying-wait-anchors.mjs",
     "search:duration": "node tools/search-lianying-duration.mjs",
     "optimize:block-recombination": "node tools/optimize-lianying-block-recombination.mjs",
     "optimize:compound-neighborhood": "node tools/optimize-lianying-compound-neighborhood.mjs",

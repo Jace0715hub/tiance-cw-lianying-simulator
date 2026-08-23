@@ -90,16 +90,16 @@ test("最佳优先队列耗尽时按需从下一层正式热启动继续", () =>
     source.actionPacks,
     {
       startRow: 20,
-      endRow: 22,
+      endRow: 24,
       strategy: "best-first",
-      expansionBudget: 8,
-      queueLimit: 64,
+      expansionBudget: 12,
+      queueLimit: 2,
       candidateLimit: 4,
     },
   );
 
   assert.equal(result.warmRestarts, 1);
-  assert.equal(result.expandedNodes, 8);
+  assert.equal(result.expandedNodes, 12);
   assert.ok(result.completeCandidateCount > 1);
   assert.ok(result.candidates.some((candidate) => candidate.isIncumbent));
 });

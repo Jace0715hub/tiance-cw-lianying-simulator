@@ -228,6 +228,64 @@ test("自由动作空间生成GCD末端刚转好的橙武候选", () => {
   assert.equal(prefixOrange, undefined);
 });
 
+test("自由动作空间允许主要技能后在GCD末端下马", () => {
+  const mounted = createInitialState(runtime.config, {
+    rage: 5,
+    mounted: true,
+    mountedFrom: 0,
+    dragonRideStacks: 5,
+    executePhase: true,
+  });
+  const mountedPacks = legalMechanicalLianyingPacks(
+    mounted,
+    runtime.config,
+  );
+  const fangThenDismount = mountedPacks.find((candidate) =>
+    (typeof candidate.primary === "string"
+      ? candidate.primary
+      : candidate.primary.id) === "dragonFang" &&
+    !(candidate.prefix ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "dismount") &&
+    (candidate.tail ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "dismount"));
+  assert.ok(fangThenDismount);
+  const fangResult = executeActionPack(
+    mounted,
+    fangThenDismount,
+    runtime.config,
+    runtime.oracle,
+  );
+  const fangCast = fangResult.timeline.find((event) =>
+    event.type === "cast" && event.action === "dragonFang");
+  assert.equal(fangCast.mounted, true);
+  assert.equal(fangResult.mounted, false);
+
+  const unmounted = createInitialState(runtime.config, {
+    rage: 5,
+    mounted: false,
+    dragonRideStacks: 5,
+    executePhase: true,
+  });
+  const rideThenDismount = legalMechanicalLianyingPacks(
+    unmounted,
+    runtime.config,
+  ).find((candidate) =>
+    (typeof candidate.primary === "string"
+      ? candidate.primary
+      : candidate.primary.id) === "ride" &&
+    (candidate.tail ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "dismount"));
+  assert.ok(rideThenDismount);
+  const rideResult = executeActionPack(
+    unmounted,
+    rideThenDismount,
+    runtime.config,
+    runtime.oracle,
+  );
+  assert.equal(rideResult.mounted, false);
+  assert.ok(rideResult.buffTicks.rideUntil > rideResult.tick);
+});
+
 test("资源浪费和白皮书偏离不再被判为游戏机制非法", () => {
   const initial = createInitialState(runtime.config, {
     rage: 5,
