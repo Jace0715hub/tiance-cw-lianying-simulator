@@ -36,6 +36,51 @@ const profiles = {
     boundaryPaddingRows: 0,
     diverseCandidateLimit: 16,
   },
+  "quad-probe": {
+    segmentCount: 4,
+    maxPasses: 1,
+    beamWidth: 24,
+    finalistCount: 12,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    boundaryPaddingRows: 0,
+    diverseCandidateLimit: 16,
+  },
+  "quad-screen": {
+    segmentCount: 4,
+    maxPasses: 1,
+    beamWidth: 48,
+    finalistCount: 24,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 12,
+    finalDashCandidateCount: 4,
+    fullDashStates: 256,
+    boundaryPaddingRows: 0,
+    diverseCandidateLimit: 24,
+  },
+  "quad-adaptive-probe": {
+    segmentCount: 4,
+    maxPasses: 1,
+    beamWidth: 24,
+    finalistCount: 12,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    boundaryPaddingRows: 0,
+    diverseCandidateLimit: 16,
+    adaptiveSuffixRepair: true,
+    adaptiveSuffixMaxExpansions: 2,
+    adaptiveSuffixLookaheadRows: 4,
+    adaptiveSuffixMaximumAddedRows: 16,
+    adaptiveSuffixPreferDriftedLineages: false,
+    adaptiveSuffixWarmFailureLimit: 4,
+    adaptiveSuffixFailureChainLimit: 2,
+    adaptiveSuffixFailureRowBucketSize: 8,
+    adaptiveSuffixDirectedRepairLimit: 4,
+  },
   screen: {
     segmentCount: 3,
     maxPasses: 1,
@@ -71,7 +116,9 @@ const profiles = {
   },
 };
 if (!profiles[profileName]) {
-  throw new Error("三雷区段重组档位必须是probe、screen或adaptive-probe");
+  throw new Error(
+    "多雷区段重组档位必须是probe、quad-probe、quad-screen、quad-adaptive-probe、screen或adaptive-probe",
+  );
 }
 
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));

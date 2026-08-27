@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
+  alignLianyingDonorWaitPacks,
   buildLianyingBoundedMultiSegmentSpan,
   optimizeLianyingTripleSegmentRecombination,
 } from "../src/policies/lianying-triple-segment-recombination.js";
@@ -21,6 +22,35 @@ const heterogeneous = sensitivity.candidates.find(
 const thunder106 = sensitivity.candidates.find(
   (candidate) => candidate.id === "thunder106",
 ).actionPacks;
+const currentFormal = sensitivity.candidates.find(
+  (candidate) => candidate.id === "formal",
+).actionPacks;
+
+test("旧供体只按正式轴显式等待行对齐而不改写其他动作", () => {
+  const aligned = alignLianyingDonorWaitPacks(currentFormal, heterogeneous);
+  const waitRows = aligned.flatMap((pack, index) =>
+    pack.primary?.id === "wait" ? [index + 1] : []);
+  assert.equal(aligned.length, currentFormal.length);
+  assert.deepEqual(waitRows, [125, 129]);
+  assert.equal(aligned[74].primary, "cloudStrike");
+  assert.deepEqual(
+    aligned.filter((pack) => pack.primary?.id !== "wait"),
+    heterogeneous,
+  );
+});
+
+test("当前正式轴与旧异构供体可扩展为四个连续雷区段", () => {
+  const span = buildLianyingBoundedMultiSegmentSpan(
+    currentFormal,
+    heterogeneous,
+    { segmentCount: 4 },
+  );
+  assert.deepEqual(span.differenceRows, [3, 38, 75]);
+  assert.deepEqual(span.differenceSegmentIndices, [0, 2, 3]);
+  assert.deepEqual(span.segmentIndices, [0, 1, 2, 3]);
+  assert.equal(span.startIndex + 1, 3);
+  assert.equal(span.endIndex, 78);
+});
 
 test("第75行异构热启动自动扩为第3至5雷的三个完整区段", () => {
   const span = buildLianyingBoundedMultiSegmentSpan(

@@ -10,6 +10,35 @@ function actionId(action) {
   return typeof action === "string" ? action : action?.id;
 }
 
+export function alignLianyingDonorWaitPacks(referencePacks, donorPacks) {
+  if (referencePacks.length === donorPacks.length) return donorPacks;
+  const referenceWaitCount = referencePacks.filter(
+    (pack) => actionId(pack?.primary) === "wait",
+  ).length;
+  const donorWaitCount = donorPacks.filter(
+    (pack) => actionId(pack?.primary) === "wait",
+  ).length;
+  if (
+    donorWaitCount !== 0 ||
+    referencePacks.length - referenceWaitCount !== donorPacks.length
+  ) {
+    throw new Error(
+      "多段协同重组只能自动对齐正式轴新增、供体未包含的显式等待行",
+    );
+  }
+  let donorIndex = 0;
+  const aligned = referencePacks.map((referencePack) => {
+    if (actionId(referencePack?.primary) === "wait") return referencePack;
+    const donorPack = donorPacks[donorIndex];
+    donorIndex += 1;
+    return donorPack;
+  });
+  if (donorIndex !== donorPacks.length) {
+    throw new Error("多段协同重组等待行对齐没有完整消费供体动作包");
+  }
+  return aligned;
+}
+
 function structuralPack(pack) {
   return {
     prefix: (pack?.prefix ?? []).filter((action) => actionId(action) !== "dash"),
@@ -25,14 +54,16 @@ function thunderRows(packs) {
 
 export function lianyingDifferingThunderSegmentIndices(referencePacks, donorPacks) {
   const reference = stripLianyingDashPacks(referencePacks);
-  const donor = stripLianyingDashPacks(donorPacks);
+  const donor = stripLianyingDashPacks(
+    alignLianyingDonorWaitPacks(referencePacks, donorPacks),
+  );
   if (reference.length !== donor.length) {
-    throw new Error("三段协同重组要求正式轴与热启动轴行数相同");
+    throw new Error("多段协同重组要求正式轴与对齐后的热启动轴行数相同");
   }
   const referenceThunderRows = thunderRows(reference);
   const donorThunderRows = thunderRows(donor);
   if (referenceThunderRows.length !== donorThunderRows.length) {
-    throw new Error("三段协同重组要求正式轴与热启动轴雷次数相同");
+    throw new Error("多段协同重组要求正式轴与热启动轴雷次数相同");
   }
   const thunderPositionWindows = referenceThunderRows.flatMap((row, index) => {
     const donorRow = donorThunderRows[index];
@@ -81,7 +112,7 @@ export function buildLianyingBoundedMultiSegmentSpan(
   } =
     lianyingDifferingThunderSegmentIndices(referencePacks, donorPacks);
   if (differenceRows.length === 0) {
-    throw new Error("三段协同重组要求热启动轴具有真实核心差异");
+    throw new Error("多段协同重组要求热启动轴具有真实核心差异");
   }
   const firstDifferenceSegment = segmentIndices[0];
   const lastDifferenceSegment = segmentIndices.at(-1);
@@ -153,20 +184,24 @@ export function optimizeLianyingTripleSegmentRecombination(
     onProgress = null,
   } = {},
 ) {
+  const alignedDonorPacks = alignLianyingDonorWaitPacks(
+    incumbentPacks,
+    donorPacks,
+  );
   const incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,
   });
-  const donor = replayWhitepaperLianying(runtime, donorPacks, {
+  const donor = replayWhitepaperLianying(runtime, alignedDonorPacks, {
     durationSeconds,
   });
   const span = buildLianyingBoundedMultiSegmentSpan(
     incumbentPacks,
-    donorPacks,
+    alignedDonorPacks,
     { segmentCount },
   );
   const incumbentCore = stripLianyingDashPacks(incumbentPacks);
   const ignoredStructureActionIds = ["dash", "dismount", "thunder", "orange"];
-  const optimized = optimizeLianyingSegmentResynthesis(runtime, donorPacks, {
+  const optimized = optimizeLianyingSegmentResynthesis(runtime, alignedDonorPacks, {
     durationSeconds,
     maxPasses,
     beamWidth,
