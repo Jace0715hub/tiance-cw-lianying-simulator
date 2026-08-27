@@ -169,6 +169,9 @@ for (const candidate of dashCandidates) {
 }
 finalists.sort((left, right) => right.state.totalDamage - left.state.totalDamage);
 const best = finalists[0];
+const revivedFinalists = finalists.filter((candidate) =>
+  candidate.kind === "revived");
+const bestRevived = revivedFinalists[0] ?? null;
 const audit = auditWhitepaperAxis(best.state, { mode: "fixed" });
 const report = {
   schemaVersion: 1,
@@ -206,6 +209,18 @@ const report = {
   bestKind: best.kind,
   bestAncestorIndex: best.ancestorIndex,
   bestDepth: best.depth,
+  bestRevivedRotationDamage: bestRevived?.state.totalDamage ?? null,
+  bestRevivedDamageLoss: bestRevived
+    ? baseline.state.totalDamage - bestRevived.state.totalDamage
+    : null,
+  revivedFinalists: revivedFinalists.map((candidate) => ({
+    ancestorIndex: candidate.ancestorIndex,
+    depth: candidate.depth,
+    rotationDamage: candidate.state.totalDamage,
+    damageLoss: baseline.state.totalDamage - candidate.state.totalDamage,
+    actionPacks: candidate.packs,
+  })),
+  bestExperimentActionPacks: bestRevived?.packs ?? null,
   mechanicsPassed: audit.mechanics.passed,
   mechanicsViolationCount: audit.mechanics.violationCount,
   actionPacks: best.packs,
@@ -221,6 +236,8 @@ process.stdout.write(`${JSON.stringify({
   bestKind: report.bestKind,
   bestAncestorIndex: report.bestAncestorIndex,
   bestDepth: report.bestDepth,
+  bestRevivedRotationDamage: report.bestRevivedRotationDamage,
+  bestRevivedDamageLoss: report.bestRevivedDamageLoss,
   mechanicsPassed: report.mechanicsPassed,
   mechanicsViolationCount: report.mechanicsViolationCount,
 }, null, 2)}\n`);

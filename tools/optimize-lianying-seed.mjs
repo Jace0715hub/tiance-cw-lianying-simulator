@@ -33,8 +33,12 @@ const preserveThunderSchedule = process.argv.slice(5).some(
 const preferExperimentSeed = process.argv.slice(5).some(
   (value) => ["experiment-seed", "--experiment-seed"].includes(value),
 );
-const packs = (preferExperimentSeed ? source.bestExperimentActionPacks : null) ??
-  source.actionPacks ?? source.bestExperimentActionPacks ??
+const experimentPacks = source.bestExperimentActionPacks ??
+  source.candidateActionPacks ??
+  source.revivedFinalists?.[0]?.actionPacks ??
+  null;
+const packs = (preferExperimentSeed ? experimentPacks : null) ??
+  source.actionPacks ?? experimentPacks ??
   (source.rows ? lianyingRowsToActionPacks(source.rows) : null);
 if (!packs) throw new Error("输入文件既没有actionPacks，也没有可恢复的rows");
 
