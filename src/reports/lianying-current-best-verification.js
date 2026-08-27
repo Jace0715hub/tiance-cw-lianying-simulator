@@ -134,6 +134,45 @@ function analyzeRideThunder(timeline) {
   };
 }
 
+function analyzeThunderResourceContext(timeline) {
+  const thunders = timeline.filter(
+    (event) => event.type === "offGcd" && event.action === "thunder",
+  );
+  const rows = thunders.map((thunder, index) => {
+    const nextCast = timeline.find(
+      (event) => event.sequence > thunder.sequence && event.type === "cast",
+    );
+    const orangeBeforeNextCast = timeline.some(
+      (event) =>
+        event.sequence > thunder.sequence &&
+        event.sequence < Number(nextCast?.sequence ?? Number.POSITIVE_INFINITY) &&
+        event.type === "offGcd" &&
+        event.action === "orange",
+    );
+    const belowFive = Number(thunder.rageBefore) < 5;
+    return {
+      index: index + 1,
+      seconds: thunder.timeMs / 1000,
+      rageBefore: Number(thunder.rageBefore),
+      belowFive,
+      orangeBeforeNextCast,
+      actionableLowRage: belowFive && !orangeBeforeNextCast,
+      nextCastAction: nextCast?.action ?? null,
+      nextCastSeconds: nextCast?.timeMs / 1000 ?? null,
+      nextCastRageBefore:
+        nextCast?.rageBeforeCast ?? nextCast?.rageBefore ?? null,
+    };
+  });
+  return {
+    startsBelowFive: rows.filter((row) => row.belowFive).length,
+    neutralizedByOrangeBeforeNextCast: rows.filter(
+      (row) => row.belowFive && row.orangeBeforeNextCast,
+    ).length,
+    actionableStartsBelowFive: rows.filter((row) => row.actionableLowRage).length,
+    rows,
+  };
+}
+
 export function buildLianyingCurrentBestVerification({
   artifact,
   replayState,
@@ -163,6 +202,7 @@ export function buildLianyingCurrentBestVerification({
     artifact.summary?.equipmentAndDamageEnchantDamage ?? 0,
   );
   const rideThunder = analyzeRideThunder(timeline);
+  const thunderResource = analyzeThunderResourceContext(timeline);
   const hardChecks = {
     replayRotationDamageMatchesArtifact: almostEqual(
       replayState.totalDamage,
@@ -230,6 +270,7 @@ export function buildLianyingCurrentBestVerification({
     dragonRide: audit.dragonRide,
     orangeWindows,
     rideThunder,
+    thunderResource,
     periodic: {
       bleed,
       autoAttack: {

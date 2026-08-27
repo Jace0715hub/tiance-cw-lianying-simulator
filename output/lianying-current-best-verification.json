@@ -134,6 +134,90 @@
     "thunderBeforeRideCompletionCount": 0,
     "terminalRideWithoutLaterThunder": 1
   },
+  "thunderResource": {
+    "startsBelowFive": 2,
+    "neutralizedByOrangeBeforeNextCast": 1,
+    "actionableStartsBelowFive": 1,
+    "rows": [
+      {
+        "index": 1,
+        "seconds": 3.215,
+        "rageBefore": 2,
+        "belowFive": true,
+        "orangeBeforeNextCast": true,
+        "actionableLowRage": false,
+        "nextCastAction": "dragonFang",
+        "nextCastSeconds": 3.6525,
+        "nextCastRageBefore": 5
+      },
+      {
+        "index": 2,
+        "seconds": 24.2875,
+        "rageBefore": 4,
+        "belowFive": true,
+        "orangeBeforeNextCast": false,
+        "actionableLowRage": true,
+        "nextCastAction": "dragonFang",
+        "nextCastSeconds": 24.35,
+        "nextCastRageBefore": 4
+      },
+      {
+        "index": 3,
+        "seconds": 45.9525,
+        "rageBefore": 5,
+        "belowFive": false,
+        "orangeBeforeNextCast": false,
+        "actionableLowRage": false,
+        "nextCastAction": "dragonFang",
+        "nextCastSeconds": 46.265,
+        "nextCastRageBefore": 5
+      },
+      {
+        "index": 4,
+        "seconds": 71.77,
+        "rageBefore": 5,
+        "belowFive": false,
+        "orangeBeforeNextCast": false,
+        "actionableLowRage": false,
+        "nextCastAction": "dragonFang",
+        "nextCastSeconds": 71.8325,
+        "nextCastRageBefore": 5
+      },
+      {
+        "index": 5,
+        "seconds": 94.965,
+        "rageBefore": 5,
+        "belowFive": false,
+        "orangeBeforeNextCast": false,
+        "actionableLowRage": false,
+        "nextCastAction": "dragonFang",
+        "nextCastSeconds": 94.965,
+        "nextCastRageBefore": 5
+      },
+      {
+        "index": 6,
+        "seconds": 129.055,
+        "rageBefore": 5,
+        "belowFive": false,
+        "orangeBeforeNextCast": false,
+        "actionableLowRage": false,
+        "nextCastAction": "dragonFang",
+        "nextCastSeconds": 129.055,
+        "nextCastRageBefore": 5
+      },
+      {
+        "index": 7,
+        "seconds": 154.9975,
+        "rageBefore": 5,
+        "belowFive": false,
+        "orangeBeforeNextCast": false,
+        "actionableLowRage": false,
+        "nextCastAction": "dragonFang",
+        "nextCastSeconds": 154.9975,
+        "nextCastRageBefore": 5
+      }
+    ]
+  },
   "periodic": {
     "bleed": {
       "count": 110,
