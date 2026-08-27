@@ -39,6 +39,24 @@ export function alignLianyingDonorWaitPacks(referencePacks, donorPacks) {
   return aligned;
 }
 
+export function normalizeLianyingDonorPrefix(
+  referencePacks,
+  donorPacks,
+  normalizeBeforeRow,
+) {
+  const aligned = alignLianyingDonorWaitPacks(referencePacks, donorPacks);
+  if (normalizeBeforeRow === null || normalizeBeforeRow === undefined) {
+    return aligned;
+  }
+  const row = Number(normalizeBeforeRow);
+  if (!Number.isInteger(row) || row < 1 || row > referencePacks.length + 1) {
+    throw new Error("供体前缀归一化行必须是动作轴范围内的正整数");
+  }
+  return aligned.map((pack, index) => index + 1 < row
+    ? referencePacks[index]
+    : pack);
+}
+
 function structuralPack(pack) {
   return {
     prefix: (pack?.prefix ?? []).filter((action) => actionId(action) !== "dash"),
@@ -181,12 +199,14 @@ export function optimizeLianyingTripleSegmentRecombination(
     adaptiveSuffixDirectedRepairLimit = 0,
     adaptiveSuffixDirectedRepairLookBehindRows = 4,
     adaptiveSuffixDirectedRepairLookAheadRows = 6,
+    donorNormalizeBeforeRow = null,
     onProgress = null,
   } = {},
 ) {
-  const alignedDonorPacks = alignLianyingDonorWaitPacks(
+  const alignedDonorPacks = normalizeLianyingDonorPrefix(
     incumbentPacks,
     donorPacks,
+    donorNormalizeBeforeRow,
   );
   const incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,

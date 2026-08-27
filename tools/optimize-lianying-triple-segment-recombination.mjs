@@ -20,8 +20,11 @@ const donorPath = resolveLianyingResearchPath(
   process.argv[5] ?? "output/lianying-ranking-sensitivity.json",
 );
 const donorId = process.argv[6] ?? "heterogeneous";
-const warmPath = process.argv[7]
+const warmPath = process.argv[7] && process.argv[7] !== "-"
   ? resolveLianyingResearchPath(projectRoot, process.argv[7])
+  : null;
+const donorNormalizeBeforeRow = process.argv[8]
+  ? Number(process.argv[8])
   : null;
 const profiles = {
   probe: {
@@ -149,6 +152,7 @@ const optimized = optimizeLianyingTripleSegmentRecombination(
     durationSeconds,
     ...profiles[profileName],
     additionalWarmAxes: warmPacks ? [warmPacks] : [],
+    donorNormalizeBeforeRow,
     onProgress: (event) => process.stdout.write(`${JSON.stringify({
       phase: "triple-segment-recombination",
       ...event,
@@ -165,6 +169,7 @@ const report = {
   donorPath,
   donorId,
   warmPath,
+  donorNormalizeBeforeRow,
   durationSeconds,
   profileName,
   span: optimized.span,
