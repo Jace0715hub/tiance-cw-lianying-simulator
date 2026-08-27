@@ -5,6 +5,7 @@ import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
   buildLianyingMultiSourceRecombination,
   mergeLianyingSourceDifferences,
+  normalizeLianyingSourceAxes,
   optimizeLianyingMultiSourceRecombination,
   swapLianyingPrimaryActions,
 } from "../src/policies/lianying-multi-source-recombination.js";
@@ -24,6 +25,9 @@ const sourceAxes = ["heterogeneous", "thunder106"].map((id) => ({
   packs: sensitivity.candidates.find((candidate) => candidate.id === id).actionPacks,
 }));
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
+const currentFormal = sensitivity.candidates.find(
+  (candidate) => candidate.id === "formal",
+).actionPacks;
 
 test("多来源合并只移植各来源相对正式轴的真实差异", () => {
   const joint = mergeLianyingSourceDifferences(formal, sourceAxes);
@@ -39,6 +43,30 @@ test("联合差异自动选择覆盖第75与106至107行的三个雷区段", () 
   assert.deepEqual(joint.span.segmentIndices, [3, 4, 5]);
   assert.equal(joint.span.startIndex + 1, 59);
   assert.equal(joint.span.endIndex, 127);
+  assert.deepEqual(joint.span.thunderPositionWindows, [{
+    anchorNumber: 6,
+    sourceIndex: 105,
+    earliestIndex: 105,
+    latestIndex: 106,
+  }]);
+});
+
+test("当前正式轴归一化多来源后联合搜索后四个雷区段", () => {
+  const normalized = normalizeLianyingSourceAxes(
+    currentFormal,
+    sourceAxes,
+    59,
+  );
+  assert.deepEqual(normalized.map(({ packs }) => packs.length), [150, 150]);
+  const joint = buildLianyingMultiSourceRecombination(
+    currentFormal,
+    sourceAxes,
+    { segmentCount: 4, sourceNormalizeBeforeRow: 59 },
+  );
+  assert.deepEqual(joint.differenceRows, [75, 106, 107]);
+  assert.deepEqual(joint.span.segmentIndices, [3, 4, 5, 6]);
+  assert.equal(joint.span.startIndex + 1, 59);
+  assert.equal(joint.span.endIndex, 150);
   assert.deepEqual(joint.span.thunderPositionWindows, [{
     anchorNumber: 6,
     sourceIndex: 105,

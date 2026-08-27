@@ -1,6 +1,7 @@
 import {
   buildLianyingBoundedMultiSegmentSpan,
   lianyingDifferingThunderSegmentIndices,
+  normalizeLianyingDonorPrefix,
   optimizeLianyingTripleSegmentRecombination,
 } from "./lianying-triple-segment-recombination.js";
 
@@ -82,18 +83,44 @@ export function swapLianyingPrimaryActions(packs, firstRow, secondRow) {
   return swapped;
 }
 
+export function normalizeLianyingSourceAxes(
+  referencePacks,
+  sourceAxes,
+  normalizeBeforeRow = null,
+) {
+  return sourceAxes.map((source, index) => {
+    const packs = source?.packs ?? source;
+    return {
+      id: source?.id ?? `source-${index + 1}`,
+      packs: normalizeLianyingDonorPrefix(
+        referencePacks,
+        packs,
+        normalizeBeforeRow,
+      ),
+    };
+  });
+}
+
 export function buildLianyingMultiSourceRecombination(
   referencePacks,
   sourceAxes,
-  { segmentCount = 3 } = {},
+  { segmentCount = 3, sourceNormalizeBeforeRow = null } = {},
 ) {
-  const joint = mergeLianyingSourceDifferences(referencePacks, sourceAxes);
+  const normalizedSourceAxes = normalizeLianyingSourceAxes(
+    referencePacks,
+    sourceAxes,
+    sourceNormalizeBeforeRow,
+  );
+  const joint = mergeLianyingSourceDifferences(
+    referencePacks,
+    normalizedSourceAxes,
+  );
   const span = buildLianyingBoundedMultiSegmentSpan(
     referencePacks,
     joint.packs,
     { segmentCount },
   );
-  return { ...joint, span };
+  return { ...joint, span, normalizedSourceAxes };
 }
 
 export function optimizeLianyingMultiSourceRecombination(
@@ -109,9 +136,12 @@ export function optimizeLianyingMultiSourceRecombination(
   const joint = buildLianyingMultiSourceRecombination(
     incumbentPacks,
     sourceAxes,
-    { segmentCount: options.segmentCount ?? 3 },
+    {
+      segmentCount: options.segmentCount ?? 3,
+      sourceNormalizeBeforeRow: options.sourceNormalizeBeforeRow ?? null,
+    },
   );
-  const sourcePacks = sourceAxes.map((source) => source?.packs ?? source);
+  const sourcePacks = joint.normalizedSourceAxes.map((source) => source.packs);
   const orderSwapPacks = Array.isArray(orderSwapRows) && orderSwapRows.length === 2
     ? swapLianyingPrimaryActions(
       incumbentPacks,

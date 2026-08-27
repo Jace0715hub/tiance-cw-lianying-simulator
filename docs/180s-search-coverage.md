@@ -57,6 +57,7 @@
 | 历史技能构成压力 | 8条默认价值训练种子；原生/Excel校准中心；六组独立±25% | 正式轴在两套729角点连续误差盒中均第一；原生最小领先16,272,463.61 |
 | 当前时点四雷联合重构 | 等待行对齐后的异构供体；第3–78行四雷窗口；24/48宽及最多16行自适应后缀 | 150,356/115,514次展开/合法转移；三档最佳均仅第75行龙吟→穿云，低928,750.43，路线关闭 |
 | 晚段雷时点四雷联合重构 | 旧106行雷供体在第79行前归一化为正式轴；第59–150行后四雷窗口；24/48宽 | 72,788/53,842次展开/合法转移；全部36条决赛状态后缀合法，最佳仍为旧供体并低正式轴699,221.62，路线关闭 |
+| 多来源后四雷联合偿债 | 第75行技能差异与106/107行雷差异；第59行前归一化；第59–150行24/48宽 | 73,036/54,434次展开/合法转移；联合供体追回1,486,193.18，最佳仍为已知100/101换位轴并低141,778.87，路线关闭 |
 | 事件时点延迟稳健性 | 30/60/90ms；第3/38行雷各枚举GCD末端前1–12帧，并单列正式点前后1帧 | 30ms有100个合法组合，7/5为最高平台且7–8/5–6四点等伤；60ms最高为8/5；90ms当前30ms轴第18行缺豆，仅1/1合法，证明时点需按延迟独立搜索 |
 | 状态价值 | 一段/两段标签、线性岭回归、单/双影子同预算在线对照 | 离线召回改善但终局不增伤，不进入默认搜索 |
 
@@ -64,7 +65,7 @@
 
 - 束搜索在早期剪枝前未保留的动作祖先；现有核心候选之间相关性较高，不能代表全部合法结构。
 - 仍可能存在未被现有有界模板或束宽召回的合法祖先，但当前持久化候选池中已没有尚未消费的0.1%内真实状态差异来源。
-- 四雷区段已分别覆盖早段异构结构和晚段单雷时点，但尚未穷尽其他四段起点、五段以上联合重构，以及多个雷/橙武/任驰骋锚点超过现有窗口的联合漂移。
+- 四雷区段已分别覆盖早段异构结构、晚段单雷时点及两者的多来源联合偿债，但尚未穷尽其他四段起点、五段以上联合重构，以及多个雷/橙武/任驰骋锚点超过现有窗口的联合漂移。
 - 当前只复活了第2–6雷边界的即时高伤祖先，以及79/107行各4种资源相位；其他深度、更多相位和非即时高伤但状态估值更高的裁剪祖先没有穷尽。
 - 雷、橙武、任驰骋和下马已覆盖首轮真实事件断点及有界双时点协同；尚未穷尽三个以上单独无收益时点的高阶协同，也未做任意时钟刻度扫描。
 - 完整180秒全状态A*、无界穷举或可证明的伤害上界，因此不能宣称全局最优。
@@ -96,7 +97,7 @@
 - `npm run optimize:anchor-charge-count-skeletons -- - /tmp/result.json probe chargeReport [limit] [anchorOrdinal] [targetRow]`：把进入门槛的断魂刺计数增量映射到另一雷表的真实边界。
 - `npm run optimize:difference-lineages -- - /tmp/result.json [probe|screen] [action|state]`：在相同束宽下对照默认选择器与动作差异或相对状态偏差谱系。
 - `npm run optimize:triple-segment-recombination -- - /tmp/result.json [probe|screen|adaptive-probe] [donorReport] [donorId] [warmReport]`：从近优完整轴提取真实差异，联合搜索三个雷区段；不同雷表只开放正式与供体雷位置之间的有界窗口。
-- `npm run optimize:multi-source-recombination -- - /tmp/result.json [probe|screen|adaptive-probe] [sourceReport] [sourceIds] [warmReports]`：合并非冲突来源差异，逐档钉住完整精英轴并搜索差异并集覆盖的三个雷区段。
+- `npm run optimize:multi-source-recombination -- - /tmp/result.json [profile] [sourceReport] [sourceIds] [warmReports|-] [normalizeBeforeRow]`：合并非冲突来源差异，支持三/四雷区段档位，并可先把旧来源的指定前缀归一化为当前正式轴。
 - `npm run search:duration -- input.json /tmp/result.json duration [probe|screen]`：以已有完整轴为逐层钉住热启动，生成更长固定时长轴并报告原时长前缀得失。
 - `npm run optimize:best-first-block -- - /tmp/result.json [probe|screen] [startRow] [endRow] [雷序号] [目标行]`：可选先移动一个雷锚点，再以变换后轴为基线，在固定锚点局部块中同预算对照逐层束与最佳优先队列。
 - `npm run optimize:ride-thunder-templates -- - /tmp/result.json [probe|screen]`：固定雷与橙武，用离散任驰骋行表比较唯一单雷归属；不会把远距离移动展开成全行窗口。

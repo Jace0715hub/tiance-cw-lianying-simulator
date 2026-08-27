@@ -24,11 +24,14 @@ const sourceIds = (process.argv[6] ?? "heterogeneous,thunder106")
   .split(",")
   .map((id) => id.trim())
   .filter(Boolean);
-const warmPaths = (process.argv[7] ?? "")
+const warmPaths = (process.argv[7] === "-" ? "" : (process.argv[7] ?? ""))
   .split(",")
   .map((candidate) => candidate.trim())
   .filter(Boolean)
   .map((candidate) => resolveLianyingResearchPath(projectRoot, candidate));
+const sourceNormalizeBeforeRow = process.argv[8]
+  ? Number(process.argv[8])
+  : null;
 
 const profiles = {
   probe: {
@@ -76,9 +79,33 @@ const profiles = {
     adaptiveSuffixFailureRowBucketSize: 8,
     adaptiveSuffixDirectedRepairLimit: 4,
   },
+  "quad-probe": {
+    segmentCount: 4,
+    maxPasses: 1,
+    beamWidth: 24,
+    finalistCount: 12,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    boundaryPaddingRows: 0,
+    diverseCandidateLimit: 16,
+  },
+  "quad-screen": {
+    segmentCount: 4,
+    maxPasses: 1,
+    beamWidth: 48,
+    finalistCount: 24,
+    coarseCandidateLimit: 12,
+    coarseDashStates: 12,
+    finalDashCandidateCount: 4,
+    fullDashStates: 256,
+    boundaryPaddingRows: 0,
+    diverseCandidateLimit: 24,
+  },
 };
 if (!profiles[profileName]) {
-  throw new Error("多来源重组档位必须是probe、screen或adaptive-probe");
+  throw new Error("未知的多来源重组档位");
 }
 
 function packsFromReport(source, label) {
@@ -106,9 +133,13 @@ const explicitWarmAxes = warmPaths.map((warmPath) => packsFromReport(
 const durationSeconds = Number(input.durationSeconds ?? 180);
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
 
-const stageProfiles = profileName === "probe"
-  ? ["probe"]
-  : ["probe", profileName];
+const stageProfiles = {
+  probe: ["probe"],
+  screen: ["probe", "screen"],
+  "adaptive-probe": ["probe", "adaptive-probe"],
+  "quad-probe": ["quad-probe"],
+  "quad-screen": ["quad-probe", "quad-screen"],
+}[profileName];
 const stages = [];
 const inheritedElites = [...explicitWarmAxes];
 for (const stageProfile of stageProfiles) {
@@ -120,6 +151,7 @@ for (const stageProfile of stageProfiles) {
       durationSeconds,
       ...profiles[stageProfile],
       additionalWarmAxes: inheritedElites,
+      sourceNormalizeBeforeRow,
       onProgress: (event) => process.stdout.write(`${JSON.stringify({
         phase: "multi-source-recombination",
         requestedProfile: profileName,
@@ -146,6 +178,7 @@ const report = {
   sourcePath,
   sourceIds,
   warmPaths,
+  sourceNormalizeBeforeRow,
   durationSeconds,
   profileName,
   stageProfiles,
