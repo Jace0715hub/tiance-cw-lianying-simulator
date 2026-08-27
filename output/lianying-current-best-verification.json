@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "kind": "tiance-cw-lianying-current-best-verification",
+  "sourceArtifact": "tiance-cw-lianying-whitepaper-axis",
+  "domain": {
+    "durationSeconds": 180,
+    "target": "134级木桩·斩",
+    "haste": 43002,
+    "latencyMs": 30,
+    "gcdFrames": 19
+  },
+  "result": {
+    "allHardChecksPassed": true,
+    "hardChecks": {
+      "replayRotationDamageMatchesArtifact": true,
+      "replayTotalDamageMatchesArtifact": true,
+      "actionCountsMatchArtifact": true,
+      "mechanicsPassed": true,
+      "damageBreakdownReconciles": true,
+      "equipmentDamageReconciles": true,
+      "allOrangeWindowsHaveFiveFangs": true,
+      "orangeExtraCountMatchesCoveredFangs": true,
+      "divineEventCountMatchesDragonFangs": true,
+      "autoAttackCadenceStable": true,
+      "thunderNeverPrecedesRideCompletion": true,
+      "sequentialChargePools": true
+    },
+    "rotationDamage": 2560131430.079636,
+    "rotationDps": 14222952.389331311,
+    "totalDamage": 2646485657.4381084,
+    "totalDps": 14702698.09687838,
+    "mechanicsViolationCount": 0,
+    "finalRage": 1,
+    "finalDragonRideStacks": 4
+  },
+  "actions": {
+    "destroy": 26,
+    "dragonFang": 109,
+    "dash": 8,
+    "ride": 7,
+    "thunder": 7,
+    "orange": 4,
+    "charge": 8,
+    "dismount": 7,
+    "dragonRoar": 4,
+    "cloudStrike": 2
+  },
+  "resourceDiagnostics": {
+    "rageOverflow": 11,
+    "dragonRideOverflow": 0,
+    "highRageCharges": 1,
+    "thunderStartsBelowFive": 2
+  },
+  "dragonRide": {
+    "gainedFromOnFootFangs": 33,
+    "gainedFromRide": 42,
+    "consumedUnderThunder": 66,
+    "consumedOutsideThunder": 5,
+    "overflow": 0,
+    "terminalLiquidationFangs": 5,
+    "finalStacks": 4
+  },
+  "orangeWindows": [
+    {
+      "index": 1,
+      "fromSeconds": 3.59,
+      "untilSeconds": 9.59,
+      "dragonFangs": 5,
+      "thunderDragonFangs": 5,
+      "rideDragonFangs": 5,
+      "dragonRideEnhanced": 5,
+      "castSeconds": [
+        3.6525,
+        4.87,
+        6.0875,
+        7.305,
+        8.5225
+      ]
+    },
+    {
+      "index": 2,
+      "fromSeconds": 56.005,
+      "untilSeconds": 62.005,
+      "dragonFangs": 5,
+      "thunderDragonFangs": 5,
+      "rideDragonFangs": 4,
+      "dragonRideEnhanced": 5,
+      "castSeconds": [
+        56.005,
+        57.2225,
+        58.44,
+        59.6575,
+        60.875
+      ]
+    },
+    {
+      "index": 3,
+      "fromSeconds": 107.14,
+      "untilSeconds": 113.14,
+      "dragonFangs": 5,
+      "thunderDragonFangs": 5,
+      "rideDragonFangs": 0,
+      "dragonRideEnhanced": 0,
+      "castSeconds": [
+        107.14,
+        108.3575,
+        109.575,
+        110.7925,
+        112.01
+      ]
+    },
+    {
+      "index": 4,
+      "fromSeconds": 158.65,
+      "untilSeconds": 164.65,
+      "dragonFangs": 5,
+      "thunderDragonFangs": 5,
+      "rideDragonFangs": 5,
+      "dragonRideEnhanced": 5,
+      "castSeconds": [
+        158.65,
+        159.8675,
+        161.085,
+        162.3025,
+        163.52
+      ]
+    }
+  ],
+  "rideThunder": {
+    "rideCount": 7,
+    "thunderCount": 7,
+    "rideBuffThunderCount": 6,
+    "noRideBuffThunderCount": 1,
+    "thunderBeforeRideCompletionCount": 0,
+    "terminalRideWithoutLaterThunder": 1
+  },
+  "periodic": {
+    "bleed": {
+      "count": 110,
+      "normalQualityCount": 2,
+      "warHeartQualityCount": 108,
+      "intervalFrames": 26,
+      "continuousUpperBound": 110,
+      "gaps": [
+        {
+          "fromSeconds": 65,
+          "toSeconds": 67.37,
+          "gapFrames": 37.92,
+          "gapSeconds": 2.37,
+          "lastRefreshSeconds": 51.135,
+          "expiredSeconds": 65.135,
+          "reappliedSeconds": 65.745,
+          "dragonFangsWhileInactive": 0
+        }
+      ]
+    },
+    "autoAttack": {
+      "count": 126,
+      "intervalFrames": 23,
+      "irregularIntervalCount": 0
+    }
+  },
+  "bleedCounterfactual": {
+    "change": "交换第54行龙牙与第55行龙吟",
+    "legal": true,
+    "removesIrregularBleedGap": true,
+    "formalBleedTicks": 110,
+    "counterfactualBleedTicks": 110,
+    "rotationDamageDelta": -2228259.5108566284,
+    "conclusion": "强制不断流血不增加跳数，且降低总伤害，不应设为硬约束"
+  },
+  "damageAccounting": {
+    "rotationBreakdownDamage": 2560131430.0796266,
+    "rotationDamage": 2560131430.079636,
+    "equipmentAndDamageEnchantDamage": 86354227.35847235,
+    "totalDamage": 2646485657.4381084
+  },
+  "interpretation": {
+    "resourceWasteIsSoftDiagnostic": true,
+    "terminalDragonRideMustBeZero": false,
+    "bleedGapIsHardViolation": false,
+    "latencyDomainMayNotBeExtrapolated": true
+  }
+}

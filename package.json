@@ -24,6 +24,7 @@
     "report:anchors": "node tools/report-lianying-anchor-template.mjs",
     "report:ranking-sensitivity": "node tools/report-lianying-ranking-sensitivity.mjs",
     "report:event-timing-robustness": "node tools/report-lianying-event-timing-robustness.mjs",
+    "verify:current-best": "node tools/verify-lianying-current-best.mjs",
     "optimize:seed": "node tools/optimize-lianying-seed.mjs",
     "optimize:segments": "node tools/optimize-lianying-segments.mjs",
     "optimize:multisegments": "node tools/optimize-lianying-multisegments.mjs",

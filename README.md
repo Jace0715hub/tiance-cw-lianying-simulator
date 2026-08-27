@@ -47,6 +47,7 @@ npm run report:structure
 npm run report:anchors
 npm run report:ranking-sensitivity
 npm run report:event-timing-robustness
+npm run verify:current-best
 ```
 
 常用研究入口：
@@ -162,5 +163,6 @@ npm run search:neutral-pair-waits
 - [`docs/180s-search-coverage.md`](docs/180s-search-coverage.md)：180 秒搜索覆盖范围与未证明空间。
 - [`docs/value-training-data.md`](docs/value-training-data.md)：状态价值数据、训练和在线对照实验。
 - [`output/lianying-ranking-sensitivity.json`](output/lianying-ranking-sensitivity.json)：正式轴与最近近优轴的分项权重排序核查。
+- [`output/lianying-current-best-verification.json`](output/lianying-current-best-verification.json)：正式轴的独立重放、窗口、周期事件与伤害账目核查。
 
 公开仓库不包含原工作簿、原配装器仓库或个人绝对路径。重新提取装备与 Excel 金标准时，通过对应 `refresh:*` 工具显式传入来源目录和配装方案。
