@@ -2,7 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
-import { LIANYING_CURRENT_BEST_AXIS } from
+import {
+  LIANYING_CURRENT_BEST_AXIS,
+  LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
+} from
   "../src/config/lianying-research-defaults.js";
 import { createInitialState } from "../src/engine/state.js";
 import { applyExpectedEquipmentDamage } from "../src/effects/expected-equipment.js";
@@ -145,7 +148,7 @@ const alignment = buildBaselineAlignment(
 );
 const calibration = buildLianyingExcelSkillCalibration(alignment);
 
-const candidates = specs.map(parseSpec).map((parsed) => {
+function replayCandidate(parsed) {
   const packs = loadPacks(parsed, runtime, durationSeconds);
   const replay = replayWhitepaperLianying(runtime, packs, { durationSeconds });
   const audit = auditWhitepaperAxis(replay.state, { mode: "fixed" });
@@ -172,7 +175,25 @@ const candidates = specs.map(parseSpec).map((parsed) => {
     ),
     audit: audit.mechanics,
   };
-});
+}
+
+function summarizeUncertaintyBasis(basis) {
+  return {
+    baselineId: basis.baselineId,
+    grids: basis.grids.map((grid) => ({
+      id: grid.id,
+      levels: grid.levels,
+      scenarioCount: grid.scenarioCount,
+      winnerCounts: grid.winnerCounts,
+      continuousHyperrectangleCertified:
+        grid.continuousHyperrectangleCertified,
+      minimumBaselineMargin: grid.minimumBaselineMargin,
+      worstScenario: grid.worstScenario,
+    })),
+  };
+}
+
+const candidates = specs.map(parseSpec).map(replayCandidate);
 
 const comparison = compareLianyingRankingSensitivity(
   candidates,
@@ -181,6 +202,43 @@ const comparison = compareLianyingRankingSensitivity(
 );
 const divineStackBoundary = analyzeLianyingDivineStackBoundary(candidates);
 const orangeHitBoundary = analyzeLianyingOrangeHitBoundary(candidates);
+const historicalCandidates = LIANYING_DEFAULT_VALUE_TRAINING_SEEDS.map(
+  (source, index) => replayCandidate({
+    id: index === 0 ? "formal" : path.basename(source, ".json"),
+    sourcePath: path.join(projectRoot, source),
+    coreIndex: null,
+    candidateId: null,
+  }),
+);
+const historicalComparison = compareLianyingRankingSensitivity(
+  historicalCandidates,
+  calibration,
+  { openingDamageEventCount: 5 },
+);
+const historicalUncertainty = analyzeLianyingFormulaUncertainty(
+  historicalComparison.candidates,
+);
+const historicalSeedCoverage = {
+  source: "LIANYING_DEFAULT_VALUE_TRAINING_SEEDS",
+  candidateCount: historicalComparison.candidates.length,
+  eventRanking: historicalComparison.eventRanking,
+  calibratedRanking: historicalComparison.calibratedRanking,
+  winnerStable: historicalComparison.winnerStable,
+  candidates: historicalComparison.candidates.map((candidate) => ({
+    id: candidate.id,
+    source: historicalCandidates.find(
+      (entry) => entry.id === candidate.id,
+    )?.source ?? null,
+    eventDamageDelta: candidate.eventDamageDelta,
+    calibratedDamageDelta: candidate.calibratedDamageDelta,
+  })),
+  formulaUncertainty: {
+    native: summarizeUncertaintyBasis(historicalUncertainty.native),
+    excelCalibrated: summarizeUncertaintyBasis(
+      historicalUncertainty.excelCalibrated,
+    ),
+  },
+};
 for (const candidate of comparison.candidates) {
   candidate.actionPacks = candidates.find(
     (sourceCandidate) => sourceCandidate.id === candidate.id,
@@ -190,7 +248,7 @@ const formulaUncertainty = analyzeLianyingFormulaUncertainty(
   comparison.candidates,
 );
 const report = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   kind: "lianying-ranking-sensitivity",
   durationSeconds,
   calibration: {
@@ -207,6 +265,7 @@ const report = {
   },
   divineStackBoundary,
   orangeHitBoundary,
+  historicalSeedCoverage,
   formulaUncertainty,
   ...comparison,
 };
@@ -272,6 +331,16 @@ console.log(JSON.stringify({
         (window) => window.lastCastMarginMs,
       ),
     })),
+  },
+  historicalSeedCoverage: {
+    candidateCount: report.historicalSeedCoverage.candidateCount,
+    eventRanking: report.historicalSeedCoverage.eventRanking,
+    calibratedRanking: report.historicalSeedCoverage.calibratedRanking,
+    nativeStress: report.historicalSeedCoverage.formulaUncertainty.native.grids
+      .find((grid) => grid.id === "stress-25-percent"),
+    excelCalibratedStress:
+      report.historicalSeedCoverage.formulaUncertainty.excelCalibrated.grids
+        .find((grid) => grid.id === "stress-25-percent"),
   },
   formulaUncertainty: {
     native: report.formulaUncertainty.native.grids.map((grid) => ({

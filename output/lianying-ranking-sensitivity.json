@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "kind": "lianying-ranking-sensitivity",
   "durationSeconds": 180,
   "calibration": {
@@ -791,6 +791,225 @@
         ]
       }
     ]
+  },
+  "historicalSeedCoverage": {
+    "source": "LIANYING_DEFAULT_VALUE_TRAINING_SEEDS",
+    "candidateCount": 8,
+    "eventRanking": [
+      "formal",
+      "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
+      "lianying-free-fixed-180s-adaptive-suffix-screen",
+      "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative",
+      "lianying-free-fixed-180s-best-continued-fast",
+      "lianying-free-fixed-180s",
+      "whitepaper-fixed-180s",
+      "whitepaper-stable-180s"
+    ],
+    "calibratedRanking": [
+      "formal",
+      "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
+      "lianying-free-fixed-180s-adaptive-suffix-screen",
+      "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative",
+      "lianying-free-fixed-180s-best-continued-fast",
+      "lianying-free-fixed-180s",
+      "whitepaper-fixed-180s",
+      "whitepaper-stable-180s"
+    ],
+    "winnerStable": true,
+    "candidates": [
+      {
+        "id": "formal",
+        "source": "lianying-free-fixed-180s-event-breakpoint.json",
+        "eventDamageDelta": 0,
+        "calibratedDamageDelta": 0
+      },
+      {
+        "id": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
+        "source": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json",
+        "eventDamageDelta": -23206334.1329422,
+        "calibratedDamageDelta": -23427640.219465256
+      },
+      {
+        "id": "lianying-free-fixed-180s-adaptive-suffix-screen",
+        "source": "lianying-free-fixed-180s-adaptive-suffix-screen.json",
+        "eventDamageDelta": -27438570.230407238,
+        "calibratedDamageDelta": -27664878.910459995
+      },
+      {
+        "id": "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative",
+        "source": "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative.json",
+        "eventDamageDelta": -29736941.922114372,
+        "calibratedDamageDelta": -29889387.232368946
+      },
+      {
+        "id": "lianying-free-fixed-180s-best-continued-fast",
+        "source": "lianying-free-fixed-180s-best-continued-fast.json",
+        "eventDamageDelta": -45110782.55143833,
+        "calibratedDamageDelta": -45152964.227115154
+      },
+      {
+        "id": "lianying-free-fixed-180s",
+        "source": "lianying-free-fixed-180s.json",
+        "eventDamageDelta": -49516313.81746149,
+        "calibratedDamageDelta": -49560142.303323746
+      },
+      {
+        "id": "whitepaper-fixed-180s",
+        "source": "whitepaper-fixed-180s.json",
+        "eventDamageDelta": -106354739.49937916,
+        "calibratedDamageDelta": -106650415.20444298
+      },
+      {
+        "id": "whitepaper-stable-180s",
+        "source": "whitepaper-stable-180s.json",
+        "eventDamageDelta": -128438458.27801228,
+        "calibratedDamageDelta": -128694059.84772587
+      }
+    ],
+    "formulaUncertainty": {
+      "native": {
+        "baselineId": "formal",
+        "grids": [
+          {
+            "id": "plausible-10-percent",
+            "levels": [
+              0.9,
+              1,
+              1.1
+            ],
+            "scenarioCount": 729,
+            "winnerCounts": {
+              "formal": 729,
+              "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced": 0,
+              "lianying-free-fixed-180s-adaptive-suffix-screen": 0,
+              "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative": 0,
+              "lianying-free-fixed-180s-best-continued-fast": 0,
+              "lianying-free-fixed-180s": 0,
+              "whitepaper-fixed-180s": 0,
+              "whitepaper-stable-180s": 0
+            },
+            "continuousHyperrectangleCertified": true,
+            "minimumBaselineMargin": 20432785.923567295,
+            "worstScenario": {
+              "multipliers": {
+                "orangeWeapon": 0.9,
+                "dragonFangCore": 0.9,
+                "resourceFillers": 1.1,
+                "dashBreak": 1.1,
+                "periodic": 0.9,
+                "destroy": 0.9
+              },
+              "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
+              "baselineMargin": 20432785.923567295
+            }
+          },
+          {
+            "id": "stress-25-percent",
+            "levels": [
+              0.75,
+              1,
+              1.25
+            ],
+            "scenarioCount": 729,
+            "winnerCounts": {
+              "formal": 729,
+              "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced": 0,
+              "lianying-free-fixed-180s-adaptive-suffix-screen": 0,
+              "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative": 0,
+              "lianying-free-fixed-180s-best-continued-fast": 0,
+              "lianying-free-fixed-180s": 0,
+              "whitepaper-fixed-180s": 0,
+              "whitepaper-stable-180s": 0
+            },
+            "continuousHyperrectangleCertified": true,
+            "minimumBaselineMargin": 16272463.6095047,
+            "worstScenario": {
+              "multipliers": {
+                "orangeWeapon": 0.75,
+                "dragonFangCore": 0.75,
+                "resourceFillers": 1.25,
+                "dashBreak": 1.25,
+                "periodic": 0.75,
+                "destroy": 0.75
+              },
+              "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
+              "baselineMargin": 16272463.6095047
+            }
+          }
+        ]
+      },
+      "excelCalibrated": {
+        "baselineId": "formal",
+        "grids": [
+          {
+            "id": "plausible-10-percent",
+            "levels": [
+              0.9,
+              1,
+              1.1
+            ],
+            "scenarioCount": 729,
+            "winnerCounts": {
+              "formal": 729,
+              "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced": 0,
+              "lianying-free-fixed-180s-adaptive-suffix-screen": 0,
+              "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative": 0,
+              "lianying-free-fixed-180s-best-continued-fast": 0,
+              "lianying-free-fixed-180s": 0,
+              "whitepaper-fixed-180s": 0,
+              "whitepaper-stable-180s": 0
+            },
+            "continuousHyperrectangleCertified": true,
+            "minimumBaselineMargin": 20638867.532470703,
+            "worstScenario": {
+              "multipliers": {
+                "orangeWeapon": 0.9,
+                "dragonFangCore": 0.9,
+                "resourceFillers": 1.1,
+                "dashBreak": 1.1,
+                "periodic": 0.9,
+                "destroy": 0.9
+              },
+              "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
+              "baselineMargin": 20638867.532470703
+            }
+          },
+          {
+            "id": "stress-25-percent",
+            "levels": [
+              0.75,
+              1,
+              1.25
+            ],
+            "scenarioCount": 729,
+            "winnerCounts": {
+              "formal": 729,
+              "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced": 0,
+              "lianying-free-fixed-180s-adaptive-suffix-screen": 0,
+              "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative": 0,
+              "lianying-free-fixed-180s-best-continued-fast": 0,
+              "lianying-free-fixed-180s": 0,
+              "whitepaper-fixed-180s": 0,
+              "whitepaper-stable-180s": 0
+            },
+            "continuousHyperrectangleCertified": true,
+            "minimumBaselineMargin": 16455708.50197792,
+            "worstScenario": {
+              "multipliers": {
+                "orangeWeapon": 0.75,
+                "dragonFangCore": 0.75,
+                "resourceFillers": 1.25,
+                "dashBreak": 1.25,
+                "periodic": 0.75,
+                "destroy": 0.75
+              },
+              "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
+              "baselineMargin": 16455708.50197792
+            }
+          }
+        ]
+      }
+    }
   },
   "formulaUncertainty": {
     "method": "各互斥技能组相对当前口径独立乘权；总伤害关于乘数为仿射函数，因此包含上下界全部角点的网格若仍有严格正边际，即同时证明连续误差盒内不会翻转",
