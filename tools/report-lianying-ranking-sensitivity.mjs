@@ -15,6 +15,7 @@ import { buildBaselineAlignment } from "../src/reports/baseline-alignment.js";
 import {
   analyzeLianyingDivineStackBoundary,
   analyzeLianyingFormulaUncertainty,
+  analyzeLianyingOrangeHitBoundary,
   buildLianyingExcelSkillCalibration,
   compareLianyingRankingSensitivity,
 } from "../src/reports/lianying-ranking-sensitivity.js";
@@ -179,6 +180,7 @@ const comparison = compareLianyingRankingSensitivity(
   { openingDamageEventCount: 5 },
 );
 const divineStackBoundary = analyzeLianyingDivineStackBoundary(candidates);
+const orangeHitBoundary = analyzeLianyingOrangeHitBoundary(candidates);
 for (const candidate of comparison.candidates) {
   candidate.actionPacks = candidates.find(
     (sourceCandidate) => sourceCandidate.id === candidate.id,
@@ -188,7 +190,7 @@ const formulaUncertainty = analyzeLianyingFormulaUncertainty(
   comparison.candidates,
 );
 const report = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   kind: "lianying-ranking-sensitivity",
   durationSeconds,
   calibration: {
@@ -204,6 +206,7 @@ const report = {
     ],
   },
   divineStackBoundary,
+  orangeHitBoundary,
   formulaUncertainty,
   ...comparison,
 };
@@ -253,6 +256,21 @@ console.log(JSON.stringify({
       candidateId: candidate.candidateId,
       fullStacksAtMs: candidate.fullStacksAtMs,
       maxGapAfterFullMs: candidate.maxGapAfterFullMs,
+    })),
+  },
+  orangeHitBoundary: {
+    candidateBoundariesEquivalent:
+      report.orangeHitBoundary.candidateBoundariesEquivalent,
+    globalSafeHitDelayExclusiveMs:
+      report.orangeHitBoundary.globalSafeHitDelayExclusiveMs,
+    currentAxisAtRiskUnderRepresentativeDelays:
+      report.orangeHitBoundary.currentAxisAtRiskUnderRepresentativeDelays,
+    candidates: report.orangeHitBoundary.candidates.map((candidate) => ({
+      candidateId: candidate.candidateId,
+      safeHitDelayExclusiveMs: candidate.safeHitDelayExclusiveMs,
+      windowMarginsMs: candidate.windows.map(
+        (window) => window.lastCastMarginMs,
+      ),
     })),
   },
   formulaUncertainty: {

@@ -194,6 +194,94 @@ export function analyzeLianyingDivineStackBoundary(
   };
 }
 
+export function analyzeLianyingOrangeHitBoundary(
+  candidates,
+  {
+    durationMs = 6000,
+    expectedDragonFangsPerWindow = 5,
+    representativeHitDelaysMs = [0, 62.5, 125, 250, 500, 1000],
+  } = {},
+) {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    throw new Error("橙武命中边界核查至少需要一条候选轴");
+  }
+  const ticksPerMs = 16;
+  const rows = candidates.map((candidate) => {
+    const timeline = candidate.state?.timeline ?? [];
+    const orangeEvents = timeline.filter(
+      (event) => event.type === "offGcd" && event.action === "orange",
+    );
+    const dragonFangEvents = timeline.filter(
+      (event) => event.type === "cast" && event.action === "dragonFang",
+    );
+    const windows = orangeEvents.map((orange, index) => {
+      const endTick = Number(orange.tick) + durationMs * ticksPerMs;
+      const covered = dragonFangEvents.filter((fang) =>
+        Number(fang.tick) >= Number(orange.tick) &&
+        Number(fang.tick) < endTick);
+      const last = covered.at(-1) ?? null;
+      const lastCastMarginMs = last === null
+        ? null
+        : (endTick - Number(last.tick)) / ticksPerMs;
+      return {
+        windowIndex: index + 1,
+        startMs: Number(orange.timeMs),
+        endMs: Number(orange.timeMs) + durationMs,
+        dragonFangCount: covered.length,
+        lastDragonFangCastMs: last?.timeMs ?? null,
+        lastCastMarginMs,
+      };
+    });
+    const margins = windows
+      .map((window) => window.lastCastMarginMs)
+      .filter((margin) => margin !== null);
+    const safeHitDelayExclusiveMs = margins.length === windows.length
+      ? Math.min(...margins)
+      : null;
+    return {
+      candidateId: candidate.id,
+      orangeWindowCount: windows.length,
+      allWindowsHaveExpectedDragonFangs: windows.every(
+        (window) => window.dragonFangCount === expectedDragonFangsPerWindow,
+      ),
+      safeHitDelayExclusiveMs,
+      representativeHitDelays: representativeHitDelaysMs.map((hitDelayMs) => ({
+        hitDelayMs,
+        castAndHitJudgmentEquivalent:
+          safeHitDelayExclusiveMs !== null &&
+          hitDelayMs < safeHitDelayExclusiveMs,
+      })),
+      windows,
+    };
+  });
+  const boundarySignature = (row) => JSON.stringify({
+    windowCount: row.orangeWindowCount,
+    margins: row.windows.map((window) => window.lastCastMarginMs),
+    fangCounts: row.windows.map((window) => window.dragonFangCount),
+  });
+  const candidateBoundariesEquivalent = rows.every(
+    (row) => boundarySignature(row) === boundarySignature(rows[0]),
+  );
+  const globalSafeHitDelayExclusiveMs = rows.every(
+    (row) => row.safeHitDelayExclusiveMs !== null,
+  )
+    ? Math.min(...rows.map((row) => row.safeHitDelayExclusiveMs))
+    : null;
+  return {
+    durationMs,
+    expectedDragonFangsPerWindow,
+    judgment: "橙武窗口为半开区间；若命中延迟严格小于最后一牙施展时剩余窗口，则施展时与命中时判定完全等价",
+    candidateBoundariesEquivalent,
+    globalSafeHitDelayExclusiveMs,
+    currentAxisAtRiskUnderRepresentativeDelays:
+      representativeHitDelaysMs.some((hitDelayMs) =>
+        globalSafeHitDelayExclusiveMs === null ||
+        hitDelayMs >= globalSafeHitDelayExclusiveMs),
+    representativeHitDelaysMs,
+    candidates: rows,
+  };
+}
+
 export const LIANYING_FORMULA_UNCERTAINTY_GROUPS = Object.freeze([
   Object.freeze({
     id: "orangeWeapon",

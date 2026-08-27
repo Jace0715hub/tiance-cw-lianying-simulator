@@ -9,10 +9,62 @@ import {
 import {
   analyzeLianyingDivineStackBoundary,
   analyzeLianyingFormulaUncertainty,
+  analyzeLianyingOrangeHitBoundary,
   buildLianyingExcelSkillCalibration,
   compareLianyingRankingSensitivity,
   scoreLianyingStateWithSkillCalibration,
 } from "../src/reports/lianying-ranking-sensitivity.js";
+
+test("橙武命中边界取四个窗口最后一牙的最小严格余量", () => {
+  const timeline = [0, 10000].flatMap((startTick) => [
+    {
+      type: "offGcd",
+      tick: startTick,
+      timeMs: startTick / 16,
+      action: "orange",
+    },
+    ...[100, 200, 300, 400, 500].map((offset) => ({
+      type: "cast",
+      tick: startTick + offset,
+      timeMs: (startTick + offset) / 16,
+      action: "dragonFang",
+    })),
+  ]);
+  const report = analyzeLianyingOrangeHitBoundary([
+    { id: "formal", state: { timeline } },
+    { id: "candidate", state: { timeline: structuredClone(timeline) } },
+  ], {
+    durationMs: 40,
+    representativeHitDelaysMs: [0, 8.75, 9],
+  });
+  assert.equal(report.globalSafeHitDelayExclusiveMs, 8.75);
+  assert.equal(report.candidateBoundariesEquivalent, true);
+  assert.deepEqual(
+    report.candidates[0].representativeHitDelays.map(
+      (row) => row.castAndHitJudgmentEquivalent,
+    ),
+    [true, false, false],
+  );
+});
+
+test("橙武命中边界识别候选窗口覆盖差异", () => {
+  const state = (lastTick) => ({ timeline: [
+    { type: "offGcd", tick: 0, timeMs: 0, action: "orange" },
+    ...[10, 20, 30, 40, lastTick].map((tick) => ({
+      type: "cast",
+      tick,
+      timeMs: tick / 16,
+      action: "dragonFang",
+    })),
+  ] });
+  const report = analyzeLianyingOrangeHitBoundary([
+    { id: "formal", state: state(50) },
+    { id: "candidate", state: state(60) },
+  ], { durationMs: 4 });
+  assert.equal(report.candidateBoundariesEquivalent, false);
+  assert.equal(report.candidates[0].safeHitDelayExclusiveMs, 0.875);
+  assert.equal(report.candidates[1].safeHitDelayExclusiveMs, 0.25);
+});
 
 test("神兵无双边界按玩家命中而不是派生伤害事件计层", () => {
   const hit = (tick, action, extras = {}) => ({

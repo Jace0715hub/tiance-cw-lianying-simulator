@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "kind": "lianying-ranking-sensitivity",
   "durationSeconds": 180,
   "calibration": {
@@ -441,6 +441,354 @@
         "fullStacksAtMs": 4870,
         "maxGapAfterFullMs": 2435,
         "keepsFullStacksBetweenLaterHits": true
+      }
+    ]
+  },
+  "orangeHitBoundary": {
+    "durationMs": 6000,
+    "expectedDragonFangsPerWindow": 5,
+    "judgment": "橙武窗口为半开区间；若命中延迟严格小于最后一牙施展时剩余窗口，则施展时与命中时判定完全等价",
+    "candidateBoundariesEquivalent": true,
+    "globalSafeHitDelayExclusiveMs": 1067.5,
+    "currentAxisAtRiskUnderRepresentativeDelays": false,
+    "representativeHitDelaysMs": [
+      0,
+      62.5,
+      125,
+      250,
+      500,
+      1000
+    ],
+    "candidates": [
+      {
+        "candidateId": "formal",
+        "orangeWindowCount": 4,
+        "allWindowsHaveExpectedDragonFangs": true,
+        "safeHitDelayExclusiveMs": 1067.5,
+        "representativeHitDelays": [
+          {
+            "hitDelayMs": 0,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 62.5,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 125,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 250,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 500,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 1000,
+            "castAndHitJudgmentEquivalent": true
+          }
+        ],
+        "windows": [
+          {
+            "windowIndex": 1,
+            "startMs": 3590,
+            "endMs": 9590,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 8522.5,
+            "lastCastMarginMs": 1067.5
+          },
+          {
+            "windowIndex": 2,
+            "startMs": 56005,
+            "endMs": 62005,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 60875,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 3,
+            "startMs": 107140,
+            "endMs": 113140,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 112010,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 4,
+            "startMs": 158650,
+            "endMs": 164650,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 163520,
+            "lastCastMarginMs": 1130
+          }
+        ]
+      },
+      {
+        "candidateId": "previousTiming",
+        "orangeWindowCount": 4,
+        "allWindowsHaveExpectedDragonFangs": true,
+        "safeHitDelayExclusiveMs": 1067.5,
+        "representativeHitDelays": [
+          {
+            "hitDelayMs": 0,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 62.5,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 125,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 250,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 500,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 1000,
+            "castAndHitJudgmentEquivalent": true
+          }
+        ],
+        "windows": [
+          {
+            "windowIndex": 1,
+            "startMs": 3590,
+            "endMs": 9590,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 8522.5,
+            "lastCastMarginMs": 1067.5
+          },
+          {
+            "windowIndex": 2,
+            "startMs": 56005,
+            "endMs": 62005,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 60875,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 3,
+            "startMs": 107140,
+            "endMs": 113140,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 112010,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 4,
+            "startMs": 158650,
+            "endMs": 164650,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 163520,
+            "lastCastMarginMs": 1130
+          }
+        ]
+      },
+      {
+        "candidateId": "heterogeneous",
+        "orangeWindowCount": 4,
+        "allWindowsHaveExpectedDragonFangs": true,
+        "safeHitDelayExclusiveMs": 1067.5,
+        "representativeHitDelays": [
+          {
+            "hitDelayMs": 0,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 62.5,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 125,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 250,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 500,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 1000,
+            "castAndHitJudgmentEquivalent": true
+          }
+        ],
+        "windows": [
+          {
+            "windowIndex": 1,
+            "startMs": 3590,
+            "endMs": 9590,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 8522.5,
+            "lastCastMarginMs": 1067.5
+          },
+          {
+            "windowIndex": 2,
+            "startMs": 56005,
+            "endMs": 62005,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 60875,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 3,
+            "startMs": 107140,
+            "endMs": 113140,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 112010,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 4,
+            "startMs": 158275,
+            "endMs": 164275,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 163145,
+            "lastCastMarginMs": 1130
+          }
+        ]
+      },
+      {
+        "candidateId": "thunder106",
+        "orangeWindowCount": 4,
+        "allWindowsHaveExpectedDragonFangs": true,
+        "safeHitDelayExclusiveMs": 1067.5,
+        "representativeHitDelays": [
+          {
+            "hitDelayMs": 0,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 62.5,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 125,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 250,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 500,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 1000,
+            "castAndHitJudgmentEquivalent": true
+          }
+        ],
+        "windows": [
+          {
+            "windowIndex": 1,
+            "startMs": 3590,
+            "endMs": 9590,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 8522.5,
+            "lastCastMarginMs": 1067.5
+          },
+          {
+            "windowIndex": 2,
+            "startMs": 56005,
+            "endMs": 62005,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 60875,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 3,
+            "startMs": 107140,
+            "endMs": 113140,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 112010,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 4,
+            "startMs": 158275,
+            "endMs": 164275,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 163145,
+            "lastCastMarginMs": 1130
+          }
+        ]
+      },
+      {
+        "candidateId": "qualityTerminal",
+        "orangeWindowCount": 4,
+        "allWindowsHaveExpectedDragonFangs": true,
+        "safeHitDelayExclusiveMs": 1067.5,
+        "representativeHitDelays": [
+          {
+            "hitDelayMs": 0,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 62.5,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 125,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 250,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 500,
+            "castAndHitJudgmentEquivalent": true
+          },
+          {
+            "hitDelayMs": 1000,
+            "castAndHitJudgmentEquivalent": true
+          }
+        ],
+        "windows": [
+          {
+            "windowIndex": 1,
+            "startMs": 3590,
+            "endMs": 9590,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 8522.5,
+            "lastCastMarginMs": 1067.5
+          },
+          {
+            "windowIndex": 2,
+            "startMs": 56005,
+            "endMs": 62005,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 60875,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 3,
+            "startMs": 107140,
+            "endMs": 113140,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 112010,
+            "lastCastMarginMs": 1130
+          },
+          {
+            "windowIndex": 4,
+            "startMs": 158275,
+            "endMs": 164275,
+            "dragonFangCount": 5,
+            "lastDragonFangCastMs": 163145,
+            "lastCastMarginMs": 1130
+          }
+        ]
       }
     ]
   },
