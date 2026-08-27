@@ -840,6 +840,7 @@ export function searchLianyingAxis(
     fixedPacksByDepth = new Map(),
     prunedArchiveRows = [],
     prunedArchivePerRow = 0,
+    prunedArchiveRanker = null,
     nodeScore = null,
   } = {},
 ) {
@@ -1055,7 +1056,9 @@ export function searchLianyingAxis(
         archiveLimit,
         policyMode,
         runtime.config,
-        searchRanker,
+        typeof prunedArchiveRanker === "function"
+          ? prunedArchiveRanker
+          : searchRanker,
       );
       prunedArchive.push(...archived.map((node) => ({
         depth: nextPathLength,

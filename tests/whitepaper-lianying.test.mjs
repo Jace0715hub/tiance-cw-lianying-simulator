@@ -404,6 +404,7 @@ test("自由搜索可同时钉住多条热启动轴", () => {
 });
 
 test("自由搜索可固定等待深度并归档资源相位互异的裁剪祖先", () => {
+  let archiveRankerCalls = 0;
   const result = searchLianyingAxis(runtime, {
     durationSeconds: 4,
     beamWidth: 1,
@@ -413,7 +414,12 @@ test("自由搜索可固定等待深度并归档资源相位互异的裁剪祖�
     },
     prunedArchiveRows: [1, 3],
     prunedArchivePerRow: 2,
+    prunedArchiveRanker: (left, right) => {
+      archiveRankerCalls += 1;
+      return right.state.totalDamage - left.state.totalDamage;
+    },
   });
+  assert.ok(archiveRankerCalls > 0);
   assert.equal(actionId(result.packs[1].primary), "wait");
   assert.deepEqual(
     result.telemetry.prunedArchive.map(({ depth, count }) => [depth, count]),

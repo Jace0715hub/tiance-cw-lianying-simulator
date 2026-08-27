@@ -32,6 +32,10 @@ const dashFinalists = Math.max(1, Math.floor(Number(process.argv[7] ?? 4)));
 const requestedArchiveRows = process.argv[8]
   ? process.argv[8].split(",").map(Number)
   : null;
+const archiveRanking = process.argv[9] ?? "damage";
+if (!["damage", "reference-suffix"].includes(archiveRanking)) {
+  throw new Error("裁剪祖先排序必须是damage或reference-suffix");
+}
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const sourcePacks = source.actionPacks ??
   (source.rows ? lianyingRowsToActionPacks(source.rows) : null);
@@ -89,6 +93,16 @@ const referenceSuffixScore = (node) => {
     },
   ).score;
 };
+const archiveScoreCache = new WeakMap();
+const cachedReferenceSuffixScore = (node) => {
+  if (!archiveScoreCache.has(node)) {
+    archiveScoreCache.set(node, referenceSuffixScore(node));
+  }
+  return archiveScoreCache.get(node);
+};
+const referenceSuffixArchiveRanker = (left, right) =>
+  cachedReferenceSuffixScore(right) - cachedReferenceSuffixScore(left) ||
+  right.state.totalDamage - left.state.totalDamage;
 
 process.stdout.write(`${JSON.stringify({
   phase: "pruned-revival",
@@ -96,6 +110,7 @@ process.stdout.write(`${JSON.stringify({
   archiveBeamWidth,
   archiveRows,
   archivePerRow,
+  archiveRanking,
   fixedWaitRows: [...fixedPacksByDepth.keys()],
 })}\n`);
 const archiveSearch = searchLianyingAxis(runtime, {
@@ -106,6 +121,9 @@ const archiveSearch = searchLianyingAxis(runtime, {
   fixedPacksByDepth,
   prunedArchiveRows: archiveRows,
   prunedArchivePerRow: archivePerRow,
+  prunedArchiveRanker: archiveRanking === "reference-suffix"
+    ? referenceSuffixArchiveRanker
+    : null,
 });
 process.stdout.write(`${JSON.stringify({
   phase: "pruned-revival",
@@ -182,6 +200,7 @@ const report = {
   continuationBeamWidth,
   continuationRanking: "reference-suffix",
   archivePerRow,
+  archiveRanking,
   dashFinalists,
   archiveRows,
   fixedWaitRows: [...fixedPacksByDepth.keys()],
