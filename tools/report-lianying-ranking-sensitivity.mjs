@@ -13,6 +13,7 @@ import {
 } from "../src/policies/whitepaper-lianying.js";
 import { buildBaselineAlignment } from "../src/reports/baseline-alignment.js";
 import {
+  analyzeLianyingDivineStackBoundary,
   analyzeLianyingFormulaUncertainty,
   buildLianyingExcelSkillCalibration,
   compareLianyingRankingSensitivity,
@@ -177,6 +178,7 @@ const comparison = compareLianyingRankingSensitivity(
   calibration,
   { openingDamageEventCount: 5 },
 );
+const divineStackBoundary = analyzeLianyingDivineStackBoundary(candidates);
 for (const candidate of comparison.candidates) {
   candidate.actionPacks = candidates.find(
     (sourceCandidate) => sourceCandidate.id === candidate.id,
@@ -186,7 +188,7 @@ const formulaUncertainty = analyzeLianyingFormulaUncertainty(
   comparison.candidates,
 );
 const report = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   kind: "lianying-ranking-sensitivity",
   durationSeconds,
   calibration: {
@@ -198,9 +200,10 @@ const report = {
     limitations: [
       "这是排序敏感性边界，不是让Excel重新参与运行时模拟",
       "未出现在离线连营基准中的斩杀附伤、橙武附伤与突保持原生金标准权重",
-      "神兵无双开场动态层数未直接重算；候选前5个伤害事件相同时其修正严格同向抵消",
+      "神兵无双动态属性仍未直接重算；保守玩家命中边界已另证五条候选在4.870秒以前叠层状态完全一致，且后续不会掉层",
     ],
   },
+  divineStackBoundary,
   formulaUncertainty,
   ...comparison,
 };
@@ -239,6 +242,19 @@ console.log(JSON.stringify({
   openingBoundaryEquivalent: report.openingBoundaryEquivalent,
   eventRanking: report.eventRanking,
   calibratedRanking: report.calibratedRanking,
+  divineStackBoundary: {
+    openingPlayerHitStateEquivalent:
+      report.divineStackBoundary.openingPlayerHitStateEquivalent,
+    allReachAndKeepFullStacks:
+      report.divineStackBoundary.allReachAndKeepFullStacks,
+    candidateSpecificStackPathRisk:
+      report.divineStackBoundary.candidateSpecificStackPathRisk,
+    candidates: report.divineStackBoundary.candidates.map((candidate) => ({
+      candidateId: candidate.candidateId,
+      fullStacksAtMs: candidate.fullStacksAtMs,
+      maxGapAfterFullMs: candidate.maxGapAfterFullMs,
+    })),
+  },
   formulaUncertainty: {
     native: report.formulaUncertainty.native.grids.map((grid) => ({
       id: grid.id,

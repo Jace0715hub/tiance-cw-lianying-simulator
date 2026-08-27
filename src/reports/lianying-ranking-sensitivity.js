@@ -120,6 +120,80 @@ function rankedIds(candidates, field) {
     .map((candidate) => candidate.id);
 }
 
+const DIVINE_STACK_PLAYER_HIT_ACTIONS = Object.freeze(new Set([
+  "dragonFang",
+  "destroy",
+  "dragonRoar",
+  "cloudStrike",
+  "charge",
+  "dash",
+]));
+
+function divineStackPlayerHits(state) {
+  return (state.timeline ?? [])
+    .filter((event) =>
+      (event.type === "cast" || event.type === "offGcd") &&
+      DIVINE_STACK_PLAYER_HIT_ACTIONS.has(event.action))
+    .map((event) => ({
+      tick: Number(event.tick),
+      timeMs: Number(event.timeMs),
+      action: event.action,
+      thunder: Boolean(event.thunder),
+      ride: Boolean(event.ride),
+      orange: Boolean(event.orange),
+      mounted: Boolean(event.mounted),
+    }));
+}
+
+export function analyzeLianyingDivineStackBoundary(
+  candidates,
+  { requiredStacks = 5, durationMs = 6000 } = {},
+) {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    throw new Error("神兵无双边界核查至少需要一条候选轴");
+  }
+  const rows = candidates.map((candidate) => {
+    const hits = divineStackPlayerHits(candidate.state);
+    const firstHits = hits.slice(0, requiredStacks);
+    let maxGapAfterFullMs = 0;
+    for (let index = requiredStacks; index < hits.length; index += 1) {
+      maxGapAfterFullMs = Math.max(
+        maxGapAfterFullMs,
+        hits[index].timeMs - hits[index - 1].timeMs,
+      );
+    }
+    return {
+      candidateId: candidate.id,
+      hitCount: hits.length,
+      reachesFullStacks: firstHits.length === requiredStacks,
+      firstHits,
+      fullStacksAtMs: firstHits.at(-1)?.timeMs ?? null,
+      maxGapAfterFullMs,
+      keepsFullStacksBetweenLaterHits:
+        firstHits.length === requiredStacks && maxGapAfterFullMs < durationMs,
+    };
+  });
+  const baselineSignature = JSON.stringify(rows[0].firstHits);
+  const openingPlayerHitStateEquivalent = rows.every(
+    (row) => JSON.stringify(row.firstHits) === baselineSignature,
+  );
+  return {
+    requiredStacks,
+    durationMs,
+    conservativeHitDefinition:
+      "只把会直接命中目标的玩家技能动作计为一层；不把自动攻击、流血跳和同一技能的派生伤害另算层数",
+    openingPlayerHitStateEquivalent,
+    allReachAndKeepFullStacks: rows.every(
+      (row) => row.reachesFullStacks && row.keepsFullStacksBetweenLaterHits,
+    ),
+    candidateSpecificStackPathRisk:
+      !openingPlayerHitStateEquivalent || rows.some(
+        (row) => !row.reachesFullStacks || !row.keepsFullStacksBetweenLaterHits,
+      ),
+    candidates: rows,
+  };
+}
+
 export const LIANYING_FORMULA_UNCERTAINTY_GROUPS = Object.freeze([
   Object.freeze({
     id: "orangeWeapon",

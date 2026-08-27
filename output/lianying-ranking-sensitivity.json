@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "kind": "lianying-ranking-sensitivity",
   "durationSeconds": 180,
   "calibration": {
@@ -156,7 +156,292 @@
     "limitations": [
       "这是排序敏感性边界，不是让Excel重新参与运行时模拟",
       "未出现在离线连营基准中的斩杀附伤、橙武附伤与突保持原生金标准权重",
-      "神兵无双开场动态层数未直接重算；候选前5个伤害事件相同时其修正严格同向抵消"
+      "神兵无双动态属性仍未直接重算；保守玩家命中边界已另证五条候选在4.870秒以前叠层状态完全一致，且后续不会掉层"
+    ]
+  },
+  "divineStackBoundary": {
+    "requiredStacks": 5,
+    "durationMs": 6000,
+    "conservativeHitDefinition": "只把会直接命中目标的玩家技能动作计为一层；不把自动攻击、流血跳和同一技能的派生伤害另算层数",
+    "openingPlayerHitStateEquivalent": true,
+    "allReachAndKeepFullStacks": true,
+    "candidateSpecificStackPathRisk": false,
+    "candidates": [
+      {
+        "candidateId": "formal",
+        "hitCount": 157,
+        "reachesFullStacks": true,
+        "firstHits": [
+          {
+            "tick": 0,
+            "timeMs": 0,
+            "action": "destroy",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 19480,
+            "timeMs": 1217.5,
+            "action": "dragonFang",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 20960,
+            "timeMs": 1310,
+            "action": "dash",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 58440,
+            "timeMs": 3652.5,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          },
+          {
+            "tick": 77920,
+            "timeMs": 4870,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          }
+        ],
+        "fullStacksAtMs": 4870,
+        "maxGapAfterFullMs": 2622.5,
+        "keepsFullStacksBetweenLaterHits": true
+      },
+      {
+        "candidateId": "previousTiming",
+        "hitCount": 157,
+        "reachesFullStacks": true,
+        "firstHits": [
+          {
+            "tick": 0,
+            "timeMs": 0,
+            "action": "destroy",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 19480,
+            "timeMs": 1217.5,
+            "action": "dragonFang",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 20960,
+            "timeMs": 1310,
+            "action": "dash",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 58440,
+            "timeMs": 3652.5,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          },
+          {
+            "tick": 77920,
+            "timeMs": 4870,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          }
+        ],
+        "fullStacksAtMs": 4870,
+        "maxGapAfterFullMs": 2622.5,
+        "keepsFullStacksBetweenLaterHits": true
+      },
+      {
+        "candidateId": "heterogeneous",
+        "hitCount": 157,
+        "reachesFullStacks": true,
+        "firstHits": [
+          {
+            "tick": 0,
+            "timeMs": 0,
+            "action": "destroy",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 19480,
+            "timeMs": 1217.5,
+            "action": "dragonFang",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 20960,
+            "timeMs": 1310,
+            "action": "dash",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 58440,
+            "timeMs": 3652.5,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          },
+          {
+            "tick": 77920,
+            "timeMs": 4870,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          }
+        ],
+        "fullStacksAtMs": 4870,
+        "maxGapAfterFullMs": 2435,
+        "keepsFullStacksBetweenLaterHits": true
+      },
+      {
+        "candidateId": "thunder106",
+        "hitCount": 157,
+        "reachesFullStacks": true,
+        "firstHits": [
+          {
+            "tick": 0,
+            "timeMs": 0,
+            "action": "destroy",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 19480,
+            "timeMs": 1217.5,
+            "action": "dragonFang",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 20960,
+            "timeMs": 1310,
+            "action": "dash",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 58440,
+            "timeMs": 3652.5,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          },
+          {
+            "tick": 77920,
+            "timeMs": 4870,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          }
+        ],
+        "fullStacksAtMs": 4870,
+        "maxGapAfterFullMs": 2435,
+        "keepsFullStacksBetweenLaterHits": true
+      },
+      {
+        "candidateId": "qualityTerminal",
+        "hitCount": 157,
+        "reachesFullStacks": true,
+        "firstHits": [
+          {
+            "tick": 0,
+            "timeMs": 0,
+            "action": "destroy",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 19480,
+            "timeMs": 1217.5,
+            "action": "dragonFang",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 20960,
+            "timeMs": 1310,
+            "action": "dash",
+            "thunder": false,
+            "ride": false,
+            "orange": false,
+            "mounted": false
+          },
+          {
+            "tick": 58440,
+            "timeMs": 3652.5,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          },
+          {
+            "tick": 77920,
+            "timeMs": 4870,
+            "action": "dragonFang",
+            "thunder": true,
+            "ride": true,
+            "orange": true,
+            "mounted": true
+          }
+        ],
+        "fullStacksAtMs": 4870,
+        "maxGapAfterFullMs": 2435,
+        "keepsFullStacksBetweenLaterHits": true
+      }
     ]
   },
   "formulaUncertainty": {

@@ -7,11 +7,60 @@ import {
   lianyingRowsToActionPacks,
 } from "../src/reports/lianying-model-sensitivity.js";
 import {
+  analyzeLianyingDivineStackBoundary,
   analyzeLianyingFormulaUncertainty,
   buildLianyingExcelSkillCalibration,
   compareLianyingRankingSensitivity,
   scoreLianyingStateWithSkillCalibration,
 } from "../src/reports/lianying-ranking-sensitivity.js";
+
+test("神兵无双边界按玩家命中而不是派生伤害事件计层", () => {
+  const hit = (tick, action, extras = {}) => ({
+    type: action === "dash" ? "offGcd" : "cast",
+    tick,
+    timeMs: tick,
+    action,
+    ...extras,
+  });
+  const sharedTimeline = [
+    { type: "damage", tick: 0, timeMs: 0, component: "autoAttack" },
+    hit(0, "destroy"),
+    { type: "damage", tick: 0, timeMs: 0, component: "destroyPoLouLan" },
+    hit(1000, "dragonFang"),
+    hit(1100, "dash"),
+    hit(2000, "dragonFang", { thunder: true }),
+    hit(3000, "dragonFang", { thunder: true }),
+    hit(8000, "dragonFang"),
+  ];
+  const report = analyzeLianyingDivineStackBoundary([
+    { id: "formal", state: { timeline: sharedTimeline } },
+    { id: "candidate", state: { timeline: structuredClone(sharedTimeline) } },
+  ]);
+  assert.equal(report.candidates[0].hitCount, 6);
+  assert.equal(report.candidates[0].fullStacksAtMs, 3000);
+  assert.equal(report.candidates[0].maxGapAfterFullMs, 5000);
+  assert.equal(report.openingPlayerHitStateEquivalent, true);
+  assert.equal(report.allReachAndKeepFullStacks, true);
+  assert.equal(report.candidateSpecificStackPathRisk, false);
+});
+
+test("神兵无双边界识别开场叠层差异和六秒断层", () => {
+  const state = (fifthAction, finalTime) => ({ timeline: [
+    { type: "cast", tick: 0, timeMs: 0, action: "destroy" },
+    { type: "cast", tick: 1000, timeMs: 1000, action: "dragonFang" },
+    { type: "offGcd", tick: 1100, timeMs: 1100, action: "dash" },
+    { type: "cast", tick: 2000, timeMs: 2000, action: "dragonFang" },
+    { type: "cast", tick: 3000, timeMs: 3000, action: fifthAction },
+    { type: "cast", tick: finalTime, timeMs: finalTime, action: "dragonFang" },
+  ] });
+  const report = analyzeLianyingDivineStackBoundary([
+    { id: "formal", state: state("dragonFang", 8000) },
+    { id: "candidate", state: state("dragonRoar", 9000) },
+  ]);
+  assert.equal(report.openingPlayerHitStateEquivalent, false);
+  assert.equal(report.allReachAndKeepFullStacks, false);
+  assert.equal(report.candidateSpecificStackPathRisk, true);
+});
 
 test("公式误差分析给出可验证的单组翻盘阈值", () => {
   const candidates = [
