@@ -7,10 +7,83 @@ import {
   lianyingRowsToActionPacks,
 } from "../src/reports/lianying-model-sensitivity.js";
 import {
+  analyzeLianyingFormulaUncertainty,
   buildLianyingExcelSkillCalibration,
   compareLianyingRankingSensitivity,
   scoreLianyingStateWithSkillCalibration,
 } from "../src/reports/lianying-ranking-sensitivity.js";
+
+test("公式误差分析给出可验证的单组翻盘阈值", () => {
+  const candidates = [
+    {
+      id: "formal",
+      eventDamage: 100,
+      calibratedDamage: 100,
+      skillRows: [
+        { skill: "甲", eventDamage: 80, calibratedDamage: 80 },
+      ],
+    },
+    {
+      id: "candidate",
+      eventDamage: 95,
+      calibratedDamage: 95,
+      skillRows: [
+        { skill: "甲", eventDamage: 90, calibratedDamage: 90 },
+      ],
+    },
+  ];
+  const report = analyzeLianyingFormulaUncertainty(candidates, {
+    groups: [{ id: "a", label: "甲", skills: ["甲"] }],
+    grids: [{ id: "test", levels: [1, 1.5, 2] }],
+  });
+  const threshold = report.native.singleGroupBreakEvens[0].groups[0];
+  assert.equal(threshold.breakEvenMultiplier, 1.5);
+  assert.equal(threshold.requiredRelativeChange, 0.5);
+  assert.equal(threshold.crossingDirection, "increase");
+  assert.equal(report.native.grids[0].scenarioCount, 3);
+  assert.equal(report.native.grids[0].winnerCounts.formal, 2);
+  assert.equal(report.native.grids[0].winnerCounts.candidate, 1);
+});
+
+test("公式误差联合网格保留中期资源候选但只按完整伤害判胜", () => {
+  const candidates = [
+    {
+      id: "formal",
+      eventDamage: 100,
+      calibratedDamage: 100,
+      skillRows: [
+        { skill: "甲", eventDamage: 60, calibratedDamage: 60 },
+        { skill: "乙", eventDamage: 40, calibratedDamage: 40 },
+      ],
+    },
+    {
+      id: "candidate",
+      eventDamage: 90,
+      calibratedDamage: 90,
+      skillRows: [
+        { skill: "甲", eventDamage: 65, calibratedDamage: 65 },
+        { skill: "乙", eventDamage: 25, calibratedDamage: 25 },
+      ],
+    },
+  ];
+  const report = analyzeLianyingFormulaUncertainty(candidates, {
+    groups: [
+      { id: "a", label: "甲", skills: ["甲"] },
+      { id: "b", label: "乙", skills: ["乙"] },
+      { id: "unused", label: "未使用", skills: ["丙"] },
+    ],
+    grids: [{ id: "stable", levels: [0.9, 1, 1.1] }],
+  });
+  const basis = report.native;
+  assert.equal(basis.grids[0].scenarioCount, 27);
+  assert.equal(basis.grids[0].baselineWinsAllScenarios, true);
+  assert.equal(
+    basis.singleGroupBreakEvens[0].groups.find(
+      (group) => group.groupId === "unused",
+    ).breakEvenMultiplier,
+    null,
+  );
+});
 
 test("旧版逐行JSON可以恢复前置和GCD末端非GCD动作", () => {
   const packs = lianyingRowsToActionPacks([

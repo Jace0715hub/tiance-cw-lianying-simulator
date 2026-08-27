@@ -120,6 +120,201 @@ function rankedIds(candidates, field) {
     .map((candidate) => candidate.id);
 }
 
+export const LIANYING_FORMULA_UNCERTAINTY_GROUPS = Object.freeze([
+  Object.freeze({
+    id: "orangeWeapon",
+    label: "大橙武附伤",
+    skills: Object.freeze(["画角闻龙", "龙牙·神兵"]),
+  }),
+  Object.freeze({
+    id: "dragonFangCore",
+    label: "龙牙主体与派生",
+    skills: Object.freeze(["龙牙", "龙血", "新破招(牙)"]),
+  }),
+  Object.freeze({
+    id: "resourceFillers",
+    label: "龙吟/穿云/断魂刺",
+    skills: Object.freeze(["龙吟", "穿云", "断魂刺"]),
+  }),
+  Object.freeze({
+    id: "dashBreak",
+    label: "突与破军/破罡",
+    skills: Object.freeze(["突", "破军", "破罡"]),
+  }),
+  Object.freeze({
+    id: "periodic",
+    label: "流血与梅花枪法",
+    skills: Object.freeze(["流血", "流血-战心", "梅花枪法"]),
+  }),
+  Object.freeze({
+    id: "destroy",
+    label: "灭及破楼兰/破绽派生",
+    skills: Object.freeze(["灭"]),
+  }),
+]);
+
+function candidateGroupDamage(candidate, group, damageField) {
+  return (candidate.skillRows ?? [])
+    .filter((row) => group.skills.includes(row.skill))
+    .reduce((sum, row) => sum + Number(row[damageField] ?? 0), 0);
+}
+
+function cartesianMultipliers(groups, levels, visit, index = 0, current = {}) {
+  if (index >= groups.length) {
+    visit(current);
+    return;
+  }
+  const group = groups[index];
+  for (const level of levels) {
+    cartesianMultipliers(groups, levels, visit, index + 1, {
+      ...current,
+      [group.id]: level,
+    });
+  }
+}
+
+function analyzeFormulaBasis(candidates, groups, {
+  totalField,
+  damageField,
+  grids,
+}) {
+  const baseline = candidates[0];
+  const groupDamage = Object.fromEntries(candidates.map((candidate) => [
+    candidate.id,
+    Object.fromEntries(groups.map((group) => [
+      group.id,
+      candidateGroupDamage(candidate, group, damageField),
+    ])),
+  ]));
+  const singleGroupBreakEvens = candidates.slice(1).map((candidate) => {
+    const baseDelta = Number(candidate[totalField]) - Number(baseline[totalField]);
+    return {
+      candidateId: candidate.id,
+      baseDelta,
+      groups: groups.map((group) => {
+        const candidateGroupDelta =
+          groupDamage[candidate.id][group.id] -
+          groupDamage[baseline.id][group.id];
+        const rawMultiplier = Math.abs(candidateGroupDelta) < 1e-9
+          ? null
+          : 1 - baseDelta / candidateGroupDelta;
+        const positiveMultiplier = rawMultiplier !== null && rawMultiplier >= -1e-9
+          ? Math.max(0, rawMultiplier)
+          : null;
+        return {
+          groupId: group.id,
+          candidateGroupDelta,
+          breakEvenMultiplier: positiveMultiplier,
+          requiredRelativeChange: positiveMultiplier === null
+            ? null
+            : positiveMultiplier - 1,
+          crossingDirection: positiveMultiplier === null
+            ? null
+            : candidateGroupDelta > 0 ? "increase" : "decrease",
+        };
+      }),
+    };
+  });
+  const gridResults = grids.map((grid) => {
+    const winnerCounts = Object.fromEntries(
+      candidates.map((candidate) => [candidate.id, 0]),
+    );
+    let scenarioCount = 0;
+    let changedWinnerScenarioCount = 0;
+    let minimumBaselineMargin = Number.POSITIVE_INFINITY;
+    let worstScenario = null;
+    const changedWinnerExamples = [];
+    cartesianMultipliers(groups, grid.levels, (multipliers) => {
+      const scored = candidates.map((candidate) => {
+        const adjustment = groups.reduce((sum, group) => sum +
+          groupDamage[candidate.id][group.id] *
+            (multipliers[group.id] - 1), 0);
+        return {
+          id: candidate.id,
+          damage: Number(candidate[totalField]) + adjustment,
+        };
+      }).sort((left, right) => right.damage - left.damage);
+      const winner = scored[0];
+      const baselineScore = scored.find((entry) => entry.id === baseline.id);
+      const bestCompetitor = scored.find((entry) => entry.id !== baseline.id);
+      const margin = baselineScore.damage - bestCompetitor.damage;
+      scenarioCount += 1;
+      winnerCounts[winner.id] += 1;
+      if (winner.id !== baseline.id) {
+        changedWinnerScenarioCount += 1;
+        if (changedWinnerExamples.length < 10) {
+          changedWinnerExamples.push({
+            multipliers,
+            winnerId: winner.id,
+            winnerMargin: winner.damage - baselineScore.damage,
+          });
+        }
+      }
+      if (margin < minimumBaselineMargin) {
+        minimumBaselineMargin = margin;
+        worstScenario = {
+          multipliers,
+          bestCompetitorId: bestCompetitor.id,
+          baselineMargin: margin,
+        };
+      }
+    });
+    return {
+      id: grid.id,
+      levels: grid.levels,
+      scenarioCount,
+      winnerCounts,
+      changedWinnerScenarioCount,
+      baselineWinsAllScenarios: changedWinnerScenarioCount === 0,
+      continuousHyperrectangleCertified: minimumBaselineMargin > 1e-6,
+      minimumBaselineMargin,
+      worstScenario,
+      changedWinnerExamples,
+    };
+  });
+  return {
+    baselineId: baseline.id,
+    totalField,
+    damageField,
+    groupDamage,
+    singleGroupBreakEvens,
+    grids: gridResults,
+  };
+}
+
+export function analyzeLianyingFormulaUncertainty(
+  candidates,
+  {
+    groups = LIANYING_FORMULA_UNCERTAINTY_GROUPS,
+    grids = [
+      { id: "plausible-10-percent", levels: [0.9, 1, 1.1] },
+      { id: "stress-25-percent", levels: [0.75, 1, 1.25] },
+    ],
+  } = {},
+) {
+  if (!Array.isArray(candidates) || candidates.length < 2) {
+    throw new Error("公式误差分析至少需要正式轴和一条对照轴");
+  }
+  return {
+    method: "各互斥技能组相对当前口径独立乘权；总伤害关于乘数为仿射函数，因此包含上下界全部角点的网格若仍有严格正边际，即同时证明连续误差盒内不会翻转",
+    groups: groups.map((group) => ({
+      id: group.id,
+      label: group.label,
+      skills: [...group.skills],
+    })),
+    native: analyzeFormulaBasis(candidates, groups, {
+      totalField: "eventDamage",
+      damageField: "eventDamage",
+      grids,
+    }),
+    excelCalibrated: analyzeFormulaBasis(candidates, groups, {
+      totalField: "calibratedDamage",
+      damageField: "calibratedDamage",
+      grids,
+    }),
+  };
+}
+
 export function compareLianyingRankingSensitivity(
   candidates,
   calibration,

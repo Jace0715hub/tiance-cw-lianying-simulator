@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "kind": "lianying-ranking-sensitivity",
   "durationSeconds": 180,
   "calibration": {
@@ -158,6 +158,680 @@
       "未出现在离线连营基准中的斩杀附伤、橙武附伤与突保持原生金标准权重",
       "神兵无双开场动态层数未直接重算；候选前5个伤害事件相同时其修正严格同向抵消"
     ]
+  },
+  "formulaUncertainty": {
+    "method": "各互斥技能组相对当前口径独立乘权；总伤害关于乘数为仿射函数，因此包含上下界全部角点的网格若仍有严格正边际，即同时证明连续误差盒内不会翻转",
+    "groups": [
+      {
+        "id": "orangeWeapon",
+        "label": "大橙武附伤",
+        "skills": [
+          "画角闻龙",
+          "龙牙·神兵"
+        ]
+      },
+      {
+        "id": "dragonFangCore",
+        "label": "龙牙主体与派生",
+        "skills": [
+          "龙牙",
+          "龙血",
+          "新破招(牙)"
+        ]
+      },
+      {
+        "id": "resourceFillers",
+        "label": "龙吟/穿云/断魂刺",
+        "skills": [
+          "龙吟",
+          "穿云",
+          "断魂刺"
+        ]
+      },
+      {
+        "id": "dashBreak",
+        "label": "突与破军/破罡",
+        "skills": [
+          "突",
+          "破军",
+          "破罡"
+        ]
+      },
+      {
+        "id": "periodic",
+        "label": "流血与梅花枪法",
+        "skills": [
+          "流血",
+          "流血-战心",
+          "梅花枪法"
+        ]
+      },
+      {
+        "id": "destroy",
+        "label": "灭及破楼兰/破绽派生",
+        "skills": [
+          "灭"
+        ]
+      }
+    ],
+    "native": {
+      "baselineId": "formal",
+      "totalField": "eventDamage",
+      "damageField": "eventDamage",
+      "groupDamage": {
+        "formal": {
+          "orangeWeapon": 136234747.88419056,
+          "dragonFangCore": 1404134649.528619,
+          "resourceFillers": 18408446.01882408,
+          "dashBreak": 617016943.2795858,
+          "periodic": 237138559.6725372,
+          "destroy": 147198083.69586954
+        },
+        "previousTiming": {
+          "orangeWeapon": 136234747.88419056,
+          "dragonFangCore": 1404134649.528619,
+          "resourceFillers": 18408446.01882408,
+          "dashBreak": 617016943.2795858,
+          "periodic": 236698925.09620517,
+          "destroy": 147198083.69586954
+        },
+        "heterogeneous": {
+          "orangeWeapon": 136234747.88419056,
+          "dragonFangCore": 1404134649.528619,
+          "resourceFillers": 17451242.51763508,
+          "dashBreak": 617016943.2795858,
+          "periodic": 236155152.7330791,
+          "destroy": 147036636.95380247
+        },
+        "thunder106": {
+          "orangeWeapon": 136234747.88419056,
+          "dragonFangCore": 1404134649.528619,
+          "resourceFillers": 18408446.01882408,
+          "dashBreak": 617016943.2795858,
+          "periodic": 235266031.29640877,
+          "destroy": 147198083.69586954
+        },
+        "qualityTerminal": {
+          "orangeWeapon": 136234747.88419056,
+          "dragonFangCore": 1403789156.984256,
+          "resourceFillers": 22009202.363209628,
+          "dashBreak": 617016943.2795858,
+          "periodic": 235501819.64244464,
+          "destroy": 142419845.69870156
+        }
+      },
+      "singleGroupBreakEvens": [
+        {
+          "candidateId": "previousTiming",
+          "baseDelta": -439634.5763325691,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -439634.5763320327,
+              "breakEvenMultiplier": 0,
+              "requiredRelativeChange": -1,
+              "crossingDirection": "decrease"
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            }
+          ]
+        },
+        {
+          "candidateId": "heterogeneous",
+          "baseDelta": -2102057.182714939,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": -957203.5011889972,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -983406.939458102,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": -161446.74206706882,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            }
+          ]
+        },
+        {
+          "candidateId": "thunder106",
+          "baseDelta": -1872528.3761286736,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -1872528.3761284351,
+              "breakEvenMultiplier": 0,
+              "requiredRelativeChange": -1,
+              "crossingDirection": "decrease"
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            }
+          ]
+        },
+        {
+          "candidateId": "qualityTerminal",
+          "baseDelta": -3159714.2272381783,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": -345492.54436302185,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": 3600756.3443855494,
+              "breakEvenMultiplier": 1.8775140345624712,
+              "requiredRelativeChange": 0.8775140345624712,
+              "crossingDirection": "increase"
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -1636740.0300925672,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": -4778237.997167975,
+              "breakEvenMultiplier": 0.33872816106880466,
+              "requiredRelativeChange": -0.6612718389311953,
+              "crossingDirection": "decrease"
+            }
+          ]
+        }
+      ],
+      "grids": [
+        {
+          "id": "plausible-10-percent",
+          "levels": [
+            0.9,
+            1,
+            1.1
+          ],
+          "scenarioCount": 729,
+          "winnerCounts": {
+            "formal": 729,
+            "previousTiming": 0,
+            "heterogeneous": 0,
+            "thunder106": 0,
+            "qualityTerminal": 0
+          },
+          "changedWinnerScenarioCount": 0,
+          "baselineWinsAllScenarios": true,
+          "continuousHyperrectangleCertified": true,
+          "minimumBaselineMargin": 395671.1186990738,
+          "worstScenario": {
+            "multipliers": {
+              "orangeWeapon": 0.9,
+              "dragonFangCore": 0.9,
+              "resourceFillers": 0.9,
+              "dashBreak": 0.9,
+              "periodic": 0.9,
+              "destroy": 0.9
+            },
+            "bestCompetitorId": "previousTiming",
+            "baselineMargin": 395671.1186990738
+          },
+          "changedWinnerExamples": []
+        },
+        {
+          "id": "stress-25-percent",
+          "levels": [
+            0.75,
+            1,
+            1.25
+          ],
+          "scenarioCount": 729,
+          "winnerCounts": {
+            "formal": 729,
+            "previousTiming": 0,
+            "heterogeneous": 0,
+            "thunder106": 0,
+            "qualityTerminal": 0
+          },
+          "changedWinnerScenarioCount": 0,
+          "baselineWinsAllScenarios": true,
+          "continuousHyperrectangleCertified": true,
+          "minimumBaselineMargin": 329725.93224954605,
+          "worstScenario": {
+            "multipliers": {
+              "orangeWeapon": 0.75,
+              "dragonFangCore": 0.75,
+              "resourceFillers": 0.75,
+              "dashBreak": 0.75,
+              "periodic": 0.75,
+              "destroy": 0.75
+            },
+            "bestCompetitorId": "previousTiming",
+            "baselineMargin": 329725.93224954605
+          },
+          "changedWinnerExamples": []
+        }
+      ]
+    },
+    "excelCalibrated": {
+      "baselineId": "formal",
+      "totalField": "calibratedDamage",
+      "damageField": "calibratedDamage",
+      "groupDamage": {
+        "formal": {
+          "orangeWeapon": 135520069.99032727,
+          "dragonFangCore": 1410700151.2682395,
+          "resourceFillers": 18408446.01882408,
+          "dashBreak": 608510850.1499488,
+          "periodic": 239807773.76253277,
+          "destroy": 147198083.6958696
+        },
+        "previousTiming": {
+          "orangeWeapon": 135520069.99032727,
+          "dragonFangCore": 1410700151.2682395,
+          "resourceFillers": 18408446.01882408,
+          "dashBreak": 608510850.1499488,
+          "periodic": 239362181.2159581,
+          "destroy": 147198083.6958696
+        },
+        "heterogeneous": {
+          "orangeWeapon": 135520069.99032727,
+          "dragonFangCore": 1410700151.2682395,
+          "resourceFillers": 17451242.517635077,
+          "dashBreak": 608510850.1499488,
+          "periodic": 238820151.1313177,
+          "destroy": 147036636.95380253
+        },
+        "thunder106": {
+          "orangeWeapon": 135520069.99032727,
+          "dragonFangCore": 1410700151.2682395,
+          "resourceFillers": 18408446.01882408,
+          "dashBreak": 608510850.1499488,
+          "periodic": 237909731.32885373,
+          "destroy": 147198083.6958696
+        },
+        "qualityTerminal": {
+          "orangeWeapon": 135520069.99032727,
+          "dragonFangCore": 1410352939.3028486,
+          "resourceFillers": 22009202.363209628,
+          "dashBreak": 608510850.1499488,
+          "periodic": 238127348.3229422,
+          "destroy": 142419845.69870162
+        }
+      },
+      "singleGroupBreakEvens": [
+        {
+          "candidateId": "previousTiming",
+          "baseDelta": -445592.5465750694,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -445592.546574682,
+              "breakEvenMultiplier": 0,
+              "requiredRelativeChange": -1,
+              "crossingDirection": "decrease"
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            }
+          ]
+        },
+        {
+          "candidateId": "heterogeneous",
+          "baseDelta": -2106272.8744707108,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": -957203.5011890009,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -987622.6312150657,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": -161446.74206706882,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            }
+          ]
+        },
+        {
+          "candidateId": "thunder106",
+          "baseDelta": -1898042.4336791039,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -1898042.4336790442,
+              "breakEvenMultiplier": 0,
+              "requiredRelativeChange": -1,
+              "crossingDirection": "decrease"
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            }
+          ]
+        },
+        {
+          "candidateId": "qualityTerminal",
+          "baseDelta": -3205119.0577630997,
+          "groups": [
+            {
+              "groupId": "orangeWeapon",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "dragonFangCore",
+              "candidateGroupDelta": -347211.96539092064,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "resourceFillers",
+              "candidateGroupDelta": 3600756.3443855494,
+              "breakEvenMultiplier": 1.8901238382210048,
+              "requiredRelativeChange": 0.8901238382210048,
+              "crossingDirection": "increase"
+            },
+            {
+              "groupId": "dashBreak",
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "periodic",
+              "candidateGroupDelta": -1680425.4395905733,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
+            },
+            {
+              "groupId": "destroy",
+              "candidateGroupDelta": -4778237.997167975,
+              "breakEvenMultiplier": 0.32922573976793346,
+              "requiredRelativeChange": -0.6707742602320665,
+              "crossingDirection": "decrease"
+            }
+          ]
+        }
+      ],
+      "grids": [
+        {
+          "id": "plausible-10-percent",
+          "levels": [
+            0.9,
+            1,
+            1.1
+          ],
+          "scenarioCount": 729,
+          "winnerCounts": {
+            "formal": 729,
+            "previousTiming": 0,
+            "heterogeneous": 0,
+            "thunder106": 0,
+            "qualityTerminal": 0
+          },
+          "changedWinnerScenarioCount": 0,
+          "baselineWinsAllScenarios": true,
+          "continuousHyperrectangleCertified": true,
+          "minimumBaselineMargin": 401033.29191732407,
+          "worstScenario": {
+            "multipliers": {
+              "orangeWeapon": 0.9,
+              "dragonFangCore": 0.9,
+              "resourceFillers": 0.9,
+              "dashBreak": 1,
+              "periodic": 0.9,
+              "destroy": 0.9
+            },
+            "bestCompetitorId": "previousTiming",
+            "baselineMargin": 401033.29191732407
+          },
+          "changedWinnerExamples": []
+        },
+        {
+          "id": "stress-25-percent",
+          "levels": [
+            0.75,
+            1,
+            1.25
+          ],
+          "scenarioCount": 729,
+          "winnerCounts": {
+            "formal": 729,
+            "previousTiming": 0,
+            "heterogeneous": 0,
+            "thunder106": 0,
+            "qualityTerminal": 0
+          },
+          "changedWinnerScenarioCount": 0,
+          "baselineWinsAllScenarios": true,
+          "continuousHyperrectangleCertified": true,
+          "minimumBaselineMargin": 334194.40993118286,
+          "worstScenario": {
+            "multipliers": {
+              "orangeWeapon": 0.75,
+              "dragonFangCore": 0.75,
+              "resourceFillers": 0.75,
+              "dashBreak": 0.75,
+              "periodic": 0.75,
+              "destroy": 0.75
+            },
+            "bestCompetitorId": "previousTiming",
+            "baselineMargin": 334194.40993118286
+          },
+          "changedWinnerExamples": []
+        }
+      ]
+    }
   },
   "openingDamageEventCount": 5,
   "openingBoundaryEquivalent": true,

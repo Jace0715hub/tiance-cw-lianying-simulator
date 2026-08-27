@@ -13,6 +13,7 @@ import {
 } from "../src/policies/whitepaper-lianying.js";
 import { buildBaselineAlignment } from "../src/reports/baseline-alignment.js";
 import {
+  analyzeLianyingFormulaUncertainty,
   buildLianyingExcelSkillCalibration,
   compareLianyingRankingSensitivity,
 } from "../src/reports/lianying-ranking-sensitivity.js";
@@ -181,8 +182,11 @@ for (const candidate of comparison.candidates) {
     (sourceCandidate) => sourceCandidate.id === candidate.id,
   ).packs;
 }
+const formulaUncertainty = analyzeLianyingFormulaUncertainty(
+  comparison.candidates,
+);
 const report = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   kind: "lianying-ranking-sensitivity",
   durationSeconds,
   calibration: {
@@ -197,6 +201,7 @@ const report = {
       "神兵无双开场动态层数未直接重算；候选前5个伤害事件相同时其修正严格同向抵消",
     ],
   },
+  formulaUncertainty,
   ...comparison,
 };
 
@@ -234,6 +239,28 @@ console.log(JSON.stringify({
   openingBoundaryEquivalent: report.openingBoundaryEquivalent,
   eventRanking: report.eventRanking,
   calibratedRanking: report.calibratedRanking,
+  formulaUncertainty: {
+    native: report.formulaUncertainty.native.grids.map((grid) => ({
+      id: grid.id,
+      scenarioCount: grid.scenarioCount,
+      baselineWinsAllScenarios: grid.baselineWinsAllScenarios,
+      continuousHyperrectangleCertified:
+        grid.continuousHyperrectangleCertified,
+      minimumBaselineMargin: grid.minimumBaselineMargin,
+      worstScenario: grid.worstScenario,
+    })),
+    excelCalibrated: report.formulaUncertainty.excelCalibrated.grids.map(
+      (grid) => ({
+        id: grid.id,
+        scenarioCount: grid.scenarioCount,
+        baselineWinsAllScenarios: grid.baselineWinsAllScenarios,
+        continuousHyperrectangleCertified:
+          grid.continuousHyperrectangleCertified,
+        minimumBaselineMargin: grid.minimumBaselineMargin,
+        worstScenario: grid.worstScenario,
+      }),
+    ),
+  },
   candidates: report.candidates.map((candidate) => ({
     id: candidate.id,
     firstDifferenceRow: candidate.firstDifferenceRow,
