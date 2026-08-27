@@ -103,6 +103,18 @@ const profiles = {
     boundaryPaddingRows: 0,
     diverseCandidateLimit: 24,
   },
+  "quint-probe": {
+    segmentCount: 5,
+    maxPasses: 1,
+    beamWidth: 24,
+    finalistCount: 12,
+    coarseCandidateLimit: 8,
+    coarseDashStates: 8,
+    finalDashCandidateCount: 2,
+    fullDashStates: 128,
+    boundaryPaddingRows: 0,
+    diverseCandidateLimit: 16,
+  },
 };
 if (!profiles[profileName]) {
   throw new Error("未知的多来源重组档位");
@@ -139,6 +151,7 @@ const stageProfiles = {
   "adaptive-probe": ["probe", "adaptive-probe"],
   "quad-probe": ["quad-probe"],
   "quad-screen": ["quad-probe", "quad-screen"],
+  "quint-probe": ["quint-probe"],
 }[profileName];
 const stages = [];
 const inheritedElites = [...explicitWarmAxes];
