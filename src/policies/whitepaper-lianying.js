@@ -1920,6 +1920,171 @@ export function lianyingGenericCompoundMutations(
     .slice(0, maximumCandidates);
 }
 
+// 下马与突通常是一个不可拆的状态转换包。单独迁移突会因为仍在马上而
+// 非法，单独替换主技能又可能先降低局部收益；因此用一个有界联合邻域
+// 同时迁移“下马+突”并替换起点或终点的主技能。
+export function lianyingDashPrimaryJointMutations(
+  packs,
+  { maxDistance = 2 } = {},
+) {
+  const distance = Math.max(1, Math.min(2, Math.floor(Number(maxDistance))));
+  const primaries = ["dragonFang", "destroy", "dragonRoar", "cloudStrike", "ride"];
+  const mutations = [];
+  const seen = new Set();
+  const add = (mutation) => {
+    const key = mutationKey(mutation);
+    if (seen.has(key)) return;
+    seen.add(key);
+    mutations.push(mutation);
+  };
+
+  for (let sourceIndex = 0; sourceIndex < packs.length; sourceIndex += 1) {
+    for (const sourceLocation of ["prefix", "tail"]) {
+      const sourceActions = packs[sourceIndex][sourceLocation] ?? [];
+      const dashIndex = sourceActions.findIndex((action) => actionId(action) === "dash");
+      if (dashIndex < 0) continue;
+      const dismountIndex = sourceActions.findLastIndex(
+        (action, index) => index < dashIndex && actionId(action) === "dismount",
+      );
+      if (dismountIndex < 0) continue;
+      const bundleIndexes = new Set([dismountIndex, dashIndex]);
+      const nextSourceActions = sourceActions.filter(
+        (_, index) => !bundleIndexes.has(index),
+      );
+      const sourceDismount = sourceActions[dismountIndex];
+      const left = Math.max(0, sourceIndex - distance);
+      const right = Math.min(packs.length - 1, sourceIndex + distance);
+      for (let targetIndex = left; targetIndex <= right; targetIndex += 1) {
+        if (
+          targetIndex === sourceIndex ||
+          packHasOffGcd(packs[targetIndex], "dash") ||
+          packHasOffGcd(packs[targetIndex], "dismount")
+        ) continue;
+        const targetLocations = primaryId(packs[targetIndex]) === "ride"
+          ? ["tail"]
+          : ["prefix", "tail"];
+        for (const targetLocation of targetLocations) {
+          const dismount = targetLocation === "tail"
+            ? {
+                id: "dismount",
+                reason: typeof sourceDismount === "object"
+                  ? sourceDismount.reason
+                  : "free-search",
+                leadFrames: 1,
+              }
+            : {
+                id: "dismount",
+                reason: typeof sourceDismount === "object"
+                  ? sourceDismount.reason
+                  : "free-search",
+              };
+          const dash = targetLocation === "tail"
+            ? { id: "dash", leadFrames: 1 }
+            : "dash";
+          const movedSource = actionLocationPack(
+            packs[sourceIndex],
+            sourceLocation,
+            nextSourceActions,
+          );
+          const movedTarget = actionLocationPack(
+            packs[targetIndex],
+            targetLocation,
+            [...(packs[targetIndex][targetLocation] ?? []), dismount, dash],
+          );
+          for (const replaceIndex of [sourceIndex, targetIndex]) {
+            for (const primary of primaries) {
+              const movedPack = replaceIndex === sourceIndex
+                ? movedSource
+                : movedTarget;
+              if (primaryId(movedPack) === primary) continue;
+              const replaced = unlabeledPack(movedPack);
+              replaced.primary = primary;
+              const changes = new Map([
+                [sourceIndex, movedSource],
+                [targetIndex, movedTarget],
+              ]);
+              changes.set(replaceIndex, replaced);
+              add(createMutation("dashPrimaryJoint", changes, {
+                sourceIndex,
+                targetIndex,
+                replaceIndex,
+                fromPrimary: primaryId(movedPack),
+                toPrimary: primary,
+                description:
+                  `下马+突 ${sourceIndex + 1}→${targetIndex + 1}行；` +
+                  `${replaceIndex + 1}行${ACTION_LABELS[primaryId(movedPack)]}` +
+                  `→${ACTION_LABELS[primary]}`,
+              }));
+            }
+          }
+        }
+      }
+    }
+  }
+  return mutations;
+}
+
+export function lianyingDashTimingMutations(packs) {
+  const mutations = [];
+  for (let rowIndex = 0; rowIndex < packs.length; rowIndex += 1) {
+    for (const sourceLocation of ["prefix", "tail"]) {
+      const targetLocation = sourceLocation === "prefix" ? "tail" : "prefix";
+      const sourceActions = packs[rowIndex][sourceLocation] ?? [];
+      const dashIndex = sourceActions.findIndex((action) => actionId(action) === "dash");
+      if (dashIndex < 0) continue;
+      const dismountIndex = sourceActions.findLastIndex(
+        (action, index) => index < dashIndex && actionId(action) === "dismount",
+      );
+      if (dismountIndex < 0) continue;
+      if ((packs[rowIndex][targetLocation] ?? []).some((action) =>
+        ["dismount", "dash"].includes(actionId(action)))) continue;
+      const bundleIndexes = new Set([dismountIndex, dashIndex]);
+      const nextSourceActions = sourceActions.filter(
+        (_, index) => !bundleIndexes.has(index),
+      );
+      const sourceDismount = sourceActions[dismountIndex];
+      const dismount = targetLocation === "tail"
+        ? {
+            id: "dismount",
+            reason: typeof sourceDismount === "object"
+              ? sourceDismount.reason
+              : "free-search",
+            leadFrames: 1,
+          }
+        : {
+            id: "dismount",
+            reason: typeof sourceDismount === "object"
+              ? sourceDismount.reason
+              : "free-search",
+          };
+      const dash = targetLocation === "tail"
+        ? { id: "dash", leadFrames: 1 }
+        : "dash";
+      const withoutBundle = actionLocationPack(
+        packs[rowIndex],
+        sourceLocation,
+        nextSourceActions,
+      );
+      const moved = actionLocationPack(
+        withoutBundle,
+        targetLocation,
+        [...(withoutBundle[targetLocation] ?? []), dismount, dash],
+      );
+      mutations.push(createMutation("dashTimingMove", new Map([
+        [rowIndex, moved],
+      ]), {
+        rowIndex,
+        sourceLocation,
+        targetLocation,
+        description:
+          `${rowIndex + 1}行下马+突` +
+          `${sourceLocation === "prefix" ? "前置→末端" : "末端→前置"}`,
+      }));
+    }
+  }
+  return mutations;
+}
+
 function neighborhoodMutations(
   packs,
   {
@@ -2068,6 +2233,14 @@ function neighborhoodMutations(
       }
     }
   }
+  if (enabled.has("dashPrimaryJoint")) {
+    for (const mutation of lianyingDashPrimaryJointMutations(packs, {
+      maxDistance: maxSwapDistance,
+    })) add(mutation);
+  }
+  if (enabled.has("dashTimingMove")) {
+    for (const mutation of lianyingDashTimingMutations(packs)) add(mutation);
+  }
   return mutations;
 }
 
@@ -2136,6 +2309,8 @@ export function optimizeLianyingNeighborhoodAxis(
       "swap",
       "rotate",
       "offGcdMove",
+      "dashPrimaryJoint",
+      "dashTimingMove",
       "primaryReplace",
       "resourceBalance",
       "resourceBalancePair",

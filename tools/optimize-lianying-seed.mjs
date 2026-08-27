@@ -33,7 +33,25 @@ const preserveThunderSchedule = process.argv.slice(5).some(
 const preferExperimentSeed = process.argv.slice(5).some(
   (value) => ["experiment-seed", "--experiment-seed"].includes(value),
 );
-const experimentPacks = source.bestExperimentActionPacks ??
+const experimentSeedIndexArgument = process.argv.slice(5).find((value) =>
+  value.startsWith("experiment-seed-index="));
+const experimentSeedIndex = experimentSeedIndexArgument
+  ? Number(experimentSeedIndexArgument.split("=")[1])
+  : null;
+if (
+  experimentSeedIndex !== null &&
+  (!Number.isInteger(experimentSeedIndex) || experimentSeedIndex < 1)
+) {
+  throw new Error("实验种子序号必须是从1开始的整数");
+}
+const indexedExperimentPacks = experimentSeedIndex === null
+  ? null
+  : source.revivedFinalists?.[experimentSeedIndex - 1]?.actionPacks;
+if (experimentSeedIndex !== null && !indexedExperimentPacks) {
+  throw new Error(`找不到第${experimentSeedIndex}条复活实验种子`);
+}
+const experimentPacks = indexedExperimentPacks ??
+  source.bestExperimentActionPacks ??
   source.candidateActionPacks ??
   source.revivedFinalists?.[0]?.actionPacks ??
   null;
