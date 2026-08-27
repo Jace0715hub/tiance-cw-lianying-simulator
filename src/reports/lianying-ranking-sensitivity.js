@@ -15,7 +15,9 @@ function damageGroups(state) {
   const groups = new Map();
   for (const event of state.timeline ?? []) {
     if (event.type !== "damage") continue;
-    const skill = COMPONENT_TO_SKILL[event.component] ?? event.component;
+    const skill = event.component === "bleedTick"
+      ? Number(event.bleedQuality) === 2 ? "流血-战心" : "流血"
+      : COMPONENT_TO_SKILL[event.component] ?? event.component;
     const current = groups.get(skill) ?? { count: 0, damage: 0 };
     current.count += eventExpectedCount(event);
     current.damage += Number(event.amount ?? 0);
@@ -72,11 +74,21 @@ function actionId(action) {
   return typeof action === "string" ? action : action?.id;
 }
 
+function actionSignature(action) {
+  if (typeof action === "string") return { id: action };
+  return {
+    id: action?.id,
+    leadFrames: action?.leadFrames ?? null,
+    lockFrames: action?.lockFrames ?? null,
+    latencyMs: action?.latencyMs ?? null,
+  };
+}
+
 function actionPackSignature(pack) {
   return JSON.stringify({
-    prefix: (pack?.prefix ?? []).map(actionId),
-    primary: actionId(pack?.primary),
-    tail: (pack?.tail ?? []).map(actionId),
+    prefix: (pack?.prefix ?? []).map(actionSignature),
+    primary: actionSignature(pack?.primary),
+    tail: (pack?.tail ?? []).map(actionSignature),
   });
 }
 

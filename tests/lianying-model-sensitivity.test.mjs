@@ -76,6 +76,54 @@ test("Excel技能分项校准按基准伤害比缩放同技能候选伤害", () 
   assert.equal(scored.rows.find((row) => row.skill === "穿云").factor, 1);
 });
 
+test("流血校准按普通流血与战心品质分别映射", () => {
+  const scored = scoreLianyingStateWithSkillCalibration({
+    timeline: [
+      {
+        type: "damage",
+        component: "bleedTick",
+        bleedQuality: 1,
+        amount: 100,
+      },
+      {
+        type: "damage",
+        component: "bleedTick",
+        bleedQuality: 2,
+        amount: 200,
+      },
+    ],
+  }, {
+    流血: { factor: 2 },
+    "流血-战心": { factor: 3 },
+  });
+  assert.equal(scored.calibratedDamage, 800);
+  assert.equal(scored.rows.find((row) => row.skill === "流血").count, 1);
+  assert.equal(scored.rows.find((row) => row.skill === "流血-战心").count, 1);
+});
+
+test("动作差异包含同一技能的GCD内提前帧", () => {
+  const candidates = [
+    {
+      id: "formal",
+      packs: [{
+        primary: "ride",
+        tail: [{ id: "thunder", leadFrames: 7 }],
+      }],
+      state: { totalDamage: 100, timeline: [] },
+    },
+    {
+      id: "timing",
+      packs: [{
+        primary: "ride",
+        tail: [{ id: "thunder", leadFrames: 1 }],
+      }],
+      state: { totalDamage: 99, timeline: [] },
+    },
+  ];
+  const report = compareLianyingRankingSensitivity(candidates, {});
+  assert.equal(report.candidates[1].firstDifferenceRow, 1);
+});
+
 test("排序敏感性同时报告名次翻转与开场事件是否一致", () => {
   const packs = [{ primary: "dragonFang" }];
   const candidates = [

@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { LIANYING_CURRENT_BEST_AXIS } from
+  "../src/config/lianying-research-defaults.js";
 import { createInitialState } from "../src/engine/state.js";
 import { applyExpectedEquipmentDamage } from "../src/effects/expected-equipment.js";
 import { replayProfileRows } from "../src/policies/profile-replay.js";
@@ -35,7 +37,8 @@ const persistedCandidateSpec = (id, temporarySpec) =>
     ? `${persistedReportPath}#candidate:${id}`
     : temporarySpec;
 const defaultSpecs = [
-  `formal=${path.join(projectRoot, "output/lianying-free-fixed-180s-anchor-rides-dismount-segments-deep.json")}`,
+  `formal=${path.join(projectRoot, LIANYING_CURRENT_BEST_AXIS)}`,
+  `previousTiming=${path.join(projectRoot, "output/lianying-free-fixed-180s-pair-anchor-wait.json")}`,
   `heterogeneous=${persistedCandidateSpec(
     "heterogeneous",
     "/tmp/lianying-m79-early-structural-bridge-candidate.json",
