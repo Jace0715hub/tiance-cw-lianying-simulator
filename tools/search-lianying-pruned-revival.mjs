@@ -33,6 +33,7 @@ const requestedArchiveRows = process.argv[8]
   ? process.argv[8].split(",").map(Number)
   : null;
 const archiveRanking = process.argv[9] ?? "damage";
+const damageTolerance = 1e-6;
 if (!["damage", "reference-suffix"].includes(archiveRanking)) {
   throw new Error("裁剪祖先排序必须是damage或reference-suffix");
 }
@@ -185,11 +186,21 @@ for (const candidate of dashCandidates) {
     state: dash.state,
   });
 }
-finalists.sort((left, right) => right.state.totalDamage - left.state.totalDamage);
+finalists.sort((left, right) => {
+  const damageDifference = right.state.totalDamage - left.state.totalDamage;
+  if (Math.abs(damageDifference) > damageTolerance) return damageDifference;
+  if (left.kind === "incumbent") return -1;
+  if (right.kind === "incumbent") return 1;
+  return 0;
+});
 const best = finalists[0];
 const revivedFinalists = finalists.filter((candidate) =>
   candidate.kind === "revived");
 const bestRevived = revivedFinalists[0] ?? null;
+const normalizedDamage = (damage) =>
+  Math.abs(damage - baseline.state.totalDamage) <= damageTolerance
+    ? baseline.state.totalDamage
+    : damage;
 const audit = auditWhitepaperAxis(best.state, { mode: "fixed" });
 const report = {
   schemaVersion: 1,
@@ -222,21 +233,25 @@ const report = {
     legal: candidate.legal,
   })),
   baselineRotationDamage: baseline.state.totalDamage,
-  bestRotationDamage: best.state.totalDamage,
-  damageGain: best.state.totalDamage - baseline.state.totalDamage,
-  accepted: best.kind === "revived" && best.state.totalDamage > baseline.state.totalDamage,
+  bestRotationDamage: normalizedDamage(best.state.totalDamage),
+  damageGain: normalizedDamage(best.state.totalDamage) - baseline.state.totalDamage,
+  accepted:
+    best.kind === "revived" &&
+    best.state.totalDamage > baseline.state.totalDamage + damageTolerance,
   bestKind: best.kind,
   bestAncestorIndex: best.ancestorIndex,
   bestDepth: best.depth,
-  bestRevivedRotationDamage: bestRevived?.state.totalDamage ?? null,
+  bestRevivedRotationDamage: bestRevived
+    ? normalizedDamage(bestRevived.state.totalDamage)
+    : null,
   bestRevivedDamageLoss: bestRevived
-    ? baseline.state.totalDamage - bestRevived.state.totalDamage
+    ? baseline.state.totalDamage - normalizedDamage(bestRevived.state.totalDamage)
     : null,
   revivedFinalists: revivedFinalists.map((candidate) => ({
     ancestorIndex: candidate.ancestorIndex,
     depth: candidate.depth,
-    rotationDamage: candidate.state.totalDamage,
-    damageLoss: baseline.state.totalDamage - candidate.state.totalDamage,
+    rotationDamage: normalizedDamage(candidate.state.totalDamage),
+    damageLoss: baseline.state.totalDamage - normalizedDamage(candidate.state.totalDamage),
     actionPacks: candidate.packs,
   })),
   bestExperimentActionPacks: bestRevived?.packs ?? null,
