@@ -143,7 +143,7 @@ export function buildLianyingCrossoverJointSegment(packs, anchorNumber) {
 export function buildLianyingCrossScheduleBridgePlan(
   incumbentAnchors,
   alternateAnchors,
-  { thunderDriftRows = 0 } = {},
+  { thunderDriftRows = 0, actionCount = null } = {},
 ) {
   const incumbent = incumbentAnchors.map(Number);
   const alternate = alternateAnchors.map(Number);
@@ -172,8 +172,17 @@ export function buildLianyingCrossScheduleBridgePlan(
     nextCommon < incumbent.length &&
     incumbent[nextCommon] !== alternate[nextCommon]
   ) nextCommon += 1;
-  if (previousCommon < 0 || nextCommon >= incumbent.length) {
-    throw new Error("跨坐标桥接需要在差异雷前后各有一个相同雷作为边界");
+  if (previousCommon < 0) {
+    throw new Error("跨坐标桥接需要在差异雷前有一个相同雷作为左边界");
+  }
+  const terminalBoundary = nextCommon >= incumbent.length;
+  const terminalActionCount = Number(actionCount);
+  if (
+    terminalBoundary &&
+    (!Number.isInteger(terminalActionCount) ||
+      terminalActionCount <= alternate[lastDifference])
+  ) {
+    throw new Error("末雷跨坐标桥接需要有效的动作总数作为右边界");
   }
   const drift = Math.max(0, Math.floor(Number(thunderDriftRows)));
   const thunderPositionWindows = differing.map((anchorIndex) => {
@@ -181,8 +190,11 @@ export function buildLianyingCrossScheduleBridgePlan(
       alternate[previousCommon] + 1,
       Math.min(incumbent[anchorIndex], alternate[anchorIndex]) - drift,
     );
+    const upperBoundary = terminalBoundary
+      ? terminalActionCount - 1
+      : alternate[nextCommon] - 1;
     const upperBound = Math.min(
-      alternate[nextCommon] - 1,
+      upperBoundary,
       Math.max(incumbent[anchorIndex], alternate[anchorIndex]) + drift,
     );
     return {
@@ -204,21 +216,30 @@ export function buildLianyingCrossScheduleBridgePlan(
     firstDifferingAnchorNumber: firstDifference + 1,
     lastDifferingAnchorNumber: lastDifference + 1,
     previousCommonAnchorNumber: previousCommon + 1,
-    nextCommonAnchorNumber: nextCommon + 1,
+    nextCommonAnchorNumber: terminalBoundary ? null : nextCommon + 1,
     differingAnchorNumbers: differing.map((index) => index + 1),
     incumbentAnchors: incumbent.map((row) => row + 1),
     alternateAnchors: alternate.map((row) => row + 1),
     segment: {
-      id: `cross-schedule-thunder-${previousCommon + 1}-to-${nextCommon + 1}`,
-      kind: "cross-schedule-bridge",
+      id: terminalBoundary
+        ? `cross-schedule-thunder-${previousCommon + 1}-to-end`
+        : `cross-schedule-thunder-${previousCommon + 1}-to-${nextCommon + 1}`,
+      kind: terminalBoundary
+        ? "cross-schedule-terminal-bridge"
+        : "cross-schedule-bridge",
       startIndex: alternate[previousCommon],
-      endIndex: alternate[nextCommon] + 1,
-      rowCount: alternate[nextCommon] + 1 - alternate[previousCommon],
+      endIndex: terminalBoundary
+        ? terminalActionCount
+        : alternate[nextCommon] + 1,
+      rowCount: (terminalBoundary
+        ? terminalActionCount
+        : alternate[nextCommon] + 1) - alternate[previousCommon],
       startThunderNumber: previousCommon + 1,
-      endThunderNumber: nextCommon + 1,
+      ...(terminalBoundary ? {} : { endThunderNumber: nextCommon + 1 }),
     },
     thunderPositionWindows,
     thunderDriftRows: drift,
+    terminalBoundary,
   };
 }
 
@@ -261,7 +282,7 @@ export function optimizeLianyingCrossScheduleBridge(
   const plan = buildLianyingCrossScheduleBridgePlan(
     incumbentAnchors,
     alternateAnchors,
-    { thunderDriftRows },
+    { thunderDriftRows, actionCount: alternateCore.length },
   );
   const optimized = optimizeLianyingSegmentResynthesis(
     runtime,

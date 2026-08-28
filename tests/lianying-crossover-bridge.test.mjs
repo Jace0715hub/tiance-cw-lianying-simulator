@@ -30,6 +30,31 @@ test("跨雷坐标桥接只覆盖首个差异到重新会合的有界区段", ()
     { anchorNumber: 5, sourceIndex: 80, earliestIndex: 78, latestIndex: 80 },
     { anchorNumber: 6, sourceIndex: 108, earliestIndex: 106, latestIndex: 108 },
   ]);
+  assert.equal(plan.terminalBoundary, false);
+});
+
+test("末雷跨坐标桥接以战斗轴末端作为有界右边界", () => {
+  const plan = buildLianyingCrossScheduleBridgePlan(
+    [2, 19, 37, 58, 78, 106, 129],
+    [2, 19, 37, 58, 78, 106, 127],
+    { thunderDriftRows: 1, actionCount: 150 },
+  );
+
+  assert.equal(plan.previousCommonAnchorNumber, 6);
+  assert.equal(plan.nextCommonAnchorNumber, null);
+  assert.equal(plan.terminalBoundary, true);
+  assert.deepEqual(plan.differingAnchorNumbers, [7]);
+  assert.deepEqual(plan.segment, {
+    id: "cross-schedule-thunder-6-to-end",
+    kind: "cross-schedule-terminal-bridge",
+    startIndex: 106,
+    endIndex: 150,
+    rowCount: 44,
+    startThunderNumber: 6,
+  });
+  assert.deepEqual(plan.thunderPositionWindows, [
+    { anchorNumber: 7, sourceIndex: 127, earliestIndex: 126, latestIndex: 130 },
+  ]);
 });
 import {
   replayWhitepaperLianying,
