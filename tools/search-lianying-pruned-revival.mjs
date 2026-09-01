@@ -9,7 +9,10 @@ import {
   replayWhitepaperLianying,
   searchLianyingAxis,
 } from "../src/policies/whitepaper-lianying.js";
-import { stripLianyingDashPacks } from
+import {
+  spliceLianyingReferenceSuffix,
+  stripLianyingDashPacks,
+} from
   "../src/policies/lianying-segment-resynthesis.js";
 import { lianyingRowsToActionPacks } from
   "../src/reports/lianying-model-sensitivity.js";
@@ -26,7 +29,11 @@ const outputPath = path.resolve(
   process.argv[3] ?? "/tmp/lianying-pruned-revival.json",
 );
 const archiveBeamWidth = Math.max(1, Math.floor(Number(process.argv[4] ?? 48)));
-const continuationBeamWidth = Math.max(1, Math.floor(Number(process.argv[5] ?? 4)));
+const requestedContinuationBeamWidth = Math.floor(Number(process.argv[5] ?? 4));
+const directSuffixOnly = requestedContinuationBeamWidth === 0;
+const continuationBeamWidth = directSuffixOnly
+  ? 0
+  : Math.max(1, requestedContinuationBeamWidth);
 const archivePerRow = Math.max(1, Math.floor(Number(process.argv[6] ?? 1)));
 const dashFinalists = Math.max(1, Math.floor(Number(process.argv[7] ?? 4)));
 const requestedArchiveRows = process.argv[8]
@@ -94,13 +101,28 @@ const referenceSuffixScore = (node) => {
     },
   ).score;
 };
-const archiveScoreCache = new WeakMap();
-const cachedReferenceSuffixScore = (node) => {
-  if (!archiveScoreCache.has(node)) {
-    archiveScoreCache.set(node, referenceSuffixScore(node));
+const archiveValueCache = new WeakMap();
+const cachedReferenceSuffixValue = (node) => {
+  if (!archiveValueCache.has(node)) {
+    const depth = node.packs.length;
+    archiveValueCache.set(node, evaluateLianyingReferenceSuffixValue(
+      runtime,
+      node.state,
+      corePacks.slice(depth),
+      referenceStates,
+      depth,
+      referenceCoreDamage,
+      {
+        endTick,
+        averageRowDamage,
+        repairPenaltyRows: 1,
+      },
+    ));
   }
-  return archiveScoreCache.get(node);
+  return archiveValueCache.get(node);
 };
+const cachedReferenceSuffixScore = (node) =>
+  cachedReferenceSuffixValue(node).score;
 const referenceSuffixArchiveRanker = (left, right) =>
   cachedReferenceSuffixScore(right) - cachedReferenceSuffixScore(left) ||
   right.state.totalDamage - left.state.totalDamage;
@@ -112,6 +134,7 @@ process.stdout.write(`${JSON.stringify({
   archiveRows,
   archivePerRow,
   archiveRanking,
+  directSuffixOnly,
   fixedWaitRows: [...fixedPacksByDepth.keys()],
 })}\n`);
 const archiveSearch = searchLianyingAxis(runtime, {
@@ -136,36 +159,78 @@ process.stdout.write(`${JSON.stringify({
 })}\n`);
 
 const continuations = [];
+const directSuffixes = [];
 for (const [index, ancestor] of archiveSearch.prunedArchive.entries()) {
-  process.stdout.write(`${JSON.stringify({
-    phase: "pruned-revival",
-    stage: "continuation-start",
-    ancestor: index + 1,
-    ancestorCount: archiveSearch.prunedArchive.length,
-    depth: ancestor.depth,
-  })}\n`);
-  const result = searchLianyingAxis(runtime, {
-    durationSeconds,
-    beamWidth: continuationBeamWidth,
-    policyMode: "free",
-    initialPacks: ancestor.packs,
-    fixedPacksByDepth,
-    nodeScore: referenceSuffixScore,
-  });
-  continuations.push({
-    ancestorIndex: index + 1,
-    depth: ancestor.depth,
-    ancestorDamage: ancestor.state.totalDamage,
-    packs: result.packs,
-    state: result.state,
-    explored: result.explored,
-    legal: result.legal,
-  });
+  const suffixValue = cachedReferenceSuffixValue(ancestor);
+  if (suffixValue.suffixLegal) {
+    const packs = spliceLianyingReferenceSuffix(ancestor.packs, corePacks);
+    const replay = replayWhitepaperLianying(runtime, packs, {
+      durationSeconds,
+    });
+    directSuffixes.push({
+      revivalKind: "direct-reference-suffix",
+      ancestorIndex: index + 1,
+      depth: ancestor.depth,
+      ancestorDamage: ancestor.state.totalDamage,
+      packs,
+      state: replay.state,
+      suffixProjectedDamage: suffixValue.projectedFinalDamage,
+    });
+  }
+  if (!directSuffixOnly) {
+    process.stdout.write(`${JSON.stringify({
+      phase: "pruned-revival",
+      stage: "continuation-start",
+      ancestor: index + 1,
+      ancestorCount: archiveSearch.prunedArchive.length,
+      depth: ancestor.depth,
+    })}\n`);
+    const result = searchLianyingAxis(runtime, {
+      durationSeconds,
+      beamWidth: continuationBeamWidth,
+      policyMode: "free",
+      initialPacks: ancestor.packs,
+      fixedPacksByDepth,
+      nodeScore: referenceSuffixScore,
+    });
+    continuations.push({
+      revivalKind: "beam-continuation",
+      ancestorIndex: index + 1,
+      depth: ancestor.depth,
+      ancestorDamage: ancestor.state.totalDamage,
+      packs: result.packs,
+      state: result.state,
+      explored: result.explored,
+      legal: result.legal,
+    });
+  }
 }
 continuations.sort((left, right) =>
   right.state.totalDamage - left.state.totalDamage);
+directSuffixes.sort((left, right) =>
+  right.state.totalDamage - left.state.totalDamage);
 
-const dashCandidates = continuations.slice(0, dashFinalists);
+const candidateByPacks = new Map();
+for (const candidate of [...continuations, ...directSuffixes]) {
+  const key = JSON.stringify(candidate.packs);
+  const current = candidateByPacks.get(key);
+  if (!current || candidate.state.totalDamage > current.state.totalDamage) {
+    candidateByPacks.set(key, candidate);
+  }
+}
+const dashCandidates = [...candidateByPacks.values()]
+  .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+  .slice(0, dashFinalists);
+process.stdout.write(`${JSON.stringify({
+  phase: "pruned-revival",
+  stage: "direct-suffix-complete",
+  directSuffixes: directSuffixes.length,
+  dashCandidates: dashCandidates.length,
+  bestCoreDamage: dashCandidates[0]?.state.totalDamage ?? null,
+  bestCoreDamageDelta: dashCandidates[0]
+    ? dashCandidates[0].state.totalDamage - referenceCoreDamage
+    : null,
+})}\n`);
 const finalists = [{
   kind: "incumbent",
   ancestorIndex: null,
@@ -180,6 +245,7 @@ for (const candidate of dashCandidates) {
   });
   finalists.push({
     kind: "revived",
+    revivalKind: candidate.revivalKind,
     ancestorIndex: candidate.ancestorIndex,
     depth: candidate.depth,
     packs: dash.packs,
@@ -209,6 +275,7 @@ const report = {
   durationSeconds,
   archiveBeamWidth,
   continuationBeamWidth,
+  directSuffixOnly,
   continuationRanking: "reference-suffix",
   archivePerRow,
   archiveRanking,
@@ -232,6 +299,14 @@ const report = {
     explored: candidate.explored,
     legal: candidate.legal,
   })),
+  directSuffixes: directSuffixes.map((candidate) => ({
+    ancestorIndex: candidate.ancestorIndex,
+    depth: candidate.depth,
+    ancestorDamage: candidate.ancestorDamage,
+    suffixProjectedDamage: candidate.suffixProjectedDamage,
+    rotationDamageBeforeDash: candidate.state.totalDamage,
+    coreDamageLoss: referenceCoreDamage - candidate.state.totalDamage,
+  })),
   baselineRotationDamage: baseline.state.totalDamage,
   bestRotationDamage: normalizedDamage(best.state.totalDamage),
   damageGain: normalizedDamage(best.state.totalDamage) - baseline.state.totalDamage,
@@ -239,6 +314,7 @@ const report = {
     best.kind === "revived" &&
     best.state.totalDamage > baseline.state.totalDamage + damageTolerance,
   bestKind: best.kind,
+  bestRevivalKind: best.revivalKind ?? null,
   bestAncestorIndex: best.ancestorIndex,
   bestDepth: best.depth,
   bestRevivedRotationDamage: bestRevived
@@ -248,6 +324,7 @@ const report = {
     ? baseline.state.totalDamage - normalizedDamage(bestRevived.state.totalDamage)
     : null,
   revivedFinalists: revivedFinalists.map((candidate) => ({
+    revivalKind: candidate.revivalKind,
     ancestorIndex: candidate.ancestorIndex,
     depth: candidate.depth,
     rotationDamage: normalizedDamage(candidate.state.totalDamage),
@@ -268,6 +345,7 @@ process.stdout.write(`${JSON.stringify({
   damageGain: report.damageGain,
   accepted: report.accepted,
   bestKind: report.bestKind,
+  bestRevivalKind: report.bestRevivalKind,
   bestAncestorIndex: report.bestAncestorIndex,
   bestDepth: report.bestDepth,
   bestRevivedRotationDamage: report.bestRevivedRotationDamage,

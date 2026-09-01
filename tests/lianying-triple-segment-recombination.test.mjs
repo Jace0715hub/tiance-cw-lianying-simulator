@@ -41,17 +41,20 @@ test("旧供体只按正式轴显式等待行对齐而不改写其他动作", ()
   );
 });
 
-test("当前正式轴与旧异构供体可扩展为四个连续雷区段", () => {
+test("新正式轴与旧异构供体的全部真实差异需要六个连续雷区段", () => {
   const span = buildLianyingBoundedMultiSegmentSpan(
     currentFormal,
     heterogeneous,
-    { segmentCount: 4 },
+    { segmentCount: 6 },
   );
-  assert.deepEqual(span.differenceRows, [3, 38, 75]);
-  assert.deepEqual(span.differenceSegmentIndices, [0, 2, 3]);
-  assert.deepEqual(span.segmentIndices, [0, 1, 2, 3]);
+  assert.deepEqual(
+    span.differenceRows,
+    [3, 14, 15, 16, 17, 38, 75, 121, 124],
+  );
+  assert.deepEqual(span.differenceSegmentIndices, [0, 2, 3, 5]);
+  assert.deepEqual(span.segmentIndices, [0, 1, 2, 3, 4, 5]);
   assert.equal(span.startIndex + 1, 3);
-  assert.equal(span.endIndex, 78);
+  assert.equal(span.endIndex, 129);
 });
 
 test("旧106行雷供体归一化早期时点后只保留真实晚段差异", () => {
@@ -64,7 +67,7 @@ test("旧106行雷供体归一化早期时点后只保留真实晚段差异", ()
     currentFormal,
     normalized,
   );
-  assert.deepEqual(difference.differenceRows, [106, 107]);
+  assert.deepEqual(difference.differenceRows, [106, 107, 121, 124]);
   assert.deepEqual(difference.segmentIndices, [4, 5]);
   assert.deepEqual(difference.referenceThunderRows, [3, 20, 38, 59, 79, 107, 130]);
   assert.deepEqual(difference.donorThunderRows, [3, 20, 38, 59, 79, 106, 130]);

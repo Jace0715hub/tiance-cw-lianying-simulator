@@ -25,13 +25,13 @@
       "thunderNeverPrecedesRideCompletion": true,
       "sequentialChargePools": true
     },
-    "rotationDamage": 2560131430.079636,
-    "rotationDps": 14222952.389331311,
-    "totalDamage": 2646485657.4381084,
-    "totalDps": 14702698.09687838,
+    "rotationDamage": 2562622099.936068,
+    "rotationDps": 14236789.444089267,
+    "totalDamage": 2648976327.2945404,
+    "totalDps": 14716535.151636336,
     "mechanicsViolationCount": 0,
     "finalRage": 1,
-    "finalDragonRideStacks": 4
+    "finalDragonRideStacks": 3
   },
   "actions": {
     "destroy": 26,
@@ -54,11 +54,11 @@
   "dragonRide": {
     "gainedFromOnFootFangs": 33,
     "gainedFromRide": 42,
-    "consumedUnderThunder": 66,
+    "consumedUnderThunder": 67,
     "consumedOutsideThunder": 5,
     "overflow": 0,
     "terminalLiquidationFangs": 5,
-    "finalStacks": 4
+    "finalStacks": 3
   },
   "orangeWindows": [
     {
@@ -254,10 +254,10 @@
     "conclusion": "强制不断流血不增加跳数，且降低总伤害，不应设为硬约束"
   },
   "damageAccounting": {
-    "rotationBreakdownDamage": 2560131430.0796266,
-    "rotationDamage": 2560131430.079636,
+    "rotationBreakdownDamage": 2562622099.9360576,
+    "rotationDamage": 2562622099.936068,
     "equipmentAndDamageEnchantDamage": 86354227.35847235,
-    "totalDamage": 2646485657.4381084
+    "totalDamage": 2648976327.2945404
   },
   "interpretation": {
     "resourceWasteIsSoftDiagnostic": true,

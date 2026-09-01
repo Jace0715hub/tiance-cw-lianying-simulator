@@ -63,7 +63,7 @@ test("当前正式轴归一化多来源后联合搜索后四个雷区段", () =>
     sourceAxes,
     { segmentCount: 4, sourceNormalizeBeforeRow: 59 },
   );
-  assert.deepEqual(joint.differenceRows, [75, 106, 107]);
+  assert.deepEqual(joint.differenceRows, [75, 106, 107, 121, 124]);
   assert.deepEqual(joint.span.segmentIndices, [3, 4, 5, 6]);
   assert.equal(joint.span.startIndex + 1, 59);
   assert.equal(joint.span.endIndex, 150);
@@ -81,7 +81,7 @@ test("五区段联合搜索向左扩展到第三雷且覆盖战斗末段", () =>
     sourceAxes,
     { segmentCount: 5, sourceNormalizeBeforeRow: 59 },
   );
-  assert.deepEqual(joint.differenceRows, [75, 106, 107]);
+  assert.deepEqual(joint.differenceRows, [75, 106, 107, 121, 124]);
   assert.deepEqual(joint.span.segmentIndices, [2, 3, 4, 5, 6]);
   assert.equal(joint.span.startIndex + 1, 38);
   assert.equal(joint.span.endIndex, 150);

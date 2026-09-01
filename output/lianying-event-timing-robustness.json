@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "lianying-event-timing-robustness",
   "durationSeconds": 180,
-  "formalPath": "output/lianying-free-fixed-180s-event-breakpoint.json",
+  "formalPath": "output/lianying-free-fixed-180s-pruned-suffix-revival.json",
   "previousPath": "output/lianying-free-fixed-180s-pair-anchor-wait.json",
   "targetRows": {
     "firstThunder": 3,
@@ -26,9 +26,9 @@
         "secondLead": 5,
         "legal": true,
         "mechanicsViolationCount": 0,
-        "rotationDamage": 2560131430.079636,
+        "rotationDamage": 2562622099.936068,
         "finalRage": 1,
-        "finalDragonRideStacks": 4,
+        "finalDragonRideStacks": 3,
         "failure": null
       },
       "previousTiming": {
@@ -42,7 +42,7 @@
         "finalDragonRideStacks": 4,
         "failure": null
       },
-      "formalDamageDeltaFromPrevious": 439634.5763320923,
+      "formalDamageDeltaFromPrevious": 2930304.4327640533,
       "boundedGrid": {
         "firstLeadRange": [
           1,
@@ -60,13 +60,13 @@
           "secondLead": 5,
           "legal": true,
           "mechanicsViolationCount": 0,
-          "rotationDamage": 2560131430.079636,
+          "rotationDamage": 2562622099.936068,
           "finalRage": 1,
-          "finalDragonRideStacks": 4,
+          "finalDragonRideStacks": 3,
           "failure": null
         },
         "bestDamageDeltaFromFormal": 0,
-        "bestDamageDeltaFromPrevious": 439634.5763320923
+        "bestDamageDeltaFromPrevious": 2930304.4327640533
       },
       "plusMinusOne": {
         "explored": 9,
@@ -77,9 +77,9 @@
           "secondLead": 5,
           "legal": true,
           "mechanicsViolationCount": 0,
-          "rotationDamage": 2560131430.079636,
+          "rotationDamage": 2562622099.936068,
           "finalRage": 1,
-          "finalDragonRideStacks": 4,
+          "finalDragonRideStacks": 3,
           "failure": null
         },
         "candidates": [
@@ -89,9 +89,9 @@
             "secondLead": 4,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2559568963.8177752,
+            "rotationDamage": 2562059633.674207,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -100,9 +100,9 @@
             "secondLead": 5,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2559704875.5931945,
+            "rotationDamage": 2562195545.4496264,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -111,9 +111,9 @@
             "secondLead": 6,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2559704875.5931945,
+            "rotationDamage": 2562195545.4496264,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -122,9 +122,9 @@
             "secondLead": 4,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2559995518.304217,
+            "rotationDamage": 2562486188.160649,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -133,9 +133,9 @@
             "secondLead": 5,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2560131430.079636,
+            "rotationDamage": 2562622099.936068,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -144,9 +144,9 @@
             "secondLead": 6,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2560131430.079636,
+            "rotationDamage": 2562622099.936068,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -155,9 +155,9 @@
             "secondLead": 4,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2559995518.304217,
+            "rotationDamage": 2562486188.160649,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -166,9 +166,9 @@
             "secondLead": 5,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2560131430.079636,
+            "rotationDamage": 2562622099.936068,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           },
           {
@@ -177,9 +177,9 @@
             "secondLead": 6,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2560131430.079636,
+            "rotationDamage": 2562622099.936068,
             "finalRage": 1,
-            "finalDragonRideStacks": 4,
+            "finalDragonRideStacks": 3,
             "failure": null
           }
         ]
@@ -193,9 +193,9 @@
         "secondLead": 5,
         "legal": true,
         "mechanicsViolationCount": 0,
-        "rotationDamage": 2517207082.4585304,
+        "rotationDamage": 2519697752.3149624,
         "finalRage": 1,
-        "finalDragonRideStacks": 6,
+        "finalDragonRideStacks": 5,
         "failure": null
       },
       "previousTiming": {
@@ -209,7 +209,7 @@
         "finalDragonRideStacks": 6,
         "failure": null
       },
-      "formalDamageDeltaFromPrevious": 730277.2873549461,
+      "formalDamageDeltaFromPrevious": 3220947.143786907,
       "boundedGrid": {
         "firstLeadRange": [
           1,
@@ -227,13 +227,13 @@
           "secondLead": 5,
           "legal": true,
           "mechanicsViolationCount": 0,
-          "rotationDamage": 2517633636.944972,
+          "rotationDamage": 2520124306.801404,
           "finalRage": 1,
-          "finalDragonRideStacks": 6,
+          "finalDragonRideStacks": 5,
           "failure": null
         },
         "bestDamageDeltaFromFormal": 426554.48644161224,
-        "bestDamageDeltaFromPrevious": 1156831.7737965584
+        "bestDamageDeltaFromPrevious": 3647501.6302285194
       },
       "plusMinusOne": {
         "explored": 9,
@@ -244,9 +244,9 @@
           "secondLead": 5,
           "legal": true,
           "mechanicsViolationCount": 0,
-          "rotationDamage": 2517633636.944972,
+          "rotationDamage": 2520124306.801404,
           "finalRage": 1,
-          "finalDragonRideStacks": 6,
+          "finalDragonRideStacks": 5,
           "failure": null
         },
         "candidates": [
@@ -256,9 +256,9 @@
             "secondLead": 4,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2516353973.4856467,
+            "rotationDamage": 2518844643.3420787,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -267,9 +267,9 @@
             "secondLead": 5,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2517207082.4585304,
+            "rotationDamage": 2519697752.3149624,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -278,9 +278,9 @@
             "secondLead": 6,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2517207082.4585304,
+            "rotationDamage": 2519697752.3149624,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -289,9 +289,9 @@
             "secondLead": 4,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2516353973.4856467,
+            "rotationDamage": 2518844643.3420787,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -300,9 +300,9 @@
             "secondLead": 5,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2517207082.4585304,
+            "rotationDamage": 2519697752.3149624,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -311,9 +311,9 @@
             "secondLead": 6,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2517207082.4585304,
+            "rotationDamage": 2519697752.3149624,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -322,9 +322,9 @@
             "secondLead": 4,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2516780527.9720883,
+            "rotationDamage": 2519271197.8285203,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -333,9 +333,9 @@
             "secondLead": 5,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2517633636.944972,
+            "rotationDamage": 2520124306.801404,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           },
           {
@@ -344,9 +344,9 @@
             "secondLead": 6,
             "legal": true,
             "mechanicsViolationCount": 0,
-            "rotationDamage": 2517633636.944972,
+            "rotationDamage": 2520124306.801404,
             "finalRage": 1,
-            "finalDragonRideStacks": 6,
+            "finalDragonRideStacks": 5,
             "failure": null
           }
         ]
@@ -367,7 +367,7 @@
           "rowNumber": 18,
           "seconds": 21.7175,
           "rage": 2,
-          "dragonRideStacks": 1,
+          "dragonRideStacks": 2,
           "message": "龙牙需要3点战意，当前只有2点"
         }
       },
@@ -400,13 +400,13 @@
           "secondLead": 1,
           "legal": true,
           "mechanicsViolationCount": 0,
-          "rotationDamage": 2478251696.715402,
+          "rotationDamage": 2480742366.571834,
           "finalRage": 2,
-          "finalDragonRideStacks": 2,
+          "finalDragonRideStacks": 1,
           "failure": null
         },
         "bestDamageDeltaFromFormal": null,
-        "bestDamageDeltaFromPrevious": 0
+        "bestDamageDeltaFromPrevious": 2490669.856431961
       },
       "plusMinusOne": {
         "explored": 9,
@@ -426,7 +426,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -443,7 +443,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -460,7 +460,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -477,7 +477,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -494,7 +494,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -511,7 +511,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -528,7 +528,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -545,7 +545,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           },
@@ -562,7 +562,7 @@
               "rowNumber": 18,
               "seconds": 21.7175,
               "rage": 2,
-              "dragonRideStacks": 1,
+              "dragonRideStacks": 2,
               "message": "龙牙需要3点战意，当前只有2点"
             }
           }

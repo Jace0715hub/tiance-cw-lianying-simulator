@@ -14,6 +14,7 @@ import {
   selectLianyingDiverseAxisCandidates,
   selectLianyingLayeredSuffixFailures,
   selectLianyingValueShadowCandidates,
+  spliceLianyingReferenceSuffix,
 } from "../src/policies/lianying-segment-resynthesis.js";
 import {
   replayWhitepaperLianying,
@@ -32,6 +33,24 @@ test("按雷锚点识别两个任雷之间及最后雷后的整段", () => {
     identified.ranges.map((segment) => [segment.startIndex, segment.endIndex]),
     [[1, 5], [5, 9], [9, 12]],
   );
+});
+
+test("被裁剪祖先可以直接接回参考后缀且不共享动作对象", () => {
+  const ancestor = [{
+    prefix: [{ id: "dismount", reason: "ancestor" }],
+    primary: "destroy",
+    tail: [],
+  }];
+  const reference = [
+    { prefix: [], primary: "dragonFang", tail: [] },
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+  ];
+  const spliced = spliceLianyingReferenceSuffix(ancestor, reference);
+
+  assert.deepEqual(spliced, [ancestor[0], reference[1]]);
+  assert.notEqual(spliced[0], ancestor[0]);
+  assert.notEqual(spliced[0].prefix[0], ancestor[0].prefix[0]);
+  assert.notEqual(spliced[1], reference[1]);
 });
 
 test("区段去重键在雷漂移时保留不同坐标谱系", () => {

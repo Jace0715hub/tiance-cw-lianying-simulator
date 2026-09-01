@@ -223,7 +223,7 @@
         "keepsFullStacksBetweenLaterHits": true
       },
       {
-        "candidateId": "previousTiming",
+        "candidateId": "previousFormal",
         "hitCount": 157,
         "reachesFullStacks": true,
         "firstHits": [
@@ -527,7 +527,7 @@
         ]
       },
       {
-        "candidateId": "previousTiming",
+        "candidateId": "previousFormal",
         "orangeWindowCount": 4,
         "allWindowsHaveExpectedDragonFangs": true,
         "safeHitDelayExclusiveMs": 1067.5,
@@ -819,51 +819,51 @@
     "candidates": [
       {
         "id": "formal",
-        "source": "lianying-free-fixed-180s-event-breakpoint.json",
+        "source": "lianying-free-fixed-180s-pruned-suffix-revival.json",
         "eventDamageDelta": 0,
         "calibratedDamageDelta": 0
       },
       {
         "id": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
         "source": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json",
-        "eventDamageDelta": -23206334.1329422,
-        "calibratedDamageDelta": -23427640.219465256
+        "eventDamageDelta": -25697003.989373684,
+        "calibratedDamageDelta": -25947596.902154446
       },
       {
         "id": "lianying-free-fixed-180s-adaptive-suffix-screen",
         "source": "lianying-free-fixed-180s-adaptive-suffix-screen.json",
-        "eventDamageDelta": -27438570.230407238,
-        "calibratedDamageDelta": -27664878.910459995
+        "eventDamageDelta": -29929240.086838722,
+        "calibratedDamageDelta": -30184835.593149185
       },
       {
         "id": "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative",
         "source": "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative.json",
-        "eventDamageDelta": -29736941.922114372,
-        "calibratedDamageDelta": -29889387.232368946
+        "eventDamageDelta": -32227611.778545856,
+        "calibratedDamageDelta": -32409343.915058136
       },
       {
         "id": "lianying-free-fixed-180s-best-continued-fast",
         "source": "lianying-free-fixed-180s-best-continued-fast.json",
-        "eventDamageDelta": -45110782.55143833,
-        "calibratedDamageDelta": -45152964.227115154
+        "eventDamageDelta": -47601452.407869816,
+        "calibratedDamageDelta": -47672920.909804344
       },
       {
         "id": "lianying-free-fixed-180s",
         "source": "lianying-free-fixed-180s.json",
-        "eventDamageDelta": -49516313.81746149,
-        "calibratedDamageDelta": -49560142.303323746
+        "eventDamageDelta": -52006983.673892975,
+        "calibratedDamageDelta": -52080098.986012936
       },
       {
         "id": "whitepaper-fixed-180s",
         "source": "whitepaper-fixed-180s.json",
-        "eventDamageDelta": -106354739.49937916,
-        "calibratedDamageDelta": -106650415.20444298
+        "eventDamageDelta": -108845409.35581064,
+        "calibratedDamageDelta": -109170371.88713217
       },
       {
         "id": "whitepaper-stable-180s",
         "source": "whitepaper-stable-180s.json",
-        "eventDamageDelta": -128438458.27801228,
-        "calibratedDamageDelta": -128694059.84772587
+        "eventDamageDelta": -130929128.13444376,
+        "calibratedDamageDelta": -131214016.53041506
       }
     ],
     "formulaUncertainty": {
@@ -889,7 +889,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 20432785.923567295,
+            "minimumBaselineMargin": 22589396.9842453,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.9,
@@ -900,7 +900,7 @@
                 "destroy": 0.9
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 20432785.923567295
+              "baselineMargin": 22589396.9842453
             }
           },
           {
@@ -922,7 +922,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 16272463.6095047,
+            "minimumBaselineMargin": 17927986.47655201,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.75,
@@ -933,7 +933,7 @@
                 "destroy": 0.75
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 16272463.6095047
+              "baselineMargin": 17927986.47655201
             }
           }
         ]
@@ -960,7 +960,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 20638867.532470703,
+            "minimumBaselineMargin": 22824161.532423496,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.9,
@@ -971,7 +971,7 @@
                 "destroy": 0.9
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 20638867.532470703
+              "baselineMargin": 22824161.532423496
             }
           },
           {
@@ -993,7 +993,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 16455708.50197792,
+            "minimumBaselineMargin": 18139008.477826595,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.75,
@@ -1004,7 +1004,7 @@
                 "destroy": 0.75
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 16455708.50197792
+              "baselineMargin": 18139008.477826595
             }
           }
         ]
@@ -1073,18 +1073,18 @@
       "groupDamage": {
         "formal": {
           "orangeWeapon": 136234747.88419056,
-          "dragonFangCore": 1404134649.528619,
+          "dragonFangCore": 1407050278.4356034,
           "resourceFillers": 18408446.01882408,
-          "dashBreak": 617016943.2795858,
+          "dashBreak": 616591984.2290331,
           "periodic": 237138559.6725372,
           "destroy": 147198083.69586954
         },
-        "previousTiming": {
+        "previousFormal": {
           "orangeWeapon": 136234747.88419056,
           "dragonFangCore": 1404134649.528619,
           "resourceFillers": 18408446.01882408,
           "dashBreak": 617016943.2795858,
-          "periodic": 236698925.09620517,
+          "periodic": 237138559.6725372,
           "destroy": 147198083.69586954
         },
         "heterogeneous": {
@@ -1114,8 +1114,8 @@
       },
       "singleGroupBreakEvens": [
         {
-          "candidateId": "previousTiming",
-          "baseDelta": -439634.5763325691,
+          "candidateId": "previousFormal",
+          "baseDelta": -2490669.856431484,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1126,10 +1126,10 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": -2915628.906984329,
+              "breakEvenMultiplier": 0.14575210498663405,
+              "requiredRelativeChange": -0.854247895013366,
+              "crossingDirection": "decrease"
             },
             {
               "groupId": "resourceFillers",
@@ -1140,17 +1140,17 @@
             },
             {
               "groupId": "dashBreak",
+              "candidateGroupDelta": 424959.0505527258,
+              "breakEvenMultiplier": 6.860964375725092,
+              "requiredRelativeChange": 5.860964375725092,
+              "crossingDirection": "increase"
+            },
+            {
+              "groupId": "periodic",
               "candidateGroupDelta": 0,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
-            },
-            {
-              "groupId": "periodic",
-              "candidateGroupDelta": -439634.5763320327,
-              "breakEvenMultiplier": 0,
-              "requiredRelativeChange": -1,
-              "crossingDirection": "decrease"
             },
             {
               "groupId": "destroy",
@@ -1163,7 +1163,7 @@
         },
         {
           "candidateId": "heterogeneous",
-          "baseDelta": -2102057.182714939,
+          "baseDelta": -4592727.039146423,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1174,7 +1174,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": 0,
+              "candidateGroupDelta": -2915628.906984329,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1188,10 +1188,10 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": 424959.0505527258,
+              "breakEvenMultiplier": 11.807457878995312,
+              "requiredRelativeChange": 10.807457878995312,
+              "crossingDirection": "increase"
             },
             {
               "groupId": "periodic",
@@ -1211,7 +1211,7 @@
         },
         {
           "candidateId": "thunder106",
-          "baseDelta": -1872528.3761286736,
+          "baseDelta": -4363198.232560158,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1222,7 +1222,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": 0,
+              "candidateGroupDelta": -2915628.906984329,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1236,17 +1236,17 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": 424959.0505527258,
+              "breakEvenMultiplier": 11.267338057361375,
+              "requiredRelativeChange": 10.267338057361375,
+              "crossingDirection": "increase"
             },
             {
               "groupId": "periodic",
               "candidateGroupDelta": -1872528.3761284351,
-              "breakEvenMultiplier": 0,
-              "requiredRelativeChange": -1,
-              "crossingDirection": "decrease"
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
             },
             {
               "groupId": "destroy",
@@ -1259,7 +1259,7 @@
         },
         {
           "candidateId": "qualityTerminal",
-          "baseDelta": -3159714.2272381783,
+          "baseDelta": -5650384.0836696625,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1270,7 +1270,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -345492.54436302185,
+              "candidateGroupDelta": -3261121.451347351,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1278,16 +1278,16 @@
             {
               "groupId": "resourceFillers",
               "candidateGroupDelta": 3600756.3443855494,
-              "breakEvenMultiplier": 1.8775140345624712,
-              "requiredRelativeChange": 0.8775140345624712,
+              "breakEvenMultiplier": 2.569221447732774,
+              "requiredRelativeChange": 1.5692214477327742,
               "crossingDirection": "increase"
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": 424959.0505527258,
+              "breakEvenMultiplier": 14.296302493900184,
+              "requiredRelativeChange": 13.296302493900184,
+              "crossingDirection": "increase"
             },
             {
               "groupId": "periodic",
@@ -1299,9 +1299,9 @@
             {
               "groupId": "destroy",
               "candidateGroupDelta": -4778237.997167975,
-              "breakEvenMultiplier": 0.33872816106880466,
-              "requiredRelativeChange": -0.6612718389311953,
-              "crossingDirection": "decrease"
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
             }
           ]
         }
@@ -1317,7 +1317,7 @@
           "scenarioCount": 729,
           "winnerCounts": {
             "formal": 729,
-            "previousTiming": 0,
+            "previousFormal": 0,
             "heterogeneous": 0,
             "thunder106": 0,
             "qualityTerminal": 0
@@ -1325,18 +1325,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 395671.1186990738,
+          "minimumBaselineMargin": 2156611.0606775284,
           "worstScenario": {
             "multipliers": {
               "orangeWeapon": 0.9,
               "dragonFangCore": 0.9,
               "resourceFillers": 0.9,
-              "dashBreak": 0.9,
+              "dashBreak": 1.1,
               "periodic": 0.9,
-              "destroy": 0.9
+              "destroy": 1.1
             },
-            "bestCompetitorId": "previousTiming",
-            "baselineMargin": 395671.1186990738
+            "bestCompetitorId": "previousFormal",
+            "baselineMargin": 2156611.0606775284
           },
           "changedWinnerExamples": []
         },
@@ -1350,7 +1350,7 @@
           "scenarioCount": 729,
           "winnerCounts": {
             "formal": 729,
-            "previousTiming": 0,
+            "previousFormal": 0,
             "heterogeneous": 0,
             "thunder106": 0,
             "qualityTerminal": 0
@@ -1358,18 +1358,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 329725.93224954605,
+          "minimumBaselineMargin": 1655522.867046833,
           "worstScenario": {
             "multipliers": {
               "orangeWeapon": 0.75,
               "dragonFangCore": 0.75,
-              "resourceFillers": 0.75,
-              "dashBreak": 0.75,
-              "periodic": 0.75,
+              "resourceFillers": 1,
+              "dashBreak": 1.25,
+              "periodic": 1.25,
               "destroy": 0.75
             },
-            "bestCompetitorId": "previousTiming",
-            "baselineMargin": 329725.93224954605
+            "bestCompetitorId": "previousFormal",
+            "baselineMargin": 1655522.867046833
           },
           "changedWinnerExamples": []
         }
@@ -1382,18 +1382,18 @@
       "groupDamage": {
         "formal": {
           "orangeWeapon": 135520069.99032727,
-          "dragonFangCore": 1410700151.2682395,
+          "dragonFangCore": 1413633443.0232654,
           "resourceFillers": 18408446.01882408,
-          "dashBreak": 608510850.1499488,
+          "dashBreak": 608097515.0776125,
           "periodic": 239807773.76253277,
           "destroy": 147198083.6958696
         },
-        "previousTiming": {
+        "previousFormal": {
           "orangeWeapon": 135520069.99032727,
           "dragonFangCore": 1410700151.2682395,
           "resourceFillers": 18408446.01882408,
           "dashBreak": 608510850.1499488,
-          "periodic": 239362181.2159581,
+          "periodic": 239807773.76253277,
           "destroy": 147198083.6958696
         },
         "heterogeneous": {
@@ -1423,8 +1423,8 @@
       },
       "singleGroupBreakEvens": [
         {
-          "candidateId": "previousTiming",
-          "baseDelta": -445592.5465750694,
+          "candidateId": "previousFormal",
+          "baseDelta": -2519956.68268919,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1435,10 +1435,10 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": -2933291.7550258636,
+              "breakEvenMultiplier": 0.1409116810929124,
+              "requiredRelativeChange": -0.8590883189070876,
+              "crossingDirection": "decrease"
             },
             {
               "groupId": "resourceFillers",
@@ -1449,17 +1449,17 @@
             },
             {
               "groupId": "dashBreak",
+              "candidateGroupDelta": 413335.0723363161,
+              "breakEvenMultiplier": 7.096643743405327,
+              "requiredRelativeChange": 6.096643743405327,
+              "crossingDirection": "increase"
+            },
+            {
+              "groupId": "periodic",
               "candidateGroupDelta": 0,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
-            },
-            {
-              "groupId": "periodic",
-              "candidateGroupDelta": -445592.546574682,
-              "breakEvenMultiplier": 0,
-              "requiredRelativeChange": -1,
-              "crossingDirection": "decrease"
             },
             {
               "groupId": "destroy",
@@ -1472,7 +1472,7 @@
         },
         {
           "candidateId": "heterogeneous",
-          "baseDelta": -2106272.8744707108,
+          "baseDelta": -4626229.557159901,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1483,7 +1483,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": 0,
+              "candidateGroupDelta": -2933291.7550258636,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1497,10 +1497,10 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": 413335.0723363161,
+              "breakEvenMultiplier": 12.192443774516432,
+              "requiredRelativeChange": 11.192443774516432,
+              "crossingDirection": "increase"
             },
             {
               "groupId": "periodic",
@@ -1520,7 +1520,7 @@
         },
         {
           "candidateId": "thunder106",
-          "baseDelta": -1898042.4336791039,
+          "baseDelta": -4417999.116368294,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1531,7 +1531,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": 0,
+              "candidateGroupDelta": -2933291.7550258636,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1545,17 +1545,17 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": 413335.0723363161,
+              "breakEvenMultiplier": 11.688662569561782,
+              "requiredRelativeChange": 10.688662569561782,
+              "crossingDirection": "increase"
             },
             {
               "groupId": "periodic",
               "candidateGroupDelta": -1898042.4336790442,
-              "breakEvenMultiplier": 0,
-              "requiredRelativeChange": -1,
-              "crossingDirection": "decrease"
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
             },
             {
               "groupId": "destroy",
@@ -1568,7 +1568,7 @@
         },
         {
           "candidateId": "qualityTerminal",
-          "baseDelta": -3205119.0577630997,
+          "baseDelta": -5725075.74045229,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1579,7 +1579,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -347211.96539092064,
+              "candidateGroupDelta": -3280503.7204167843,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1587,16 +1587,16 @@
             {
               "groupId": "resourceFillers",
               "candidateGroupDelta": 3600756.3443855494,
-              "breakEvenMultiplier": 1.8901238382210048,
-              "requiredRelativeChange": 0.8901238382210048,
+              "breakEvenMultiplier": 2.589964772089916,
+              "requiredRelativeChange": 1.5899647720899162,
               "crossingDirection": "increase"
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 0,
-              "breakEvenMultiplier": null,
-              "requiredRelativeChange": null,
-              "crossingDirection": null
+              "candidateGroupDelta": 413335.0723363161,
+              "breakEvenMultiplier": 14.850931420099764,
+              "requiredRelativeChange": 13.850931420099764,
+              "crossingDirection": "increase"
             },
             {
               "groupId": "periodic",
@@ -1608,9 +1608,9 @@
             {
               "groupId": "destroy",
               "candidateGroupDelta": -4778237.997167975,
-              "breakEvenMultiplier": 0.32922573976793346,
-              "requiredRelativeChange": -0.6707742602320665,
-              "crossingDirection": "decrease"
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
             }
           ]
         }
@@ -1626,7 +1626,7 @@
           "scenarioCount": 729,
           "winnerCounts": {
             "formal": 729,
-            "previousTiming": 0,
+            "previousFormal": 0,
             "heterogeneous": 0,
             "thunder106": 0,
             "qualityTerminal": 0
@@ -1634,18 +1634,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 401033.29191732407,
+          "minimumBaselineMargin": 2185293.999952793,
           "worstScenario": {
             "multipliers": {
               "orangeWeapon": 0.9,
               "dragonFangCore": 0.9,
               "resourceFillers": 0.9,
-              "dashBreak": 1,
+              "dashBreak": 1.1,
               "periodic": 0.9,
               "destroy": 0.9
             },
-            "bestCompetitorId": "previousTiming",
-            "baselineMargin": 401033.29191732407
+            "bestCompetitorId": "previousFormal",
+            "baselineMargin": 2185293.999952793
           },
           "changedWinnerExamples": []
         },
@@ -1659,7 +1659,7 @@
           "scenarioCount": 729,
           "winnerCounts": {
             "formal": 729,
-            "previousTiming": 0,
+            "previousFormal": 0,
             "heterogeneous": 0,
             "thunder106": 0,
             "qualityTerminal": 0
@@ -1667,18 +1667,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 334194.40993118286,
+          "minimumBaselineMargin": 1683299.975848198,
           "worstScenario": {
             "multipliers": {
-              "orangeWeapon": 0.75,
+              "orangeWeapon": 1.25,
               "dragonFangCore": 0.75,
-              "resourceFillers": 0.75,
-              "dashBreak": 0.75,
+              "resourceFillers": 1,
+              "dashBreak": 1.25,
               "periodic": 0.75,
               "destroy": 0.75
             },
-            "bestCompetitorId": "previousTiming",
-            "baselineMargin": 334194.40993118286
+            "bestCompetitorId": "previousFormal",
+            "baselineMargin": 1683299.975848198
           },
           "changedWinnerExamples": []
         }
@@ -1689,14 +1689,14 @@
   "openingBoundaryEquivalent": true,
   "eventRanking": [
     "formal",
-    "previousTiming",
+    "previousFormal",
     "thunder106",
     "heterogeneous",
     "qualityTerminal"
   ],
   "calibratedRanking": [
     "formal",
-    "previousTiming",
+    "previousFormal",
     "thunder106",
     "heterogeneous",
     "qualityTerminal"
@@ -1707,13 +1707,1084 @@
     {
       "id": "formal",
       "label": "formal",
-      "source": "lianying-free-fixed-180s-event-breakpoint.json",
+      "source": "lianying-free-fixed-180s-pruned-suffix-revival.json",
       "firstDifferenceRow": null,
+      "openingDamageEventsIdentical": true,
+      "eventDamage": 2648976327.2945304,
+      "calibratedDamage": 2649019558.9269037,
+      "calibrationCorrection": 43231.63237374964,
+      "eventDamageDelta": 0,
+      "skillRows": [
+        {
+          "skill": "龙牙",
+          "count": 109,
+          "eventDamage": 1086691394.6131558,
+          "factor": 1.006057989066901,
+          "calibratedDamage": 1093274559.2008178,
+          "correction": 6583164.587661927,
+          "calibrated": true
+        },
+        {
+          "skill": "破罡",
+          "count": 109,
+          "eventDamage": 333687981.1419051,
+          "factor": 0.9999999999999992,
+          "calibratedDamage": 333687981.1419049,
+          "correction": -2.5932765579309966e-7,
+          "calibrated": true
+        },
+        {
+          "skill": "破军",
+          "count": 273,
+          "eventDamage": 282219865.9773637,
+          "factor": 0.9699012359672027,
+          "calibratedDamage": 273725396.82594335,
+          "correction": -8494469.151420355,
+          "calibrated": true
+        },
+        {
+          "skill": "龙血",
+          "count": 109,
+          "eventDamage": 261814855.08831567,
+          "factor": 1.0000000000000007,
+          "calibratedDamage": 261814855.08831584,
+          "correction": 1.744037281847681e-7,
+          "calibrated": true
+        },
+        {
+          "skill": "流血-战心",
+          "count": 108,
+          "eventDamage": 196798677.95670944,
+          "factor": 1.014051673225885,
+          "calibratedDamage": 199564028.67064333,
+          "correction": 2765350.7139338735,
+          "calibrated": true
+        },
+        {
+          "skill": "灭",
+          "count": 78,
+          "eventDamage": 147198083.69586954,
+          "factor": 1.0000000000000004,
+          "calibratedDamage": 147198083.6958696,
+          "correction": 6.536908067994209e-8,
+          "calibrated": true
+        },
+        {
+          "skill": "画角闻龙",
+          "count": 20,
+          "eventDamage": 125715735.63529442,
+          "factor": 1,
+          "calibratedDamage": 125715735.63529442,
+          "correction": 0,
+          "calibrated": false
+        },
+        {
+          "skill": "新破招(牙)",
+          "count": 109,
+          "eventDamage": 58544028.73413186,
+          "factor": 0.9999999999999982,
+          "calibratedDamage": 58544028.73413175,
+          "correction": -1.0399508584791991e-7,
+          "calibrated": true
+        },
+        {
+          "skill": "梅花枪法",
+          "count": 126,
+          "eventDamage": 38434881.98759878,
+          "factor": 0.9972604153218451,
+          "calibratedDamage": 38329586.373798855,
+          "correction": -105295.61379991882,
+          "calibrated": true
+        },
+        {
+          "skill": "刃凌",
+          "count": 16.81347237492584,
+          "eventDamage": 21655752.418904483,
+          "factor": 1,
+          "calibratedDamage": 21655752.418904483,
+          "correction": 0,
+          "calibrated": true
+        },
+        {
+          "skill": "速·震",
+          "count": 99,
+          "eventDamage": 21225600,
+          "factor": 1,
+          "calibratedDamage": 21225600,
+          "correction": 0,
+          "calibrated": true
+        },
+        {
+          "skill": "特效·腕",
+          "count": 16.99767981438515,
+          "eventDamage": 15486191.732714618,
+          "factor": 1,
+          "calibratedDamage": 15486191.732714618,
+          "correction": 0,
+          "calibrated": true
+        },
+        {
+          "skill": "昆吾·弦刃",
+          "count": 7.615384615384615,
+          "eventDamage": 14712923.076923076,
+          "factor": 1,
+          "calibratedDamage": 14712923.076923076,
+          "correction": 0,
+          "calibrated": true
+        },
+        {
+          "skill": "无修·荒",
+          "count": 16.99767981438515,
+          "eventDamage": 13273760.129930394,
+          "factor": 1,
+          "calibratedDamage": 13273760.129930394,
+          "correction": 0,
+          "calibrated": true
+        },
+        {
+          "skill": "龙吟",
+          "count": 4,
+          "eventDamage": 12001537.917054873,
+          "factor": 1,
+          "calibratedDamage": 12001537.917054873,
+          "correction": 0,
+          "calibrated": true
+        },
+        {
+          "skill": "龙牙·神兵",
+          "count": 109,
+          "eventDamage": 10519012.248896124,
+          "factor": 0.932058459772374,
+          "calibratedDamage": 9804334.355032858,
+          "correction": -714677.8938632666,
+          "calibrated": true
+        },
+        {
+          "skill": "穿云",
+          "count": 2,
+          "eventDamage": 4445886.639809026,
+          "factor": 0.9999999999999999,
+          "calibratedDamage": 4445886.639809025,
+          "correction": -4.935925712389351e-10,
+          "calibrated": true
+        },
+        {
+          "skill": "断魂刺",
+          "count": 8,
+          "eventDamage": 1961021.4619601788,
+          "factor": 1,
+          "calibratedDamage": 1961021.4619601788,
+          "correction": 0,
+          "calibrated": true
+        },
+        {
+          "skill": "流血",
+          "count": 2,
+          "eventDamage": 1904999.7282289905,
+          "factor": 1.0048078693796603,
+          "calibratedDamage": 1914158.7180906038,
+          "correction": 9158.989861613296,
+          "calibrated": true
+        },
+        {
+          "skill": "突",
+          "count": 8,
+          "eventDamage": 684137.109764251,
+          "factor": 1,
+          "calibratedDamage": 684137.109764251,
+          "correction": 0,
+          "calibrated": false
+        }
+      ],
+      "calibratedDamageDelta": 0,
+      "actionPacks": [
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": [
+            {
+              "id": "dash",
+              "leadFrames": 18
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "ride",
+          "tail": [
+            {
+              "id": "orange",
+              "leadFrames": 1
+            },
+            {
+              "id": "thunder",
+              "leadFrames": 7
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": [
+            {
+              "id": "charge",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "free-search"
+            }
+          ],
+          "primary": "dragonFang",
+          "tail": [
+            {
+              "id": "dash",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "refresh-ride"
+            }
+          ],
+          "primary": "ride",
+          "tail": [
+            {
+              "id": "thunder",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "charge",
+            {
+              "id": "dismount",
+              "reason": "free-search"
+            }
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": [
+            {
+              "id": "dash",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "ride",
+          "tail": [
+            {
+              "id": "thunder",
+              "leadFrames": 5
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "charge"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "orange"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "free-search"
+            },
+            "dash"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonRoar",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "ride",
+          "tail": [
+            {
+              "id": "thunder",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "charge"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonRoar",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "thunder"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "charge"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "free-search"
+            },
+            "dash"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "orange"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "cloudStrike",
+          "tail": [
+            {
+              "id": "dash",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "cloudStrike",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonRoar",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "ride",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "thunder"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "charge"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonRoar",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "free-search"
+            },
+            "dash"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": {
+            "id": "wait",
+            "frames": 4
+          },
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "ride",
+          "tail": [
+            {
+              "id": "charge",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": {
+            "id": "wait",
+            "frames": 2
+          },
+          "tail": []
+        },
+        {
+          "prefix": [
+            "thunder"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            "orange"
+          ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "refresh-ride"
+            },
+            "dash"
+          ],
+          "primary": "ride",
+          "tail": [
+            {
+              "id": "charge",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "destroy",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        }
+      ]
+    },
+    {
+      "id": "previousFormal",
+      "label": "previousFormal",
+      "source": "lianying-free-fixed-180s-event-breakpoint.json",
+      "firstDifferenceRow": 14,
       "openingDamageEventsIdentical": true,
       "eventDamage": 2646485657.438099,
       "calibratedDamage": 2646499602.2442145,
       "calibrationCorrection": 13944.806115717987,
-      "eventDamageDelta": 0,
+      "eventDamageDelta": -2490669.856431484,
       "skillRows": [
         {
           "skill": "龙牙",
@@ -1896,7 +2967,7 @@
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": 0,
+      "calibratedDamageDelta": -2519956.68268919,
       "actionPacks": [
         {
           "prefix": [],
@@ -2769,1070 +3840,6 @@
       ]
     },
     {
-      "id": "previousTiming",
-      "label": "previousTiming",
-      "source": "lianying-free-fixed-180s-pair-anchor-wait.json",
-      "firstDifferenceRow": 3,
-      "openingDamageEventsIdentical": true,
-      "eventDamage": 2646046022.8617663,
-      "calibratedDamage": 2646054009.6976395,
-      "calibrationCorrection": 7986.835873054469,
-      "eventDamageDelta": -439634.5763325691,
-      "skillRows": [
-        {
-          "skill": "龙牙",
-          "count": 109,
-          "eventDamage": 1083775765.7061715,
-          "factor": 1.006057989066901,
-          "calibratedDamage": 1090341267.4457917,
-          "correction": 6565501.739620275,
-          "calibrated": true
-        },
-        {
-          "skill": "破罡",
-          "count": 109,
-          "eventDamage": 333687981.1419051,
-          "factor": 0.9999999999999992,
-          "calibratedDamage": 333687981.1419049,
-          "correction": -2.5932765579309966e-7,
-          "calibrated": true
-        },
-        {
-          "skill": "破军",
-          "count": 273,
-          "eventDamage": 282606060.51358163,
-          "factor": 0.9699012359672027,
-          "calibratedDamage": 274099967.3839449,
-          "correction": -8506093.129636735,
-          "calibrated": true
-        },
-        {
-          "skill": "龙血",
-          "count": 109,
-          "eventDamage": 261814855.08831567,
-          "factor": 1.0000000000000007,
-          "calibratedDamage": 261814855.08831584,
-          "correction": 1.744037281847681e-7,
-          "calibrated": true
-        },
-        {
-          "skill": "流血-战心",
-          "count": 108,
-          "eventDamage": 196372123.47026762,
-          "factor": 1.014051673225885,
-          "calibratedDamage": 199131480.37994498,
-          "correction": 2759356.909677358,
-          "calibrated": true
-        },
-        {
-          "skill": "灭",
-          "count": 78,
-          "eventDamage": 147198083.69586954,
-          "factor": 1.0000000000000004,
-          "calibratedDamage": 147198083.6958696,
-          "correction": 6.536908067994209e-8,
-          "calibrated": true
-        },
-        {
-          "skill": "画角闻龙",
-          "count": 20,
-          "eventDamage": 125715735.63529442,
-          "factor": 1,
-          "calibratedDamage": 125715735.63529442,
-          "correction": 0,
-          "calibrated": false
-        },
-        {
-          "skill": "新破招(牙)",
-          "count": 109,
-          "eventDamage": 58544028.73413186,
-          "factor": 0.9999999999999982,
-          "calibratedDamage": 58544028.73413175,
-          "correction": -1.0399508584791991e-7,
-          "calibrated": true
-        },
-        {
-          "skill": "梅花枪法",
-          "count": 126,
-          "eventDamage": 38421801.89770858,
-          "factor": 0.9972604153218451,
-          "calibratedDamage": 38316542.117922515,
-          "correction": -105259.77978606675,
-          "calibrated": true
-        },
-        {
-          "skill": "刃凌",
-          "count": 16.81347237492584,
-          "eventDamage": 21655752.418904483,
-          "factor": 1,
-          "calibratedDamage": 21655752.418904483,
-          "correction": 0,
-          "calibrated": true
-        },
-        {
-          "skill": "速·震",
-          "count": 99,
-          "eventDamage": 21225600,
-          "factor": 1,
-          "calibratedDamage": 21225600,
-          "correction": 0,
-          "calibrated": true
-        },
-        {
-          "skill": "特效·腕",
-          "count": 16.99767981438515,
-          "eventDamage": 15486191.732714618,
-          "factor": 1,
-          "calibratedDamage": 15486191.732714618,
-          "correction": 0,
-          "calibrated": true
-        },
-        {
-          "skill": "昆吾·弦刃",
-          "count": 7.615384615384615,
-          "eventDamage": 14712923.076923076,
-          "factor": 1,
-          "calibratedDamage": 14712923.076923076,
-          "correction": 0,
-          "calibrated": true
-        },
-        {
-          "skill": "无修·荒",
-          "count": 16.99767981438515,
-          "eventDamage": 13273760.129930394,
-          "factor": 1,
-          "calibratedDamage": 13273760.129930394,
-          "correction": 0,
-          "calibrated": true
-        },
-        {
-          "skill": "龙吟",
-          "count": 4,
-          "eventDamage": 12001537.917054873,
-          "factor": 1,
-          "calibratedDamage": 12001537.917054873,
-          "correction": 0,
-          "calibrated": true
-        },
-        {
-          "skill": "龙牙·神兵",
-          "count": 109,
-          "eventDamage": 10519012.248896124,
-          "factor": 0.932058459772374,
-          "calibratedDamage": 9804334.355032858,
-          "correction": -714677.8938632666,
-          "calibrated": true
-        },
-        {
-          "skill": "穿云",
-          "count": 2,
-          "eventDamage": 4445886.639809026,
-          "factor": 0.9999999999999999,
-          "calibratedDamage": 4445886.639809025,
-          "correction": -4.935925712389351e-10,
-          "calibrated": true
-        },
-        {
-          "skill": "断魂刺",
-          "count": 8,
-          "eventDamage": 1961021.4619601788,
-          "factor": 1,
-          "calibratedDamage": 1961021.4619601788,
-          "correction": 0,
-          "calibrated": true
-        },
-        {
-          "skill": "流血",
-          "count": 2,
-          "eventDamage": 1904999.7282289905,
-          "factor": 1.0048078693796603,
-          "calibratedDamage": 1914158.7180906038,
-          "correction": 9158.989861613296,
-          "calibrated": true
-        },
-        {
-          "skill": "突",
-          "count": 8,
-          "eventDamage": 722901.6240990255,
-          "factor": 1,
-          "calibratedDamage": 722901.6240990255,
-          "correction": 0,
-          "calibrated": false
-        }
-      ],
-      "calibratedDamageDelta": -445592.5465750694,
-      "actionPacks": [
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": [
-            {
-              "id": "dash",
-              "leadFrames": 18
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "ride",
-          "tail": [
-            {
-              "id": "thunder",
-              "leadFrames": 1
-            },
-            {
-              "id": "orange",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "charge"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            },
-            "dash"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "refresh-ride"
-            }
-          ],
-          "primary": "ride",
-          "tail": [
-            {
-              "id": "thunder",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "charge",
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            }
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": [
-            {
-              "id": "dash",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "ride",
-          "tail": [
-            {
-              "id": "thunder",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "charge"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "orange"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            },
-            "dash"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonRoar",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "ride",
-          "tail": [
-            {
-              "id": "thunder",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "charge"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonRoar",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "thunder"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "charge"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            },
-            "dash"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "orange"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "cloudStrike",
-          "tail": [
-            {
-              "id": "dash",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "cloudStrike",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonRoar",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "ride",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "thunder"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "charge"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            },
-            "dash"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonRoar",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": {
-            "id": "wait",
-            "frames": 4
-          },
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "ride",
-          "tail": [
-            {
-              "id": "charge",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": {
-            "id": "wait",
-            "frames": 2
-          },
-          "tail": []
-        },
-        {
-          "prefix": [
-            "thunder"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "orange"
-          ],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "refresh-ride"
-            },
-            "dash"
-          ],
-          "primary": "ride",
-          "tail": [
-            {
-              "id": "charge",
-              "leadFrames": 1
-            }
-          ]
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "destroy",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        }
-      ]
-    },
-    {
       "id": "heterogeneous",
       "label": "heterogeneous",
       "source": "lianying-ranking-sensitivity.json#candidate:heterogeneous",
@@ -3841,7 +3848,7 @@
       "eventDamage": 2644383600.255384,
       "calibratedDamage": 2644393329.369744,
       "calibrationCorrection": 9729.11435877433,
-      "eventDamageDelta": -2102057.182714939,
+      "eventDamageDelta": -4592727.039146423,
       "skillRows": [
         {
           "skill": "龙牙",
@@ -4024,7 +4031,7 @@
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": -2106272.8744707108,
+      "calibratedDamageDelta": -4626229.557159901,
       "actionPacks": [
         {
           "prefix": [],
@@ -4889,7 +4896,7 @@
       "eventDamage": 2644613129.06197,
       "calibratedDamage": 2644601559.8105354,
       "calibrationCorrection": -11569.251434876689,
-      "eventDamageDelta": -1872528.3761286736,
+      "eventDamageDelta": -4363198.232560158,
       "skillRows": [
         {
           "skill": "龙牙",
@@ -5072,7 +5079,7 @@
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": -1898042.4336791039,
+      "calibratedDamageDelta": -4417999.116368294,
       "actionPacks": [
         {
           "prefix": [],
@@ -5940,7 +5947,7 @@
       "eventDamage": 2643325943.2108607,
       "calibratedDamage": 2643294483.1864514,
       "calibrationCorrection": -31460.02441022039,
-      "eventDamageDelta": -3159714.2272381783,
+      "eventDamageDelta": -5650384.0836696625,
       "skillRows": [
         {
           "skill": "龙牙",
@@ -6123,7 +6130,7 @@
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": -3205119.0577630997,
+      "calibratedDamageDelta": -5725075.74045229,
       "actionPacks": [
         {
           "prefix": [],

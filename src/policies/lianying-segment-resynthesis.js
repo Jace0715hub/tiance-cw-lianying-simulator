@@ -31,6 +31,20 @@ function clonePack(pack) {
   };
 }
 
+export function spliceLianyingReferenceSuffix(
+  ancestorPacks,
+  referencePacks,
+) {
+  const depth = ancestorPacks.length;
+  if (depth > referencePacks.length) {
+    throw new Error("祖先前缀不能长于参考技能轴");
+  }
+  return [
+    ...ancestorPacks.map(clonePack),
+    ...referencePacks.slice(depth).map(clonePack),
+  ];
+}
+
 function stripDash(pack) {
   const next = clonePack(pack);
   next.prefix = next.prefix.filter((action) => actionId(action) !== "dash");
