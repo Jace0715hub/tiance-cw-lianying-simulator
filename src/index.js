@@ -123,6 +123,8 @@ export {
   optimizeLianyingMultiSegmentResynthesis,
   selectLianyingJointBoundaryNodes,
 } from "./policies/lianying-multisegment-resynthesis.js";
+export { buildLianyingStanceIntervalMacro } from
+  "./policies/lianying-stance-interval-macros.js";
 export {
   lianyingPortfolioStructureKey,
   lianyingSeedPortfolioToCsv,
