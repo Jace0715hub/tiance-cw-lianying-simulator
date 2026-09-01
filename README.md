@@ -9,6 +9,7 @@
 默认研究环境为五段加速、30ms 总延迟、斩杀木桩和固定 180 秒战斗：
 
 - 正式技能轴：[`output/lianying-free-fixed-180s-dismount-triple-transfer.json`](output/lianying-free-fixed-180s-dismount-triple-transfer.json)
+- 人工审轴版：[`output/lianying-free-fixed-180s-dismount-triple-transfer-readable.md`](output/lianying-free-fixed-180s-dismount-triple-transfer-readable.md)
 - 循环伤害：`2,564,610,782.55`
 - 循环 DPS：`14,247,837.68`
 - 计入装备与附魔后的总 DPS：`14,727,583.39`
@@ -50,6 +51,7 @@ npm run report:anchors
 npm run report:ranking-sensitivity
 npm run report:event-timing-robustness
 npm run verify:current-best
+npm run export:readable-axis
 ```
 
 常用研究入口：
