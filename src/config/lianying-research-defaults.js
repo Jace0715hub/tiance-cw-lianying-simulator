@@ -1,7 +1,7 @@
 import path from "node:path";
 
 export const LIANYING_CURRENT_BEST_AXIS =
-  "output/lianying-free-fixed-180s-pruned-suffix-revival.json";
+  "output/lianying-free-fixed-180s-dismount-triple-transfer.json";
 
 export const LIANYING_FIXED_DURATION_BASELINES = Object.freeze({
   180: LIANYING_CURRENT_BEST_AXIS,
@@ -10,6 +10,9 @@ export const LIANYING_FIXED_DURATION_BASELINES = Object.freeze({
 
 export const LIANYING_DEFAULT_RESEARCH_SEEDS = Object.freeze([
   LIANYING_CURRENT_BEST_AXIS,
+  "output/lianying-free-fixed-180s-dismount-pair-radius6.json",
+  "output/lianying-free-fixed-180s-dismount-pair-transfer.json",
+  "output/lianying-free-fixed-180s-pruned-suffix-revival.json",
   "output/lianying-free-fixed-180s-event-breakpoint.json",
   "output/lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json",
   "output/lianying-free-fixed-180s-adaptive-suffix-screen.json",

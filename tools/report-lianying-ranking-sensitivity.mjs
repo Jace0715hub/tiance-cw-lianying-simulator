@@ -44,7 +44,7 @@ const persistedCandidateSpec = (id, temporarySpec) =>
     : temporarySpec;
 const defaultSpecs = [
   `formal=${path.join(projectRoot, LIANYING_CURRENT_BEST_AXIS)}`,
-  `previousFormal=${path.join(projectRoot, "output/lianying-free-fixed-180s-event-breakpoint.json")}`,
+  `previousFormal=${path.join(projectRoot, "output/lianying-free-fixed-180s-dismount-pair-radius6.json")}`,
   `heterogeneous=${persistedCandidateSpec(
     "heterogeneous",
     "/tmp/lianying-m79-early-structural-bridge-candidate.json",

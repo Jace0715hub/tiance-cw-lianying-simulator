@@ -819,51 +819,51 @@
     "candidates": [
       {
         "id": "formal",
-        "source": "lianying-free-fixed-180s-pruned-suffix-revival.json",
+        "source": "lianying-free-fixed-180s-dismount-triple-transfer.json",
         "eventDamageDelta": 0,
         "calibratedDamageDelta": 0
       },
       {
         "id": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
         "source": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced.json",
-        "eventDamageDelta": -25697003.989373684,
-        "calibratedDamageDelta": -25947596.902154446
+        "eventDamageDelta": -27685686.59940481,
+        "calibratedDamageDelta": -27941889.058716297
       },
       {
         "id": "lianying-free-fixed-180s-adaptive-suffix-screen",
         "source": "lianying-free-fixed-180s-adaptive-suffix-screen.json",
-        "eventDamageDelta": -29929240.086838722,
-        "calibratedDamageDelta": -30184835.593149185
+        "eventDamageDelta": -31917922.69686985,
+        "calibratedDamageDelta": -32179127.749711037
       },
       {
         "id": "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative",
         "source": "lianying-free-fixed-180s-crossover-bridge-portfolio-joint-target-best-alternative.json",
-        "eventDamageDelta": -32227611.778545856,
-        "calibratedDamageDelta": -32409343.915058136
+        "eventDamageDelta": -34216294.388576984,
+        "calibratedDamageDelta": -34403636.07161999
       },
       {
         "id": "lianying-free-fixed-180s-best-continued-fast",
         "source": "lianying-free-fixed-180s-best-continued-fast.json",
-        "eventDamageDelta": -47601452.407869816,
-        "calibratedDamageDelta": -47672920.909804344
+        "eventDamageDelta": -49590135.017900944,
+        "calibratedDamageDelta": -49667213.066366196
       },
       {
         "id": "lianying-free-fixed-180s",
         "source": "lianying-free-fixed-180s.json",
-        "eventDamageDelta": -52006983.673892975,
-        "calibratedDamageDelta": -52080098.986012936
+        "eventDamageDelta": -53995666.2839241,
+        "calibratedDamageDelta": -54074391.14257479
       },
       {
         "id": "whitepaper-fixed-180s",
         "source": "whitepaper-fixed-180s.json",
-        "eventDamageDelta": -108845409.35581064,
-        "calibratedDamageDelta": -109170371.88713217
+        "eventDamageDelta": -110834091.96584177,
+        "calibratedDamageDelta": -111164664.04369402
       },
       {
         "id": "whitepaper-stable-180s",
         "source": "whitepaper-stable-180s.json",
-        "eventDamageDelta": -130929128.13444376,
-        "calibratedDamageDelta": -131214016.53041506
+        "eventDamageDelta": -132917810.74447489,
+        "calibratedDamageDelta": -133208308.68697691
       }
     ],
     "formulaUncertainty": {
@@ -889,7 +889,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 22589396.9842453,
+            "minimumBaselineMargin": 24418552.657264233,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.9,
@@ -900,7 +900,7 @@
                 "destroy": 0.9
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 22589396.9842453
+              "baselineMargin": 24418552.657264233
             }
           },
           {
@@ -922,7 +922,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 17927986.47655201,
+            "minimumBaselineMargin": 19517851.744052887,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.75,
@@ -933,7 +933,7 @@
                 "destroy": 0.75
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 17927986.47655201
+              "baselineMargin": 19517851.744052887
             }
           }
         ]
@@ -960,7 +960,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 22824161.532423496,
+            "minimumBaselineMargin": 24657316.55243492,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.9,
@@ -971,7 +971,7 @@
                 "destroy": 0.9
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 22824161.532423496
+              "baselineMargin": 24657316.55243492
             }
           },
           {
@@ -993,7 +993,7 @@
               "whitepaper-stable-180s": 0
             },
             "continuousHyperrectangleCertified": true,
-            "minimumBaselineMargin": 18139008.477826595,
+            "minimumBaselineMargin": 19730457.79301262,
             "worstScenario": {
               "multipliers": {
                 "orangeWeapon": 0.75,
@@ -1004,7 +1004,7 @@
                 "destroy": 0.75
               },
               "bestCompetitorId": "lianying-free-fixed-180s-adaptive-suffix-screen-segments-fast-segments-balanced",
-              "baselineMargin": 18139008.477826595
+              "baselineMargin": 19730457.79301262
             }
           }
         ]
@@ -1073,17 +1073,17 @@
       "groupDamage": {
         "formal": {
           "orangeWeapon": 136234747.88419056,
-          "dragonFangCore": 1407050278.4356034,
+          "dragonFangCore": 1408842254.4256797,
           "resourceFillers": 18408446.01882408,
-          "dashBreak": 616591984.2290331,
+          "dashBreak": 616788690.8489879,
           "periodic": 237138559.6725372,
           "destroy": 147198083.69586954
         },
         "previousFormal": {
           "orangeWeapon": 136234747.88419056,
-          "dragonFangCore": 1404134649.528619,
+          "dragonFangCore": 1408842254.4256797,
           "resourceFillers": 18408446.01882408,
-          "dashBreak": 617016943.2795858,
+          "dashBreak": 616591984.2290331,
           "periodic": 237138559.6725372,
           "destroy": 147198083.69586954
         },
@@ -1115,7 +1115,7 @@
       "singleGroupBreakEvens": [
         {
           "candidateId": "previousFormal",
-          "baseDelta": -2490669.856431484,
+          "baseDelta": -196706.61995506287,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1126,10 +1126,10 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -2915628.906984329,
-              "breakEvenMultiplier": 0.14575210498663405,
-              "requiredRelativeChange": -0.854247895013366,
-              "crossingDirection": "decrease"
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
             },
             {
               "groupId": "resourceFillers",
@@ -1140,10 +1140,10 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 424959.0505527258,
-              "breakEvenMultiplier": 6.860964375725092,
-              "requiredRelativeChange": 5.860964375725092,
-              "crossingDirection": "increase"
+              "candidateGroupDelta": -196706.61995482445,
+              "breakEvenMultiplier": 0,
+              "requiredRelativeChange": -1,
+              "crossingDirection": "decrease"
             },
             {
               "groupId": "periodic",
@@ -1163,7 +1163,7 @@
         },
         {
           "candidateId": "heterogeneous",
-          "baseDelta": -4592727.039146423,
+          "baseDelta": -6581409.649177551,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1174,7 +1174,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -2915628.906984329,
+              "candidateGroupDelta": -4707604.897060633,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1188,9 +1188,9 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 424959.0505527258,
-              "breakEvenMultiplier": 11.807457878995312,
-              "requiredRelativeChange": 10.807457878995312,
+              "candidateGroupDelta": 228252.43059790134,
+              "breakEvenMultiplier": 29.833908282762724,
+              "requiredRelativeChange": 28.833908282762724,
               "crossingDirection": "increase"
             },
             {
@@ -1211,7 +1211,7 @@
         },
         {
           "candidateId": "thunder106",
-          "baseDelta": -4363198.232560158,
+          "baseDelta": -6351880.842591286,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1222,7 +1222,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -2915628.906984329,
+              "candidateGroupDelta": -4707604.897060633,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1236,9 +1236,9 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 424959.0505527258,
-              "breakEvenMultiplier": 11.267338057361375,
-              "requiredRelativeChange": 10.267338057361375,
+              "candidateGroupDelta": 228252.43059790134,
+              "breakEvenMultiplier": 28.828316333599155,
+              "requiredRelativeChange": 27.828316333599155,
               "crossingDirection": "increase"
             },
             {
@@ -1259,7 +1259,7 @@
         },
         {
           "candidateId": "qualityTerminal",
-          "baseDelta": -5650384.0836696625,
+          "baseDelta": -7639066.69370079,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1270,7 +1270,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -3261121.451347351,
+              "candidateGroupDelta": -5053097.441423655,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1278,15 +1278,15 @@
             {
               "groupId": "resourceFillers",
               "candidateGroupDelta": 3600756.3443855494,
-              "breakEvenMultiplier": 2.569221447732774,
-              "requiredRelativeChange": 1.5692214477327742,
+              "breakEvenMultiplier": 3.121517248900205,
+              "requiredRelativeChange": 2.121517248900205,
               "crossingDirection": "increase"
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 424959.0505527258,
-              "breakEvenMultiplier": 14.296302493900184,
-              "requiredRelativeChange": 13.296302493900184,
+              "candidateGroupDelta": 228252.43059790134,
+              "breakEvenMultiplier": 34.467624742003636,
+              "requiredRelativeChange": 33.467624742003636,
               "crossingDirection": "increase"
             },
             {
@@ -1325,18 +1325,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 2156611.0606775284,
+          "minimumBaselineMargin": 177035.9579591751,
           "worstScenario": {
             "multipliers": {
               "orangeWeapon": 0.9,
               "dragonFangCore": 0.9,
-              "resourceFillers": 0.9,
-              "dashBreak": 1.1,
+              "resourceFillers": 1,
+              "dashBreak": 0.9,
               "periodic": 0.9,
-              "destroy": 1.1
+              "destroy": 0.9
             },
             "bestCompetitorId": "previousFormal",
-            "baselineMargin": 2156611.0606775284
+            "baselineMargin": 177035.9579591751
           },
           "changedWinnerExamples": []
         },
@@ -1358,18 +1358,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 1655522.867046833,
+          "minimumBaselineMargin": 147529.9649658203,
           "worstScenario": {
             "multipliers": {
-              "orangeWeapon": 0.75,
+              "orangeWeapon": 1,
               "dragonFangCore": 0.75,
-              "resourceFillers": 1,
-              "dashBreak": 1.25,
+              "resourceFillers": 1.25,
+              "dashBreak": 0.75,
               "periodic": 1.25,
               "destroy": 0.75
             },
             "bestCompetitorId": "previousFormal",
-            "baselineMargin": 1655522.867046833
+            "baselineMargin": 147529.9649658203
           },
           "changedWinnerExamples": []
         }
@@ -1382,17 +1382,17 @@
       "groupDamage": {
         "formal": {
           "orangeWeapon": 135520069.99032727,
-          "dragonFangCore": 1413633443.0232654,
+          "dragonFangCore": 1415436274.784298,
           "resourceFillers": 18408446.01882408,
-          "dashBreak": 608097515.0776125,
+          "dashBreak": 608288975.4731418,
           "periodic": 239807773.76253277,
           "destroy": 147198083.6958696
         },
         "previousFormal": {
           "orangeWeapon": 135520069.99032727,
-          "dragonFangCore": 1410700151.2682395,
+          "dragonFangCore": 1415436274.784298,
           "resourceFillers": 18408446.01882408,
-          "dashBreak": 608510850.1499488,
+          "dashBreak": 608097515.0776125,
           "periodic": 239807773.76253277,
           "destroy": 147198083.6958696
         },
@@ -1424,7 +1424,7 @@
       "singleGroupBreakEvens": [
         {
           "candidateId": "previousFormal",
-          "baseDelta": -2519956.68268919,
+          "baseDelta": -191460.39552927017,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1435,10 +1435,10 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -2933291.7550258636,
-              "breakEvenMultiplier": 0.1409116810929124,
-              "requiredRelativeChange": -0.8590883189070876,
-              "crossingDirection": "decrease"
+              "candidateGroupDelta": 0,
+              "breakEvenMultiplier": null,
+              "requiredRelativeChange": null,
+              "crossingDirection": null
             },
             {
               "groupId": "resourceFillers",
@@ -1449,10 +1449,10 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 413335.0723363161,
-              "breakEvenMultiplier": 7.096643743405327,
-              "requiredRelativeChange": 6.096643743405327,
-              "crossingDirection": "increase"
+              "candidateGroupDelta": -191460.39552927017,
+              "breakEvenMultiplier": 0,
+              "requiredRelativeChange": -1,
+              "crossingDirection": "decrease"
             },
             {
               "groupId": "periodic",
@@ -1472,7 +1472,7 @@
         },
         {
           "candidateId": "heterogeneous",
-          "baseDelta": -4626229.557159901,
+          "baseDelta": -6620521.713721752,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1483,7 +1483,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -2933291.7550258636,
+              "candidateGroupDelta": -4736123.516058445,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1497,9 +1497,9 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 413335.0723363161,
-              "breakEvenMultiplier": 12.192443774516432,
-              "requiredRelativeChange": 11.192443774516432,
+              "candidateGroupDelta": 221874.67680704594,
+              "breakEvenMultiplier": 30.839014568928526,
+              "requiredRelativeChange": 29.839014568928526,
               "crossingDirection": "increase"
             },
             {
@@ -1520,7 +1520,7 @@
         },
         {
           "candidateId": "thunder106",
-          "baseDelta": -4417999.116368294,
+          "baseDelta": -6412291.272930145,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1531,7 +1531,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -2933291.7550258636,
+              "candidateGroupDelta": -4736123.516058445,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1545,9 +1545,9 @@
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 413335.0723363161,
-              "breakEvenMultiplier": 11.688662569561782,
-              "requiredRelativeChange": 10.688662569561782,
+              "candidateGroupDelta": 221874.67680704594,
+              "breakEvenMultiplier": 29.900509806743813,
+              "requiredRelativeChange": 28.900509806743813,
               "crossingDirection": "increase"
             },
             {
@@ -1568,7 +1568,7 @@
         },
         {
           "candidateId": "qualityTerminal",
-          "baseDelta": -5725075.74045229,
+          "baseDelta": -7719367.897014141,
           "groups": [
             {
               "groupId": "orangeWeapon",
@@ -1579,7 +1579,7 @@
             },
             {
               "groupId": "dragonFangCore",
-              "candidateGroupDelta": -3280503.7204167843,
+              "candidateGroupDelta": -5083335.481449366,
               "breakEvenMultiplier": null,
               "requiredRelativeChange": null,
               "crossingDirection": null
@@ -1587,15 +1587,15 @@
             {
               "groupId": "resourceFillers",
               "candidateGroupDelta": 3600756.3443855494,
-              "breakEvenMultiplier": 2.589964772089916,
-              "requiredRelativeChange": 1.5899647720899162,
+              "breakEvenMultiplier": 3.143818453323148,
+              "requiredRelativeChange": 2.143818453323148,
               "crossingDirection": "increase"
             },
             {
               "groupId": "dashBreak",
-              "candidateGroupDelta": 413335.0723363161,
-              "breakEvenMultiplier": 14.850931420099764,
-              "requiredRelativeChange": 13.850931420099764,
+              "candidateGroupDelta": 221874.67680704594,
+              "breakEvenMultiplier": 35.79156796125641,
+              "requiredRelativeChange": 34.79156796125641,
               "crossingDirection": "increase"
             },
             {
@@ -1634,18 +1634,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 2185293.999952793,
+          "minimumBaselineMargin": 172314.35597610474,
           "worstScenario": {
             "multipliers": {
               "orangeWeapon": 0.9,
               "dragonFangCore": 0.9,
               "resourceFillers": 0.9,
-              "dashBreak": 1.1,
+              "dashBreak": 0.9,
               "periodic": 0.9,
               "destroy": 0.9
             },
             "bestCompetitorId": "previousFormal",
-            "baselineMargin": 2185293.999952793
+            "baselineMargin": 172314.35597610474
           },
           "changedWinnerExamples": []
         },
@@ -1667,18 +1667,18 @@
           "changedWinnerScenarioCount": 0,
           "baselineWinsAllScenarios": true,
           "continuousHyperrectangleCertified": true,
-          "minimumBaselineMargin": 1683299.975848198,
+          "minimumBaselineMargin": 143595.296646595,
           "worstScenario": {
             "multipliers": {
-              "orangeWeapon": 1.25,
+              "orangeWeapon": 0.75,
               "dragonFangCore": 0.75,
-              "resourceFillers": 1,
-              "dashBreak": 1.25,
-              "periodic": 0.75,
-              "destroy": 0.75
+              "resourceFillers": 0.75,
+              "dashBreak": 0.75,
+              "periodic": 1.25,
+              "destroy": 1.25
             },
             "bestCompetitorId": "previousFormal",
-            "baselineMargin": 1683299.975848198
+            "baselineMargin": 143595.296646595
           },
           "changedWinnerExamples": []
         }
@@ -1707,21 +1707,21 @@
     {
       "id": "formal",
       "label": "formal",
-      "source": "lianying-free-fixed-180s-pruned-suffix-revival.json",
+      "source": "lianying-free-fixed-180s-dismount-triple-transfer.json",
       "firstDifferenceRow": null,
       "openingDamageEventsIdentical": true,
-      "eventDamage": 2648976327.2945304,
-      "calibratedDamage": 2649019558.9269037,
-      "calibrationCorrection": 43231.63237374964,
+      "eventDamage": 2650965009.9045615,
+      "calibratedDamage": 2651013851.0834656,
+      "calibrationCorrection": 48841.17890412397,
       "eventDamageDelta": 0,
       "skillRows": [
         {
           "skill": "龙牙",
           "count": 109,
-          "eventDamage": 1086691394.6131558,
+          "eventDamage": 1088483370.6032321,
           "factor": 1.006057989066901,
-          "calibratedDamage": 1093274559.2008178,
-          "correction": 6583164.587661927,
+          "calibratedDamage": 1095077390.9618502,
+          "correction": 6594020.358617958,
           "calibrated": true
         },
         {
@@ -1736,10 +1736,10 @@
         {
           "skill": "破军",
           "count": 273,
-          "eventDamage": 282219865.9773637,
+          "eventDamage": 282394166.30477715,
           "factor": 0.9699012359672027,
-          "calibratedDamage": 273725396.82594335,
-          "correction": -8494469.151420355,
+          "calibratedDamage": 273894450.9289311,
+          "correction": -8499715.375846012,
           "calibrated": true
         },
         {
@@ -1889,9 +1889,9 @@
         {
           "skill": "突",
           "count": 8,
-          "eventDamage": 684137.109764251,
+          "eventDamage": 706543.4023057313,
           "factor": 1,
-          "calibratedDamage": 684137.109764251,
+          "calibratedDamage": 706543.4023057313,
           "correction": 0,
           "calibrated": false
         }
@@ -2049,11 +2049,7 @@
         },
         {
           "prefix": [
-            "charge",
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            }
+            "charge"
           ],
           "primary": "dragonFang",
           "tail": []
@@ -2079,7 +2075,12 @@
           "tail": []
         },
         {
-          "prefix": [],
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "free-search"
+            }
+          ],
           "primary": "dragonFang",
           "tail": []
         },
@@ -2200,31 +2201,35 @@
         {
           "prefix": [],
           "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
+          "tail": [
             {
               "id": "dismount",
-              "reason": "free-search"
+              "reason": "free-search",
+              "leadFrames": 1
             },
-            "dash"
-          ],
+            {
+              "id": "dash",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
           "primary": "dragonFang",
           "tail": []
         },
@@ -2385,11 +2390,6 @@
           "tail": []
         },
         {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
           "prefix": [
             {
               "id": "dismount",
@@ -2397,6 +2397,11 @@
             },
             "dash"
           ],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
           "primary": "dragonFang",
           "tail": []
         },
@@ -2778,21 +2783,21 @@
     {
       "id": "previousFormal",
       "label": "previousFormal",
-      "source": "lianying-free-fixed-180s-event-breakpoint.json",
-      "firstDifferenceRow": 14,
+      "source": "lianying-free-fixed-180s-dismount-pair-radius6.json",
+      "firstDifferenceRow": 25,
       "openingDamageEventsIdentical": true,
-      "eventDamage": 2646485657.438099,
-      "calibratedDamage": 2646499602.2442145,
-      "calibrationCorrection": 13944.806115717987,
-      "eventDamageDelta": -2490669.856431484,
+      "eventDamage": 2650768303.2846065,
+      "calibratedDamage": 2650822390.6879363,
+      "calibrationCorrection": 54087.40332978069,
+      "eventDamageDelta": -196706.61995506287,
       "skillRows": [
         {
           "skill": "龙牙",
           "count": 109,
-          "eventDamage": 1083775765.7061715,
+          "eventDamage": 1088483370.6032321,
           "factor": 1.006057989066901,
-          "calibratedDamage": 1090341267.4457917,
-          "correction": 6565501.739620275,
+          "calibratedDamage": 1095077390.9618502,
+          "correction": 6594020.358617958,
           "calibrated": true
         },
         {
@@ -2807,10 +2812,10 @@
         {
           "skill": "破军",
           "count": 273,
-          "eventDamage": 282606060.51358163,
+          "eventDamage": 282219865.9773637,
           "factor": 0.9699012359672027,
-          "calibratedDamage": 274099967.3839449,
-          "correction": -8506093.129636735,
+          "calibratedDamage": 273725396.82594335,
+          "correction": -8494469.151420355,
           "calibrated": true
         },
         {
@@ -2960,14 +2965,14 @@
         {
           "skill": "突",
           "count": 8,
-          "eventDamage": 722901.6240990255,
+          "eventDamage": 684137.109764251,
           "factor": 1,
-          "calibratedDamage": 722901.6240990255,
+          "calibratedDamage": 684137.109764251,
           "correction": 0,
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": -2519956.68268919,
+      "calibratedDamageDelta": -191460.39552927017,
       "actionPacks": [
         {
           "prefix": [],
@@ -3051,14 +3056,12 @@
         {
           "prefix": [],
           "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
-            "charge"
-          ],
-          "primary": "dragonFang",
-          "tail": []
+          "tail": [
+            {
+              "id": "charge",
+              "leadFrames": 1
+            }
+          ]
         },
         {
           "prefix": [],
@@ -3070,9 +3073,18 @@
             {
               "id": "dismount",
               "reason": "free-search"
-            },
-            "dash"
+            }
           ],
+          "primary": "dragonFang",
+          "tail": [
+            {
+              "id": "dash",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
           "primary": "dragonFang",
           "tail": []
         },
@@ -3113,11 +3125,7 @@
         },
         {
           "prefix": [
-            "charge",
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            }
+            "charge"
           ],
           "primary": "dragonFang",
           "tail": []
@@ -3130,7 +3138,13 @@
         {
           "prefix": [],
           "primary": "dragonFang",
-          "tail": []
+          "tail": [
+            {
+              "id": "dismount",
+              "reason": "free-search",
+              "leadFrames": 1
+            }
+          ]
         },
         {
           "prefix": [],
@@ -3269,26 +3283,30 @@
         {
           "prefix": [],
           "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [],
-          "primary": "dragonFang",
-          "tail": []
-        },
-        {
-          "prefix": [
+          "tail": [
             {
               "id": "dismount",
-              "reason": "free-search"
+              "reason": "free-search",
+              "leadFrames": 1
             },
-            "dash"
-          ],
+            {
+              "id": "dash",
+              "leadFrames": 1
+            }
+          ]
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
+          "primary": "dragonFang",
+          "tail": []
+        },
+        {
+          "prefix": [],
           "primary": "dragonFang",
           "tail": []
         },
@@ -3446,7 +3464,17 @@
             "charge"
           ],
           "primary": "dragonFang",
-          "tail": []
+          "tail": [
+            {
+              "id": "dismount",
+              "reason": "free-search",
+              "leadFrames": 1
+            },
+            {
+              "id": "dash",
+              "leadFrames": 1
+            }
+          ]
         },
         {
           "prefix": [],
@@ -3454,13 +3482,7 @@
           "tail": []
         },
         {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            },
-            "dash"
-          ],
+          "prefix": [],
           "primary": "dragonFang",
           "tail": []
         },
@@ -3656,13 +3678,7 @@
           "tail": []
         },
         {
-          "prefix": [
-            {
-              "id": "dismount",
-              "reason": "free-search"
-            },
-            "dash"
-          ],
+          "prefix": [],
           "primary": "dragonFang",
           "tail": []
         },
@@ -3677,7 +3693,13 @@
           "tail": []
         },
         {
-          "prefix": [],
+          "prefix": [
+            {
+              "id": "dismount",
+              "reason": "free-search"
+            },
+            "dash"
+          ],
           "primary": "dragonFang",
           "tail": []
         },
@@ -3848,7 +3870,7 @@
       "eventDamage": 2644383600.255384,
       "calibratedDamage": 2644393329.369744,
       "calibrationCorrection": 9729.11435877433,
-      "eventDamageDelta": -4592727.039146423,
+      "eventDamageDelta": -6581409.649177551,
       "skillRows": [
         {
           "skill": "龙牙",
@@ -4031,7 +4053,7 @@
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": -4626229.557159901,
+      "calibratedDamageDelta": -6620521.713721752,
       "actionPacks": [
         {
           "prefix": [],
@@ -4896,7 +4918,7 @@
       "eventDamage": 2644613129.06197,
       "calibratedDamage": 2644601559.8105354,
       "calibrationCorrection": -11569.251434876689,
-      "eventDamageDelta": -4363198.232560158,
+      "eventDamageDelta": -6351880.842591286,
       "skillRows": [
         {
           "skill": "龙牙",
@@ -5079,7 +5101,7 @@
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": -4417999.116368294,
+      "calibratedDamageDelta": -6412291.272930145,
       "actionPacks": [
         {
           "prefix": [],
@@ -5947,7 +5969,7 @@
       "eventDamage": 2643325943.2108607,
       "calibratedDamage": 2643294483.1864514,
       "calibrationCorrection": -31460.02441022039,
-      "eventDamageDelta": -5650384.0836696625,
+      "eventDamageDelta": -7639066.69370079,
       "skillRows": [
         {
           "skill": "龙牙",
@@ -6130,7 +6152,7 @@
           "calibrated": false
         }
       ],
-      "calibratedDamageDelta": -5725075.74045229,
+      "calibratedDamageDelta": -7719367.897014141,
       "actionPacks": [
         {
           "prefix": [],

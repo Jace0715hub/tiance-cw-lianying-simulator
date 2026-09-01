@@ -70,6 +70,8 @@
     "optimize:wait-anchors": "node tools/optimize-lianying-wait-anchors.mjs",
     "optimize:pair-wait-anchors": "node tools/optimize-lianying-pair-wait-anchors.mjs",
     "search:pruned-revival": "node tools/search-lianying-pruned-revival.mjs",
+    "search:dismount-pairs": "node tools/search-lianying-dismount-pairs.mjs",
+    "search:dismount-triples": "node tools/search-lianying-dismount-triples.mjs",
     "search:neutral-pair-waits": "node tools/search-lianying-neutral-pair-waits.mjs",
     "optimize:event-breakpoints": "node tools/optimize-lianying-event-breakpoints.mjs",
     "search:neutral-event-timings": "node tools/search-lianying-neutral-event-timings.mjs",

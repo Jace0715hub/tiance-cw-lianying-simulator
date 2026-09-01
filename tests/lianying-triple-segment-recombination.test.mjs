@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { LIANYING_CURRENT_BEST_AXIS } from
+  "../src/config/lianying-research-defaults.js";
 import {
   alignLianyingDonorWaitPacks,
   buildLianyingBoundedMultiSegmentSpan,
@@ -24,9 +26,10 @@ const heterogeneous = sensitivity.candidates.find(
 const thunder106 = sensitivity.candidates.find(
   (candidate) => candidate.id === "thunder106",
 ).actionPacks;
-const currentFormal = sensitivity.candidates.find(
-  (candidate) => candidate.id === "formal",
-).actionPacks;
+const currentFormal = JSON.parse(fs.readFileSync(new URL(
+  `../${LIANYING_CURRENT_BEST_AXIS}`,
+  import.meta.url,
+))).actionPacks;
 
 test("旧供体只按正式轴显式等待行对齐而不改写其他动作", () => {
   const aligned = alignLianyingDonorWaitPacks(currentFormal, heterogeneous);
@@ -49,9 +52,9 @@ test("新正式轴与旧异构供体的全部真实差异需要六个连续雷�
   );
   assert.deepEqual(
     span.differenceRows,
-    [3, 14, 15, 16, 17, 38, 75, 121, 124],
+    [3, 14, 15, 16, 17, 23, 28, 38, 49, 53, 75, 83, 84, 121, 124],
   );
-  assert.deepEqual(span.differenceSegmentIndices, [0, 2, 3, 5]);
+  assert.deepEqual(span.differenceSegmentIndices, [0, 1, 2, 3, 4, 5]);
   assert.deepEqual(span.segmentIndices, [0, 1, 2, 3, 4, 5]);
   assert.equal(span.startIndex + 1, 3);
   assert.equal(span.endIndex, 129);
@@ -67,7 +70,7 @@ test("旧106行雷供体归一化早期时点后只保留真实晚段差异", ()
     currentFormal,
     normalized,
   );
-  assert.deepEqual(difference.differenceRows, [106, 107, 121, 124]);
+  assert.deepEqual(difference.differenceRows, [83, 84, 106, 107, 121, 124]);
   assert.deepEqual(difference.segmentIndices, [4, 5]);
   assert.deepEqual(difference.referenceThunderRows, [3, 20, 38, 59, 79, 107, 130]);
   assert.deepEqual(difference.donorThunderRows, [3, 20, 38, 59, 79, 106, 130]);

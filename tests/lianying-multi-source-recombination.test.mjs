@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { LIANYING_CURRENT_BEST_AXIS } from
+  "../src/config/lianying-research-defaults.js";
 import {
   buildLianyingMultiSourceRecombination,
   mergeLianyingSourceDifferences,
@@ -25,9 +27,10 @@ const sourceAxes = ["heterogeneous", "thunder106"].map((id) => ({
   packs: sensitivity.candidates.find((candidate) => candidate.id === id).actionPacks,
 }));
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
-const currentFormal = sensitivity.candidates.find(
-  (candidate) => candidate.id === "formal",
-).actionPacks;
+const currentFormal = JSON.parse(fs.readFileSync(new URL(
+  `../${LIANYING_CURRENT_BEST_AXIS}`,
+  import.meta.url,
+))).actionPacks;
 
 test("多来源合并只移植各来源相对正式轴的真实差异", () => {
   const joint = mergeLianyingSourceDifferences(formal, sourceAxes);
@@ -63,7 +66,7 @@ test("当前正式轴归一化多来源后联合搜索后四个雷区段", () =>
     sourceAxes,
     { segmentCount: 4, sourceNormalizeBeforeRow: 59 },
   );
-  assert.deepEqual(joint.differenceRows, [75, 106, 107, 121, 124]);
+  assert.deepEqual(joint.differenceRows, [75, 83, 84, 106, 107, 121, 124]);
   assert.deepEqual(joint.span.segmentIndices, [3, 4, 5, 6]);
   assert.equal(joint.span.startIndex + 1, 59);
   assert.equal(joint.span.endIndex, 150);
@@ -81,7 +84,7 @@ test("五区段联合搜索向左扩展到第三雷且覆盖战斗末段", () =>
     sourceAxes,
     { segmentCount: 5, sourceNormalizeBeforeRow: 59 },
   );
-  assert.deepEqual(joint.differenceRows, [75, 106, 107, 121, 124]);
+  assert.deepEqual(joint.differenceRows, [75, 83, 84, 106, 107, 121, 124]);
   assert.deepEqual(joint.span.segmentIndices, [2, 3, 4, 5, 6]);
   assert.equal(joint.span.startIndex + 1, 38);
   assert.equal(joint.span.endIndex, 150);
