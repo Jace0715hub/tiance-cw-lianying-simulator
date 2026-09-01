@@ -567,6 +567,10 @@ test("双雷样例能连续拼接区段并以完整含突伤害不降级", () =>
       coarseDashStates: 4,
       finalDashCandidateCount: 2,
       fullDashStates: 4,
+      boundaryPathExport: {
+        segmentNumbers: [1],
+        limitPerSegment: 2,
+      },
     },
   );
   const replay = replayWhitepaperLianying(runtime, optimized.packs, {
@@ -582,6 +586,16 @@ test("双雷样例能连续拼接区段并以完整含突伤害不降级", () =>
   assert.ok(optimized.segments.every(
     (segment) => segment.candidateDiagnostics.length > 0,
   ));
+  assert.ok(optimized.boundaryPaths.length > 0);
+  assert.ok(optimized.boundaryPaths.length <= 2);
+  assert.ok(optimized.boundaryPaths.every(
+    (path) => path.segmentNumber === 1 &&
+      path.prefixPacks.length === path.depth,
+  ));
+  assert.deepEqual(optimized.options.boundaryPathExport, {
+    segmentNumbers: [1],
+    limitPerSegment: 2,
+  });
   const diagnosticsCsv = lianyingMultiSegmentAnchorDiagnosticsToCsv(optimized);
   assert.match(diagnosticsCsv, /预计最终伤害差/);
   assert.match(diagnosticsCsv, /thunder-1-to-2/);

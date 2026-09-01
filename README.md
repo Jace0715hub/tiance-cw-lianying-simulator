@@ -136,6 +136,7 @@ npm run search:neutral-event-timings
 
 # 复活关键雷边界被束宽裁剪的少量资源相位祖先
 npm run search:pruned-revival
+npm run search:boundary-failure-repairs
 npm run search:neutral-pair-waits
 ```
 

@@ -1846,6 +1846,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
     useSuffixValue = true,
     suffixRepairPenaltyRows = 1,
     boundaryDiagnosticCount = 3,
+    boundaryPathExport = null,
     valueShadowPolicy = null,
     collectValueTrainingData = false,
     valueProbeMaximumBaselineRank = 32,
@@ -1943,6 +1944,10 @@ export function optimizeLianyingMultiSegmentResynthesis(
     };
   };
   const segmentReports = [];
+  const boundaryPaths = [];
+  const exportedSegmentNumbers = new Set(
+    boundaryPathExport?.segmentNumbers?.map(Number) ?? [],
+  );
 
   for (let segmentIndex = 0; segmentIndex < identified.ranges.length; segmentIndex += 1) {
     const segment = identified.ranges[segmentIndex];
@@ -2358,6 +2363,36 @@ export function optimizeLianyingMultiSegmentResynthesis(
       coreBaseline.state.totalDamage,
       boundaryDiagnosticCount,
     );
+    if (exportedSegmentNumbers.has(segmentIndex + 1)) {
+      const exportLimit = Math.max(
+        0,
+        Math.floor(Number(boundaryPathExport?.limitPerSegment ?? 3)),
+      );
+      const exportedNodes = [...nodes]
+        .sort((left, right) =>
+          Number(right.state.totalDamage) - Number(left.state.totalDamage))
+        .slice(0, exportLimit);
+      for (let exportIndex = 0; exportIndex < exportedNodes.length; exportIndex += 1) {
+        const node = exportedNodes[exportIndex];
+        boundaryPaths.push({
+          segmentNumber: segmentIndex + 1,
+          segmentId: segment.id,
+          rank: exportIndex + 1,
+          depth: segment.endIndex,
+          totalDamage: node.state.totalDamage,
+          currentDamageGain: node.state.totalDamage - warmState.totalDamage,
+          suffixLegal: node.suffixValue?.suffixLegal ?? null,
+          suffixCompletedRows: node.suffixValue?.completedRows ?? null,
+          suffixTotalRows: node.suffixValue?.totalRows ?? null,
+          suffixFailure: node.suffixValue?.failure ?? null,
+          stateDelta: snapshotDelta(node.state, warmState),
+          prefixPacks: [
+            ...clonePacks(prefixPacks),
+            ...clonePacks(node.packs),
+          ],
+        });
+      }
+    }
     const report = {
       ...segment,
       incomingStates,
@@ -2596,6 +2631,7 @@ export function optimizeLianyingMultiSegmentResynthesis(
     accepted,
     anchors: identified.anchors.map((index) => index + 1),
     segments: segmentReports,
+    boundaryPaths,
     explored,
     legal,
     peakRowStates,
@@ -2676,6 +2712,17 @@ export function optimizeLianyingMultiSegmentResynthesis(
       useSuffixValue,
       suffixRepairPenaltyRows,
       boundaryDiagnosticCount,
+      boundaryPathExport: boundaryPathExport
+        ? {
+            segmentNumbers: [
+              ...(boundaryPathExport.segmentNumbers ?? []),
+            ].map(Number),
+            limitPerSegment: Math.max(
+              0,
+              Math.floor(Number(boundaryPathExport.limitPerSegment ?? 3)),
+            ),
+          }
+        : null,
       valueShadowPolicy: valueShadowPolicy
         ? {
             enabled: valueShadowPolicy.enabled === true,
