@@ -25,6 +25,14 @@ const dashFinalistCount = Math.max(
   1,
   Math.floor(Number(process.argv[5] ?? 6)),
 );
+const selectionPreset = process.argv[6] ?? "damage";
+if (!["damage", "diverse"].includes(selectionPreset)) {
+  throw new Error("边界路径抽样必须是damage或diverse");
+}
+const selectionModes = selectionPreset === "diverse"
+  ? ["damage", "suffix-score", "suffix-completion", "state-distance"]
+  : ["damage"];
+const limitPerSegment = selectionPreset === "diverse" ? 2 : 3;
 const profiles = {
   screen: {
     rowBeamWidth: 32,
@@ -60,7 +68,8 @@ const boundarySearch = optimizeLianyingMultiSegmentResynthesis(runtime, packs, {
   ...profiles[profileName],
   boundaryPathExport: {
     segmentNumbers: [2, 3, 5, 6],
-    limitPerSegment: 3,
+    limitPerSegment,
+    selectionModes,
   },
   onProgress: (event) => {
     console.log(JSON.stringify({ phase: "boundary-search", ...event }));
@@ -72,7 +81,7 @@ const repaired = searchLianyingBoundaryFailureRepairs(
   boundarySearch.boundaryPaths,
   {
     durationSeconds,
-    pathLimit: 12,
+    pathLimit: selectionPreset === "diverse" ? 32 : 12,
     repairLimitPerPath: 16,
     repairLookBehindRows: 4,
     repairLookAheadRows: 8,
@@ -86,6 +95,7 @@ const compactFinalists = repaired.dashFinalists.map(
 const report = {
   inputPath,
   profileName,
+  selectionPreset,
   durationSeconds,
   accepted: repaired.accepted,
   baselineDamage: repaired.baselineDamage,

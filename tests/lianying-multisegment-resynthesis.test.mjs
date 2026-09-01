@@ -570,6 +570,7 @@ test("双雷样例能连续拼接区段并以完整含突伤害不降级", () =>
       boundaryPathExport: {
         segmentNumbers: [1],
         limitPerSegment: 2,
+        selectionModes: ["damage", "state-distance"],
       },
     },
   );
@@ -587,7 +588,7 @@ test("双雷样例能连续拼接区段并以完整含突伤害不降级", () =>
     (segment) => segment.candidateDiagnostics.length > 0,
   ));
   assert.ok(optimized.boundaryPaths.length > 0);
-  assert.ok(optimized.boundaryPaths.length <= 2);
+  assert.ok(optimized.boundaryPaths.length <= 4);
   assert.ok(optimized.boundaryPaths.every(
     (path) => path.segmentNumber === 1 &&
       path.prefixPacks.length === path.depth,
@@ -595,7 +596,11 @@ test("双雷样例能连续拼接区段并以完整含突伤害不降级", () =>
   assert.deepEqual(optimized.options.boundaryPathExport, {
     segmentNumbers: [1],
     limitPerSegment: 2,
+    selectionModes: ["damage", "state-distance"],
   });
+  assert.ok(optimized.boundaryPaths.some(
+    (path) => path.selectionModes.includes("damage"),
+  ));
   const diagnosticsCsv = lianyingMultiSegmentAnchorDiagnosticsToCsv(optimized);
   assert.match(diagnosticsCsv, /预计最终伤害差/);
   assert.match(diagnosticsCsv, /thunder-1-to-2/);

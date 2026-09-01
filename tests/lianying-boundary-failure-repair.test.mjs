@@ -37,6 +37,7 @@ test("边界首错修复器会完整复演直接合法前缀且不降低正式�
       repairLimitPerPath: 2,
       dashFinalistCount: 1,
       dashStates: 2,
+      excludeIncumbentCore: false,
     },
   );
   const replay = replayWhitepaperLianying(runtime, result.packs, {
@@ -49,5 +50,26 @@ test("边界首错修复器会完整复演直接合法前缀且不降低正式�
   assert.equal(result.legalRepairs, 1);
   assert.ok(result.bestDamage >= result.baselineDamage);
   assert.equal(replay.state.totalDamage, result.state.totalDamage);
-});
 
+  const excluded = searchLianyingBoundaryFailureRepairs(
+    runtime,
+    seed.packs,
+    [{
+      segmentNumber: 1,
+      segmentId: "test-boundary",
+      rank: 1,
+      depth,
+      totalDamage: 1,
+      currentDamageGain: 0,
+      prefixPacks: corePacks.slice(0, depth),
+    }],
+    {
+      durationSeconds: 12,
+      pathLimit: 1,
+      dashFinalistCount: 1,
+      dashStates: 2,
+    },
+  );
+  assert.equal(excluded.legalRepairs, 0);
+  assert.equal(excluded.bestDamage, null);
+});

@@ -3,6 +3,7 @@ import { executeActionPack } from "../engine/simulator.js";
 import { createInitialState } from "../engine/state.js";
 import {
   cloneLianyingPack,
+  lianyingCoreStructureKey,
   lianyingDecisionTick,
   lianyingSuffixFailureRepairAxes,
   stripLianyingDashPacks,
@@ -64,6 +65,16 @@ function repairKey(packs) {
   return JSON.stringify(packs);
 }
 
+function coreBehaviorKey(state) {
+  return JSON.stringify((state.timeline ?? [])
+    .filter((event) =>
+      (event.type === "cast" || event.type === "offGcd") &&
+      event.action !== "dash" &&
+      !(event.type === "offGcd" && event.action === "dismount" &&
+        event.mounted === false))
+    .map((event) => [event.type, event.action, event.tick]));
+}
+
 /**
  * 将多区段搜索留下的高伤边界前缀接回正式轴，并只针对首次失败生成一次
  * 定向修改。所有候选最终都必须完整复演，再由突覆盖搜索公平补回突。
@@ -80,12 +91,15 @@ export function searchLianyingBoundaryFailureRepairs(
     repairLookAheadRows = 8,
     dashFinalistCount = 6,
     dashStates = 256,
+    excludeIncumbentCore = true,
   } = {},
 ) {
   const incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,
   });
   const corePacks = stripLianyingDashPacks(incumbentPacks);
+  const incumbentCoreStructureKey = lianyingCoreStructureKey(corePacks);
+  const incumbentBehaviorKey = coreBehaviorKey(incumbent.state);
   const selectedPaths = [...(boundaryPaths ?? [])]
     .sort((left, right) =>
       Number(right.totalDamage) - Number(left.totalDamage))
@@ -93,6 +107,8 @@ export function searchLianyingBoundaryFailureRepairs(
   const attempts = [];
   const legalCoreCandidates = [];
   const seenRepairs = new Set();
+  const seenLegalCoreStructures = new Set();
+  const seenLegalBehaviors = new Set();
 
   for (const path of selectedPaths) {
     const depth = Math.floor(Number(path.depth));
@@ -145,6 +161,17 @@ export function searchLianyingBoundaryFailureRepairs(
         durationSeconds,
       );
       if (!repairedAttempt.legal) continue;
+      const coreStructureKey = lianyingCoreStructureKey(repair.packs);
+      const behaviorKey = coreBehaviorKey(repairedAttempt.state);
+      if (
+        (excludeIncumbentCore &&
+          (coreStructureKey === incumbentCoreStructureKey ||
+            behaviorKey === incumbentBehaviorKey)) ||
+        seenLegalCoreStructures.has(coreStructureKey) ||
+        seenLegalBehaviors.has(behaviorKey)
+      ) continue;
+      seenLegalCoreStructures.add(coreStructureKey);
+      seenLegalBehaviors.add(behaviorKey);
       attemptReport.legalRepairs += 1;
       const replay = replayWhitepaperLianying(runtime, repair.packs, {
         durationSeconds,
@@ -209,7 +236,7 @@ export function searchLianyingBoundaryFailureRepairs(
       repairLookAheadRows,
       dashFinalistCount,
       dashStates,
+      excludeIncumbentCore,
     },
   };
 }
-

@@ -8,6 +8,7 @@ import {
 import {
   cloneLianyingPack,
   identifyLianyingThunderSegments,
+  lianyingBoundaryStateDistance,
   lianyingDecisionTick,
   lianyingPackHasAction,
   lianyingResynthesisStateKey,
@@ -1767,6 +1768,30 @@ function buildBoundaryDiagnostics(nodes, warmState, coreFinalDamage, limit = 3) 
     }));
 }
 
+function rankBoundaryPathNodes(nodes, warmState, mode) {
+  const ranked = [...nodes];
+  if (mode === "suffix-score") {
+    return ranked.sort((left, right) =>
+      Number(right.suffixValue?.score ?? Number.NEGATIVE_INFINITY) -
+      Number(left.suffixValue?.score ?? Number.NEGATIVE_INFINITY));
+  }
+  if (mode === "suffix-completion") {
+    return ranked.sort((left, right) =>
+      Number(right.suffixValue?.completionRatio ?? 0) -
+        Number(left.suffixValue?.completionRatio ?? 0) ||
+      Number(right.suffixValue?.score ?? Number.NEGATIVE_INFINITY) -
+        Number(left.suffixValue?.score ?? Number.NEGATIVE_INFINITY));
+  }
+  if (mode === "state-distance") {
+    return ranked.sort((left, right) =>
+      lianyingBoundaryStateDistance(left.state, warmState) -
+        lianyingBoundaryStateDistance(right.state, warmState) ||
+      Number(right.state.totalDamage) - Number(left.state.totalDamage));
+  }
+  return ranked.sort((left, right) =>
+    Number(right.state.totalDamage) - Number(left.state.totalDamage));
+}
+
 function selectCoreCandidates(candidates, limit) {
   const sorted = [...candidates].sort(
     (left, right) => right.coreDamage - left.coreDamage,
@@ -2368,19 +2393,41 @@ export function optimizeLianyingMultiSegmentResynthesis(
         0,
         Math.floor(Number(boundaryPathExport?.limitPerSegment ?? 3)),
       );
-      const exportedNodes = [...nodes]
-        .sort((left, right) =>
-          Number(right.state.totalDamage) - Number(left.state.totalDamage))
-        .slice(0, exportLimit);
-      for (let exportIndex = 0; exportIndex < exportedNodes.length; exportIndex += 1) {
-        const node = exportedNodes[exportIndex];
+      const selectionModes = [
+        ...(boundaryPathExport?.selectionModes ?? ["damage"]),
+      ];
+      const selectedNodes = new Map();
+      for (const mode of selectionModes) {
+        for (const [modeIndex, node] of rankBoundaryPathNodes(
+          nodes,
+          warmState,
+          mode,
+        ).slice(0, exportLimit).entries()) {
+          const key = JSON.stringify(node.packs);
+          const selected = selectedNodes.get(key) ?? {
+            node,
+            selectionModes: [],
+            selectionRanks: {},
+          };
+          selected.selectionModes.push(mode);
+          selected.selectionRanks[mode] = modeIndex + 1;
+          selectedNodes.set(key, selected);
+        }
+      }
+      let exportIndex = 0;
+      for (const selected of selectedNodes.values()) {
+        const node = selected.node;
+        exportIndex += 1;
         boundaryPaths.push({
           segmentNumber: segmentIndex + 1,
           segmentId: segment.id,
-          rank: exportIndex + 1,
+          rank: exportIndex,
+          selectionModes: selected.selectionModes,
+          selectionRanks: selected.selectionRanks,
           depth: segment.endIndex,
           totalDamage: node.state.totalDamage,
           currentDamageGain: node.state.totalDamage - warmState.totalDamage,
+          stateDistance: lianyingBoundaryStateDistance(node.state, warmState),
           suffixLegal: node.suffixValue?.suffixLegal ?? null,
           suffixCompletedRows: node.suffixValue?.completedRows ?? null,
           suffixTotalRows: node.suffixValue?.totalRows ?? null,
@@ -2721,6 +2768,9 @@ export function optimizeLianyingMultiSegmentResynthesis(
               0,
               Math.floor(Number(boundaryPathExport.limitPerSegment ?? 3)),
             ),
+            selectionModes: [
+              ...(boundaryPathExport.selectionModes ?? ["damage"]),
+            ],
           }
         : null,
       valueShadowPolicy: valueShadowPolicy
