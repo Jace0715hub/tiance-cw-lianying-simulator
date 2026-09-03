@@ -84,6 +84,14 @@ npm run optimize:counterfactual-windows -- \
 npm run optimize:segment-skeletons -- \
   - /tmp/segment-skeletons.json probe
 
+# 补查前两段与末两段的单技能计数变化
+npm run optimize:edge-count-skeletons -- \
+  - /tmp/edge-count-skeletons.json probe 1,2,6,7
+
+# 联合两条已验证的边缘区段单计数来源
+npm run optimize:edge-count-pair -- \
+  - /tmp/edge-count-pair.json probe report-a.json template-a report-b.json template-b
+
 # 组合两条已验证单骨架计数增量
 npm run optimize:double-segment-skeletons -- \
   - /tmp/double-skeletons.json probe /tmp/single-a.json,/tmp/single-b.json

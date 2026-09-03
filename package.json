@@ -59,6 +59,8 @@
     "optimize:counterfactual-anchors": "node tools/optimize-lianying-counterfactual-anchors.mjs",
     "optimize:counterfactual-windows": "node tools/optimize-lianying-counterfactual-windows.mjs",
     "optimize:segment-skeletons": "node tools/optimize-lianying-segment-skeletons.mjs",
+    "optimize:edge-count-skeletons": "node tools/optimize-lianying-edge-count-skeletons.mjs",
+    "optimize:edge-count-pair": "node tools/optimize-lianying-edge-count-pair.mjs",
     "optimize:double-segment-skeletons": "node tools/optimize-lianying-double-segment-skeletons.mjs",
     "optimize:anchor-count-skeletons": "node tools/optimize-lianying-anchor-count-skeletons.mjs",
     "optimize:charge-count-skeletons": "node tools/optimize-lianying-charge-count-skeletons.mjs",

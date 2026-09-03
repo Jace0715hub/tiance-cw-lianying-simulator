@@ -72,13 +72,15 @@ export function lianyingCountSkeletonSegments(
     packHasAction(pack, "thunder") ? [index] : []);
   const first = Math.max(1, Math.floor(Number(firstAnchorOrdinal)));
   const last = Math.min(
-    anchors.length - 1,
+    anchors.length,
     Math.floor(Number(lastAnchorOrdinal)),
   );
   const segments = [];
   for (let ordinal = first; ordinal <= last; ordinal += 1) {
     const startIndex = anchors[ordinal - 1];
-    const endIndex = anchors[ordinal] - 1;
+    const endIndex = ordinal < anchors.length
+      ? anchors[ordinal] - 1
+      : packs.length - 1;
     const counts = Object.fromEntries(
       trackedActionIds.map((id) => [id, 0]),
     );
@@ -108,13 +110,15 @@ export function lianyingActionCountSkeletonSegments(
     packHasAction(pack, "thunder") ? [index] : []);
   const first = Math.max(1, Math.floor(Number(firstAnchorOrdinal)));
   const last = Math.min(
-    anchors.length - 1,
+    anchors.length,
     Math.floor(Number(lastAnchorOrdinal)),
   );
   const segments = [];
   for (let ordinal = first; ordinal <= last; ordinal += 1) {
     const startIndex = anchors[ordinal - 1];
-    const endIndex = anchors[ordinal] - 1;
+    const endIndex = ordinal < anchors.length
+      ? anchors[ordinal] - 1
+      : packs.length - 1;
     const counts = Object.fromEntries(
       trackedActionIds.map((id) => [id, 0]),
     );

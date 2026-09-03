@@ -214,6 +214,38 @@ test("动作区段统计识别前置与末端断魂刺并生成有限转移模�
   );
 });
 
+test("技能与动作计数都可覆盖末雷之后的终局区段", () => {
+  const packs = [
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+    { prefix: [], primary: "destroy", tail: [] },
+    { prefix: ["thunder"], primary: "dragonFang", tail: [] },
+    { prefix: ["charge"], primary: "dragonRoar", tail: [] },
+    { prefix: [], primary: "dragonFang", tail: [] },
+  ];
+  const primary = lianyingCountSkeletonSegments(packs, {
+    firstAnchorOrdinal: 2,
+    lastAnchorOrdinal: 2,
+    trackedActionIds: ["dragonFang", "dragonRoar"],
+  });
+  const actions = lianyingActionCountSkeletonSegments(packs, {
+    firstAnchorOrdinal: 2,
+    lastAnchorOrdinal: 2,
+  });
+
+  assert.deepEqual(primary, [{
+    ordinal: 2,
+    startRow: 3,
+    endRow: 5,
+    counts: { dragonFang: 2, dragonRoar: 1 },
+  }]);
+  assert.deepEqual(actions, [{
+    ordinal: 2,
+    startRow: 3,
+    endRow: 5,
+    counts: { charge: 1 },
+  }]);
+});
+
 test("断魂刺计数增量按新雷边界映射到目标区段", () => {
   const sourceSegments = [
     { ordinal: 5, startRow: 79, endRow: 106, counts: { charge: 1 } },

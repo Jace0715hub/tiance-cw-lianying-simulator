@@ -85,6 +85,8 @@
 | 姿态区间宏模板 | 第2–3雷与第4–5雷；雷±1行、任驰骋±2行、真实下马±6行；合法下马迁移热启动后联合重合成主要技能 | screen合计45,920/37,321次展开/合法转移；等伤候选只改变GCD边界写法，唯一龙驭转换轴低2,915,628.91（0.11369%），4,332个fast复合候选仅将其修回正式轴 |
 | 任驰骋锚点强制反事实 | 第2–7次任驰骋各自±1–2行；最近雷±2行；直接主技能/整包换位热启动；完整区段重合成与突精排 | probe合计125,364/103,717次展开/合法转移；第3/5/6次最近分别低0.10606%/0.09959%/0.001343%，三组screen 120,796/99,463次转移均无改善；第6次差值仅为一次梅花枪法失去驰骋增益 |
 | 极近任驰骋相位来源交互 | 第6次任驰骋125行近等伤轴，与106行雷和第75行穿云来源做两两及三重直接合并 | 三组损失均等于单来源损失之和，无资源、充能或窗口正协同，不升级区段搜索 |
+| 边缘区段单计数骨架 | 第1/2/6/7雷区段；灭、龙吟、穿云、断魂刺±1；固定全部锚点与等待；直接替换及上一档热启动 | 25个probe模板共139,170/115,894次转移；第6段龙吟→穿云低1,118,650.24，第7段灭→龙吟低1,754,690.84；两条screen 30,592/25,462次转移均无改善 |
+| 末两段双计数补偿 | 同时固定第6段少1龙吟、第7段少1灭；第107行前缀和全部锚点固定；双单轴与直接合并轴热启动 | probe完成4,075/3,597次转移，12条核心轴；最佳低2,873,341.08，等于单项损失之和且不优于任一单轴，不升级screen |
 | 事件时点延迟稳健性 | 30/60/90ms；第3/38行雷各枚举GCD末端前1–12帧，并单列正式点前后1帧 | 30ms有100个合法组合，7/5为最高平台且7–8/5–6四点等伤；60ms最高为8/5；90ms当前30ms轴第18行缺豆，仅1/1合法，证明时点需按延迟独立搜索 |
 | 状态价值 | 一段/两段标签、线性岭回归、单/双影子同预算在线对照 | 离线召回改善但终局不增伤，不进入默认搜索 |
 
@@ -103,7 +105,7 @@
 ## 下一候选生成优先级
 
 1. 第2–7次任驰骋±1–2行的强制反事实已经完成；最近的第6次前移轴只因一次梅花枪法失去驰骋覆盖而低0.001343%，与既有近优来源组合也没有正协同。相邻任驰骋时点不再扩档。
-2. 下一轮补齐M5.6未覆盖的前两段与末两段主技能计数骨架，先做灭、龙吟、穿云、断魂刺±1的单计数反事实；只有进入0.1%或形成新资源转换才升级screen。
+2. 边缘单计数和唯一末段双计数组合均已收敛；下一轮补查第1↔2、2↔3、5↔6、6↔7边界上保持全轴总数不变的相邻计数转移，不做任意非相邻全排列。
 3. 按当前要求只验证橙武连营模拟器，不修改或接入原配装计算器；240秒及更长时长继续作为旁支暂停。
 
 ## 可复现实验入口
@@ -118,6 +120,8 @@
 - `npm run optimize:counterfactual-anchors -- - /tmp/result.json probe [rows]`：指定行主技能反事实筛选；`rows`为可选逗号分隔行号。
 - `npm run optimize:counterfactual-windows -- - /tmp/result.json probe [start-end,...] [sequence|counts|both] [companionSlack]`：固定前缀的短窗口结构筛选；最后一项可选伴随锚点松弛行数。
 - `npm run optimize:segment-skeletons -- - /tmp/result.json probe [limit] [offset] [warmReport]`：第3至第5雷区段计数骨架筛选；可用上一轮报告按模板ID显式热启动加宽复核。
+- `npm run optimize:edge-count-skeletons -- - /tmp/result.json [probe|screen] [区段序号] [limit] [offset] [warmReport]`：补查第1/2/6/7雷及末雷后终局区段的单技能计数变化；screen可继承probe同模板完整轴。
+- `npm run optimize:edge-count-pair -- - /tmp/result.json [probe|screen] reportA templateA reportB templateB`：把两条已验证单计数轴作为双约束热启动，在共同区段内重新合成并完整复演。
 - `npm run optimize:double-segment-skeletons -- - /tmp/result.json probe reportA,reportB [limit] [offset]`：从进入1%门槛的单骨架报告生成、去重并搜索有限双计数模板。
 - `npm run optimize:anchor-count-skeletons -- - /tmp/result.json probe reportA,reportB [limit] [anchorOrdinal] [targetRow]`：将正式雷表单计数增量映射到不同雷表的真实区段边界后搜索。
 - `npm run optimize:charge-count-skeletons -- - /tmp/result.json probe [limit] [offset]`：搜索统计完整动作包的断魂刺区段计数骨架。
