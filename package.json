@@ -77,6 +77,7 @@
     "search:boundary-failure-repairs": "node tools/search-lianying-boundary-failure-repairs.mjs",
     "optimize:boundary-continuation": "node tools/optimize-lianying-boundary-continuation.mjs",
     "optimize:stance-interval-macros": "node tools/optimize-lianying-stance-interval-macros.mjs",
+    "optimize:forced-rides": "node tools/optimize-lianying-forced-ride-counterfactuals.mjs",
     "search:neutral-pair-waits": "node tools/search-lianying-neutral-pair-waits.mjs",
     "optimize:event-breakpoints": "node tools/optimize-lianying-event-breakpoints.mjs",
     "search:neutral-event-timings": "node tools/search-lianying-neutral-event-timings.mjs",

@@ -2818,6 +2818,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
     boundaryDiagnosticCount = 3,
     allowedAnchorSchedules = null,
     companionAnchorTemplate = null,
+    allowIncumbentConstraintExit = false,
+    preserveReferenceWaitRows = false,
     preserveCompanionLineageTypes = [],
     additionalWarmAxes = [],
     includeScheduleCandidatePacks = false,
@@ -3292,10 +3294,12 @@ export function optimizeLianyingAnchorDriftResynthesis(
   for (let rowIndex = firstAnchor; rowIndex < corePacks.length; rowIndex += 1) {
     const candidates = new Map();
     for (const node of nodes) {
-      for (const pack of legalMechanicalLianyingPacks(
-        node.state,
-        runtime.config,
-      )) {
+      const referencePack = corePacks[rowIndex];
+      const candidatePacks = preserveReferenceWaitRows &&
+          actionId(referencePack?.primary) === "wait"
+        ? [cloneLianyingPack(referencePack)]
+        : legalMechanicalLianyingPacks(node.state, runtime.config);
+      for (const pack of candidatePacks) {
         if (!isLianyingPrimaryActionPackAllowed(
           pack,
           rowIndex,
@@ -3475,22 +3479,24 @@ export function optimizeLianyingAnchorDriftResynthesis(
     }
 
     const warmPack = corePacks[rowIndex];
-    if (!isLianyingAnchorDriftPackAllowed(
+    const warmAnchorAllowed = isLianyingAnchorDriftPackAllowed(
       warmPack,
       rowIndex,
       warmThunderCount,
       anchors,
       driftOptions,
       anchors.slice(0, warmThunderCount),
-    )) {
+    );
+    if (!warmAnchorAllowed && !allowIncumbentConstraintExit) {
       throw new Error(`第${rowIndex + 1}行热启动轴不满足雷锚点漂移约束`);
     }
-    if (!isLianyingCompanionAnchorPackAllowed(
+    const warmCompanionAllowed = isLianyingCompanionAnchorPackAllowed(
       warmPack,
       rowIndex,
       companionAnchorTemplate,
       [...prefixPacks, ...warmGeneratedPacks],
-    )) {
+    );
+    if (!warmCompanionAllowed && !allowIncumbentConstraintExit) {
       throw new Error(`第${rowIndex + 1}行热启动轴不满足伴随锚点模板`);
     }
     warmState = executeActionPack(
@@ -3505,6 +3511,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
       cloneLianyingPack(warmPack),
     ];
     warmConstraintActive = warmConstraintActive &&
+      warmAnchorAllowed &&
+      warmCompanionAllowed &&
       isLianyingPrimaryActionPackAllowed(
         warmPack,
         rowIndex,
@@ -4156,6 +4164,8 @@ export function optimizeLianyingAnchorDriftResynthesis(
         (schedule) => schedule.map((row) => row + 1),
       ),
       companionAnchorTemplate,
+      allowIncumbentConstraintExit,
+      preserveReferenceWaitRows,
       preserveCompanionLineageTypes: companionLineageTypes,
       additionalWarmAxisCount: additionalWarmSources.length,
       includeScheduleCandidatePacks,

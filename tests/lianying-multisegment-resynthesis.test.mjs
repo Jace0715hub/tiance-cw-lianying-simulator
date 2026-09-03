@@ -1366,6 +1366,43 @@ test("伴随锚点模板只约束显式指定的动作类型", () => {
     { prefix: [], primary: "ride", tail: [] }, 1, windows), true);
 });
 
+test("强制伴随反事实可让正式热启动退出而保留不降级回退", () => {
+  const runtime = loadDefaultGearRuntime({ executePhase: true });
+  const seed = searchWhitepaperLianying(runtime, {
+    durationSeconds: 30,
+    mode: "fixed",
+    beamWidth: 4,
+  });
+  const rideRows = seed.packs.flatMap((pack, index) =>
+    pack.primary === "ride" ? [index + 1] : []);
+  const shifted = [...rideRows];
+  shifted[1] += 1;
+  const options = {
+    durationSeconds: 30,
+    anchorSlackRows: 0,
+    rowBeamWidth: 4,
+    boundaryBeamWidth: 4,
+    coreFinalistCount: 4,
+    coarseCandidateLimit: 1,
+    coarseDashStates: 2,
+    finalDashCandidateCount: 1,
+    fullDashStates: 2,
+    companionAnchorTemplate: { allowedRideSchedules: [shifted] },
+  };
+
+  assert.throws(
+    () => optimizeLianyingAnchorDriftResynthesis(runtime, seed.packs, options),
+    /热启动轴不满足伴随锚点模板/u,
+  );
+  const optimized = optimizeLianyingAnchorDriftResynthesis(
+    runtime,
+    seed.packs,
+    { ...options, allowIncumbentConstraintExit: true },
+  );
+  assert.equal(optimized.options.allowIncumbentConstraintExit, true);
+  assert.ok(optimized.state.totalDamage >= 0);
+});
+
 test("定向伴随模板固定早段任驰骋并只向后开放末三次窗口", () => {
   const rideRows = [3, 20, 38, 59, 107, 123, 145];
   const packs = Array.from({ length: 148 }, (_, index) => ({

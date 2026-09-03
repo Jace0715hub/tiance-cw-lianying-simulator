@@ -158,3 +158,122 @@ export function buildLianyingStanceIntervalMacro(
   };
 }
 
+/**
+ * 强制单次任驰骋离开正式行，用显式行表判断该相位是否可由低层重新合成。
+ * 下马不在这里钉死：任驰骋移动后，状态机必须能自行安排必要的合法下马。
+ */
+export function buildLianyingForcedRideCounterfactual(
+  packs,
+  {
+    rideOrdinal,
+    rideOffsets = [-2, -1, 1, 2],
+    thunderSlackRows = 2,
+    maximumAnchorSchedules = 8,
+  } = {},
+) {
+  const anchors = identifyLianyingThunderSegments(packs).anchors;
+  const thunderRows = anchors.map((row) => row + 1);
+  const companions = lianyingCompanionAnchorRows(packs);
+  const ordinal = Math.floor(Number(rideOrdinal));
+  if (
+    !Number.isInteger(ordinal) ||
+    ordinal < 1 ||
+    ordinal > companions.rideRows.length
+  ) {
+    throw new Error("强制任驰骋序号超出技能轴范围");
+  }
+  const targetRideRow = companions.rideRows[ordinal - 1];
+  const normalizedOffsets = [...new Set((rideOffsets ?? [])
+    .map(Number)
+    .filter((offset) => Number.isInteger(offset) && offset !== 0))];
+  const allowedRideSchedules = normalizedOffsets.flatMap((offset) => {
+    const schedule = [...companions.rideRows];
+    schedule[ordinal - 1] += offset;
+    return schedule[ordinal - 1] >= 1 &&
+      schedule[ordinal - 1] <= packs.length &&
+      strictlyIncreasing(schedule)
+      ? [schedule]
+      : [];
+  });
+  if (allowedRideSchedules.length === 0) {
+    throw new Error("强制任驰骋偏移没有生成有效行表");
+  }
+  const pairedThunderIndex = anchors
+    .map((anchor, index) => ({
+      index,
+      distance: Math.abs(anchor + 1 - targetRideRow),
+    }))
+    .sort((left, right) => left.distance - right.distance || left.index - right.index)[0]
+    ?.index;
+  if (!Number.isInteger(pairedThunderIndex)) {
+    throw new Error("技能轴缺少可匹配的雷锚点");
+  }
+  const allowedAnchorSchedules = enumerateAnchorSchedules(
+    anchors,
+    [pairedThunderIndex],
+    Math.max(0, Math.floor(Number(thunderSlackRows))),
+    Math.max(1, Math.floor(Number(maximumAnchorSchedules))),
+  );
+  return {
+    counterfactualId: `ride-${ordinal}`,
+    rideOrdinal: ordinal,
+    targetRideRow,
+    pairedThunderOrdinal: pairedThunderIndex + 1,
+    thunderRows,
+    allowedAnchorSchedules,
+    allowedRideSchedules,
+    companionAnchorTemplate: {
+      allowedRideSchedules,
+      orangeRows: companions.orangeRows,
+    },
+    options: {
+      rideOffsets: normalizedOffsets,
+      thunderSlackRows,
+      maximumAnchorSchedules,
+    },
+  };
+}
+
+function clonePack(pack) {
+  return {
+    prefix: structuredClone(pack?.prefix ?? []),
+    primary: structuredClone(pack?.primary),
+    tail: structuredClone(pack?.tail ?? []),
+  };
+}
+
+/**
+ * 为强制任驰骋反事实提供不经过束剪枝的最小结构种子。
+ * primary-swap只交换任驰骋和目标行主技能；pack-swap同时交换同行动作，
+ * 用来覆盖雷或下马必须随任驰骋移动的情形。最终合法性仍由完整状态机判断。
+ */
+export function buildLianyingForcedRideWarmAxes(packs, counterfactual) {
+  const sourceRow = Number(counterfactual?.targetRideRow);
+  const rideOrdinal = Number(counterfactual?.rideOrdinal);
+  const schedules = counterfactual?.allowedRideSchedules ?? [];
+  if (!Number.isInteger(sourceRow) || !Number.isInteger(rideOrdinal)) {
+    throw new Error("强制任驰骋反事实缺少来源行或序号");
+  }
+  const sourceIndex = sourceRow - 1;
+  return schedules.flatMap((schedule) => {
+    const targetRow = schedule[rideOrdinal - 1];
+    const targetIndex = targetRow - 1;
+    if (!packs[sourceIndex] || !packs[targetIndex] || targetIndex === sourceIndex) {
+      return [];
+    }
+    const primarySwap = packs.map(clonePack);
+    [primarySwap[sourceIndex].primary, primarySwap[targetIndex].primary] = [
+      structuredClone(primarySwap[targetIndex].primary),
+      structuredClone(primarySwap[sourceIndex].primary),
+    ];
+    const packSwap = packs.map(clonePack);
+    [packSwap[sourceIndex], packSwap[targetIndex]] = [
+      packSwap[targetIndex],
+      packSwap[sourceIndex],
+    ];
+    return [
+      { kind: "primary-swap", targetRideRow: targetRow, packs: primarySwap },
+      { kind: "pack-swap", targetRideRow: targetRow, packs: packSwap },
+    ];
+  });
+}

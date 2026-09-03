@@ -138,6 +138,9 @@ npm run search:neutral-event-timings
 npm run search:pruned-revival
 npm run search:boundary-failure-repairs
 npm run search:neutral-pair-waits
+
+# 强制指定序号的任驰骋离开正式行，检查相邻相位是否存在被束剪枝漏掉的结构
+npm run optimize:forced-rides -- - /tmp/forced-rides probe 2,3,4,5,6,7
 ```
 
 脚本完整清单及参数以 [`package.json`](package.json) 和各 `tools/*.mjs` 入口为准。缺省输入 `-` 表示当前正式轴。
