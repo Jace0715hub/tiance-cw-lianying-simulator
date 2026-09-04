@@ -92,6 +92,14 @@ npm run optimize:edge-count-skeletons -- \
 npm run optimize:edge-count-pair -- \
   - /tmp/edge-count-pair.json probe report-a.json template-a report-b.json template-b
 
+# 在边缘相邻雷区段之间搬运一次灭、龙吟、穿云或断魂刺
+npm run optimize:edge-count-transfers -- \
+  - /tmp/edge-count-transfers.json probe 1-2,2-3,5-6,6-7
+
+# 联合最终两段断魂刺计数与相关任驰骋、雷相位
+npm run optimize:final-charge-anchor-interaction -- \
+  - /tmp/final-charge-anchor.json probe /tmp/edge-count-transfers.json
+
 # 组合两条已验证单骨架计数增量
 npm run optimize:double-segment-skeletons -- \
   - /tmp/double-skeletons.json probe /tmp/single-a.json,/tmp/single-b.json
