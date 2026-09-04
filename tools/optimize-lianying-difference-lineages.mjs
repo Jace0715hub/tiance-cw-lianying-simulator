@@ -28,6 +28,7 @@ const outputPath = path.resolve(
 );
 const profileName = process.argv[4] ?? "probe";
 const lineageMode = process.argv[5] ?? "action";
+const additionalSeedPath = process.argv[6] ? path.resolve(process.argv[6]) : null;
 
 const profiles = {
   probe: {
@@ -55,9 +56,37 @@ const durationSeconds = Number(source.durationSeconds ?? 180);
 const sourcePacks = source.actionPacks ??
   (source.rows ? lianyingRowsToActionPacks(source.rows) : null);
 if (!sourcePacks) throw new Error("输入文件缺少可恢复的技能轴");
+const additionalSeed = additionalSeedPath
+  ? JSON.parse(fs.readFileSync(additionalSeedPath, "utf8"))
+  : null;
+const additionalSeedPacks = additionalSeed
+  ? additionalSeed.actionPacks ??
+    (additionalSeed.rows ? lianyingRowsToActionPacks(additionalSeed.rows) : null)
+  : null;
+if (additionalSeed && !additionalSeedPacks) {
+  throw new Error("附加种子文件缺少可恢复的技能轴");
+}
 const corePacks = stripLianyingDashPacks(sourcePacks);
 const anchors = identifyLianyingThunderSegments(corePacks).anchors;
 const companionAnchors = lianyingCompanionAnchorRows(corePacks);
+const additionalCorePacks = additionalSeedPacks
+  ? stripLianyingDashPacks(additionalSeedPacks)
+  : null;
+if (additionalCorePacks && additionalCorePacks.length !== corePacks.length) {
+  throw new Error("附加种子与正式轴行数不同");
+}
+const additionalAnchors = additionalCorePacks
+  ? identifyLianyingThunderSegments(additionalCorePacks).anchors
+  : null;
+if (
+  additionalAnchors &&
+  JSON.stringify(additionalAnchors) !== JSON.stringify(anchors)
+) {
+  throw new Error("双种子差异谱系要求两条输入使用相同雷表");
+}
+const additionalCompanionAnchors = additionalCorePacks
+  ? lianyingCompanionAnchorRows(additionalCorePacks)
+  : null;
 const runtime = loadDefaultGearRuntime({ rotation: "lianying", executePhase: true });
 const formalReplay = replayWhitepaperLianying(runtime, sourcePacks, {
   durationSeconds,
@@ -65,6 +94,9 @@ const formalReplay = replayWhitepaperLianying(runtime, sourcePacks, {
 const formalCoreReplay = replayWhitepaperLianying(runtime, corePacks, {
   durationSeconds,
 });
+const additionalSeedReplay = additionalSeedPacks
+  ? replayWhitepaperLianying(runtime, additionalSeedPacks, { durationSeconds })
+  : null;
 const profile = profiles[profileName];
 const commonOptions = {
   durationSeconds,
@@ -72,7 +104,23 @@ const commonOptions = {
   fixFirstAnchor: true,
   fixLastAnchor: true,
   allowedAnchorSchedules: [anchors],
-  companionAnchorTemplate: companionAnchors,
+  companionAnchorTemplate: additionalCompanionAnchors
+    ? {
+        allowedRideSchedules: [
+          companionAnchors.rideRows,
+          additionalCompanionAnchors.rideRows,
+        ],
+        allowedOrangeSchedules: [
+          companionAnchors.orangeRows,
+          additionalCompanionAnchors.orangeRows,
+        ],
+        allowedDismountSchedules: [
+          companionAnchors.dismountRows,
+          additionalCompanionAnchors.dismountRows,
+        ],
+      }
+    : companionAnchors,
+  additionalWarmAxes: additionalCorePacks ? [additionalCorePacks] : [],
   rowBeamWidth: profile.rowBeamWidth,
   boundaryBeamWidth: profile.boundaryBeamWidth,
   coreFinalistCount: profile.coreFinalistCount,
@@ -120,6 +168,8 @@ for (const [kind, extraOptions] of [
     lineageMode,
     rowBeamWidth: profile.rowBeamWidth,
     boundaryBeamWidth: profile.boundaryBeamWidth,
+    additionalSeedPath,
+    additionalSeedDamage: additionalSeedReplay?.state.totalDamage ?? null,
   })}\n`);
   const result = optimizeLianyingAnchorDriftResynthesis(
     runtime,
@@ -137,6 +187,7 @@ for (const [kind, extraOptions] of [
     coreCandidateCount: result.coreCandidatePacks.length,
     accepted: result.accepted,
     damageGain: result.damageGain,
+    additionalWarmDiagnostics: result.additionalWarmDiagnostics,
   })}\n`);
 }
 
@@ -234,6 +285,7 @@ const runReports = runs.map(({ kind, result }) => {
         ? segment.newPrimaryDifferenceLineages ?? 0
         : segment.newRelativeStateLineages ?? 0,
     })),
+    additionalWarmDiagnostics: result.additionalWarmDiagnostics,
     alternatives,
     newCandidates,
   };
@@ -280,11 +332,13 @@ const report = {
   schemaVersion: 1,
   kind: `lianying-${lineageMode}-lineage-ab`,
   inputPath,
+  additionalSeedPath,
   durationSeconds,
   profileName,
   rowBeamWidth: profile.rowBeamWidth,
   boundaryBeamWidth: profile.boundaryBeamWidth,
   formalRotationDamage: formalReplay.state.totalDamage,
+  additionalSeedRotationDamage: additionalSeedReplay?.state.totalDamage ?? null,
   lineageMode,
   lineageOptions,
   differenceOptions,
