@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { resolveLianyingResearchPath } from "../src/config/lianying-research-defaults.js";
 import {
   createLianyingOptimizationProfile,
   LIANYING_OPTIMIZATION_PROFILES,
@@ -18,10 +19,7 @@ import {
 import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensitivity.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const inputPath = path.resolve(
-  process.argv[2] ??
-    path.join(projectRoot, "output/lianying-free-fixed-180s-best.json"),
-);
+const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "balanced";
 if (!LIANYING_OPTIMIZATION_PROFILES.includes(profileName)) {
   throw new Error(`优化档位必须是${LIANYING_OPTIMIZATION_PROFILES.join("、")}`);
@@ -29,7 +27,36 @@ if (!LIANYING_OPTIMIZATION_PROFILES.includes(profileName)) {
 const source = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 const durationSeconds = Number(source.durationSeconds ?? 180);
 const mode = source.mode ?? source.horizonMode ?? "fixed";
-const packs = source.actionPacks ??
+const preserveThunderSchedule = process.argv.slice(5).some(
+  (value) => ["preserve-thunder", "--preserve-thunder"].includes(value),
+);
+const preferExperimentSeed = process.argv.slice(5).some(
+  (value) => ["experiment-seed", "--experiment-seed"].includes(value),
+);
+const experimentSeedIndexArgument = process.argv.slice(5).find((value) =>
+  value.startsWith("experiment-seed-index="));
+const experimentSeedIndex = experimentSeedIndexArgument
+  ? Number(experimentSeedIndexArgument.split("=")[1])
+  : null;
+if (
+  experimentSeedIndex !== null &&
+  (!Number.isInteger(experimentSeedIndex) || experimentSeedIndex < 1)
+) {
+  throw new Error("实验种子序号必须是从1开始的整数");
+}
+const indexedExperimentPacks = experimentSeedIndex === null
+  ? null
+  : source.revivedFinalists?.[experimentSeedIndex - 1]?.actionPacks;
+if (experimentSeedIndex !== null && !indexedExperimentPacks) {
+  throw new Error(`找不到第${experimentSeedIndex}条复活实验种子`);
+}
+const experimentPacks = indexedExperimentPacks ??
+  source.bestExperimentActionPacks ??
+  source.candidateActionPacks ??
+  source.revivedFinalists?.[0]?.actionPacks ??
+  null;
+const packs = (preferExperimentSeed ? experimentPacks : null) ??
+  source.actionPacks ?? experimentPacks ??
   (source.rows ? lianyingRowsToActionPacks(source.rows) : null);
 if (!packs) throw new Error("输入文件既没有actionPacks，也没有可恢复的rows");
 
@@ -41,6 +68,12 @@ const profile = createLianyingOptimizationProfile(profileName, {
     console.log(JSON.stringify({ phase: "seed-neighborhood", ...event }));
   },
 });
+if (preserveThunderSchedule) {
+  profile.neighborhood.requiredThunderRows = packs.flatMap((pack, index) =>
+    [...(pack.prefix ?? []), ...(pack.tail ?? [])].some(
+      (action) => (typeof action === "string" ? action : action?.id) === "thunder",
+    ) ? [index + 1] : []);
+}
 const optimized = optimizeLianyingAxis(runtime, packs, {
   durationSeconds,
   ...profile,
@@ -65,10 +98,13 @@ const searchResult = {
   axisOptimization: {
     kind: "seed-continuation",
     profile: profileName,
+    preserveThunderSchedule,
+    preferExperimentSeed,
     accepted,
     seedPath: path.relative(projectRoot, inputPath),
     damageGain: finalState.totalDamage - seedReplay.state.totalDamage,
     phases: optimized.phases,
+    roundReports: optimized.roundReports,
   },
 };
 const artifact = buildWhitepaperAxisArtifact(searchResult, runtime, {

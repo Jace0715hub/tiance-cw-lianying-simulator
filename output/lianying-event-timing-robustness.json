@@ -1,0 +1,573 @@
+{
+  "schemaVersion": 1,
+  "kind": "lianying-event-timing-robustness",
+  "durationSeconds": 180,
+  "formalPath": "output/lianying-free-fixed-180s-dismount-triple-transfer.json",
+  "previousPath": "output/lianying-free-fixed-180s-pair-anchor-wait.json",
+  "targetRows": {
+    "firstThunder": 3,
+    "secondThunder": 38
+  },
+  "formalLeads": {
+    "firstThunder": 7,
+    "secondThunder": 5
+  },
+  "interpretation": {
+    "formalObjective": "五段加速、30ms总延迟下的固定180秒理论最高伤害轴",
+    "latencyCases": "60/90ms只评估同一主要技能轴的时点迁移，不替代各延迟独立重新搜索",
+    "acceptance": "30ms正式轴必须合法且在前后1帧及1–12帧有界网格内不低于其他时点"
+  },
+  "cases": [
+    {
+      "latencyMs": 30,
+      "formal": {
+        "id": "formal",
+        "firstLead": 7,
+        "secondLead": 5,
+        "legal": true,
+        "mechanicsViolationCount": 0,
+        "rotationDamage": 2564610782.546099,
+        "finalRage": 1,
+        "finalDragonRideStacks": 3,
+        "failure": null
+      },
+      "previousTiming": {
+        "id": "previousTiming",
+        "firstLead": 1,
+        "secondLead": 1,
+        "legal": true,
+        "mechanicsViolationCount": 0,
+        "rotationDamage": 2559691795.503304,
+        "finalRage": 1,
+        "finalDragonRideStacks": 4,
+        "failure": null
+      },
+      "formalDamageDeltaFromPrevious": 4918987.042795181,
+      "boundedGrid": {
+        "firstLeadRange": [
+          1,
+          12
+        ],
+        "secondLeadRange": [
+          1,
+          12
+        ],
+        "explored": 144,
+        "legal": 100,
+        "best": {
+          "id": "lead-7-5",
+          "firstLead": 7,
+          "secondLead": 5,
+          "legal": true,
+          "mechanicsViolationCount": 0,
+          "rotationDamage": 2564610782.546099,
+          "finalRage": 1,
+          "finalDragonRideStacks": 3,
+          "failure": null
+        },
+        "bestDamageDeltaFromFormal": 0,
+        "bestDamageDeltaFromPrevious": 4918987.042795181
+      },
+      "plusMinusOne": {
+        "explored": 9,
+        "legal": 9,
+        "best": {
+          "id": "lead-7-5",
+          "firstLead": 7,
+          "secondLead": 5,
+          "legal": true,
+          "mechanicsViolationCount": 0,
+          "rotationDamage": 2564610782.546099,
+          "finalRage": 1,
+          "finalDragonRideStacks": 3,
+          "failure": null
+        },
+        "candidates": [
+          {
+            "id": "lead-6-4",
+            "firstLead": 6,
+            "secondLead": 4,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564048316.284238,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-6-5",
+            "firstLead": 6,
+            "secondLead": 5,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564184228.0596576,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-6-6",
+            "firstLead": 6,
+            "secondLead": 6,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564184228.0596576,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-7-4",
+            "firstLead": 7,
+            "secondLead": 4,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564474870.77068,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-7-5",
+            "firstLead": 7,
+            "secondLead": 5,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564610782.546099,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-7-6",
+            "firstLead": 7,
+            "secondLead": 6,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564610782.546099,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-8-4",
+            "firstLead": 8,
+            "secondLead": 4,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564474870.77068,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-8-5",
+            "firstLead": 8,
+            "secondLead": 5,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564610782.546099,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          },
+          {
+            "id": "lead-8-6",
+            "firstLead": 8,
+            "secondLead": 6,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2564610782.546099,
+            "finalRage": 1,
+            "finalDragonRideStacks": 3,
+            "failure": null
+          }
+        ]
+      }
+    },
+    {
+      "latencyMs": 60,
+      "formal": {
+        "id": "formal",
+        "firstLead": 7,
+        "secondLead": 5,
+        "legal": true,
+        "mechanicsViolationCount": 0,
+        "rotationDamage": 2521686434.924993,
+        "finalRage": 1,
+        "finalDragonRideStacks": 5,
+        "failure": null
+      },
+      "previousTiming": {
+        "id": "previousTiming",
+        "firstLead": 1,
+        "secondLead": 1,
+        "legal": true,
+        "mechanicsViolationCount": 0,
+        "rotationDamage": 2516476805.1711755,
+        "finalRage": 1,
+        "finalDragonRideStacks": 6,
+        "failure": null
+      },
+      "formalDamageDeltaFromPrevious": 5209629.753817558,
+      "boundedGrid": {
+        "firstLeadRange": [
+          1,
+          12
+        ],
+        "secondLeadRange": [
+          1,
+          12
+        ],
+        "explored": 144,
+        "legal": 64,
+        "best": {
+          "id": "lead-8-5",
+          "firstLead": 8,
+          "secondLead": 5,
+          "legal": true,
+          "mechanicsViolationCount": 0,
+          "rotationDamage": 2522112989.411435,
+          "finalRage": 1,
+          "finalDragonRideStacks": 5,
+          "failure": null
+        },
+        "bestDamageDeltaFromFormal": 426554.4864420891,
+        "bestDamageDeltaFromPrevious": 5636184.240259647
+      },
+      "plusMinusOne": {
+        "explored": 9,
+        "legal": 9,
+        "best": {
+          "id": "lead-8-5",
+          "firstLead": 8,
+          "secondLead": 5,
+          "legal": true,
+          "mechanicsViolationCount": 0,
+          "rotationDamage": 2522112989.411435,
+          "finalRage": 1,
+          "finalDragonRideStacks": 5,
+          "failure": null
+        },
+        "candidates": [
+          {
+            "id": "lead-6-4",
+            "firstLead": 6,
+            "secondLead": 4,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2520833325.9521093,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-6-5",
+            "firstLead": 6,
+            "secondLead": 5,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2521686434.924993,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-6-6",
+            "firstLead": 6,
+            "secondLead": 6,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2521686434.924993,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-7-4",
+            "firstLead": 7,
+            "secondLead": 4,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2520833325.9521093,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-7-5",
+            "firstLead": 7,
+            "secondLead": 5,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2521686434.924993,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-7-6",
+            "firstLead": 7,
+            "secondLead": 6,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2521686434.924993,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-8-4",
+            "firstLead": 8,
+            "secondLead": 4,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2521259880.4385514,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-8-5",
+            "firstLead": 8,
+            "secondLead": 5,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2522112989.411435,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          },
+          {
+            "id": "lead-8-6",
+            "firstLead": 8,
+            "secondLead": 6,
+            "legal": true,
+            "mechanicsViolationCount": 0,
+            "rotationDamage": 2522112989.411435,
+            "finalRage": 1,
+            "finalDragonRideStacks": 5,
+            "failure": null
+          }
+        ]
+      }
+    },
+    {
+      "latencyMs": 90,
+      "formal": {
+        "id": "formal",
+        "firstLead": 7,
+        "secondLead": 5,
+        "legal": false,
+        "mechanicsViolationCount": null,
+        "rotationDamage": null,
+        "finalRage": null,
+        "finalDragonRideStacks": null,
+        "failure": {
+          "rowNumber": 18,
+          "seconds": 21.7175,
+          "rage": 2,
+          "dragonRideStacks": 2,
+          "message": "龙牙需要3点战意，当前只有2点"
+        }
+      },
+      "previousTiming": {
+        "id": "previousTiming",
+        "firstLead": 1,
+        "secondLead": 1,
+        "legal": true,
+        "mechanicsViolationCount": 0,
+        "rotationDamage": 2478251696.715402,
+        "finalRage": 2,
+        "finalDragonRideStacks": 2,
+        "failure": null
+      },
+      "formalDamageDeltaFromPrevious": null,
+      "boundedGrid": {
+        "firstLeadRange": [
+          1,
+          12
+        ],
+        "secondLeadRange": [
+          1,
+          12
+        ],
+        "explored": 144,
+        "legal": 1,
+        "best": {
+          "id": "lead-1-1",
+          "firstLead": 1,
+          "secondLead": 1,
+          "legal": true,
+          "mechanicsViolationCount": 0,
+          "rotationDamage": 2482731049.181865,
+          "finalRage": 2,
+          "finalDragonRideStacks": 1,
+          "failure": null
+        },
+        "bestDamageDeltaFromFormal": null,
+        "bestDamageDeltaFromPrevious": 4479352.466463089
+      },
+      "plusMinusOne": {
+        "explored": 9,
+        "legal": 0,
+        "best": null,
+        "candidates": [
+          {
+            "id": "lead-6-4",
+            "firstLead": 6,
+            "secondLead": 4,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-6-5",
+            "firstLead": 6,
+            "secondLead": 5,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-6-6",
+            "firstLead": 6,
+            "secondLead": 6,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-7-4",
+            "firstLead": 7,
+            "secondLead": 4,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-7-5",
+            "firstLead": 7,
+            "secondLead": 5,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-7-6",
+            "firstLead": 7,
+            "secondLead": 6,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-8-4",
+            "firstLead": 8,
+            "secondLead": 4,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-8-5",
+            "firstLead": 8,
+            "secondLead": 5,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          },
+          {
+            "id": "lead-8-6",
+            "firstLead": 8,
+            "secondLead": 6,
+            "legal": false,
+            "mechanicsViolationCount": null,
+            "rotationDamage": null,
+            "finalRage": null,
+            "finalDragonRideStacks": null,
+            "failure": {
+              "rowNumber": 18,
+              "seconds": 21.7175,
+              "rage": 2,
+              "dragonRideStacks": 2,
+              "message": "龙牙需要3点战意，当前只有2点"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

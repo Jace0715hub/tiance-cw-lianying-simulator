@@ -2,11 +2,60 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
+  buildLianyingCrossScheduleBridgePlan,
   buildLianyingCrossoverJointSegment,
   lianyingCrossoverBridgeSegmentIndices,
   optimizeLianyingCrossoverBridge,
   optimizeLianyingCrossoverJointBridge,
 } from "../src/policies/lianying-crossover-bridge.js";
+
+test("跨雷坐标桥接只覆盖首个差异到重新会合的有界区段", () => {
+  const plan = buildLianyingCrossScheduleBridgePlan(
+    [2, 19, 37, 58, 78, 106, 127],
+    [2, 19, 37, 58, 80, 108, 127],
+  );
+  assert.equal(plan.previousCommonAnchorNumber, 4);
+  assert.equal(plan.nextCommonAnchorNumber, 7);
+  assert.deepEqual(plan.differingAnchorNumbers, [5, 6]);
+  assert.deepEqual(plan.segment, {
+    id: "cross-schedule-thunder-4-to-7",
+    kind: "cross-schedule-bridge",
+    startIndex: 58,
+    endIndex: 128,
+    rowCount: 70,
+    startThunderNumber: 4,
+    endThunderNumber: 7,
+  });
+  assert.deepEqual(plan.thunderPositionWindows, [
+    { anchorNumber: 5, sourceIndex: 80, earliestIndex: 78, latestIndex: 80 },
+    { anchorNumber: 6, sourceIndex: 108, earliestIndex: 106, latestIndex: 108 },
+  ]);
+  assert.equal(plan.terminalBoundary, false);
+});
+
+test("末雷跨坐标桥接以战斗轴末端作为有界右边界", () => {
+  const plan = buildLianyingCrossScheduleBridgePlan(
+    [2, 19, 37, 58, 78, 106, 129],
+    [2, 19, 37, 58, 78, 106, 127],
+    { thunderDriftRows: 1, actionCount: 150 },
+  );
+
+  assert.equal(plan.previousCommonAnchorNumber, 6);
+  assert.equal(plan.nextCommonAnchorNumber, null);
+  assert.equal(plan.terminalBoundary, true);
+  assert.deepEqual(plan.differingAnchorNumbers, [7]);
+  assert.deepEqual(plan.segment, {
+    id: "cross-schedule-thunder-6-to-end",
+    kind: "cross-schedule-terminal-bridge",
+    startIndex: 106,
+    endIndex: 150,
+    rowCount: 44,
+    startThunderNumber: 6,
+  });
+  assert.deepEqual(plan.thunderPositionWindows, [
+    { anchorNumber: 7, sourceIndex: 127, earliestIndex: 126, latestIndex: 130 },
+  ]);
+});
 import {
   replayWhitepaperLianying,
   searchWhitepaperLianying,
@@ -165,6 +214,27 @@ test("联合桥接允许中间雷前后漂移一行并钉住双热启动", () =>
       adaptiveSuffixMaxExpansions: 1,
       adaptiveSuffixLookaheadRows: 2,
       adaptiveSuffixMaximumAddedRows: 4,
+      adaptiveSuffixFailureChainLimit: 3,
+      adaptiveSuffixFailureRowBucketSize: 4,
+      adaptiveSuffixDirectedRepairLimit: 4,
+      adaptiveSuffixDirectedRepairLookBehindRows: 2,
+      adaptiveSuffixDirectedRepairLookAheadRows: 3,
+      valueShadowPolicy: {
+        enabled: true,
+        baselineQuota: 1,
+        valueQuota: 1,
+        valueWeight: 0,
+        maximumBaselineRank: 12,
+        model: {
+          kind: "ridge-residual",
+          trainingRows: 1,
+          targetMean: 0,
+          featureColumns: [],
+          featureMeans: [],
+          featureScales: [],
+          coefficients: [],
+        },
+      },
     },
   );
   const report = result.resynthesis.passes[0].segments[0];
@@ -173,7 +243,17 @@ test("联合桥接允许中间雷前后漂移一行并钉住双热启动", () =>
   assert.equal(result.thunderPositionWindows[0].latestIndex + 1, originalAnchors[1] + 1);
   assert.equal(report.warmStartCount, 2);
   assert.equal(result.adaptiveSuffixRepair, true);
+  assert.equal(result.adaptiveSuffixFailureChainLimit, 3);
+  assert.equal(result.adaptiveSuffixFailureRowBucketSize, 4);
+  assert.equal(result.adaptiveSuffixDirectedRepairLimit, 4);
+  assert.equal(result.adaptiveSuffixDirectedRepairLookBehindRows, 2);
+  assert.equal(result.adaptiveSuffixDirectedRepairLookAheadRows, 3);
   assert.equal(result.resynthesis.options.adaptiveSuffixRepair, true);
+  assert.equal(result.resynthesis.options.adaptiveSuffixFailureChainLimit, 3);
+  assert.equal(result.resynthesis.options.adaptiveSuffixDirectedRepairLimit, 4);
+  assert.equal(result.resynthesis.options.valueShadowPolicy.enabled, true);
+  assert.ok(report.valueShadowSelections > 0);
+  assert.ok(report.peakStates <= 7);
   assert.ok(report.adaptiveAttempts.length >= 1);
   assert.equal(
     report.adaptiveAttempts.length,

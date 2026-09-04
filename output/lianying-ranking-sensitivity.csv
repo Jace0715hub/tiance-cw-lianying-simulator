@@ -1,0 +1,6 @@
+﻿候选,来源,首个动作差异行,开场前5伤害事件相同,事件模型伤害,事件模型相对正式轴,Excel分项校准伤害,校准后相对正式轴,校准修正量
+formal,lianying-free-fixed-180s-dismount-triple-transfer.json,,true,2650965009.9045615,0,2651013851.0834656,0,48841.17890412397
+previousFormal,lianying-free-fixed-180s-dismount-pair-radius6.json,25,true,2650768303.2846065,-196706.61995506287,2650822390.6879363,-191460.39552927017,54087.40332978069
+heterogeneous,lianying-ranking-sensitivity.json#candidate:heterogeneous,3,true,2644383600.255384,-6581409.649177551,2644393329.369744,-6620521.713721752,9729.11435877433
+thunder106,lianying-ranking-sensitivity.json#candidate:thunder106,3,true,2644613129.06197,-6351880.842591286,2644601559.8105354,-6412291.272930145,-11569.251434876689
+qualityTerminal,lianying-ranking-sensitivity.json#candidate:qualityTerminal,3,true,2643325943.2108607,-7639066.69370079,2643294483.1864514,-7719367.897014141,-31460.02441022039

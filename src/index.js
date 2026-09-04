@@ -5,6 +5,15 @@ export {
   loadGearTemplate,
 } from "./config/gear-template.js";
 export {
+  LIANYING_CURRENT_BEST_AXIS,
+  LIANYING_FIXED_DURATION_BASELINES,
+  LIANYING_DEFAULT_RESEARCH_SEEDS,
+  LIANYING_DEFAULT_VALUE_TRAINING_SEEDS,
+  resolveLianyingResearchPath,
+  resolveLianyingResearchPaths,
+  resolveLianyingDurationBaseline,
+} from "./config/lianying-research-defaults.js";
+export {
   CLOCK_TICKS_PER_FRAME,
   CLOCK_TICKS_PER_MS,
   frameToTicks,
@@ -36,6 +45,9 @@ export { executeActionPack, runRotation } from "./engine/simulator.js";
 export {
   LIANYING_POLICY_MODES,
   buildWhitepaperOpener,
+  detectLianyingResourceBalanceSignals,
+  lianyingResourceBalanceCompoundMutations,
+  lianyingResourceBalanceMutations,
   legalLianyingPacks,
   legalMechanicalLianyingPacks,
   labelWhitepaperPack,
@@ -53,15 +65,56 @@ export {
   LIANYING_OPTIMIZATION_PROFILES,
 } from "./policies/lianying-optimization-profiles.js";
 export {
+  evaluateLianyingValueModel,
+  evaluateLianyingHybridValueQuota,
+  crossValidateLianyingRidgeValueModel,
+  evaluateLianyingBaselineQuota,
+  fitLianyingRidgeValueModel,
+  LIANYING_VALUE_FEATURE_COLUMNS,
+  predictLianyingRidgeValue,
+  selectLianyingHybridValueWeight,
+  selectLianyingRidgeValueModel,
+  selectLianyingRidgeValuePolicyBySourceValidation,
+} from "./policies/lianying-value-model.js";
+export {
+  classifyLianyingSuffixFailure,
+  buildLianyingValueTrainingRows,
   identifyLianyingThunderSegments,
   lianyingAdaptiveSuffixEndIndex,
+  lianyingCorePackDistance,
+  lianyingStateValueFeatures,
+  lianyingSuffixFailureRepairAxes,
   optimizeLianyingSegmentResynthesis,
+  selectLianyingDiverseAxisCandidates,
+  selectLianyingLayeredSuffixFailures,
+  selectLianyingValueShadowCandidates,
   synthesizeLianyingSegment,
 } from "./policies/lianying-segment-resynthesis.js";
 export {
+  addLianyingValueCenteredTargets,
+  lianyingValueDatasetSplit,
+  lianyingValueTrainingToCsv,
+  lianyingValueTrainingToJsonl,
+  prepareLianyingValueTrainingRows,
+  summarizeLianyingValueTrainingRows,
+} from "./reports/lianying-value-training.js";
+export {
+  buildLianyingBoundedThunderTemplates,
+  buildLianyingFocusedCompanionAnchorTemplate,
+  buildLianyingRankedPairThunderTemplates,
+  lianyingAnchorCoordinationTemplatesToCsv,
+  optimizeLianyingHierarchicalAnchorCoordination,
+  optimizeLianyingFocusedCompanionAnchorCoordination,
+  optimizeLianyingIterativeFocusedCompanionAnchorCoordination,
+  optimizeLianyingRankedPairAnchorCoordination,
+  selectLianyingStructuralSeedCandidates,
+} from "./policies/lianying-anchor-coordinator.js";
+export {
   evaluateLianyingReferenceSuffixValue,
   isLianyingAnchorDriftPackAllowed,
+  isLianyingCompanionAnchorPackAllowed,
   isLianyingThunderAnchorPackAllowed,
+  lianyingCompanionAnchorRows,
   lianyingAnchorDriftLongTermScore,
   lianyingAnchorDriftScheduleToCsv,
   lianyingAnchorDriftWindow,
@@ -70,6 +123,12 @@ export {
   optimizeLianyingMultiSegmentResynthesis,
   selectLianyingJointBoundaryNodes,
 } from "./policies/lianying-multisegment-resynthesis.js";
+export {
+  buildLianyingForcedRideCounterfactual,
+  buildLianyingForcedRideWarmAxes,
+  buildLianyingStanceIntervalMacro,
+} from
+  "./policies/lianying-stance-interval-macros.js";
 export {
   lianyingPortfolioStructureKey,
   lianyingSeedPortfolioToCsv,
@@ -80,8 +139,10 @@ export {
   optimizeLianyingSeedCrossovers,
 } from "./policies/lianying-seed-crossover.js";
 export {
+  buildLianyingCrossScheduleBridgePlan,
   buildLianyingCrossoverJointSegment,
   lianyingCrossoverBridgeSegmentIndices,
+  optimizeLianyingCrossScheduleBridge,
   optimizeLianyingCrossoverBridge,
   optimizeLianyingCrossoverJointBridge,
 } from "./policies/lianying-crossover-bridge.js";
@@ -92,6 +153,10 @@ export {
 } from "./policies/lianying-crossover-bridge-portfolio.js";
 export { auditWhitepaperAxis } from "./reports/whitepaper-audit.js";
 export { analyzeLianyingStructure } from "./reports/lianying-structure-analysis.js";
+export {
+  extractLianyingAnchorTemplate,
+  lianyingAnchorTemplateToCsv,
+} from "./reports/lianying-anchor-template.js";
 export {
   compareDismountRidePersistence,
   lianyingRowsToActionPacks,
@@ -151,6 +216,20 @@ export {
   rideRowIndices,
   thunderRowIndices,
 } from "./policies/ride-thunder-binding.js";
+export {
+  buildLianyingRideThunderUsageTemplates,
+} from "./policies/lianying-ride-thunder-templates.js";
+export {
+  buildLianyingBoundedMultiSegmentSpan,
+  lianyingDifferingThunderSegmentIndices,
+  optimizeLianyingTripleSegmentRecombination,
+} from "./policies/lianying-triple-segment-recombination.js";
+export {
+  buildLianyingMultiSourceRecombination,
+  mergeLianyingSourceDifferences,
+  optimizeLianyingMultiSourceRecombination,
+  swapLianyingPrimaryActions,
+} from "./policies/lianying-multi-source-recombination.js";
 export { summarize, timelineRows } from "./reports/summary.js";
 export {
   BASELINE_COMPONENT_TO_SKILL,

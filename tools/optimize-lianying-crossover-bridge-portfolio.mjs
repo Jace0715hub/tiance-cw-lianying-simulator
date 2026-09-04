@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
+import { resolveLianyingResearchPaths } from "../src/config/lianying-research-defaults.js";
 import {
   lianyingCrossoverBridgePortfolioToCsv,
   optimizeLianyingCrossoverBridgePortfolio,
@@ -16,21 +17,7 @@ import {
 import { lianyingRowsToActionPacks } from "../src/reports/lianying-model-sensitivity.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const defaultInputs = [
-  "output/lianying-free-fixed-180s-segments-balanced.json",
-  "output/lianying-free-fixed-180s-segments-fast-guided-pass2.json",
-  "output/lianying-free-fixed-180s-best-continued-fast.json",
-  "output/lianying-free-fixed-180s-best.json",
-];
-const inputArgument = process.argv[2];
-const inputPaths = (
-  !inputArgument || inputArgument === "-"
-    ? defaultInputs.join(",")
-    : inputArgument
-)
-  .split(",")
-  .map((value) => path.resolve(value.trim()))
-  .filter(Boolean);
+const inputPaths = resolveLianyingResearchPaths(projectRoot, process.argv[2]);
 const profileName = process.argv[3] ?? "screen";
 const profiles = {
   screen: {
@@ -101,6 +88,7 @@ const profiles = {
         fullDashStates: 64,
         boundaryPaddingRows: 4,
         preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
       },
     },
   },
@@ -126,6 +114,7 @@ const profiles = {
         fullDashStates: 128,
         boundaryPaddingRows: 6,
         preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
       },
     },
   },
@@ -152,13 +141,41 @@ const profiles = {
         fullDashStates: 128,
         boundaryPaddingRows: 6,
         preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
+      },
+    },
+  },
+  "joint-best-fast": {
+    crossover: {
+      maxSeeds: 4,
+      coreCandidateLimit: 24,
+      coarseDashStates: 16,
+      finalDashCandidateCount: 3,
+      fullDashStates: 256,
+    },
+    portfolio: {
+      candidateLimit: 4,
+      selectedCandidateNumbers: [1],
+      initialDashStates: 128,
+      bridgeMode: "joint",
+      bridgeOptions: {
+        maxPasses: 1,
+        beamWidth: 32,
+        finalistCount: 8,
+        coarseCandidateLimit: 8,
+        coarseDashStates: 16,
+        finalDashCandidateCount: 2,
+        fullDashStates: 128,
+        boundaryPaddingRows: 6,
+        preserveThunderPositions: true,
+        preserveNovelStructureIgnoredActionIds: ["thunder", "dash", "orange"],
       },
     },
   },
 };
 if (!profiles[profileName]) {
   throw new Error(
-    "组合桥接档位必须是screen、fast、joint-screen、joint-fast或joint-target",
+    "组合桥接档位必须是screen、fast、joint-screen、joint-fast、joint-target或joint-best-fast",
   );
 }
 if (inputPaths.length < 2) throw new Error("至少需要两条种子路径");
