@@ -37,9 +37,22 @@ function actionId(action) {
 
 export function labelWhitepaperPack(pack) {
   if (pack.label) return pack.label;
+  if (actionId(pack.primary) === "wait") {
+    return `等待${Math.floor(Number(pack.primary?.frames ?? 0))}帧`;
+  }
   const prefix = (pack.prefix ?? []).map(actionId).map((id) => ACTION_LABELS[id]);
   const primary = ACTION_LABELS[actionId(pack.primary)] ?? actionId(pack.primary);
-  const tail = (pack.tail ?? []).map(actionId).map((id) => ACTION_LABELS[id]);
+  const tail = [...(pack.tail ?? [])]
+    .map((action, order) => ({
+      action,
+      order,
+      leadFrames: Number(
+        typeof action === "string" ? 1 : action?.leadFrames ?? 1,
+      ),
+    }))
+    .sort((left, right) =>
+      right.leadFrames - left.leadFrames || left.order - right.order)
+    .map(({ action }) => ACTION_LABELS[actionId(action)]);
   return `${prefix.join("+")}${prefix.length ? "→" : ""}${primary}${
     tail.length ? `→${tail.join("+")}` : ""
   }`;
@@ -502,6 +515,60 @@ function mechanicalRidePacks(state, tick) {
   return packs;
 }
 
+function mechanicalTailOffGcdVariants(packs, state, config, tick) {
+  const tailTick = tick + gcdLockTicks(config.gcdFrames, config.latencyMs) -
+    frameToTicks(1);
+  const thunderReady = poolAvailableAt(state.chargeTicks.thunder, tailTick) > 0;
+  const orangeReady = cooldownReady(state, "orange", tailTick);
+  const variants = [];
+  for (const pack of packs) {
+    const timingVariants = [pack];
+    if (primaryId(pack) !== "ride") {
+      const existing = new Set([
+        ...(pack.prefix ?? []),
+        ...(pack.tail ?? []),
+      ].map(actionId));
+      const plans = [];
+      if (thunderReady && !existing.has("thunder")) plans.push(["thunder"]);
+      if (orangeReady && !existing.has("orange")) plans.push(["orange"]);
+      if (
+        thunderReady &&
+        orangeReady &&
+        !existing.has("thunder") &&
+        !existing.has("orange")
+      ) plans.push(["thunder", "orange"]);
+      for (const plan of plans) {
+        const variant = clonePack(pack);
+        variant.tail.push(...plan.map((id) => ({ id, leadFrames: 1 })));
+        timingVariants.push(variant);
+      }
+    }
+
+    for (const variant of timingVariants) {
+      variants.push(variant);
+      const prefixDismount = (variant.prefix ?? []).some(
+        (action) => actionId(action) === "dismount",
+      );
+      const tailDismount = (variant.tail ?? []).some(
+        (action) => actionId(action) === "dismount",
+      );
+      const mountedAtTail = primaryId(variant) === "ride" ||
+        (isMountedAtTick(state, tick) && !prefixDismount);
+      if (!mountedAtTail || tailDismount) continue;
+      const dismountVariant = clonePack(variant);
+      dismountVariant.tail.push({
+        id: "dismount",
+        reason: primaryId(variant) === "ride"
+          ? "ride-tail-free-search"
+          : "gcd-tail-free-search",
+        leadFrames: 1,
+      });
+      variants.push(dismountVariant);
+    }
+  }
+  return uniquePacks(variants);
+}
+
 export function legalMechanicalLianyingPacks(state, config) {
   const tick = decisionTick(state);
   const packs = [];
@@ -512,7 +579,7 @@ export function legalMechanicalLianyingPacks(state, config) {
     }
   }
   packs.push(...mechanicalRidePacks(state, tick));
-  return uniquePacks(packs);
+  return mechanicalTailOffGcdVariants(uniquePacks(packs), state, config, tick);
 }
 
 export function legalLianyingPacks(
@@ -664,9 +731,9 @@ function selectBeam(
   policyMode,
   config,
   pinnedSignatures = new Set(),
+  ranker = (left, right) => rankNodes(left, right, policyMode),
 ) {
-  const sorted = [...candidates].sort((left, right) =>
-    rankNodes(left, right, policyMode));
+  const sorted = [...candidates].sort(ranker);
   const effectiveBeamWidth = Math.max(beamWidth, pinnedSignatures.size);
   if (policyMode === "strict" || sorted.length <= beamWidth) {
     const selected = sorted.slice(0, effectiveBeamWidth);
@@ -725,6 +792,32 @@ function selectBeam(
   return selected;
 }
 
+function selectPrunedArchive(
+  candidates,
+  selectedNodes,
+  limit,
+  policyMode,
+  config,
+  ranker = (left, right) => rankNodes(left, right, policyMode),
+) {
+  const selectedSignatures = new Set(
+    selectedNodes.map((node) => stateSignature(node.state)),
+  );
+  const ranked = [...candidates]
+    .filter((node) => !selectedSignatures.has(stateSignature(node.state)))
+    .sort(ranker);
+  const archived = [];
+  const resourcePhases = new Set();
+  for (const node of ranked) {
+    const phase = diversityBucket(node, config);
+    if (resourcePhases.has(phase)) continue;
+    resourcePhases.add(phase);
+    archived.push(node);
+    if (archived.length >= limit) break;
+  }
+  return archived;
+}
+
 function executePacks(initialState, packs, config, oracle, endTick) {
   let state = initialState;
   for (const pack of packs) {
@@ -744,6 +837,11 @@ export function searchLianyingAxis(
     initialPacks,
     warmStartPacks = [],
     warmStartAxes = [],
+    fixedPacksByDepth = new Map(),
+    prunedArchiveRows = [],
+    prunedArchivePerRow = 0,
+    prunedArchiveRanker = null,
+    nodeScore = null,
   } = {},
 ) {
   if (!['fixed', 'stable'].includes(mode)) throw new Error(`未知搜索模式: ${mode}`);
@@ -754,6 +852,16 @@ export function searchLianyingAxis(
     throw new Error("束宽度必须为正整数");
   }
   const endTick = millisecondsToTicks(Number(durationSeconds) * 1000);
+  const fixedPackEntries = fixedPacksByDepth instanceof Map
+    ? [...fixedPacksByDepth.entries()]
+    : Object.entries(fixedPacksByDepth ?? {});
+  const normalizedFixedPacksByDepth = new Map(fixedPackEntries.map(
+    ([depth, pack]) => [Math.floor(Number(depth)), clonePack(pack)],
+  ));
+  const archiveRows = new Set(
+    (prunedArchiveRows ?? []).map((row) => Math.floor(Number(row))),
+  );
+  const archiveLimit = Math.max(0, Math.floor(Number(prunedArchivePerRow)));
   const initialState = createInitialState(runtime.config, {
     rage: 5,
     bleedStacks: 0,
@@ -769,7 +877,21 @@ export function searchLianyingAxis(
     runtime.oracle,
     endTick,
   );
-  let beam = [{ state: openedState, packs: seedPacks.map(clonePack) }];
+  const makeNode = (state, packs) => {
+    const node = { state, packs };
+    if (typeof nodeScore === "function") {
+      const score = Number(nodeScore(node));
+      if (Number.isFinite(score)) node.searchScore = score;
+    }
+    return node;
+  };
+  const searchRanker = typeof nodeScore === "function"
+    ? (left, right) =>
+        Number(right.searchScore ?? Number.NEGATIVE_INFINITY) -
+          Number(left.searchScore ?? Number.NEGATIVE_INFINITY) ||
+        rankNodes(left, right, policyMode)
+    : (left, right) => rankNodes(left, right, policyMode);
+  let beam = [makeNode(openedState, seedPacks.map(clonePack))];
   const warmStartByLength = new Map();
   const warmStartDamages = [];
   if (seedPacks.length === 0) {
@@ -797,10 +919,7 @@ export function searchLianyingAxis(
         const signature = stateSignature(warmState);
         const nodes = warmStartByLength.get(warmPacks.length) ?? new Map();
         const previous = nodes.get(signature);
-        const node = {
-          state: warmState,
-          packs: warmPacks.map(clonePack),
-        };
+        const node = makeNode(warmState, warmPacks.map(clonePack));
         if (!previous || rankNodes(node, previous, "free") < 0) {
           nodes.set(signature, node);
         }
@@ -820,7 +939,9 @@ export function searchLianyingAxis(
     beamPruned: 0,
     peakUniqueCandidates: 0,
     peakBeamSize: beam.length,
+    prunedArchive: [],
   };
+  const prunedArchive = [];
 
   while (beam.some((node) => decisionTick(node.state) < endTick)) {
     const candidates = new Map();
@@ -858,11 +979,14 @@ export function searchLianyingAxis(
         }
         continue;
       }
-      const packs = legalLianyingPacks(node.state, runtime.config, {
-        policyMode,
-        horizonMode: mode,
-        endTick,
-      });
+      const fixedPack = normalizedFixedPacksByDepth.get(nextPathLength);
+      const packs = fixedPack
+        ? [fixedPack]
+        : legalLianyingPacks(node.state, runtime.config, {
+            policyMode,
+            horizonMode: mode,
+            endTick,
+          });
       for (const pack of packs) {
         explored += 1;
         layer.exploredTransitions += 1;
@@ -876,7 +1000,10 @@ export function searchLianyingAxis(
           );
           legal += 1;
           layer.legalTransitions += 1;
-          const candidate = { state, packs: [...node.packs, clonePack(pack)] };
+          const candidate = makeNode(
+            state,
+            [...node.packs, clonePack(pack)],
+          );
           const signature = stateSignature(state);
           const previous = candidates.get(signature);
           if (!previous || rankNodes(candidate, previous, "free") < 0) {
@@ -920,7 +1047,31 @@ export function searchLianyingAxis(
       policyMode,
       runtime.config,
       pinnedSignatures,
+      searchRanker,
     );
+    if (archiveLimit > 0 && archiveRows.has(nextPathLength)) {
+      const archived = selectPrunedArchive(
+        candidates.values(),
+        beam,
+        archiveLimit,
+        policyMode,
+        runtime.config,
+        typeof prunedArchiveRanker === "function"
+          ? prunedArchiveRanker
+          : searchRanker,
+      );
+      prunedArchive.push(...archived.map((node) => ({
+        depth: nextPathLength,
+        state: node.state,
+        packs: node.packs,
+      })));
+      telemetry.prunedArchive.push({
+        depth: nextPathLength,
+        count: archived.length,
+        resourcePhases: archived.map((node) =>
+          diversityBucket(node, runtime.config)),
+      });
+    }
     if (beam.length === 0) throw new Error("白皮书约束下没有可继续执行的技能轴");
     layer.selectedNodes = beam.length;
     layer.beamPruned = Math.max(0, layer.uniqueCandidates - layer.selectedNodes);
@@ -956,6 +1107,7 @@ export function searchLianyingAxis(
       ? Math.max(...warmStartDamages)
       : null,
     telemetry,
+    prunedArchive,
     packs: best.packs,
     state: best.state,
   };
@@ -1381,12 +1533,565 @@ function packHasOffGcd(pack, id) {
     .some((action) => actionId(action) === id);
 }
 
+export function detectLianyingResourceBalanceSignals(replay) {
+  const signals = [];
+  const seen = new Set();
+  const add = (signal) => {
+    const key = `${signal.kind}|${signal.rowIndex}|${signal.action ?? ""}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    signals.push(signal);
+  };
+  for (const row of replay.trace ?? []) {
+    const events = (replay.state?.timeline ?? []).filter(
+      (event) =>
+        event.sequence >= row.sequenceFrom &&
+        event.sequence <= row.sequenceUntil,
+    );
+    for (const event of events) {
+      if (event.type === "offGcd" && event.action === "charge" && event.rageBefore > 2) {
+        add({
+          kind: "high-rage-charge",
+          rowIndex: row.index,
+          action: event.action,
+          rageBefore: event.rageBefore,
+          rageOverflow: Number(event.rageOverflow ?? 0),
+        });
+      }
+      if (event.type === "offGcd" && event.action === "thunder" && event.rageBefore < 5) {
+        add({
+          kind: "low-rage-thunder",
+          rowIndex: row.index,
+          action: event.action,
+          rageBefore: event.rageBefore,
+        });
+      }
+      if (event.type === "cast" && event.action === "ride" && event.stackOverflow > 0) {
+        add({
+          kind: "dragon-ride-overflow",
+          rowIndex: row.index,
+          action: event.action,
+          dragonRideBefore: event.stacksBefore,
+          stackOverflow: event.stackOverflow,
+        });
+      }
+      if (Number(event.rageOverflow ?? 0) > 0 && event.action !== "charge") {
+        add({
+          kind: "rage-overflow",
+          rowIndex: row.index,
+          action: event.action,
+          rageBefore: event.rageBeforeCast ?? event.rageBefore,
+          rageOverflow: Number(event.rageOverflow),
+        });
+      }
+    }
+  }
+  return signals;
+}
+
+function primaryOnlySwapChanges(packs, leftIndex, rightIndex) {
+  const left = unlabeledPack(packs[leftIndex]);
+  const right = unlabeledPack(packs[rightIndex]);
+  const leftPrimary = left.primary;
+  left.primary = right.primary;
+  right.primary = leftPrimary;
+  return new Map([
+    [leftIndex, left],
+    [rightIndex, right],
+  ]);
+}
+
+function moveOffGcdActionChanges(
+  packs,
+  sourceIndex,
+  sourceLocation,
+  actionIndex,
+  targetIndex,
+  targetLocation,
+) {
+  const sourceActions = packs[sourceIndex][sourceLocation] ?? [];
+  const id = actionId(sourceActions[actionIndex]);
+  const nextSourceActions = sourceActions.filter((_, index) => index !== actionIndex);
+  const nextTargetActions = [
+    ...(packs[targetIndex][targetLocation] ?? []),
+    targetLocation === "tail" ? { id, leadFrames: 1 } : id,
+  ];
+  if (sourceIndex === targetIndex) {
+    const next = actionLocationPack(
+      packs[sourceIndex],
+      sourceLocation,
+      nextSourceActions,
+    );
+    return new Map([[
+      sourceIndex,
+      actionLocationPack(next, targetLocation, nextTargetActions),
+    ]]);
+  }
+  return new Map([
+    [sourceIndex, actionLocationPack(
+      packs[sourceIndex],
+      sourceLocation,
+      nextSourceActions,
+    )],
+    [targetIndex, actionLocationPack(
+      packs[targetIndex],
+      targetLocation,
+      nextTargetActions,
+    )],
+  ]);
+}
+
+export function lianyingResourceBalanceMutations(
+  packs,
+  signals,
+  { maxDistance = 6 } = {},
+) {
+  const mutations = [];
+  const seen = new Set();
+  const add = (mutation) => {
+    const key = mutationKey(mutation);
+    if (seen.has(key)) return;
+    seen.add(key);
+    mutations.push(mutation);
+  };
+  const distance = Math.max(1, Math.floor(Number(maxDistance)));
+  const refillPrimaries = new Set(["destroy", "dragonRoar", "cloudStrike"]);
+
+  for (const signal of signals) {
+    const rowIndex = Number(signal.rowIndex);
+    if (!Number.isInteger(rowIndex) || rowIndex < 0 || rowIndex >= packs.length) continue;
+
+    if (signal.kind === "high-rage-charge") {
+      for (const sourceLocation of ["prefix", "tail"]) {
+        const sourceActions = packs[rowIndex][sourceLocation] ?? [];
+        for (let actionIndex = 0; actionIndex < sourceActions.length; actionIndex += 1) {
+          if (actionId(sourceActions[actionIndex]) !== "charge") continue;
+          if (sourceLocation === "prefix" && primaryId(packs[rowIndex]) === "dragonFang") {
+            add(createMutation("resourceBalance", moveOffGcdActionChanges(
+              packs,
+              rowIndex,
+              sourceLocation,
+              actionIndex,
+              rowIndex,
+              "tail",
+            ), {
+              signalKind: signal.kind,
+              signalRow: rowIndex + 1,
+              description: `${rowIndex + 1}行断魂刺移至龙牙后`,
+            }));
+          }
+          const until = Math.min(packs.length - 1, rowIndex + distance);
+          for (let targetIndex = rowIndex + 1; targetIndex <= until; targetIndex += 1) {
+            if (
+              primaryId(packs[targetIndex]) !== "dragonFang" ||
+              packHasOffGcd(packs[targetIndex], "charge")
+            ) continue;
+            add(createMutation("resourceBalance", moveOffGcdActionChanges(
+              packs,
+              rowIndex,
+              sourceLocation,
+              actionIndex,
+              targetIndex,
+              "tail",
+            ), {
+              signalKind: signal.kind,
+              signalRow: rowIndex + 1,
+              description: `高豆断魂刺 ${rowIndex + 1}→${targetIndex + 1}行龙牙后`,
+            }));
+          }
+        }
+      }
+    }
+
+    if (signal.kind === "low-rage-thunder") {
+      const targetFrom = Math.max(0, rowIndex - 2);
+      const sourceUntil = Math.min(packs.length - 1, rowIndex + distance);
+      const sourceFrom = Math.max(0, rowIndex - distance);
+      for (let sourceIndex = sourceFrom; sourceIndex < rowIndex; sourceIndex += 1) {
+        if (!refillPrimaries.has(primaryId(packs[sourceIndex]))) continue;
+        for (let targetIndex = sourceIndex + 1; targetIndex <= rowIndex; targetIndex += 1) {
+          if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+          add(createMutation("resourceBalancePair", primaryOnlySwapChanges(
+            packs,
+            sourceIndex,
+            targetIndex,
+          ), {
+            signalKind: signal.kind,
+            signalRow: rowIndex + 1,
+            coordinationKind: "consume-before-refill",
+            description: `低豆雷前先消耗后补豆 ${sourceIndex + 1}↔${targetIndex + 1}行`,
+          }));
+        }
+      }
+      for (let targetIndex = targetFrom; targetIndex <= rowIndex; targetIndex += 1) {
+        if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+        for (let sourceIndex = rowIndex + 1; sourceIndex <= sourceUntil; sourceIndex += 1) {
+          if (!refillPrimaries.has(primaryId(packs[sourceIndex]))) continue;
+          add(createMutation("resourceBalancePair", primaryOnlySwapChanges(
+            packs,
+            targetIndex,
+            sourceIndex,
+          ), {
+            signalKind: signal.kind,
+            signalRow: rowIndex + 1,
+            description: `低豆雷前补豆 ${sourceIndex + 1}→${targetIndex + 1}行`,
+          }));
+        }
+      }
+    }
+
+    if (signal.kind === "rage-overflow" && refillPrimaries.has(primaryId(packs[rowIndex]))) {
+      const until = Math.min(packs.length - 1, rowIndex + distance);
+      for (let targetIndex = rowIndex + 1; targetIndex <= until; targetIndex += 1) {
+        if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+        add(createMutation("resourceBalancePair", primaryOnlySwapChanges(
+          packs,
+          rowIndex,
+          targetIndex,
+        ), {
+          signalKind: signal.kind,
+          signalRow: rowIndex + 1,
+          coordinationKind: "consume-before-refill",
+          description: `溢出补豆技能延后 ${rowIndex + 1}↔${targetIndex + 1}行`,
+        }));
+      }
+    }
+
+    if (signal.kind === "dragon-ride-overflow" && primaryId(packs[rowIndex]) === "ride") {
+      const until = Math.min(packs.length - 1, rowIndex + distance);
+      for (let targetIndex = rowIndex + 1; targetIndex <= until; targetIndex += 1) {
+        if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+        add(createMutation("resourceBalancePair", new Map([
+          [rowIndex, packs[targetIndex]],
+          [targetIndex, packs[rowIndex]],
+        ]), {
+          signalKind: signal.kind,
+          signalRow: rowIndex + 1,
+          coordinationKind: "consume-before-ride",
+          description: `延后任驰骋 ${rowIndex + 1}→${targetIndex + 1}行消耗龙驭`,
+        }));
+      }
+    }
+  }
+  return mutations;
+}
+
+export function lianyingResourceBalanceCompoundMutations(
+  baseMutations,
+  {
+    maxGapRows = 8,
+    maxCandidates = 192,
+  } = {},
+) {
+  const maximumGap = Math.max(0, Math.floor(Number(maxGapRows)));
+  const compounds = [];
+  for (let leftIndex = 0; leftIndex < baseMutations.length; leftIndex += 1) {
+    const left = baseMutations[leftIndex];
+    const leftRows = [...left.changes.keys()];
+    for (
+      let rightIndex = leftIndex + 1;
+      rightIndex < baseMutations.length;
+      rightIndex += 1
+    ) {
+      const right = baseMutations[rightIndex];
+      const rightRows = [...right.changes.keys()];
+      if (leftRows.some((row) => right.changes.has(row))) continue;
+      const gap = Math.max(
+        0,
+        Math.min(...rightRows) - Math.max(...leftRows),
+        Math.min(...leftRows) - Math.max(...rightRows),
+      );
+      if (gap > maximumGap) continue;
+      const rows = [...leftRows, ...rightRows];
+      compounds.push(createMutation(
+        "resourceBalanceCompound",
+        new Map([...left.changes, ...right.changes]),
+        {
+          signalKind: [left.signalKind, right.signalKind].sort().join("+"),
+          signalRow: Math.min(left.signalRow, right.signalRow),
+          coordinationKind: "two-resource-repairs",
+          componentKinds: [left.kind, right.kind],
+          componentDescriptions: [left.description, right.description],
+          gapRows: gap,
+          spanRows: Math.max(...rows) - Math.min(...rows) + 1,
+          description: `${left.description}；${right.description}`,
+        },
+      ));
+    }
+  }
+  return compounds
+    .sort((left, right) =>
+      left.gapRows - right.gapRows ||
+      left.spanRows - right.spanRows ||
+      left.startIndex - right.startIndex)
+    .slice(0, Math.max(0, Math.floor(Number(maxCandidates))));
+}
+
+export function lianyingGenericCompoundMutations(
+  localCandidates,
+  {
+    sourceLimit = 24,
+    maxGapRows = 12,
+    maxCandidates = 192,
+  } = {},
+) {
+  const maximumSources = Math.max(2, Math.floor(Number(sourceLimit)));
+  const maximumGap = Math.max(0, Math.floor(Number(maxGapRows)));
+  const maximumCandidates = Math.max(0, Math.floor(Number(maxCandidates)));
+  if (maximumCandidates === 0) return [];
+  const eligible = (localCandidates ?? [])
+    .filter((candidate) =>
+      candidate?.mutation?.changes instanceof Map &&
+      candidate.mutation.kind !== "genericCompound" &&
+      candidate.mutation.kind !== "resourceBalanceCompound")
+    .map((candidate) => ({
+      ...candidate,
+      bestLocalScore: Math.max(...candidate.localScores.map(Number)),
+    }))
+    .sort((left, right) => right.bestLocalScore - left.bestLocalScore);
+  const sources = [];
+  const sourceKeys = new Set();
+  const addSource = (candidate) => {
+    if (!candidate || sources.length >= maximumSources) return;
+    const key = mutationKey(candidate.mutation);
+    if (sourceKeys.has(key)) return;
+    sourceKeys.add(key);
+    sources.push(candidate);
+  };
+  for (const candidate of eligible.slice(0, Math.ceil(maximumSources / 2))) {
+    addSource(candidate);
+  }
+  for (const kind of [...new Set(eligible.map(
+    (candidate) => candidate.mutation.kind,
+  ))]) {
+    for (const candidate of eligible.filter(
+      (entry) => entry.mutation.kind === kind,
+    ).slice(0, 4)) addSource(candidate);
+  }
+  for (const candidate of eligible) addSource(candidate);
+
+  const compounds = [];
+  const seen = new Set();
+  for (let leftIndex = 0; leftIndex < sources.length; leftIndex += 1) {
+    const left = sources[leftIndex];
+    const leftRows = [...left.mutation.changes.keys()];
+    for (let rightIndex = leftIndex + 1; rightIndex < sources.length; rightIndex += 1) {
+      const right = sources[rightIndex];
+      const rightRows = [...right.mutation.changes.keys()];
+      if (leftRows.some((row) => right.mutation.changes.has(row))) continue;
+      const gapRows = Math.max(
+        0,
+        Math.min(...rightRows) - Math.max(...leftRows) - 1,
+        Math.min(...leftRows) - Math.max(...rightRows) - 1,
+      );
+      if (gapRows > maximumGap) continue;
+      const rows = [...leftRows, ...rightRows];
+      const mutation = createMutation(
+        "genericCompound",
+        new Map([
+          ...left.mutation.changes,
+          ...right.mutation.changes,
+        ]),
+        {
+          componentKinds: [left.mutation.kind, right.mutation.kind],
+          componentDescriptions: [
+            left.mutation.description,
+            right.mutation.description,
+          ],
+          estimatedLocalScore:
+            left.bestLocalScore + right.bestLocalScore,
+          gapRows,
+          spanRows: Math.max(...rows) - Math.min(...rows) + 1,
+          description:
+            `${left.mutation.description}；${right.mutation.description}`,
+        },
+      );
+      const key = mutationKey(mutation);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      compounds.push(mutation);
+    }
+  }
+  return compounds
+    .sort((left, right) =>
+      right.estimatedLocalScore - left.estimatedLocalScore ||
+      left.gapRows - right.gapRows ||
+      left.spanRows - right.spanRows)
+    .slice(0, maximumCandidates);
+}
+
+// 下马与突通常是一个不可拆的状态转换包。单独迁移突会因为仍在马上而
+// 非法，单独替换主技能又可能先降低局部收益；因此用一个有界联合邻域
+// 同时迁移“下马+突”并替换起点或终点的主技能。
+export function lianyingDashPrimaryJointMutations(
+  packs,
+  { maxDistance = 2 } = {},
+) {
+  const distance = Math.max(1, Math.min(2, Math.floor(Number(maxDistance))));
+  const primaries = ["dragonFang", "destroy", "dragonRoar", "cloudStrike", "ride"];
+  const mutations = [];
+  const seen = new Set();
+  const add = (mutation) => {
+    const key = mutationKey(mutation);
+    if (seen.has(key)) return;
+    seen.add(key);
+    mutations.push(mutation);
+  };
+
+  for (let sourceIndex = 0; sourceIndex < packs.length; sourceIndex += 1) {
+    for (const sourceLocation of ["prefix", "tail"]) {
+      const sourceActions = packs[sourceIndex][sourceLocation] ?? [];
+      const dashIndex = sourceActions.findIndex((action) => actionId(action) === "dash");
+      if (dashIndex < 0) continue;
+      const dismountIndex = sourceActions.findLastIndex(
+        (action, index) => index < dashIndex && actionId(action) === "dismount",
+      );
+      if (dismountIndex < 0) continue;
+      const bundleIndexes = new Set([dismountIndex, dashIndex]);
+      const nextSourceActions = sourceActions.filter(
+        (_, index) => !bundleIndexes.has(index),
+      );
+      const sourceDismount = sourceActions[dismountIndex];
+      const left = Math.max(0, sourceIndex - distance);
+      const right = Math.min(packs.length - 1, sourceIndex + distance);
+      for (let targetIndex = left; targetIndex <= right; targetIndex += 1) {
+        if (
+          targetIndex === sourceIndex ||
+          packHasOffGcd(packs[targetIndex], "dash") ||
+          packHasOffGcd(packs[targetIndex], "dismount")
+        ) continue;
+        const targetLocations = primaryId(packs[targetIndex]) === "ride"
+          ? ["tail"]
+          : ["prefix", "tail"];
+        for (const targetLocation of targetLocations) {
+          const dismount = targetLocation === "tail"
+            ? {
+                id: "dismount",
+                reason: typeof sourceDismount === "object"
+                  ? sourceDismount.reason
+                  : "free-search",
+                leadFrames: 1,
+              }
+            : {
+                id: "dismount",
+                reason: typeof sourceDismount === "object"
+                  ? sourceDismount.reason
+                  : "free-search",
+              };
+          const dash = targetLocation === "tail"
+            ? { id: "dash", leadFrames: 1 }
+            : "dash";
+          const movedSource = actionLocationPack(
+            packs[sourceIndex],
+            sourceLocation,
+            nextSourceActions,
+          );
+          const movedTarget = actionLocationPack(
+            packs[targetIndex],
+            targetLocation,
+            [...(packs[targetIndex][targetLocation] ?? []), dismount, dash],
+          );
+          for (const replaceIndex of [sourceIndex, targetIndex]) {
+            for (const primary of primaries) {
+              const movedPack = replaceIndex === sourceIndex
+                ? movedSource
+                : movedTarget;
+              if (primaryId(movedPack) === primary) continue;
+              const replaced = unlabeledPack(movedPack);
+              replaced.primary = primary;
+              const changes = new Map([
+                [sourceIndex, movedSource],
+                [targetIndex, movedTarget],
+              ]);
+              changes.set(replaceIndex, replaced);
+              add(createMutation("dashPrimaryJoint", changes, {
+                sourceIndex,
+                targetIndex,
+                replaceIndex,
+                fromPrimary: primaryId(movedPack),
+                toPrimary: primary,
+                description:
+                  `下马+突 ${sourceIndex + 1}→${targetIndex + 1}行；` +
+                  `${replaceIndex + 1}行${ACTION_LABELS[primaryId(movedPack)]}` +
+                  `→${ACTION_LABELS[primary]}`,
+              }));
+            }
+          }
+        }
+      }
+    }
+  }
+  return mutations;
+}
+
+export function lianyingDashTimingMutations(packs) {
+  const mutations = [];
+  for (let rowIndex = 0; rowIndex < packs.length; rowIndex += 1) {
+    for (const sourceLocation of ["prefix", "tail"]) {
+      const targetLocation = sourceLocation === "prefix" ? "tail" : "prefix";
+      const sourceActions = packs[rowIndex][sourceLocation] ?? [];
+      const dashIndex = sourceActions.findIndex((action) => actionId(action) === "dash");
+      if (dashIndex < 0) continue;
+      const dismountIndex = sourceActions.findLastIndex(
+        (action, index) => index < dashIndex && actionId(action) === "dismount",
+      );
+      if (dismountIndex < 0) continue;
+      if ((packs[rowIndex][targetLocation] ?? []).some((action) =>
+        ["dismount", "dash"].includes(actionId(action)))) continue;
+      const bundleIndexes = new Set([dismountIndex, dashIndex]);
+      const nextSourceActions = sourceActions.filter(
+        (_, index) => !bundleIndexes.has(index),
+      );
+      const sourceDismount = sourceActions[dismountIndex];
+      const dismount = targetLocation === "tail"
+        ? {
+            id: "dismount",
+            reason: typeof sourceDismount === "object"
+              ? sourceDismount.reason
+              : "free-search",
+            leadFrames: 1,
+          }
+        : {
+            id: "dismount",
+            reason: typeof sourceDismount === "object"
+              ? sourceDismount.reason
+              : "free-search",
+          };
+      const dash = targetLocation === "tail"
+        ? { id: "dash", leadFrames: 1 }
+        : "dash";
+      const withoutBundle = actionLocationPack(
+        packs[rowIndex],
+        sourceLocation,
+        nextSourceActions,
+      );
+      const moved = actionLocationPack(
+        withoutBundle,
+        targetLocation,
+        [...(withoutBundle[targetLocation] ?? []), dismount, dash],
+      );
+      mutations.push(createMutation("dashTimingMove", new Map([
+        [rowIndex, moved],
+      ]), {
+        rowIndex,
+        sourceLocation,
+        targetLocation,
+        description:
+          `${rowIndex + 1}行下马+突` +
+          `${sourceLocation === "prefix" ? "前置→末端" : "末端→前置"}`,
+      }));
+    }
+  }
+  return mutations;
+}
+
 function neighborhoodMutations(
   packs,
   {
     maxSwapDistance,
     maxRotationLength,
     mutationKinds,
+    resourceSignals = [],
   },
 ) {
   const enabled = new Set(mutationKinds);
@@ -1400,6 +2105,30 @@ function neighborhoodMutations(
   };
   const keyFlags = packs.map(isNeighborhoodKeyPack);
   const canonicalPacks = packs.map(canonicalActionPack);
+
+  if (
+    enabled.has("resourceBalance") ||
+    enabled.has("resourceBalancePair") ||
+    enabled.has("resourceBalanceCompound")
+  ) {
+    const resourceMutations = lianyingResourceBalanceMutations(
+      packs,
+      resourceSignals,
+      { maxDistance: maxSwapDistance },
+    );
+    for (const mutation of resourceMutations) {
+      if (enabled.has(mutation.kind)) add(mutation);
+    }
+    if (enabled.has("resourceBalanceCompound")) {
+      for (const mutation of lianyingResourceBalanceCompoundMutations(
+        resourceMutations,
+        {
+          maxGapRows: maxSwapDistance + 2,
+          maxCandidates: 192,
+        },
+      )) add(mutation);
+    }
+  }
 
   if (enabled.has("swap")) {
     for (let leftIndex = 0; leftIndex < packs.length; leftIndex += 1) {
@@ -1504,6 +2233,14 @@ function neighborhoodMutations(
       }
     }
   }
+  if (enabled.has("dashPrimaryJoint")) {
+    for (const mutation of lianyingDashPrimaryJointMutations(packs, {
+      maxDistance: maxSwapDistance,
+    })) add(mutation);
+  }
+  if (enabled.has("dashTimingMove")) {
+    for (const mutation of lianyingDashTimingMutations(packs)) add(mutation);
+  }
   return mutations;
 }
 
@@ -1566,12 +2303,58 @@ export function optimizeLianyingNeighborhoodAxis(
     localLookaheadRows = [8, 16, 32],
     shortlistPerHorizon = 64,
     shortlistPerKind = 8,
+    shortlistPerResourceSignal = 2,
     fullEvaluationLimit = 256,
-    mutationKinds = ["swap", "rotate", "offGcdMove", "primaryReplace"],
+    mutationKinds = [
+      "swap",
+      "rotate",
+      "offGcdMove",
+      "dashPrimaryJoint",
+      "dashTimingMove",
+      "primaryReplace",
+      "resourceBalance",
+      "resourceBalancePair",
+      "resourceBalanceCompound",
+    ],
+    requiredThunderRows = null,
+    mutableRowRanges = null,
+    genericCompoundCandidateLimit = 0,
+    genericCompoundSourceLimit = 24,
+    genericCompoundMaxGapRows = 12,
     minimumDamageGain = 1e-6,
     onPass = null,
   } = {},
 ) {
+  const requiredThunderSchedule = Array.isArray(requiredThunderRows)
+    ? requiredThunderRows.map(Number)
+    : null;
+  const thunderSchedule = (candidatePacks) => candidatePacks.flatMap(
+    (pack, index) => packHasOffGcd(pack, "thunder") ? [index + 1] : [],
+  );
+  const preservesRequiredThunderSchedule = (candidatePacks) =>
+    requiredThunderSchedule === null ||
+    JSON.stringify(thunderSchedule(candidatePacks)) ===
+      JSON.stringify(requiredThunderSchedule);
+  if (!preservesRequiredThunderSchedule(packs)) {
+    throw new Error("邻域搜索的输入轴不符合指定雷表");
+  }
+  const normalizedMutableRowRanges = Array.isArray(mutableRowRanges)
+    ? mutableRowRanges.map((range) => ({
+        startIndex: Math.max(0, Math.floor(Number(range.startRow)) - 1),
+        endIndex: Math.min(
+          packs.length,
+          Math.max(0, Math.floor(Number(range.endRow))),
+        ),
+      })).filter((range) => range.endIndex > range.startIndex)
+    : null;
+  if (Array.isArray(mutableRowRanges) && normalizedMutableRowRanges.length === 0) {
+    throw new Error("邻域可变行区间至少需要一个有效的闭区间");
+  }
+  const mutationIsWithinMutableRows = (mutation) =>
+    normalizedMutableRowRanges === null ||
+    [...mutation.changes.keys()].every((index) =>
+      normalizedMutableRowRanges.some((range) =>
+        index >= range.startIndex && index < range.endIndex));
   let incumbentPacks = packs.map(clonePack);
   let incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,
@@ -1584,6 +2367,8 @@ export function optimizeLianyingNeighborhoodAxis(
   let fullCandidatesEvaluated = 0;
   let shortlistedCandidates = 0;
   const candidateKinds = {};
+  const resourceSignalKinds = {};
+  const resourceCandidateDiagnostics = [];
   const lookaheadHorizons = [
     ...new Set(
       (Array.isArray(localLookaheadRows)
@@ -1605,14 +2390,45 @@ export function optimizeLianyingNeighborhoodAxis(
       incumbentPacks,
       endTick,
     );
+    const resourceSignals = detectLianyingResourceBalanceSignals(incumbent);
+    for (const signal of resourceSignals) {
+      incrementCounter(resourceSignalKinds, signal.kind);
+    }
     const mutations = neighborhoodMutations(incumbentPacks, {
       maxSwapDistance,
       maxRotationLength,
       mutationKinds,
-    });
-    for (const mutation of mutations) incrementCounter(candidateKinds, mutation.kind);
+      resourceSignals,
+    }).filter(mutationIsWithinMutableRows)
+      .filter((mutation) => preservesRequiredThunderSchedule(
+        applyMutation(incumbentPacks, mutation),
+      ));
+    const resourceDiagnostics = new Map();
+    const diagnosticFor = (mutation) => {
+      if (!mutation.kind.startsWith("resourceBalance")) return null;
+      const key = `${mutation.kind}|${mutation.signalKind}`;
+      if (!resourceDiagnostics.has(key)) {
+        resourceDiagnostics.set(key, {
+          kind: mutation.kind,
+          signalKind: mutation.signalKind,
+          generated: 0,
+          legalLocal: 0,
+          illegalLocal: 0,
+          shortlisted: 0,
+          legalFull: 0,
+          illegalFull: 0,
+          bestLocalGain: null,
+          bestFullDamageGain: null,
+        });
+      }
+      return resourceDiagnostics.get(key);
+    };
     for (const mutation of mutations) {
-      if (decisionTick(prefixStates[mutation.startIndex]) >= endTick) continue;
+      const diagnostic = diagnosticFor(mutation);
+      if (diagnostic) diagnostic.generated += 1;
+    }
+    const evaluateLocalMutation = (mutation) => {
+      if (decisionTick(prefixStates[mutation.startIndex]) >= endTick) return;
       candidatesEvaluated += 1;
       try {
         const localScores = [];
@@ -1634,9 +2450,38 @@ export function optimizeLianyingNeighborhoodAxis(
           );
         }
         localCandidates.push({ mutation, localScores });
+        const diagnostic = diagnosticFor(mutation);
+        if (diagnostic) {
+          diagnostic.legalLocal += 1;
+          const bestLocalGain = Math.max(...localScores);
+          diagnostic.bestLocalGain = diagnostic.bestLocalGain === null
+            ? bestLocalGain
+            : Math.max(diagnostic.bestLocalGain, bestLocalGain);
+        }
       } catch {
         illegalCandidates += 1;
+        const diagnostic = diagnosticFor(mutation);
+        if (diagnostic) diagnostic.illegalLocal += 1;
       }
+    };
+    for (const mutation of mutations) incrementCounter(candidateKinds, mutation.kind);
+    for (const mutation of mutations) {
+      evaluateLocalMutation(mutation);
+    }
+    const genericCompounds = lianyingGenericCompoundMutations(
+      localCandidates,
+      {
+        sourceLimit: genericCompoundSourceLimit,
+        maxGapRows: genericCompoundMaxGapRows,
+        maxCandidates: genericCompoundCandidateLimit,
+      },
+    ).filter(mutationIsWithinMutableRows)
+      .filter((mutation) => preservesRequiredThunderSchedule(
+        applyMutation(incumbentPacks, mutation),
+      ));
+    for (const mutation of genericCompounds) {
+      incrementCounter(candidateKinds, mutation.kind);
+      evaluateLocalMutation(mutation);
     }
     const shortlist = [];
     const shortlistedKeys = new Set();
@@ -1655,13 +2500,34 @@ export function optimizeLianyingNeighborhoodAxis(
     for (let rank = 0; rank < shortlistPerHorizon; rank += 1) {
       for (const sorted of sortedByHorizon) addShortlist(sorted[rank]);
     }
-    for (const kind of mutationKinds) {
+    const shortlistKinds = genericCompounds.length > 0
+      ? [...mutationKinds, "genericCompound"]
+      : mutationKinds;
+    for (const kind of shortlistKinds) {
       const sameKind = localCandidates
         .filter((candidate) => candidate.mutation.kind === kind)
         .sort((left, right) =>
           Math.max(...right.localScores) - Math.max(...left.localScores));
       for (let rank = 0; rank < shortlistPerKind; rank += 1) {
         addShortlist(sameKind[rank]);
+      }
+    }
+    const resourceSignalMutationKinds = [
+      ...new Set(
+        localCandidates
+          .filter((candidate) => candidate.mutation.kind.startsWith("resourceBalance"))
+          .map((candidate) => candidate.mutation.signalKind),
+      ),
+    ];
+    for (const signalKind of resourceSignalMutationKinds) {
+      const sameSignal = localCandidates
+        .filter((candidate) =>
+          candidate.mutation.kind.startsWith("resourceBalance") &&
+          candidate.mutation.signalKind === signalKind)
+        .sort((left, right) =>
+          Math.max(...right.localScores) - Math.max(...left.localScores));
+      for (let rank = 0; rank < shortlistPerResourceSignal; rank += 1) {
+        addShortlist(sameSignal[rank]);
       }
     }
     const representedBlocks = new Set(
@@ -1676,13 +2542,26 @@ export function optimizeLianyingNeighborhoodAxis(
       representedBlocks.add(block);
     }
     shortlistedCandidates += shortlist.length;
+    for (const candidate of shortlist) {
+      const diagnostic = diagnosticFor(candidate.mutation);
+      if (diagnostic) diagnostic.shortlisted += 1;
+    }
     if (typeof onPass === "function") {
       onPass({
         stage: "shortlist",
         pass: pass + 1,
-        generatedCandidates: mutations.length,
+        generatedCandidates: mutations.length + genericCompounds.length,
+        genericCompoundCandidates: genericCompounds.length,
         legalLocalCandidates: localCandidates.length,
         shortlistedCandidates: shortlist.length,
+        resourceSignals: resourceSignals.length,
+        resourceSignalKinds: Object.fromEntries(
+          [...new Set(resourceSignals.map((signal) => signal.kind))]
+            .map((kind) => [kind, resourceSignals.filter((signal) => signal.kind === kind).length]),
+        ),
+        resourceBalanceShortlisted: shortlist.filter(
+          (candidate) => candidate.mutation.kind.startsWith("resourceBalance"),
+        ).length,
       });
     }
     for (const candidate of shortlist) {
@@ -1696,13 +2575,37 @@ export function optimizeLianyingNeighborhoodAxis(
           endTick,
         );
         const damageGain = state.totalDamage - incumbent.state.totalDamage;
+        const diagnostic = diagnosticFor(candidate.mutation);
+        if (diagnostic) {
+          diagnostic.legalFull += 1;
+          diagnostic.bestFullDamageGain = diagnostic.bestFullDamageGain === null
+            ? damageGain
+            : Math.max(diagnostic.bestFullDamageGain, damageGain);
+        }
         if (damageGain <= minimumDamageGain) continue;
         if (!best || state.totalDamage > best.state.totalDamage) {
           best = { ...candidate, state, damageGain };
         }
       } catch {
         illegalCandidates += 1;
+        const diagnostic = diagnosticFor(candidate.mutation);
+        if (diagnostic) diagnostic.illegalFull += 1;
       }
+    }
+    const passResourceDiagnostics = [...resourceDiagnostics.values()]
+      .sort((left, right) =>
+        left.kind.localeCompare(right.kind) ||
+        left.signalKind.localeCompare(right.signalKind));
+    resourceCandidateDiagnostics.push({
+      pass: pass + 1,
+      groups: passResourceDiagnostics,
+    });
+    if (typeof onPass === "function") {
+      onPass({
+        stage: "full-evaluation",
+        pass: pass + 1,
+        resourceCandidateDiagnostics: passResourceDiagnostics,
+      });
     }
     if (!best) break;
     incumbentPacks = applyMutation(incumbentPacks, best.mutation);
@@ -1748,9 +2651,20 @@ export function optimizeLianyingNeighborhoodAxis(
     localLookaheadRows: lookaheadHorizons,
     shortlistPerHorizon,
     shortlistPerKind,
+    shortlistPerResourceSignal,
     fullEvaluationLimit,
     mutationKinds,
+    genericCompoundCandidateLimit,
+    genericCompoundSourceLimit,
+    genericCompoundMaxGapRows,
+    requiredThunderRows: requiredThunderSchedule,
+    mutableRowRanges: normalizedMutableRowRanges?.map((range) => ({
+      startRow: range.startIndex + 1,
+      endRow: range.endIndex,
+    })) ?? null,
     candidateKinds,
+    resourceSignalKinds,
+    resourceCandidateDiagnostics,
   };
 }
 
@@ -1770,6 +2684,7 @@ export function optimizeLianyingAxis(
   let incumbentPacks = packs.map(clonePack);
   let incumbentState = baseline.state;
   const phases = [];
+  const roundReports = [];
 
   const initialDash = optimizeLianyingDashOverlay(runtime, incumbentPacks, {
     durationSeconds,
@@ -1816,6 +2731,28 @@ export function optimizeLianyingAxis(
       incumbentPacks,
       { durationSeconds, ...neighborhood },
     );
+    roundReports.push({
+      round: round + 1,
+      reference: {
+        damageGain: referenceResult.damageGain,
+        candidatesEvaluated: referenceResult.candidatesEvaluated,
+        illegalCandidates: referenceResult.illegalCandidates,
+      },
+      neighborhood: {
+        damageGain: neighborhoodResult.damageGain,
+        candidatesEvaluated: neighborhoodResult.candidatesEvaluated,
+        illegalCandidates: neighborhoodResult.illegalCandidates,
+        fullCandidatesEvaluated: neighborhoodResult.fullCandidatesEvaluated,
+        shortlistedCandidates: neighborhoodResult.shortlistedCandidates,
+        mutationKinds: neighborhoodResult.mutationKinds,
+        candidateKinds: neighborhoodResult.candidateKinds,
+        resourceSignalKinds: neighborhoodResult.resourceSignalKinds,
+        resourceCandidateDiagnostics:
+          neighborhoodResult.resourceCandidateDiagnostics,
+        shortlistPerResourceSignal:
+          neighborhoodResult.shortlistPerResourceSignal,
+      },
+    });
     if (neighborhoodResult.damageGain > 0) {
       incumbentPacks = neighborhoodResult.packs;
       incumbentState = neighborhoodResult.state;
@@ -1839,6 +2776,11 @@ export function optimizeLianyingAxis(
         fullEvaluationLimit: neighborhoodResult.fullEvaluationLimit,
         mutationKinds: neighborhoodResult.mutationKinds,
         candidateKinds: neighborhoodResult.candidateKinds,
+        resourceSignalKinds: neighborhoodResult.resourceSignalKinds,
+        resourceCandidateDiagnostics:
+          neighborhoodResult.resourceCandidateDiagnostics,
+        shortlistPerResourceSignal:
+          neighborhoodResult.shortlistPerResourceSignal,
       });
     }
     if (axisChanged) {
@@ -1869,5 +2811,6 @@ export function optimizeLianyingAxis(
     baselineDamage: baseline.state.totalDamage,
     damageGain: incumbentState.totalDamage - baseline.state.totalDamage,
     phases,
+    roundReports,
   };
 }

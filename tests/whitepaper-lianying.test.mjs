@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
+  detectLianyingResourceBalanceSignals,
   LIANYING_POLICY_MODES,
   buildWhitepaperOpener,
   legalMechanicalLianyingPacks,
@@ -11,6 +12,9 @@ import {
   optimizeLianyingAxis,
   optimizeLianyingDashOverlay,
   optimizeLianyingNeighborhoodAxis,
+  lianyingGenericCompoundMutations,
+  lianyingResourceBalanceCompoundMutations,
+  lianyingResourceBalanceMutations,
   optimizeLianyingReferenceAxis,
   replayWhitepaperLianying,
   searchLianyingAxis,
@@ -18,7 +22,7 @@ import {
 } from "../src/policies/whitepaper-lianying.js";
 import { createInitialState } from "../src/engine/state.js";
 import { executeActionPack } from "../src/engine/simulator.js";
-import { frameToTicks } from "../src/engine/clock.js";
+import { frameToTicks, gcdLockTicks } from "../src/engine/clock.js";
 import { auditWhitepaperAxis } from "../src/reports/whitepaper-audit.js";
 import {
   buildWhitepaperAxisArtifact,
@@ -31,6 +35,7 @@ import {
 } from "../src/reports/lianying-convergence.js";
 
 const runtime = loadDefaultGearRuntime({ executePhase: true });
+const actionId = (action) => typeof action === "string" ? action : action?.id;
 const free65Axis = JSON.parse(
   fs.readFileSync(
     new URL("./fixtures/lianying-free-65s-axis.json", import.meta.url),
@@ -202,6 +207,86 @@ test("自由动作空间允许游戏合法的高豆雷外断魂刺", () => {
   assert.ok(pack);
 });
 
+test("自由动作空间生成GCD末端刚转好的橙武候选", () => {
+  const state = createInitialState(runtime.config, {
+    rage: 5,
+    executePhase: true,
+  });
+  const tailTick = gcdLockTicks(
+    runtime.config.gcdFrames,
+    runtime.config.latencyMs,
+  ) - frameToTicks(1);
+  state.cooldownReadyTick.orange = tailTick;
+  const packs = legalMechanicalLianyingPacks(state, runtime.config);
+  const tailOrange = packs.find((candidate) =>
+    (candidate.tail ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "orange"));
+  const prefixOrange = packs.find((candidate) =>
+    (candidate.prefix ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "orange"));
+
+  assert.ok(tailOrange);
+  assert.equal(prefixOrange, undefined);
+});
+
+test("自由动作空间允许主要技能后在GCD末端下马", () => {
+  const mounted = createInitialState(runtime.config, {
+    rage: 5,
+    mounted: true,
+    mountedFrom: 0,
+    dragonRideStacks: 5,
+    executePhase: true,
+  });
+  const mountedPacks = legalMechanicalLianyingPacks(
+    mounted,
+    runtime.config,
+  );
+  const fangThenDismount = mountedPacks.find((candidate) =>
+    (typeof candidate.primary === "string"
+      ? candidate.primary
+      : candidate.primary.id) === "dragonFang" &&
+    !(candidate.prefix ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "dismount") &&
+    (candidate.tail ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "dismount"));
+  assert.ok(fangThenDismount);
+  const fangResult = executeActionPack(
+    mounted,
+    fangThenDismount,
+    runtime.config,
+    runtime.oracle,
+  );
+  const fangCast = fangResult.timeline.find((event) =>
+    event.type === "cast" && event.action === "dragonFang");
+  assert.equal(fangCast.mounted, true);
+  assert.equal(fangResult.mounted, false);
+
+  const unmounted = createInitialState(runtime.config, {
+    rage: 5,
+    mounted: false,
+    dragonRideStacks: 5,
+    executePhase: true,
+  });
+  const rideThenDismount = legalMechanicalLianyingPacks(
+    unmounted,
+    runtime.config,
+  ).find((candidate) =>
+    (typeof candidate.primary === "string"
+      ? candidate.primary
+      : candidate.primary.id) === "ride" &&
+    (candidate.tail ?? []).some((action) =>
+      (typeof action === "string" ? action : action.id) === "dismount"));
+  assert.ok(rideThenDismount);
+  const rideResult = executeActionPack(
+    unmounted,
+    rideThenDismount,
+    runtime.config,
+    runtime.oracle,
+  );
+  assert.equal(rideResult.mounted, false);
+  assert.ok(rideResult.buffTicks.rideUntil > rideResult.tick);
+});
+
 test("资源浪费和白皮书偏离不再被判为游戏机制非法", () => {
   const initial = createInitialState(runtime.config, {
     rage: 5,
@@ -318,6 +403,34 @@ test("自由搜索可同时钉住多条热启动轴", () => {
   assert.ok(free.telemetry.peakBeamSize >= 2);
 });
 
+test("自由搜索可固定等待深度并归档资源相位互异的裁剪祖先", () => {
+  let archiveRankerCalls = 0;
+  const result = searchLianyingAxis(runtime, {
+    durationSeconds: 4,
+    beamWidth: 1,
+    policyMode: "free",
+    fixedPacksByDepth: {
+      2: { primary: { id: "wait", frames: 1 } },
+    },
+    prunedArchiveRows: [1, 3],
+    prunedArchivePerRow: 2,
+    prunedArchiveRanker: (left, right) => {
+      archiveRankerCalls += 1;
+      return right.state.totalDamage - left.state.totalDamage;
+    },
+  });
+  assert.ok(archiveRankerCalls > 0);
+  assert.equal(actionId(result.packs[1].primary), "wait");
+  assert.deepEqual(
+    result.telemetry.prunedArchive.map(({ depth, count }) => [depth, count]),
+    [[1, 2], [3, 2]],
+  );
+  assert.deepEqual(
+    result.prunedArchive.map(({ depth }) => depth),
+    [1, 1, 3, 3],
+  );
+});
+
 test("突覆盖搜索在固定主要技能轴上自动选择马下破军窗口", () => {
   const packs = [
     { primary: "dragonFang" },
@@ -387,6 +500,149 @@ test("通用关键行邻域无需行号规则即可自动换位且不降级", ()
   assert.equal(replay.state.totalDamage, optimized.state.totalDamage);
 });
 
+test("通用邻域可锁定输入雷表并拒绝把结构候选换回其他雷位", () => {
+  const thunderRows = (packs) => packs.flatMap((pack, index) =>
+    [...(pack.prefix ?? []), ...(pack.tail ?? [])].some(
+      (action) => (typeof action === "string" ? action : action?.id) === "thunder",
+    ) ? [index + 1] : []);
+  const expected = thunderRows(free65Axis);
+  const optimized = optimizeLianyingNeighborhoodAxis(runtime, free65Axis, {
+    durationSeconds: 65,
+    maxPasses: 1,
+    localLookaheadRows: 8,
+    fullEvaluationLimit: 16,
+    requiredThunderRows: expected,
+  });
+  assert.deepEqual(thunderRows(optimized.packs), expected);
+  assert.deepEqual(optimized.requiredThunderRows, expected);
+  assert.throws(
+    () => optimizeLianyingNeighborhoodAxis(runtime, free65Axis, {
+      durationSeconds: 65,
+      requiredThunderRows: expected.map((row, index) =>
+        index === 0 ? row + 1 : row),
+    }),
+    /输入轴不符合指定雷表/,
+  );
+});
+
+test("通用邻域可将所有变更限制在指定闭区间", () => {
+  const optimized = optimizeLianyingNeighborhoodAxis(runtime, free65Axis, {
+    durationSeconds: 65,
+    maxPasses: 1,
+    localLookaheadRows: 8,
+    fullEvaluationLimit: 24,
+    mutableRowRanges: [{ startRow: 8, endRow: 18 }],
+    genericCompoundCandidateLimit: 8,
+    genericCompoundSourceLimit: 8,
+  });
+  assert.deepEqual(optimized.mutableRowRanges, [{ startRow: 8, endRow: 18 }]);
+  assert.deepEqual(optimized.packs.slice(0, 7), free65Axis.slice(0, 7));
+  assert.deepEqual(optimized.packs.slice(18), free65Axis.slice(18));
+  assert.ok(optimized.improvements.every((item) =>
+    item.startRow >= 8 && item.endRow <= 18));
+  assert.ok(optimized.candidateKinds.genericCompound > 0);
+});
+
+test("通用双变换复合邻域只组合互不冲突且相邻的候选", () => {
+  const candidate = (kind, rows, score) => ({
+    mutation: {
+      kind,
+      changes: new Map(rows.map((row) => [row, {
+        primary: {
+          id: kind === "primaryReplace" ? "dragonRoar" : "dragonFang",
+          frames: score,
+        },
+      }])),
+      startIndex: Math.min(...rows),
+      endIndex: Math.max(...rows),
+      description: `${kind}:${rows.join(",")}`,
+    },
+    localScores: [score],
+  });
+  const compounds = lianyingGenericCompoundMutations([
+    candidate("swap", [2], 10),
+    candidate("rotate", [4], 8),
+    candidate("primaryReplace", [2], 7),
+    candidate("offGcdMove", [20], 6),
+  ], {
+    sourceLimit: 4,
+    maxGapRows: 3,
+    maxCandidates: 8,
+  });
+  assert.equal(compounds.length, 2);
+  assert.ok(compounds.every((compound) => compound.kind === "genericCompound"));
+  assert.ok(compounds.some((compound) =>
+    compound.componentKinds.includes("swap") &&
+    compound.componentKinds.includes("rotate")));
+  assert.ok(compounds.every((compound) =>
+    new Set(compound.changes.keys()).size === compound.changes.size));
+});
+
+test("资源平衡邻域从失衡事件生成断魂刺、补豆和任驰骋修复候选", () => {
+  const replay = {
+    trace: [
+      { index: 0, sequenceFrom: 1, sequenceUntil: 1 },
+      { index: 1, sequenceFrom: 2, sequenceUntil: 2 },
+      { index: 2, sequenceFrom: 3, sequenceUntil: 3 },
+      { index: 3, sequenceFrom: 4, sequenceUntil: 4 },
+    ],
+    state: {
+      timeline: [
+        { sequence: 1, type: "offGcd", action: "charge", rageBefore: 4, rageOverflow: 2 },
+        { sequence: 2, type: "offGcd", action: "thunder", rageBefore: 2 },
+        { sequence: 3, type: "cast", action: "destroy", rageBefore: 5, rageOverflow: 3 },
+        { sequence: 4, type: "cast", action: "ride", stacksBefore: 22, stackOverflow: 4 },
+      ],
+    },
+  };
+  const packs = [
+    { prefix: ["charge"], primary: "dragonFang" },
+    { prefix: ["thunder"], primary: "dragonFang" },
+    { primary: "destroy" },
+    { prefix: ["dismount"], primary: "ride" },
+    { primary: "dragonFang" },
+  ];
+  const signals = detectLianyingResourceBalanceSignals(replay);
+  const mutations = lianyingResourceBalanceMutations(packs, signals, {
+    maxDistance: 4,
+  });
+
+  assert.deepEqual(
+    new Set(signals.map((signal) => signal.kind)),
+    new Set([
+      "high-rage-charge",
+      "low-rage-thunder",
+      "rage-overflow",
+      "dragon-ride-overflow",
+    ]),
+  );
+  assert.ok(mutations.length > 0);
+  assert.ok(mutations.some((mutation) => mutation.kind === "resourceBalance"));
+  assert.ok(mutations.some((mutation) => mutation.kind === "resourceBalancePair"));
+  assert.ok(mutations.some((mutation) => mutation.description.includes("断魂刺移至龙牙后")));
+  assert.ok(mutations.some((mutation) => mutation.description.includes("低豆雷前补豆")));
+  assert.ok(mutations.some((mutation) => mutation.description.includes("延后任驰骋")));
+
+  const openerMutations = lianyingResourceBalanceMutations([
+    { primary: "destroy" },
+    { primary: "dragonFang" },
+    { primary: "ride", tail: [{ id: "thunder", leadFrames: 1 }] },
+  ], [{ kind: "low-rage-thunder", rowIndex: 2 }], { maxDistance: 3 });
+  assert.ok(openerMutations.some(
+    (mutation) => mutation.description.includes("低豆雷前先消耗后补豆"),
+  ));
+
+  const compounds = lianyingResourceBalanceCompoundMutations(mutations, {
+    maxGapRows: 8,
+    maxCandidates: 32,
+  });
+  assert.ok(compounds.length > 0);
+  assert.ok(compounds.every(
+    (mutation) => mutation.kind === "resourceBalanceCompound",
+  ));
+  assert.ok(compounds.every((mutation) => mutation.changes.size >= 3));
+});
+
 test("组合优化交替运行经验候选和通用机械邻域", () => {
   const optimized = optimizeLianyingAxis(runtime, free65Axis, {
     durationSeconds: 65,
@@ -402,6 +658,8 @@ test("组合优化交替运行经验候选和通用机械邻域", () => {
     optimized.phases.map((phase) => phase.kind),
     ["dash-overlay", "whitepaper-reference", "mechanical-neighborhood"],
   );
+  assert.equal(optimized.roundReports.length, 1);
+  assert.ok(optimized.roundReports[0].neighborhood.candidatesEvaluated > 0);
 });
 
 test("收敛比较忽略动作标签但能定位真正的技能轴分歧", () => {

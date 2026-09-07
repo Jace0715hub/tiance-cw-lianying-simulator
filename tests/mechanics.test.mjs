@@ -101,6 +101,41 @@ test("马上不能直接施展任驰骋", () => {
   );
 });
 
+test("任驰骋读条结束前不能释放雷，读条完成后的GCD空挡可以释放", () => {
+  const initial = createInitialState(config, {
+    rage: 5,
+    executePhase: true,
+  });
+  assert.throws(
+    () => executeActionPack(
+      initial,
+      {
+        primary: "ride",
+        tail: [{ id: "thunder", leadFrames: 14 }],
+      },
+      config,
+      oracle,
+    ),
+    /任驰骋读条结束前不能施展撼如雷/,
+  );
+  const result = executeActionPack(
+    initial,
+    {
+      primary: "ride",
+      tail: [{ id: "thunder", leadFrames: 5 }],
+    },
+    config,
+    oracle,
+  );
+  const ride = result.timeline.find(
+    (event) => event.type === "cast" && event.action === "ride",
+  );
+  const thunder = result.timeline.find(
+    (event) => event.type === "offGcd" && event.action === "thunder",
+  );
+  assert.ok(thunder.tick >= ride.completionFrame * 1000);
+});
+
 test("下马不清除任驰骋增益且技能事件保留完整快照", () => {
   const initial = createInitialState(config, {
     rage: 2,

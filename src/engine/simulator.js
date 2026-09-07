@@ -446,6 +446,10 @@ function activateOffGcdMutable(state, action, config, oracle) {
   const tick = state.tick;
   switch (action.id) {
     case "thunder": {
+      const pendingRideCompletion = Number(state.buffTicks.rideFrom ?? 0);
+      if (pendingRideCompletion > tick) {
+        throw new Error("任驰骋读条结束前不能施展撼如雷");
+      }
       const pool = state.chargeTicks.thunder;
       if (availableCharges(pool, tick) <= 0) throw new Error("撼如雷充能不足");
       const rechargeAtTick = consumeCharge(pool, tick);

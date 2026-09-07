@@ -1,5 +1,5 @@
 import { executeActionPack } from "../engine/simulator.js";
-import { millisecondsToTicks } from "../engine/clock.js";
+import { millisecondsToTicks, ticksToMilliseconds } from "../engine/clock.js";
 import {
   createInitialState,
   isBuffActiveAtTick,
@@ -10,9 +10,14 @@ import {
   optimizeLianyingDashOverlay,
   replayWhitepaperLianying,
 } from "./whitepaper-lianying.js";
+import { predictLianyingRidgeValue } from "./lianying-value-model.js";
 
 function actionId(action) {
   return typeof action === "string" ? action : action.id;
+}
+
+function primaryId(pack) {
+  return actionId(pack.primary);
 }
 
 function clonePack(pack) {
@@ -26,6 +31,20 @@ function clonePack(pack) {
   };
 }
 
+export function spliceLianyingReferenceSuffix(
+  ancestorPacks,
+  referencePacks,
+) {
+  const depth = ancestorPacks.length;
+  if (depth > referencePacks.length) {
+    throw new Error("祖先前缀不能长于参考技能轴");
+  }
+  return [
+    ...ancestorPacks.map(clonePack),
+    ...referencePacks.slice(depth).map(clonePack),
+  ];
+}
+
 function stripDash(pack) {
   const next = clonePack(pack);
   next.prefix = next.prefix.filter((action) => actionId(action) !== "dash");
@@ -35,6 +54,25 @@ function stripDash(pack) {
 
 function stripDashPacks(packs) {
   return packs.map(stripDash);
+}
+
+export function lianyingCoreStructureKey(
+  packs,
+  { ignoredActionIds = [] } = {},
+) {
+  const ignored = new Set(ignoredActionIds);
+  const keep = (action) => !ignored.has(actionId(action));
+  const normalize = (action) => typeof action === "string"
+    ? action
+    : {
+        id: action?.id,
+        ...(action?.frames === undefined ? {} : { frames: action.frames }),
+      };
+  return JSON.stringify(packs.map((pack) => ({
+    prefix: (pack?.prefix ?? []).filter(keep).map(normalize),
+    primary: normalize(pack?.primary),
+    tail: (pack?.tail ?? []).filter(keep).map(normalize),
+  })));
 }
 
 function packHasAction(pack, id) {
@@ -47,6 +85,16 @@ function thunderRows(packs) {
   return packs
     .map((pack, index) => (packHasAction(pack, "thunder") ? index + 1 : null))
     .filter(Boolean);
+}
+
+function lianyingCoreBehaviorKey(state) {
+  return JSON.stringify((state.timeline ?? [])
+    .filter((event) =>
+      (event.type === "cast" || event.type === "offGcd") &&
+      event.action !== "dash" &&
+      !(event.type === "offGcd" && event.action === "dismount" &&
+        event.mounted === false))
+    .map((event) => [event.type, event.action, event.tick]));
 }
 
 function decisionTick(state) {
@@ -125,6 +173,117 @@ function remainingTicks(readyTick, tick) {
 function queueRemainingTicks(pool, tick) {
   return (pool?.rechargeQueue ?? []).map((readyTick) =>
     remainingTicks(readyTick, tick));
+}
+
+function ticksToSeconds(ticks) {
+  return ticksToMilliseconds(Math.max(0, Number(ticks ?? 0))) / 1000;
+}
+
+export function lianyingStateValueFeatures(state, endTick) {
+  const tick = decisionTick(state);
+  const cooldown = Object.fromEntries(
+    ["destroy", "dragonRoar", "charge", "dash", "orange"].map((name) => [
+      `${name}CooldownSeconds`,
+      ticksToSeconds(remainingTicks(state.cooldownReadyTick[name], tick)),
+    ]),
+  );
+  const buffs = Object.fromEntries(
+    ["thunder", "orange", "ride", "bleed", "breakArmy", "poLouLan"]
+      .map((name) => [
+        `${name}RemainingSeconds`,
+        ticksToSeconds(remainingTicks(state.buffTicks[`${name}Until`], tick)),
+      ]),
+  );
+  const thunderQueue = queueRemainingTicks(state.chargeTicks.thunder, tick);
+  const rideQueue = queueRemainingTicks(state.chargeTicks.ride, tick);
+  const thunderContext = currentThunderContext(state, tick);
+  return {
+    elapsedSeconds: ticksToSeconds(tick),
+    remainingSeconds: ticksToSeconds(Number(endTick) - tick),
+    gcdWaitSeconds: ticksToSeconds(Number(state.gcdReadyTick) - Number(state.tick)),
+    rage: Number(state.rage),
+    dragonRideStacks: Number(state.dragonRideStacks),
+    mounted: Number(isMountedAtTick(state, tick)),
+    bleedStacks: Number(state.bleedStacks),
+    bleedQuality: Number(state.bleedQuality),
+    bleedNextSeconds: state.bleedNextTick > 0
+      ? ticksToSeconds(Number(state.bleedNextTick) - tick)
+      : -1,
+    autoAttackNextSeconds: state.autoAttackNextTick >= 0
+      ? ticksToSeconds(Number(state.autoAttackNextTick) - tick)
+      : -1,
+    executeDestroyToggle: Number(state.executeDestroyToggle),
+    thunderCharges: Number(state.chargeTicks.thunder.ready),
+    thunderRecharge1Seconds: ticksToSeconds(thunderQueue[0] ?? 0),
+    thunderRecharge2Seconds: ticksToSeconds(thunderQueue[1] ?? 0),
+    rideCharges: Number(state.chargeTicks.ride.ready),
+    rideRecharge1Seconds: ticksToSeconds(rideQueue[0] ?? 0),
+    rideRecharge2Seconds: ticksToSeconds(rideQueue[1] ?? 0),
+    thunderStartDragonRideStacks: Number(thunderContext?.[0] ?? -1),
+    thunderDragonFangCount: Number(thunderContext?.[1] ?? 0),
+    thunderUsedDragonRoar: Number(thunderContext?.[2] ?? false),
+    thunderUsedCharge: Number(thunderContext?.[3] ?? false),
+    ...cooldown,
+    ...buffs,
+  };
+}
+
+export function buildLianyingValueTrainingRows(
+  trace,
+  outcomes,
+  {
+    referenceFinalDamage,
+    referenceDamageByLayer = [],
+    metadata = {},
+  } = {},
+) {
+  if (!trace?.nodes?.length || !outcomes?.length) return [];
+  const nodesById = new Map(trace.nodes.map((node) => [node.nodeId, node]));
+  const labels = new Map();
+  for (const outcome of outcomes) {
+    let nodeId = outcome.terminalNodeId;
+    const visited = new Set();
+    while (nodeId !== null && nodeId !== undefined && !visited.has(nodeId)) {
+      visited.add(nodeId);
+      const node = nodesById.get(nodeId);
+      if (!node) break;
+      const label = labels.get(nodeId) ?? {
+        bestFinalDamage: Number.NEGATIVE_INFINITY,
+        outcomeCount: 0,
+      };
+      label.bestFinalDamage = Math.max(
+        label.bestFinalDamage,
+        Number(outcome.finalDamage),
+      );
+      label.outcomeCount += 1;
+      labels.set(nodeId, label);
+      nodeId = node.parentNodeId;
+    }
+  }
+  return trace.nodes.flatMap((node) => {
+    const label = labels.get(node.nodeId);
+    if (!label || !Number.isFinite(label.bestFinalDamage)) return [];
+    const referenceDamage = Number(referenceDamageByLayer[node.layer] ?? 0);
+    const referenceRemainingDamage = Number(referenceFinalDamage) - referenceDamage;
+    const bestRemainingDamage = label.bestFinalDamage - Number(node.totalDamage);
+    return [{
+      ...metadata,
+      nodeId: node.nodeId,
+      parentNodeId: node.parentNodeId,
+      layer: node.layer,
+      globalRow: node.globalRow,
+      thunderLineage: node.thunderLineage,
+      actionPrimary: node.actionPrimary,
+      actionOffGcd: node.actionOffGcd,
+      totalDamage: node.totalDamage,
+      bestFinalDamage: label.bestFinalDamage,
+      bestRemainingDamage,
+      referenceRemainingDamage,
+      remainingDamageResidual: bestRemainingDamage - referenceRemainingDamage,
+      descendantOutcomeCount: label.outcomeCount,
+      ...node.features,
+    }];
+  });
 }
 
 // 区段内部的最高即时伤害状态经常已经透支了下一段需要的冷却、充能或战意。
@@ -255,11 +414,18 @@ function selectSegmentBeam(
     if (selected.length >= beamWidth) break;
     add(node);
   }
-  const pinnedKeys = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
-    .filter(Boolean);
-  for (const key of pinnedKeys) {
-    if (selected.some((node) => segmentStateKey(node.state) === key)) continue;
-    const pinned = sorted.find((node) => segmentStateKey(node.state) === key);
+  const pinnedEntries = (Array.isArray(pinnedKey) ? pinnedKey : [pinnedKey])
+    .filter(Boolean)
+    .map((entry) => typeof entry === "string"
+      ? { stateKey: entry, lineageKey: null }
+      : entry);
+  const matchesPinned = (node, entry) =>
+    segmentStateKey(node.state) === entry.stateKey &&
+    (entry.lineageKey === null ||
+      (typeof lineageKey === "function" && lineageKey(node) === entry.lineageKey));
+  for (const entry of pinnedEntries) {
+    if (selected.some((node) => matchesPinned(node, entry))) continue;
+    const pinned = sorted.find((node) => matchesPinned(node, entry));
     if (!pinned) continue;
     if (selected.length < beamWidth) {
       selected.push(pinned);
@@ -274,7 +440,9 @@ function selectSegmentBeam(
       }, new Map())
       : null;
     const replacementIndex = selected.findLastIndex((node) => {
-      if (pinnedKeys.includes(segmentStateKey(node.state))) return false;
+      if (pinnedEntries.some((candidate) => matchesPinned(node, candidate))) {
+        return false;
+      }
       if (!lineageCounts) return true;
       return Number(lineageCounts.get(lineageKey(node)) ?? 0) > 1;
     });
@@ -285,6 +453,43 @@ function selectSegmentBeam(
     }
   }
   return selected;
+}
+
+export function lianyingSegmentNodeKey(state, packs, lineageKey = null) {
+  const stateKey = segmentStateKey(state);
+  if (typeof lineageKey !== "function") return stateKey;
+  return `${lineageKey({ packs })}|${stateKey}`;
+}
+
+export function selectLianyingValueShadowCandidates(
+  nodes,
+  baselineNodes,
+  endTick,
+  policy,
+) {
+  if (policy?.enabled !== true || !policy.model) return [];
+  const quota = Math.max(0, Math.floor(Number(policy.valueQuota ?? 1)));
+  if (quota === 0) return [];
+  const maximumBaselineRank = Number.isFinite(Number(policy.maximumBaselineRank))
+    ? Math.max(0, Math.floor(Number(policy.maximumBaselineRank)))
+    : Number.POSITIVE_INFINITY;
+  const baselineKeys = new Set(baselineNodes.map((node) =>
+    segmentStateKey(node.state)));
+  return [...nodes]
+    .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+    .slice(0, maximumBaselineRank)
+    .filter((node) => !baselineKeys.has(segmentStateKey(node.state)))
+    .map((node) => ({
+      node,
+      score: Number(node.state.totalDamage) +
+        Number(policy.valueWeight ?? 1) * predictLianyingRidgeValue(
+          policy.model,
+          lianyingStateValueFeatures(node.state, endTick),
+        ),
+    }))
+    .sort((left, right) => right.score - left.score)
+    .slice(0, quota)
+    .map(({ node }) => node);
 }
 
 function selectSegmentFinalists(
@@ -473,6 +678,240 @@ function replaySuffixFromState(
   return { legal: true, state, failureIndex: null, failureReason: null };
 }
 
+export function classifyLianyingSuffixFailure(reason) {
+  const message = String(reason ?? "");
+  if (/战意|豆/.test(message)) return "rage";
+  if (/充能不足/.test(message)) return "sequential-charge";
+  if (/尚有.*(?:冷却|帧)|GCD/.test(message)) return "cooldown";
+  if (/马上|下马|骑乘/.test(message)) return "mounted-state";
+  return "other";
+}
+
+function clonePacks(packs) {
+  return packs.map(clonePack);
+}
+
+function swapPrimaryOnly(packs, leftIndex, rightIndex) {
+  const next = clonePacks(packs);
+  const primary = next[leftIndex].primary;
+  next[leftIndex].primary = next[rightIndex].primary;
+  next[rightIndex].primary = primary;
+  return next;
+}
+
+function movePackAction(packs, sourceIndex, targetIndex, id, targetLocation) {
+  const next = clonePacks(packs);
+  let moved = null;
+  for (const location of ["prefix", "tail"]) {
+    const actionIndex = next[sourceIndex][location]
+      .findIndex((action) => actionId(action) === id);
+    if (actionIndex < 0) continue;
+    [moved] = next[sourceIndex][location].splice(actionIndex, 1);
+    break;
+  }
+  if (!moved || packHasAction(next[targetIndex], id)) return null;
+  next[targetIndex][targetLocation].push(
+    targetLocation === "tail" ? { id, leadFrames: 1 } : id,
+  );
+  return next;
+}
+
+export function lianyingSuffixFailureRepairAxes(
+  packs,
+  attempt,
+  {
+    lookBehindRows = 4,
+    lookAheadRows = 6,
+    limit = 8,
+  } = {},
+) {
+  const failureIndex = Number(attempt?.failureIndex);
+  if (
+    !Number.isInteger(failureIndex) ||
+    failureIndex < 0 ||
+    failureIndex >= packs.length
+  ) return [];
+  const category = classifyLianyingSuffixFailure(attempt.failure);
+  const from = Math.max(0, failureIndex - Math.max(0, Number(lookBehindRows)));
+  const until = Math.min(
+    packs.length - 1,
+    failureIndex + Math.max(0, Number(lookAheadRows)),
+  );
+  const repairs = [];
+  const seen = new Set();
+  const add = (kind, description, candidatePacks) => {
+    if (!candidatePacks) return;
+    const key = JSON.stringify(candidatePacks);
+    if (seen.has(key)) return;
+    seen.add(key);
+    repairs.push({ kind, description, packs: candidatePacks });
+  };
+
+  if (category === "rage") {
+    const refillPrimaries = new Set(["destroy", "dragonRoar", "cloudStrike"]);
+    for (let sourceIndex = failureIndex + 1; sourceIndex <= until; sourceIndex += 1) {
+      if (!refillPrimaries.has(primaryId(packs[sourceIndex]))) continue;
+      add(
+        "rage-primary-swap",
+        `${failureIndex + 1}行缺豆技能与${sourceIndex + 1}行补豆技能交换`,
+        swapPrimaryOnly(packs, failureIndex, sourceIndex),
+      );
+    }
+    if (attempt.failureState?.mounted) {
+      for (let sourceIndex = failureIndex + 1; sourceIndex <= until; sourceIndex += 1) {
+        if (!packHasAction(packs[sourceIndex], "charge")) continue;
+        add(
+          "rage-charge-move",
+          `断魂刺${sourceIndex + 1}→${failureIndex + 1}行补豆`,
+          movePackAction(packs, sourceIndex, failureIndex, "charge", "prefix"),
+        );
+      }
+    }
+    for (let targetIndex = failureIndex - 1; targetIndex >= from; targetIndex -= 1) {
+      if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+      for (const primary of refillPrimaries) {
+        const next = clonePacks(packs);
+        next[targetIndex].primary = primary;
+        add(
+          "rage-prior-refill",
+          `${targetIndex + 1}行龙牙改为${primary}补豆`,
+          next,
+        );
+      }
+    }
+  }
+
+  if (category === "cooldown") {
+    for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+      if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+      add(
+        "cooldown-primary-delay",
+        `${failureIndex + 1}行冷却技能延后至${targetIndex + 1}行`,
+        swapPrimaryOnly(packs, failureIndex, targetIndex),
+      );
+    }
+    for (const id of ["charge", "thunder", "orange"]) {
+      if (!packHasAction(packs[failureIndex], id)) continue;
+      for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+        add(
+          "cooldown-offgcd-delay",
+          `${id}${failureIndex + 1}→${targetIndex + 1}行等待冷却`,
+          movePackAction(packs, failureIndex, targetIndex, id, "tail"),
+        );
+      }
+    }
+  }
+
+  if (category === "sequential-charge") {
+    for (const id of ["thunder", "ride"]) {
+      if (id === "ride" && primaryId(packs[failureIndex]) === "ride") {
+        for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+          if (primaryId(packs[targetIndex]) !== "dragonFang") continue;
+          const next = clonePacks(packs);
+          [next[failureIndex], next[targetIndex]] = [
+            next[targetIndex],
+            next[failureIndex],
+          ];
+          add(
+            "charge-primary-delay",
+            `任驰骋${failureIndex + 1}→${targetIndex + 1}行等待充能`,
+            next,
+          );
+        }
+      }
+      if (!packHasAction(packs[failureIndex], id)) continue;
+      for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+        add(
+          "charge-offgcd-delay",
+          `${id}${failureIndex + 1}→${targetIndex + 1}行等待充能`,
+          movePackAction(packs, failureIndex, targetIndex, id, "tail"),
+        );
+      }
+    }
+  }
+
+  if (category === "mounted-state") {
+    if (/任驰骋|需要先下马/.test(String(attempt.failure))) {
+      const next = clonePacks(packs);
+      if (!packHasAction(next[failureIndex], "dismount")) {
+        next[failureIndex].prefix.unshift({
+          id: "dismount",
+          reason: "suffix-failure-repair",
+        });
+        add(
+          "mounted-add-dismount",
+          `${failureIndex + 1}行任驰骋前补下马`,
+          next,
+        );
+      }
+    }
+    if (/断魂刺/.test(String(attempt.failure))) {
+      for (let targetIndex = failureIndex + 1; targetIndex <= until; targetIndex += 1) {
+        if (primaryId(packs[targetIndex]) !== "ride") continue;
+        add(
+          "mounted-charge-after-ride",
+          `断魂刺${failureIndex + 1}→${targetIndex + 1}行任驰骋后`,
+          movePackAction(packs, failureIndex, targetIndex, "charge", "tail"),
+        );
+      }
+    }
+  }
+
+  return repairs.slice(0, Math.max(0, Math.floor(Number(limit))));
+}
+
+export function selectLianyingLayeredSuffixFailures(
+  candidates,
+  {
+    limit = 4,
+    failureRowBucketSize = 8,
+    preferDriftedLineages = true,
+  } = {},
+) {
+  const maximum = Math.max(1, Math.floor(Number(limit)));
+  const bucketSize = Math.max(1, Math.floor(Number(failureRowBucketSize)));
+  const groups = new Map();
+  for (const candidate of candidates) {
+    const attempt = candidate?.attempt;
+    if (!Number.isInteger(Number(attempt?.failureIndex))) continue;
+    const category = classifyLianyingSuffixFailure(attempt.failure);
+    const lineage = JSON.stringify(attempt.thunderRows ?? []);
+    const rowBucket = Math.floor(Number(attempt.failureIndex) / bucketSize);
+    const key = `${category}|${lineage}|${rowBucket}`;
+    const previous = groups.get(key);
+    const damage = Number(candidate.boundaryDamage ?? Number.NEGATIVE_INFINITY);
+    const previousDamage = Number(
+      previous?.boundaryDamage ?? Number.NEGATIVE_INFINITY,
+    );
+    if (!previous || damage > previousDamage) {
+      groups.set(key, { ...candidate, failureCategory: category, rowBucket });
+    }
+  }
+  const representatives = [...groups.values()].sort((left, right) => {
+    if (preferDriftedLineages && left.attempt.drifted !== right.attempt.drifted) {
+      return Number(right.attempt.drifted) - Number(left.attempt.drifted);
+    }
+    return Number(right.boundaryDamage) - Number(left.boundaryDamage);
+  });
+  if (representatives.length <= maximum) return representatives;
+
+  const selected = [];
+  const add = (candidate) => {
+    if (candidate && !selected.includes(candidate) && selected.length < maximum) {
+      selected.push(candidate);
+    }
+  };
+  add(representatives[0]);
+  add([...representatives].sort(
+    (left, right) => left.attempt.failureIndex - right.attempt.failureIndex,
+  )[0]);
+  add([...representatives].sort(
+    (left, right) => right.attempt.failureIndex - left.attempt.failureIndex,
+  )[0]);
+  for (const candidate of representatives) add(candidate);
+  return selected;
+}
+
 export function lianyingAdaptiveSuffixEndIndex({
   currentEndIndex,
   initialEndIndex,
@@ -480,19 +919,22 @@ export function lianyingAdaptiveSuffixEndIndex({
   packCount,
   lookaheadRows = 4,
   maximumAddedRows = 16,
+  failureSelection = "earliest",
 }) {
   const failures = failureIndices
     .map(Number)
     .filter((index) => Number.isInteger(index) && index >= currentEndIndex);
   if (failures.length === 0) return null;
-  const firstFailureIndex = Math.min(...failures);
+  const selectedFailureIndex = failureSelection === "latest"
+    ? Math.max(...failures)
+    : Math.min(...failures);
   const hardLimit = Math.min(
     Number(packCount),
     Number(initialEndIndex) + Math.max(0, Number(maximumAddedRows)),
   );
   const nextEndIndex = Math.min(
     hardLimit,
-    firstFailureIndex + 1 + Math.max(0, Number(lookaheadRows)),
+    selectedFailureIndex + 1 + Math.max(0, Number(lookaheadRows)),
   );
   return nextEndIndex > currentEndIndex ? nextEndIndex : null;
 }
@@ -509,12 +951,53 @@ export function synthesizeLianyingSegment(
     preserveThunderPositions = false,
     thunderPositionWindows = [],
     additionalWarmSegments = [],
+    collectValueTrainingData = false,
+    collectPruningValueData = false,
+    pruningValueBaselineRankLimit = 12,
+    referenceFinalDamage = null,
+    valueShadowPolicy = null,
     onLayer = null,
   } = {},
 ) {
   const endTick = millisecondsToTicks(Number(durationSeconds) * 1000);
   const sourceSegment = basePacks.slice(segment.startIndex, segment.endIndex);
-  let nodes = [{ state: prefixState, packs: [] }];
+  const trainingTrace = collectValueTrainingData
+    ? { nodes: [], nextNodeId: 0 }
+    : null;
+  const pruningValueRows = [];
+  let pruningValueProbeCount = 0;
+  let pruningValueLegalProbeCount = 0;
+  const recordedTraceNodeIds = new Set();
+  const makeTraceNode = (state, parentNodeId, layer, pack = null) => {
+    if (!trainingTrace) return null;
+    const nodeId = trainingTrace.nextNodeId;
+    trainingTrace.nextNodeId += 1;
+    return {
+      nodeId,
+      parentNodeId,
+      layer,
+      globalRow: segment.startIndex + layer,
+      actionPrimary: pack ? primaryId(pack) : null,
+      actionOffGcd: pack
+        ? [...(pack.prefix ?? []), ...(pack.tail ?? [])].map(actionId)
+        : [],
+      totalDamage: Number(state.totalDamage),
+      features: lianyingStateValueFeatures(state, endTick),
+    };
+  };
+  const recordTraceNode = (node, lineage = null) => {
+    if (!node || recordedTraceNodeIds.has(node.nodeId)) return;
+    recordedTraceNodeIds.add(node.nodeId);
+    trainingTrace.nodes.push({ ...node, thunderLineage: lineage });
+  };
+  const rootTraceNode = makeTraceNode(prefixState, null, 0);
+  recordTraceNode(rootTraceNode, []);
+  let nodes = [{
+    state: prefixState,
+    packs: [],
+    traceNodeId: rootTraceNode?.nodeId ?? null,
+    valueShadow: false,
+  }];
   const warmSources = [
     sourceSegment,
     ...additionalWarmSegments.filter(
@@ -525,10 +1008,13 @@ export function synthesizeLianyingSegment(
     state: prefixState,
     packs: [],
     active: true,
+    traceNodeId: rootTraceNode?.nodeId ?? null,
   }));
   let explored = 0;
   let legal = 0;
   let peakStates = 1;
+  let valueShadowLayers = 0;
+  let valueShadowSelections = 0;
 
   const thunderAllowed = (partialPacks, pack, offset) => {
     const globalIndex = segment.startIndex + offset;
@@ -568,6 +1054,13 @@ export function synthesizeLianyingSegment(
 
   for (let offset = 0; offset < sourceSegment.length; offset += 1) {
     const deduplicated = new Map();
+    const baselineDeduplicated = new Map();
+    const addDeduplicated = (map, key, candidate) => {
+      const current = map.get(key);
+      if (!current || candidate.state.totalDamage > current.state.totalDamage) {
+        map.set(key, candidate);
+      }
+    };
     for (const node of nodes) {
       for (const pack of legalMechanicalLianyingPacks(
         node.state,
@@ -584,14 +1077,31 @@ export function synthesizeLianyingSegment(
             { endTick },
           );
           legal += 1;
+          const packs = [...node.packs, clonePack(pack)];
+          const traceNode = makeTraceNode(
+            state,
+            node.traceNodeId,
+            offset + 1,
+            pack,
+          );
           const candidate = {
             state,
-            packs: [...node.packs, clonePack(pack)],
+            packs,
+            traceNodeId: traceNode?.nodeId ?? null,
+            traceNode,
+            valueShadow: node.valueShadow === true,
           };
-          const key = segmentStateKey(state);
-          const current = deduplicated.get(key);
-          if (!current || state.totalDamage > current.state.totalDamage) {
-            deduplicated.set(key, candidate);
+          const key = lianyingSegmentNodeKey(
+            state,
+            packs,
+            thunderLineageKey,
+          );
+          addDeduplicated(deduplicated, key, candidate);
+          if (node.valueShadow !== true) {
+            addDeduplicated(baselineDeduplicated, key, {
+              ...candidate,
+              valueShadow: false,
+            });
           }
         } catch {
           // 完整状态机负责淘汰战意、冷却、充能和马上状态非法候选。
@@ -614,12 +1124,36 @@ export function synthesizeLianyingSegment(
           { endTick },
         );
         const packs = [...warmNode.packs, clonePack(warmPack)];
-        const key = segmentStateKey(state);
-        const existing = deduplicated.get(key);
-        if (!existing || state.totalDamage > existing.state.totalDamage) {
-          deduplicated.set(key, { state, packs });
-        }
-        return { state, packs, active: true };
+        const traceNode = makeTraceNode(
+          state,
+          warmNode.traceNodeId,
+          offset + 1,
+          warmPack,
+        );
+        recordTraceNode(
+          traceNode,
+          thunderLineageKey ? JSON.parse(thunderLineageKey({ packs })) : [],
+        );
+        const key = lianyingSegmentNodeKey(
+          state,
+          packs,
+          thunderLineageKey,
+        );
+        const candidate = {
+          state,
+          packs,
+          traceNodeId: traceNode?.nodeId ?? null,
+          traceNode,
+          valueShadow: false,
+        };
+        addDeduplicated(deduplicated, key, candidate);
+        addDeduplicated(baselineDeduplicated, key, candidate);
+        return {
+          state,
+          packs,
+          active: true,
+          traceNodeId: traceNode?.nodeId ?? null,
+        };
       } catch {
         return { ...warmNode, active: false };
       }
@@ -628,15 +1162,80 @@ export function synthesizeLianyingSegment(
     if (!baseWarm.active) {
       throw new Error(`区段${segment.id}的基础热启动在第${offset + 1}层失效`);
     }
-    nodes = selectSegmentBeam(
-      deduplicated.values(),
+    const layerCandidates = [...deduplicated.values()];
+    const baselineNodes = selectSegmentBeam(
+      baselineDeduplicated.values(),
       beamWidth,
       warmNodes
         .filter((warmNode) => warmNode.active)
-        .map((warmNode) => segmentStateKey(warmNode.state)),
+        .map((warmNode) => ({
+          stateKey: segmentStateKey(warmNode.state),
+          lineageKey: thunderLineageKey
+            ? thunderLineageKey(warmNode)
+            : null,
+        })),
       baseWarm.state,
       thunderLineageKey,
     );
+    const shadowNodes = selectLianyingValueShadowCandidates(
+      layerCandidates,
+      baselineNodes,
+      endTick,
+      valueShadowPolicy,
+    ).map((node) => ({ ...node, valueShadow: true }));
+    if (shadowNodes.length > 0) valueShadowLayers += 1;
+    valueShadowSelections += shadowNodes.length;
+    nodes = [...baselineNodes, ...shadowNodes];
+    if (collectPruningValueData && Number.isFinite(Number(referenceFinalDamage))) {
+      const selectedKeys = new Set(nodes.map((node) => segmentStateKey(node.state)));
+      const ranked = [...layerCandidates]
+        .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+        .slice(0, Math.max(1, Math.floor(Number(pruningValueBaselineRankLimit))));
+      for (const [rankIndex, candidate] of ranked.entries()) {
+        pruningValueProbeCount += 1;
+        const suffix = replaySuffixFromState(
+          runtime,
+          candidate.state,
+          basePacks,
+          segment.startIndex + offset + 1,
+          endTick,
+        );
+        if (!suffix.legal) continue;
+        pruningValueLegalProbeCount += 1;
+        const referenceRemainingDamage = Number(referenceFinalDamage) -
+          Number(baseWarm.state.totalDamage);
+        const bestFinalDamage = Number(suffix.state.totalDamage);
+        const bestRemainingDamage = bestFinalDamage -
+          Number(candidate.state.totalDamage);
+        const lastPack = candidate.packs.at(-1);
+        pruningValueRows.push({
+          layer: offset + 1,
+          globalRow: segment.startIndex + offset + 1,
+          baselineRank: rankIndex + 1,
+          selectedByBeam: Number(selectedKeys.has(segmentStateKey(candidate.state))),
+          thunderLineage: thunderLineageKey
+            ? JSON.parse(thunderLineageKey(candidate))
+            : [],
+          actionPrimary: lastPack ? primaryId(lastPack) : null,
+          actionOffGcd: lastPack
+            ? [...(lastPack.prefix ?? []), ...(lastPack.tail ?? [])].map(actionId)
+            : [],
+          totalDamage: Number(candidate.state.totalDamage),
+          bestFinalDamage,
+          bestRemainingDamage,
+          referenceRemainingDamage,
+          remainingDamageResidual: bestRemainingDamage - referenceRemainingDamage,
+          descendantOutcomeCount: 1,
+          ...lianyingStateValueFeatures(candidate.state, endTick),
+        });
+      }
+    }
+    for (const node of nodes) {
+      recordTraceNode(
+        node.traceNode,
+        thunderLineageKey ? JSON.parse(thunderLineageKey(node)) : [],
+      );
+    }
     peakStates = Math.max(peakStates, nodes.length);
     if (typeof onLayer === "function") {
       onLayer({
@@ -645,6 +1244,8 @@ export function synthesizeLianyingSegment(
         rowCount: sourceSegment.length,
         uniqueStates: deduplicated.size,
         beamSize: nodes.length,
+        baselineBeamSize: baselineNodes.length,
+        valueShadowCount: shadowNodes.length,
       });
     }
   }
@@ -654,17 +1255,38 @@ export function synthesizeLianyingSegment(
     ? [...new Set(nodes.map((node) => thunderLineageKey(node)))]
       .map((value) => JSON.parse(value))
     : [];
-  const finalists = selectSegmentFinalists(
-    nodes,
+  const baselineFinalists = selectSegmentFinalists(
+    nodes.filter((node) => node.valueShadow !== true),
     finalistCount,
     baseWarm.state,
     thunderLineageKey,
   );
+  const finalKeys = new Set(baselineFinalists.map((node) =>
+    segmentStateKey(node.state)));
+  const shadowFinalists = nodes
+    .filter((node) => node.valueShadow === true &&
+      !finalKeys.has(segmentStateKey(node.state)))
+    .sort((left, right) => right.state.totalDamage - left.state.totalDamage)
+    .slice(0, Math.max(0, Math.floor(Number(valueShadowPolicy?.valueQuota ?? 0))));
+  const finalists = [...baselineFinalists, ...shadowFinalists];
   for (const warmNode of warmNodes.filter((candidate) => candidate.active)) {
+    const warmKey = lianyingSegmentNodeKey(
+      warmNode.state,
+      warmNode.packs,
+      thunderLineageKey,
+    );
     if (!finalists.some(
-      (node) => segmentStateKey(node.state) === segmentStateKey(warmNode.state),
+      (node) => lianyingSegmentNodeKey(
+        node.state,
+        node.packs,
+        thunderLineageKey,
+      ) === warmKey,
     )) {
-      finalists.push({ state: warmNode.state, packs: warmNode.packs });
+      finalists.push({
+        state: warmNode.state,
+        packs: warmNode.packs,
+        traceNodeId: warmNode.traceNodeId,
+      });
     }
   }
   return {
@@ -675,8 +1297,24 @@ export function synthesizeLianyingSegment(
     peakStates,
     beamWidth,
     finalistCount,
+    baselineFinalistCount: finalists.filter(
+      (node) => node.valueShadow !== true).length,
+    valueShadowFinalistCount: finalists.filter(
+      (node) => node.valueShadow === true).length,
+    valueShadowLayers,
+    valueShadowSelections,
     warmStartCount: warmNodes.filter((candidate) => candidate.active).length,
     terminalThunderLineages,
+    trainingTrace: trainingTrace
+      ? { nodes: trainingTrace.nodes, terminalNodeCount: finalists.length }
+      : null,
+    pruningValue: collectPruningValueData
+      ? {
+          rows: pruningValueRows,
+          probeCount: pruningValueProbeCount,
+          legalProbeCount: pruningValueLegalProbeCount,
+        }
+      : null,
   };
 }
 
@@ -708,6 +1346,108 @@ function selectCoarseCandidates(candidates, limit) {
   return selected;
 }
 
+export function lianyingCorePackDistance(leftPacks, rightPacks) {
+  const left = stripDashPacks(leftPacks);
+  const right = stripDashPacks(rightPacks);
+  const shared = Math.min(left.length, right.length);
+  let distance = Math.abs(left.length - right.length);
+  for (let index = 0; index < shared; index += 1) {
+    if (JSON.stringify(left[index]) !== JSON.stringify(right[index])) distance += 1;
+  }
+  return distance;
+}
+
+export function selectLianyingDiverseAxisCandidates(
+  inputCandidates,
+  {
+    referencePacks = null,
+    limit = 8,
+    maximumLossRatio = 0.005,
+  } = {},
+) {
+  const maximum = Math.max(0, Math.floor(Number(limit)));
+  if (maximum === 0 || inputCandidates.length === 0) return [];
+  const referenceCore = referencePacks ? stripDashPacks(referencePacks) : null;
+  const byStructure = new Map();
+  for (const candidate of inputCandidates) {
+    if (!Array.isArray(candidate.packs)) continue;
+    const packs = stripDashPacks(candidate.packs);
+    const coreKey = JSON.stringify(packs);
+    const behaviorKey = candidate.behaviorKey ?? coreKey;
+    const normalized = {
+      ...candidate,
+      packs,
+      coreKey,
+      behaviorKey,
+      coreDamage: Number(candidate.coreDamage),
+      thunderRows: candidate.thunderRows ?? thunderRows(packs),
+      isReference: referenceCore
+        ? coreKey === JSON.stringify(referenceCore)
+        : false,
+    };
+    if (!Number.isFinite(normalized.coreDamage)) continue;
+    const previous = byStructure.get(behaviorKey);
+    if (!previous || normalized.coreDamage > previous.coreDamage) {
+      byStructure.set(behaviorKey, normalized);
+    }
+  }
+  const unique = [...byStructure.values()];
+  if (unique.length === 0) return [];
+  const bestDamage = Math.max(...unique.map((candidate) => candidate.coreDamage));
+  const minimumDamage = bestDamage *
+    (1 - Math.max(0, Number(maximumLossRatio)));
+  const eligible = unique
+    .filter((candidate) => candidate.coreDamage >= minimumDamage)
+    .sort((left, right) => right.coreDamage - left.coreDamage);
+  const referenceCandidate = unique.find((candidate) => candidate.isReference);
+  const selected = [];
+  const add = (candidate) => {
+    if (!candidate || selected.includes(candidate) || selected.length >= maximum) {
+      return;
+    }
+    selected.push(candidate);
+  };
+  add(referenceCandidate);
+  add(eligible[0]);
+  const bestBySegment = new Map();
+  const bestByThunderLineage = new Map();
+  for (const candidate of eligible) {
+    const segmentKey = candidate.segmentId ?? "unknown";
+    if (!bestBySegment.has(segmentKey)) bestBySegment.set(segmentKey, candidate);
+    const lineageKey = JSON.stringify(candidate.thunderRows ?? []);
+    if (!bestByThunderLineage.has(lineageKey)) {
+      bestByThunderLineage.set(lineageKey, candidate);
+    }
+  }
+  for (const candidate of bestBySegment.values()) add(candidate);
+  for (const candidate of bestByThunderLineage.values()) add(candidate);
+  while (selected.length < maximum) {
+    const remaining = eligible.filter((candidate) => !selected.includes(candidate));
+    if (remaining.length === 0) break;
+    remaining.sort((left, right) => {
+      const leftDistance = Math.min(...selected.map((candidate) =>
+        lianyingCorePackDistance(left.packs, candidate.packs)));
+      const rightDistance = Math.min(...selected.map((candidate) =>
+        lianyingCorePackDistance(right.packs, candidate.packs)));
+      if (leftDistance !== rightDistance) return rightDistance - leftDistance;
+      return right.coreDamage - left.coreDamage;
+    });
+    add(remaining[0]);
+  }
+  return selected.map((candidate, index) => ({
+    ...candidate,
+    diversityRank: index + 1,
+    bestCoreDamage: bestDamage,
+    coreDamageLoss: bestDamage - candidate.coreDamage,
+    coreDamageLossRatio: bestDamage > 0
+      ? (bestDamage - candidate.coreDamage) / bestDamage
+      : 0,
+    structuralDistanceFromReference: referenceCore
+      ? lianyingCorePackDistance(candidate.packs, referenceCore)
+      : null,
+  }));
+}
+
 export function optimizeLianyingSegmentResynthesis(
   runtime,
   packs,
@@ -726,23 +1466,47 @@ export function optimizeLianyingSegmentResynthesis(
     preserveThunderPositions = false,
     thunderPositionWindows = [],
     additionalWarmAxes = [],
+    pinAdditionalWarmAxes = false,
     excludedCorePackKeys = [],
+    excludedCoreStructureKeys = [],
+    coreStructureIgnoredActionIds = [],
     adaptiveSuffixRepair = false,
     adaptiveSuffixMaxExpansions = 2,
     adaptiveSuffixLookaheadRows = 4,
     adaptiveSuffixMaximumAddedRows = 16,
     adaptiveSuffixPreferDriftedLineages = true,
     adaptiveSuffixWarmFailureLimit = 4,
+    adaptiveSuffixFailureChainLimit = 1,
+    adaptiveSuffixFailureRowBucketSize = 8,
+    adaptiveSuffixDirectedRepairLimit = 0,
+    adaptiveSuffixDirectedRepairLookBehindRows = 4,
+    adaptiveSuffixDirectedRepairLookAheadRows = 6,
+    collectValueTrainingData = false,
+    collectPruningValueData = false,
+    pruningValueBaselineRankLimit = 12,
+    valueShadowPolicy = null,
+    collectDiverseCandidates = false,
+    diverseCandidateLimit = 8,
+    diverseCandidateMaximumLossRatio = 0.005,
     onProgress = null,
   } = {},
 ) {
   const excludedCorePackKeySet = new Set(excludedCorePackKeys);
+  const excludedCoreStructureKeySet = new Set(excludedCoreStructureKeys);
   let incumbentPacks = packs.map(clonePack);
   let incumbent = replayWhitepaperLianying(runtime, incumbentPacks, {
     durationSeconds,
   });
   const baselineDamage = incumbent.state.totalDamage;
   const passes = [];
+  const valueTrainingRows = [];
+  let valueTrainingTraceCount = 0;
+  let valueTrainingOutcomeCount = 0;
+  const pruningValueRows = [];
+  let pruningValueTraceCount = 0;
+  let pruningValueProbeCount = 0;
+  let pruningValueLegalProbeCount = 0;
+  const diverseCandidatePool = [];
 
   for (let pass = 0; pass < maxPasses; pass += 1) {
     const corePacks = stripDashPacks(incumbentPacks);
@@ -778,6 +1542,7 @@ export function optimizeLianyingSegmentResynthesis(
       packs: corePacks,
       coreDamage: coreBaseline.state.totalDamage,
       coreDamageGain: 0,
+      behaviorKey: lianyingCoreBehaviorKey(coreBaseline.state),
     }];
     const segmentReports = [];
 
@@ -800,6 +1565,10 @@ export function optimizeLianyingSegmentResynthesis(
       let peakStates = 0;
       let finalists = 0;
       let warmStartCount = 0;
+      let baselineFinalists = 0;
+      let valueShadowFinalists = 0;
+      let valueShadowLayers = 0;
+      let valueShadowSelections = 0;
       const terminalThunderLineages = new Map();
       const maximumAdaptiveExpansions = adaptiveSuffixRepair
         ? Math.max(0, Math.floor(Number(adaptiveSuffixMaxExpansions)))
@@ -821,6 +1590,11 @@ export function optimizeLianyingSegmentResynthesis(
             finalistCount,
             preserveThunderPositions,
             thunderPositionWindows,
+            collectValueTrainingData,
+            collectPruningValueData,
+            pruningValueBaselineRankLimit,
+            referenceFinalDamage: coreBaseline.state.totalDamage,
+            valueShadowPolicy,
             additionalWarmSegments: adaptiveWarmAxes.map((axis) =>
               stripDashPacks(axis).slice(
                 currentSegment.startIndex,
@@ -828,10 +1602,28 @@ export function optimizeLianyingSegmentResynthesis(
               )),
           },
         );
+        if (collectPruningValueData && synthesis.pruningValue) {
+          const traceId = `p${pass + 1}:${segment.id}:a${adaptiveAttempt}`;
+          pruningValueRows.push(...synthesis.pruningValue.rows.map((row) => ({
+            traceId,
+            pass: pass + 1,
+            segmentId: segment.id,
+            adaptiveAttempt,
+            durationSeconds: Number(durationSeconds),
+            ...row,
+          })));
+          pruningValueTraceCount += 1;
+          pruningValueProbeCount += synthesis.pruningValue.probeCount;
+          pruningValueLegalProbeCount += synthesis.pruningValue.legalProbeCount;
+        }
         explored += synthesis.explored;
         legal += synthesis.legal;
         peakStates = Math.max(peakStates, synthesis.peakStates);
         finalists = synthesis.finalists.length;
+        baselineFinalists = synthesis.baselineFinalistCount;
+        valueShadowFinalists = synthesis.valueShadowFinalistCount;
+        valueShadowLayers += synthesis.valueShadowLayers;
+        valueShadowSelections += synthesis.valueShadowSelections;
         warmStartCount = synthesis.warmStartCount;
         for (const lineage of synthesis.terminalThunderLineages) {
           terminalThunderLineages.set(JSON.stringify(lineage), lineage);
@@ -840,6 +1632,7 @@ export function optimizeLianyingSegmentResynthesis(
         const iterationAttempts = [];
         const failedAttempts = [];
         const failedWarmAxes = [];
+        const valueTrainingOutcomes = [];
         for (const finalist of synthesis.finalists) {
           const candidatePacks = spliceSegment(
             corePacks,
@@ -860,9 +1653,24 @@ export function optimizeLianyingSegmentResynthesis(
             const replay = replayWhitepaperLianying(runtime, candidatePacks, {
               durationSeconds,
             });
+            if (
+              collectValueTrainingData &&
+              Number.isInteger(finalist.traceNodeId)
+            ) {
+              valueTrainingOutcomes.push({
+                terminalNodeId: finalist.traceNodeId,
+                finalDamage: replay.state.totalDamage,
+              });
+            }
             suffixLegal += 1;
             suffixLegalThunderSchedules.push(schedule);
-            if (excludedCorePackKeySet.has(JSON.stringify(candidatePacks))) {
+            if (
+              excludedCorePackKeySet.has(JSON.stringify(candidatePacks)) ||
+              excludedCoreStructureKeySet.has(lianyingCoreStructureKey(
+                candidatePacks,
+                { ignoredActionIds: coreStructureIgnoredActionIds },
+              ))
+            ) {
               excludedCoreCandidates += 1;
               const attempt = {
                 adaptiveAttempt,
@@ -895,6 +1703,8 @@ export function optimizeLianyingSegmentResynthesis(
                 replay.state.totalDamage - coreBaseline.state.totalDamage,
               thunderRows: schedule,
               adaptiveAttempt,
+              valueShadow: finalist.valueShadow === true,
+              behaviorKey: lianyingCoreBehaviorKey(replay.state),
             });
             continue;
           }
@@ -928,12 +1738,52 @@ export function optimizeLianyingSegmentResynthesis(
           });
         }
 
+        if (collectValueTrainingData && synthesis.trainingTrace) {
+          const traceId = `p${pass + 1}:${segment.id}:a${adaptiveAttempt}`;
+          const referenceDamageByLayer = Array.from(
+            { length: currentSegment.endIndex - currentSegment.startIndex + 1 },
+            (_, layer) => Number(
+              prefixStates[currentSegment.startIndex + layer]?.totalDamage ?? 0,
+            ),
+          );
+          valueTrainingRows.push(...buildLianyingValueTrainingRows(
+            synthesis.trainingTrace,
+            valueTrainingOutcomes,
+            {
+              referenceFinalDamage: coreBaseline.state.totalDamage,
+              referenceDamageByLayer,
+              metadata: {
+                traceId,
+                pass: pass + 1,
+                segmentId: segment.id,
+                adaptiveAttempt,
+                durationSeconds: Number(durationSeconds),
+              },
+            },
+          ));
+          valueTrainingTraceCount += 1;
+          valueTrainingOutcomeCount += valueTrainingOutcomes.length;
+        }
+
+        const failureChainLimit = Math.max(
+          1,
+          Math.floor(Number(adaptiveSuffixFailureChainLimit)),
+        );
+        const layeredFailureCandidates = failureChainLimit > 1
+          ? selectLianyingLayeredSuffixFailures(failedWarmAxes, {
+            limit: failureChainLimit,
+            failureRowBucketSize: adaptiveSuffixFailureRowBucketSize,
+            preferDriftedLineages: adaptiveSuffixPreferDriftedLineages,
+          })
+          : null;
         const preferredFailures = adaptiveSuffixPreferDriftedLineages
           ? failedAttempts.filter((attempt) => attempt.drifted)
           : failedAttempts;
-        const repairFailures = preferredFailures.length > 0
-          ? preferredFailures
-          : failedAttempts;
+        const repairFailures = layeredFailureCandidates
+          ? layeredFailureCandidates.map((candidate) => candidate.attempt)
+          : preferredFailures.length > 0
+            ? preferredFailures
+            : failedAttempts;
         const nextEndIndex = adaptiveSuffixRepair &&
           adaptiveAttempt < maximumAdaptiveExpansions
           ? lianyingAdaptiveSuffixEndIndex({
@@ -943,6 +1793,7 @@ export function optimizeLianyingSegmentResynthesis(
             packCount: corePacks.length,
             lookaheadRows: adaptiveSuffixLookaheadRows,
             maximumAddedRows: adaptiveSuffixMaximumAddedRows,
+            failureSelection: failureChainLimit > 1 ? "latest" : "earliest",
           })
           : null;
         adaptiveAttempts.push({
@@ -959,18 +1810,59 @@ export function optimizeLianyingSegmentResynthesis(
           firstFailureRow: repairFailures.length > 0
             ? Math.min(...repairFailures.map((attempt) => attempt.failureRow))
             : null,
+          selectedFailureRows: repairFailures.map((attempt) => attempt.failureRow),
+          failureChains: (layeredFailureCandidates ?? []).map((candidate) => ({
+            category: candidate.failureCategory,
+            rowBucket: candidate.rowBucket,
+            failureRow: candidate.attempt.failureRow,
+            thunderRows: candidate.attempt.thunderRows,
+            drifted: candidate.attempt.drifted,
+            boundaryDamage: candidate.boundaryDamage,
+          })),
           nextEndRow: nextEndIndex,
         });
         if (nextEndIndex === null) break;
         const repairFailureSet = new Set(repairFailures);
-        const selectedFailureWarmAxes = failedWarmAxes
+        const selectedFailureCandidates = (layeredFailureCandidates ?? failedWarmAxes
           .filter((candidate) => repairFailureSet.has(candidate.attempt))
-          .sort((left, right) => right.boundaryDamage - left.boundaryDamage)
-          .slice(0, Math.max(1, Number(adaptiveSuffixWarmFailureLimit)))
+          .sort((left, right) => right.boundaryDamage - left.boundaryDamage))
+          .slice(0, Math.max(1, Number(adaptiveSuffixWarmFailureLimit)));
+        const selectedFailureWarmAxes = selectedFailureCandidates
           .map((candidate) => candidate.packs);
+        const directedRepairs = [];
+        const directedRepairKeys = new Set();
+        const directedRepairKindCounts = {};
+        const maximumDirectedRepairs = Math.max(
+          0,
+          Math.floor(Number(adaptiveSuffixDirectedRepairLimit)),
+        );
+        for (const candidate of selectedFailureCandidates) {
+          if (directedRepairs.length >= maximumDirectedRepairs) break;
+          if (candidate.attempt.failureIndex >= nextEndIndex) continue;
+          for (const repair of lianyingSuffixFailureRepairAxes(
+            candidate.packs,
+            candidate.attempt,
+            {
+              lookBehindRows: adaptiveSuffixDirectedRepairLookBehindRows,
+              lookAheadRows: adaptiveSuffixDirectedRepairLookAheadRows,
+              limit: maximumDirectedRepairs - directedRepairs.length,
+            },
+          )) {
+            const key = JSON.stringify(repair.packs);
+            if (directedRepairKeys.has(key)) continue;
+            directedRepairKeys.add(key);
+            directedRepairs.push(repair);
+            directedRepairKindCounts[repair.kind] =
+              Number(directedRepairKindCounts[repair.kind] ?? 0) + 1;
+            if (directedRepairs.length >= maximumDirectedRepairs) break;
+          }
+        }
+        adaptiveAttempts.at(-1).directedRepairWarmStarts = directedRepairs.length;
+        adaptiveAttempts.at(-1).directedRepairKindCounts = directedRepairKindCounts;
         adaptiveWarmAxes = [
           ...additionalWarmAxes,
           ...selectedFailureWarmAxes,
+          ...directedRepairs.map((repair) => repair.packs),
         ];
         if (typeof onProgress === "function") {
           onProgress({
@@ -981,7 +1873,11 @@ export function optimizeLianyingSegmentResynthesis(
             previousEndRow: currentSegment.endIndex,
             nextEndRow: nextEndIndex,
             firstFailureRow: adaptiveAttempts.at(-1).firstFailureRow,
+            selectedFailureRows: adaptiveAttempts.at(-1).selectedFailureRows,
+            failureChainCount: adaptiveAttempts.at(-1).failureChains.length,
             failureWarmStartCount: selectedFailureWarmAxes.length,
+            directedRepairWarmStartCount: directedRepairs.length,
+            directedRepairKindCounts,
           });
         }
         currentSegment = {
@@ -999,6 +1895,10 @@ export function optimizeLianyingSegmentResynthesis(
         legal,
         peakStates,
         finalists,
+        baselineFinalists,
+        valueShadowFinalists,
+        valueShadowLayers,
+        valueShadowSelections,
         warmStartCount,
         terminalThunderLineages: [...terminalThunderLineages.values()],
         suffixLegal,
@@ -1019,10 +1919,65 @@ export function optimizeLianyingSegmentResynthesis(
       }
     }
 
-    const selectedCoarseCandidates = selectCoarseCandidates(
-      coreCandidates,
-      coarseCandidateLimit,
-    );
+    if (collectDiverseCandidates) {
+      diverseCandidatePool.push(...coreCandidates.map((candidate) => ({
+        ...candidate,
+        sourcePass: pass + 1,
+      })));
+    }
+
+    const pinnedWarmCandidates = [];
+    const pinnedWarmKeys = new Set();
+    if (pinAdditionalWarmAxes) {
+      for (const [warmIndex, warmAxis] of additionalWarmAxes.entries()) {
+        if (!Array.isArray(warmAxis) || warmAxis.length !== corePacks.length) continue;
+        const warmPacks = warmAxis.map(clonePack);
+        const warmCore = stripDashPacks(warmPacks);
+        if (
+          excludedCorePackKeySet.has(JSON.stringify(warmCore)) ||
+          excludedCoreStructureKeySet.has(lianyingCoreStructureKey(
+            warmCore,
+            { ignoredActionIds: coreStructureIgnoredActionIds },
+          ))
+        ) continue;
+        const key = JSON.stringify(warmPacks);
+        if (pinnedWarmKeys.has(key)) continue;
+        try {
+          const replay = replayWhitepaperLianying(runtime, warmPacks, {
+            durationSeconds,
+          });
+          const coreReplay = replayWhitepaperLianying(runtime, warmCore, {
+            durationSeconds,
+          });
+          pinnedWarmKeys.add(key);
+          pinnedWarmCandidates.push({
+            segmentId: `warm-axis-${warmIndex + 1}`,
+            segment: null,
+            packs: warmPacks,
+            state: replay.state,
+            totalDamage: replay.state.totalDamage,
+            coreDamage: coreReplay.state.totalDamage,
+            coreDamageGain:
+              coreReplay.state.totalDamage - coreBaseline.state.totalDamage,
+            behaviorKey: lianyingCoreBehaviorKey(coreReplay.state),
+            thunderRows: thunderRows(warmCore),
+            dashCount: replay.state.timeline.filter(
+              (event) => event.type === "offGcd" && event.action === "dash",
+            ).length,
+            pinnedWarmAxis: true,
+          });
+        } catch {
+          // 非法完整热启动不进入钉住候选；逐层热启动仍保留原有诊断。
+        }
+      }
+    }
+    const selectedCoarseCandidates = [
+      ...selectCoarseCandidates(
+        coreCandidates,
+        coarseCandidateLimit,
+      ),
+      ...pinnedWarmCandidates,
+    ];
     const coarseCandidates = selectedCoarseCandidates.map((candidate, index) => {
       if (typeof onProgress === "function") {
         onProgress({
@@ -1033,14 +1988,19 @@ export function optimizeLianyingSegmentResynthesis(
           segmentId: candidate.segmentId,
         });
       }
-      if (candidate.segmentId === "incumbent") {
+      if (candidate.segmentId === "incumbent" || candidate.pinnedWarmAxis) {
         return {
           ...candidate,
-          packs: incumbentPacks,
-          totalDamage: incumbent.state.totalDamage,
-          dashCount: incumbent.state.timeline.filter(
-            (event) => event.type === "offGcd" && event.action === "dash",
-          ).length,
+          packs: candidate.pinnedWarmAxis ? candidate.packs : incumbentPacks,
+          state: candidate.pinnedWarmAxis ? candidate.state : incumbent.state,
+          totalDamage: candidate.pinnedWarmAxis
+            ? candidate.totalDamage
+            : incumbent.state.totalDamage,
+          dashCount: candidate.pinnedWarmAxis
+            ? candidate.dashCount
+            : incumbent.state.timeline.filter(
+              (event) => event.type === "offGcd" && event.action === "dash",
+            ).length,
           coarseBaseline: true,
         };
       }
@@ -1070,8 +2030,11 @@ export function optimizeLianyingSegmentResynthesis(
             segmentId: candidate.segmentId,
           });
         }
-        if (candidate.segmentId === "incumbent") {
-          return { ...candidate, state: incumbent.state };
+        if (candidate.segmentId === "incumbent" || candidate.pinnedWarmAxis) {
+          return {
+            ...candidate,
+            state: candidate.pinnedWarmAxis ? candidate.state : incumbent.state,
+          };
         }
         const dash = optimizeLianyingDashOverlay(runtime, candidate.packs, {
           durationSeconds,
@@ -1087,19 +2050,29 @@ export function optimizeLianyingSegmentResynthesis(
       })
       .sort((left, right) => right.totalDamage - left.totalDamage);
     const best = finalCandidates[0];
+    const valueShadowCoreCandidates = coreCandidates.filter(
+      (candidate) => candidate.valueShadow === true);
     const passReport = {
       pass: pass + 1,
       anchors: identified.anchors.map((index) => index + 1),
       segments: segmentReports,
       coreCandidates: coreCandidates.length,
+      valueShadowCoreCandidates: valueShadowCoreCandidates.length,
+      bestValueShadowCoreDamage: valueShadowCoreCandidates.length > 0
+        ? Math.max(...valueShadowCoreCandidates.map(
+          (candidate) => candidate.coreDamage))
+        : null,
       coarseCandidates: coarseCandidates.map((candidate) => ({
         segmentId: candidate.segmentId,
         coreDamageGain: candidate.coreDamageGain,
         totalDamage: candidate.totalDamage,
         dashCount: candidate.dashCount,
+        valueShadow: candidate.valueShadow === true,
+        pinnedWarmAxis: candidate.pinnedWarmAxis === true,
         thunderRows: candidate.thunderRows ?? thunderRows(candidate.packs),
       })),
       bestSegmentId: best?.segmentId ?? null,
+      pinnedWarmAxisCount: pinnedWarmCandidates.length,
       damageGain: best ? best.totalDamage - incumbent.state.totalDamage : 0,
     };
     passes.push(passReport);
@@ -1131,13 +2104,67 @@ export function optimizeLianyingSegmentResynthesis(
       preserveThunderPositions,
       thunderPositionWindows,
       additionalWarmAxisCount: additionalWarmAxes.length,
+      pinAdditionalWarmAxes,
       excludedCorePackKeys: [...excludedCorePackKeySet],
+      excludedCoreStructureKeys: [...excludedCoreStructureKeySet],
+      coreStructureIgnoredActionIds: [...coreStructureIgnoredActionIds],
       adaptiveSuffixRepair,
       adaptiveSuffixMaxExpansions,
       adaptiveSuffixLookaheadRows,
       adaptiveSuffixMaximumAddedRows,
       adaptiveSuffixPreferDriftedLineages,
       adaptiveSuffixWarmFailureLimit,
+      adaptiveSuffixFailureChainLimit,
+      adaptiveSuffixFailureRowBucketSize,
+      adaptiveSuffixDirectedRepairLimit,
+      adaptiveSuffixDirectedRepairLookBehindRows,
+      adaptiveSuffixDirectedRepairLookAheadRows,
+      collectValueTrainingData,
+      collectPruningValueData,
+      pruningValueBaselineRankLimit,
+      valueShadowPolicy: valueShadowPolicy
+        ? {
+            enabled: valueShadowPolicy.enabled === true,
+            baselineQuota: Number(valueShadowPolicy.baselineQuota ?? 5),
+            valueQuota: Number(valueShadowPolicy.valueQuota ?? 1),
+            valueWeight: Number(valueShadowPolicy.valueWeight ?? 1),
+            maximumBaselineRank: Number(valueShadowPolicy.maximumBaselineRank),
+            modelKind: valueShadowPolicy.model?.kind ?? null,
+            modelTrainingRows: valueShadowPolicy.model?.trainingRows ?? null,
+          }
+        : null,
+      collectDiverseCandidates,
+      diverseCandidateLimit,
+      diverseCandidateMaximumLossRatio,
     },
+    diverseCandidates: collectDiverseCandidates
+      ? selectLianyingDiverseAxisCandidates(diverseCandidatePool, {
+        referencePacks: packs,
+        limit: diverseCandidateLimit,
+        maximumLossRatio: diverseCandidateMaximumLossRatio,
+      })
+      : [],
+    valueTraining: collectValueTrainingData
+      ? {
+          rows: valueTrainingRows,
+          summary: {
+            traceCount: valueTrainingTraceCount,
+            outcomeCount: valueTrainingOutcomeCount,
+            rowCount: valueTrainingRows.length,
+          },
+        }
+      : null,
+    pruningValue: collectPruningValueData
+      ? {
+          rows: pruningValueRows,
+          summary: {
+            traceCount: pruningValueTraceCount,
+            outcomeCount: pruningValueLegalProbeCount,
+            probeCount: pruningValueProbeCount,
+            legalProbeCount: pruningValueLegalProbeCount,
+            rowCount: pruningValueRows.length,
+          },
+        }
+      : null,
   };
 }

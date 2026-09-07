@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveLianyingResearchPath } from "../src/config/lianying-research-defaults.js";
 import { analyzeLianyingStructure } from "../src/reports/lianying-structure-analysis.js";
 import { loadDefaultGearRuntime } from "../src/config/gear-template.js";
 import {
@@ -9,10 +10,7 @@ import {
 } from "../src/reports/lianying-model-sensitivity.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const inputPath = path.resolve(
-  process.argv[2] ??
-    path.join(projectRoot, "output/lianying-free-fixed-180s-best.json"),
-);
+const inputPath = resolveLianyingResearchPath(projectRoot, process.argv[2]);
 const parsed = path.parse(inputPath);
 const outputPath = path.resolve(
   process.argv[3] ?? path.join(parsed.dir, `${parsed.name}-structure.json`),
