@@ -130,4 +130,3 @@ console.log(JSON.stringify({
   acceptedAsFormal: formalGain > 0,
   passes: optimized.passes,
 }, null, 2));
-
